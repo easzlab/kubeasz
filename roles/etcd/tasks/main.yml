@@ -1,0 +1,38 @@
+- name: 下载etcd二进制文件
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - etcd
+  - etcdctl
+
+- name: 创建etcd证书目录
+  file: name=/etc/etcd/ssl state=directory
+
+- name: 创建etcd证书请求
+  template: src=etcd-csr.json.j2 dest=/etc/etcd/ssl/etcd-csr.json
+
+- name: 创建 etcd证书和私钥
+  shell: "cd /etc/etcd/ssl && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd"
+
+- name: 复制ectd相关证书生成calico secrets使用
+  shell: "cd /etc/etcd/ssl && \
+	cp etcd.pem etcd-key.pem {{ base_dir }}/roles/calico/files/"
+  when: NODE_NAME is defined and NODE_NAME == "etcd1"
+
+- name: 创建etcd工作目录
+  file: name=/var/lib/etcd state=directory
+
+- name: 创建etcd的systemd unit文件
+  template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: enable-etcd
+  shell: systemctl enable etcd
+
+- name: 重启etcd服务
+  shell: systemctl restart etcd

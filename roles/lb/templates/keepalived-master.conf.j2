@@ -1,0 +1,24 @@
+global_defs {
+    router_id {{ LB_NAME }}
+}
+
+vrrp_script check-haproxy {
+    script "killall -0 haproxy"
+    interval 5
+    weight -30
+}
+
+vrrp_instance VI-kube-master {
+    state MASTER
+    priority 120
+    dont_track_primary
+    interface {{ LB_IF }}
+    virtual_router_id 51
+    advert_int 3
+    track_script {
+        check-haproxy
+    }
+    virtual_ipaddress {
+        {{ MASTER_IP }}
+    }
+}

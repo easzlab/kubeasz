@@ -1,0 +1,24 @@
+global
+        log /dev/log    local0
+        log /dev/log    local1 notice
+        chroot /var/lib/haproxy
+        stats socket /run/haproxy/admin.sock mode 660 level admin
+        stats timeout 30s
+        user haproxy
+        group haproxy
+        daemon
+        nbproc 1
+
+defaults
+        log     global
+        timeout connect 5000
+        timeout client  50000
+        timeout server  50000
+
+listen kube-master
+        bind 0.0.0.0:{{ MASTER_PORT }}
+        mode tcp
+        option tcplog
+        balance source
+        server s1 {{ LB_EP1 }}  check inter 10000 fall 2 rise 2 weight 1
+        server s2 {{ LB_EP2 }}  check inter 10000 fall 2 rise 2 weight 1

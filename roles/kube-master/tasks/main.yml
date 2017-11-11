@@ -1,0 +1,55 @@
+- name: 下载 kube-master 二进制
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - kube-apiserver
+  - kube-controller-manager
+  - kube-scheduler
+  - kubectl
+  - kube-proxy
+  - kubelet
+
+- name: 创建 kubernetes 证书签名请求
+  template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
+
+- name: 创建 kubernetes 证书和私钥
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
+
+- name: 创建 token.csv
+  template: src=token.csv.j2 dest={{ ca_dir }}/token.csv
+
+- name: 创建 basic-auth.csv
+  template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
+
+- name: 创建kube-apiserver的systemd unit文件
+  template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
+
+- name: 创建kube-controller-manager的systemd unit文件
+  template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service
+
+- name: 创建kube-scheduler的systemd unit文件
+  template: src=kube-scheduler.service.j2 dest=/etc/systemd/system/kube-scheduler.service
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: enable-kube-apiserver
+  shell: systemctl enable kube-apiserver
+
+- name: enable-kube-controller-manager
+  shell: systemctl enable kube-controller-manager
+
+- name: enable-kube-scheduler
+  shell: systemctl enable kube-scheduler
+
+- name: start-kube-apiserver
+  shell: systemctl restart kube-apiserver
+
+- name: start-kube-controller-manager
+  shell: systemctl restart kube-controller-manager
+
+- name: start-kube-scheduler
+  shell: systemctl restart kube-scheduler

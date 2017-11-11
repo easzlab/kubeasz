@@ -1,0 +1,106 @@
+##----------kubelet 配置部分--------------
+- name: 下载 kubelet和kube-proxy 二进制
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - kubelet
+  - kube-proxy
+
+# kubelet 启动时向 kube-apiserver 发送 TLS bootstrapping 请求，需要绑定该角色
+# 只需单节点执行一次，重复执行的报错可以忽略
+- name: kubelet-bootstrap-setting
+  shell: "{{ bin_dir }}/kubectl create clusterrolebinding kubelet-bootstrap \
+        --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
+  when: NODE_ID is defined and NODE_ID == "node1"
+  ignore_errors: true
+
+#创建bootstrap.kubeconfig配置文件
+- name: 设置集群参数
+  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
+        --certificate-authority={{ ca_dir }}/ca.pem \
+        --embed-certs=true \
+        --server={{ KUBE_APISERVER }} \
+        --kubeconfig=bootstrap.kubeconfig"
+- name: 设置客户端认证参数
+  shell: "{{ bin_dir }}/kubectl config set-credentials kubelet-bootstrap \
+        --token={{ BOOTSTRAP_TOKEN }} \
+        --kubeconfig=bootstrap.kubeconfig"
+- name: 设置上下文参数
+  shell: "{{ bin_dir }}/kubectl config set-context default \
+	--cluster=kubernetes \
+	--user=kubelet-bootstrap \
+	--kubeconfig=bootstrap.kubeconfig"
+- name: 选择默认上下文
+  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig=bootstrap.kubeconfig"
+
+- name: 安装bootstrap.kubeconfig配置文件
+  shell: "mv $HOME/bootstrap.kubeconfig /etc/kubernetes/bootstrap.kubeconfig"
+
+- name: 创建kubelet的工作目录
+  file: name=/var/lib/kubelet state=directory
+
+- name: 创建kubelet的systemd unit文件
+  template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: enable-kubelet
+  shell: systemctl enable kubelet
+
+- name: start-kubelet
+  shell: systemctl restart kubelet
+
+- name: approve-kubelet-csr
+  shell: "{{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
+  when: NODE_ID is defined and NODE_ID == "node1"
+  ignore_errors: true
+
+##-------kube-proxy部分----------------
+- name: 准备kube-proxy 证书签名请求
+  template: src=kube-proxy-csr.json.j2 dest={{ ca_dir }}/kube-proxy-csr.json
+
+- name: 创建 kube-proxy证书与私钥
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes kube-proxy-csr.json | {{ bin_dir }}/cfssljson -bare kube-proxy"
+
+#创建kube-proxy.kubeconfig配置文件
+- name: 设置集群参数
+  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
+        --certificate-authority={{ ca_dir }}/ca.pem \
+        --embed-certs=true \
+        --server={{ KUBE_APISERVER }} \
+        --kubeconfig=kube-proxy.kubeconfig"
+- name: 设置客户端认证参数
+  shell: "{{ bin_dir }}/kubectl config set-credentials kube-proxy \
+	--client-certificate={{ ca_dir }}/kube-proxy.pem \
+	--client-key={{ ca_dir }}/kube-proxy-key.pem \
+        --embed-certs=true \
+        --kubeconfig=kube-proxy.kubeconfig"
+- name: 设置上下文参数
+  shell: "{{ bin_dir }}/kubectl config set-context default \
+        --cluster=kubernetes \
+        --user=kube-proxy \
+        --kubeconfig=kube-proxy.kubeconfig"
+- name: 选择默认上下文
+  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig"
+
+- name: 安装kube-proxy.kubeconfig配置文件
+  shell: "mv $HOME/kube-proxy.kubeconfig /etc/kubernetes/kube-proxy.kubeconfig"
+
+- name: 创建kube-proxy的工作目录
+  file: name=/var/lib/kube-proxy state=directory
+
+- name: 创建kube-proxy的systemd unit文件
+  template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: enable-kube-proxy
+  shell: systemctl enable kube-proxy
+
+- name: start-kube-proxy
+  shell: systemctl restart kube-proxy

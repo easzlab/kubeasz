@@ -1,0 +1,4 @@
+- hosts: kube-node
+  gather_facts: False
+  roles:
+  - kube-node

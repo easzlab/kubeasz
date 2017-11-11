@@ -1,0 +1,15 @@
+global_defs {
+    router_id {{ LB_NAME }}
+}
+
+vrrp_instance VI-kube-master {
+    state BACKUP
+    priority 110
+    dont_track_primary
+    interface {{ LB_IF }}
+    virtual_router_id 51
+    advert_int 3
+    virtual_ipaddress {
+        {{ MASTER_IP }}
+    }
+}

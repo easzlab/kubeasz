@@ -1,0 +1,34 @@
+- hosts: kube-cluster
+  gather_facts: False
+  roles:
+  - prepare
+
+- hosts: etcd
+  gather_facts: False
+  roles:
+  - etcd
+
+- hosts: kube-cluster
+  gather_facts: False
+  roles:
+  - kubectl
+
+- hosts: kube-cluster
+  gather_facts: False
+  roles:
+  - docker
+
+- hosts: kube-cluster
+  gather_facts: False
+  roles:
+  - calico
+
+- hosts: kube-master
+  gather_facts: False
+  roles:
+  - kube-master
+
+- hosts: kube-node
+  gather_facts: False
+  roles:
+  - kube-node

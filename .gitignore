@@ -1,0 +1,8 @@
+down/*
+!down/download.sh
+bin/
+ansible.cfg
+hosts
+*.crt
+*.pem
+roles/prepare/files/ca*

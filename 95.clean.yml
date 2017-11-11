@@ -1,0 +1,79 @@
+- hosts: kube-node
+  gather_facts: False
+  tasks:
+  - name: stop kube-node service
+    shell: "systemctl stop kubelet kube-proxy calico-node docker"
+    ignore_errors: true
+
+  - name: umount kubelet 挂载的目录
+    shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount"
+    ignore_errors: true
+
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/var/lib/kubelet/"
+    - "/var/lib/docker/"
+    - "/var/run/docker/"
+    - "/etc/kubernetes/"
+    - "/etc/systemd/system/kubelet.service"
+    - "/etc/systemd/system/docker.service"
+    - "/etc/systemd/system/kube-proxy.service"
+    - "/etc/systemd/system/calico-node.service"
+   # - "/root/local/bin/"
+
+  - name: 清理 iptables
+    shell: iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat
+
+  - name: 清理网络
+    shell: "ip link del docker0; ip link del tunl0"
+    ignore_errors: true
+
+- hosts: kube-master
+  gather_facts: False
+  tasks:
+  - name: stop kube-master service
+    shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler calico-node"
+    ignore_errors: true
+
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/var/run/kubernetes"
+    - "/etc/systemd/system/kube-apiserver.service"
+    - "/etc/systemd/system/kube-controller-manager.service"
+    - "/etc/systemd/system/kube-scheduler.service"
+    - "/etc/kubernetes/"
+
+- hosts: etcd
+  gather_facts: False
+  tasks:
+  - name: stop etcd service
+    shell: systemctl stop etcd
+    ignore_errors: true
+
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/var/lib/etcd"
+    - "/etc/etcd/"
+    - "/etc/systemd/system/etcd.service"
+
+- hosts: lb
+  gather_facts: False
+  tasks:
+  - name: stop keepalived service
+    shell: systemctl disable keepalived && systemctl stop keepalived
+    ignore_errors: true
+
+  - name: stop haproxy service
+    shell: systemctl disable haproxy && systemctl stop haproxy
+    ignore_errors: true
+
+  - name: 清理LB 配置文件目录
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/haproxy"
+    - "/etc/keepalived"
+    ignore_errors: true
+

@@ -1,0 +1,34 @@
+- name: 创建calico证书目录
+  file: name=/etc/calico/ssl state=directory
+
+- name: 复制CA 证书和etcd 证书
+  copy: src={{ item }} dest=/etc/calico/ssl/{{ item }}
+  with_items:
+  - ca.pem
+  - etcd.pem
+  - etcd-key.pem
+
+- name: 创建 calico 的 systemd unit 文件
+  template: src=calico-node.service.j2 dest=/etc/systemd/system/calico-node.service
+
+- name: daemon-reload
+  shell: systemctl daemon-reload
+
+- name: enable-calico
+  shell: systemctl enable calico-node
+
+- name: 重新启动calico
+  shell: systemctl restart calico-node
+
+- name: 下载calico cni plugins
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - calico
+  - calico-ipam
+  - loopback
+
+- name: 创建cni config 目录
+  file: name=/etc/cni/net.d state=directory
+
+- name: 准备 cni配置文件
+  template: src=cni-calico.conf.j2 dest=/etc/cni/net.d/10-calico.conf
