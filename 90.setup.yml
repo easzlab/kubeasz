@@ -1,39 +1,32 @@
 # 在deploy节点生成CA相关证书，以供整个集群使用
 - hosts: deploy
-  gather_facts: False
   roles:
   - ca
 
 # 集群节点的公共配置任务
 - hosts: kube-cluster
-  gather_facts: False
   roles:
   - prepare
 
 # 可选，多master部署时的负载均衡配置
 - hosts: lb
-  gather_facts: False
   roles:
   - lb
 
 - hosts: etcd
-  gather_facts: False
   roles:
   - etcd
 
 - hosts: kube-cluster
-  gather_facts: False
   roles:
   - kubectl
   - docker
   - calico
 
 - hosts: kube-master
-  gather_facts: False
   roles:
   - kube-master
 
 - hosts: kube-node
-  gather_facts: False
   roles:
   - kube-node

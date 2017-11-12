@@ -1,4 +1,3 @@
 - hosts: kube-master
-  gather_facts: False
   roles:
   - kube-master

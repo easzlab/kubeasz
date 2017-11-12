@@ -1,5 +1,4 @@
 - hosts: kube-cluster
-  gather_facts: False
   tasks:
   - name: stop calico-node service
     shell: "systemctl stop calico-node docker"
@@ -33,7 +32,6 @@
     ignore_errors: true
 
 - hosts: kube-node
-  gather_facts: False
   tasks:
   - name: stop kube-node service
     shell: "systemctl stop kubelet kube-proxy"
@@ -53,7 +51,6 @@
    # - "/root/local/bin/"
 
 - hosts: kube-master
-  gather_facts: False
   tasks:
   - name: stop kube-master service
     shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler"
@@ -69,7 +66,6 @@
     - "/etc/kubernetes/"
 
 - hosts: etcd
-  gather_facts: False
   tasks:
   - name: stop etcd service
     shell: systemctl stop etcd
@@ -83,7 +79,6 @@
     - "/etc/systemd/system/etcd.service"
 
 - hosts: lb
-  gather_facts: False
   tasks:
   - name: stop keepalived service
     shell: systemctl disable keepalived && systemctl stop keepalived
