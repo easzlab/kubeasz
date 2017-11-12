@@ -1,0 +1,60 @@
+# Calico Version v2.6.2
+# https://docs.projectcalico.org/v2.6/releases#v2.6.2
+# This manifest includes the following component versions:
+#   calico/kube-controllers:v1.0.0
+
+# Create this manifest using kubectl to deploy
+# the Calico Kubernetes controllers.
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+  labels:
+    k8s-app: calico-kube-controllers
+spec:
+  # Only a single instance of the this pod should be
+  # active at a time.  Since this pod is run as a Deployment,
+  # Kubernetes will ensure the pod is recreated in case of failure,
+  # removing the need for passive backups.
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: calico-kube-controllers
+      namespace: kube-system
+      labels:
+        k8s-app: calico-kube-controllers
+    spec:
+      hostNetwork: true
+      serviceAccountName: calico-kube-controllers
+      containers:
+        - name: calico-kube-controllers
+          #image: quay.io/calico/kube-controllers:v1.0.0
+          image: calico/kube-controllers:v1.0.0
+          env:
+            # Configure the location of your etcd cluster.
+            - name: ETCD_ENDPOINTS
+              value: "{{ ETCD_ENDPOINTS }}"
+            # Location of the CA certificate for etcd.
+            - name: ETCD_CA_CERT_FILE
+              value: "/calico-secrets/ca.pem"
+            # Location of the client key for etcd.
+            - name: ETCD_KEY_FILE
+              value: "/calico-secrets/etcd-key.pem"
+            # Location of the client certificate for etcd.
+            - name: ETCD_CERT_FILE
+              value: "/calico-secrets/etcd.pem"
+          volumeMounts:
+            # Mount in the etcd TLS secrets.
+            - mountPath: /calico-secrets
+              name: etcd-certs
+      volumes:
+        # Mount in the etcd TLS secrets.
+        - name: etcd-certs
+          hostPath:
+            path: /etc/calico/ssl
+
+---
+
