@@ -1,10 +1,9 @@
 #!/bin/bash
 #主要组件版本如下
-export K8S_VER=v1.7.7
+export K8S_VER=v1.7.6
 export ETCD_VER=v3.2.8
-export FLANNEL_VER=v0.9.0
 export DOCKER_VER=17.09.0-ce
-export CALICO_VER=v1.6.1
+export CALICO_VER=v1.6.2
 
 echo "\n----download k8s binary at:"
 echo https://dl.k8s.io/${K8S_VER}/kubernetes-server-linux-amd64.tar.gz
@@ -12,9 +11,6 @@ echo https://dl.k8s.io/${K8S_VER}/kubernetes-server-linux-amd64.tar.gz
 echo "\n----download etcd binary at:"
 echo https://github.com/coreos/etcd/releases/download/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz
 echo https://storage.googleapis.com/etcd/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz
-
-echo "\n----download flannel binary at:"
-echo https://github.com/coreos/flannel/releases/download/${FLANNEL_VER}/flannel-${FLANNEL_VER}-linux-amd64.tar.gz
 
 echo "\n----download calicoctl binary at:"
 echo https://github.com/projectcalico/calicoctl/releases/download/${CALICO_VER}/calicoctl

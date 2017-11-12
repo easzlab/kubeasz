@@ -1,8 +1,34 @@
+- hosts: kube-cluster
+  gather_facts: False
+  tasks:
+  - name: stop calico-node service
+    shell: "systemctl stop calico-node docker"
+    ignore_errors: true
+
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/cni/"
+    - "/etc/calico/ssl/"
+    - "/var/run/calico/"
+    - "/var/log/calico/"
+    - "/var/lib/docker/"
+    - "/var/run/docker/"
+    - "/etc/systemd/system/calico-node.service"
+    - "/etc/systemd/system/docker.service"
+
+  - name: 清理 iptables
+    shell: iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat
+
+  - name: 清理网络
+    shell: "ip link del docker0; ip link del tunl0"
+    ignore_errors: true
+
 - hosts: kube-node
   gather_facts: False
   tasks:
   - name: stop kube-node service
-    shell: "systemctl stop kubelet kube-proxy calico-node docker"
+    shell: "systemctl stop kubelet kube-proxy"
     ignore_errors: true
 
   - name: umount kubelet 挂载的目录
@@ -13,27 +39,16 @@
     file: name={{ item }} state=absent
     with_items:
     - "/var/lib/kubelet/"
-    - "/var/lib/docker/"
-    - "/var/run/docker/"
     - "/etc/kubernetes/"
     - "/etc/systemd/system/kubelet.service"
-    - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/kube-proxy.service"
-    - "/etc/systemd/system/calico-node.service"
    # - "/root/local/bin/"
-
-  - name: 清理 iptables
-    shell: iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat
-
-  - name: 清理网络
-    shell: "ip link del docker0; ip link del tunl0"
-    ignore_errors: true
 
 - hosts: kube-master
   gather_facts: False
   tasks:
   - name: stop kube-master service
-    shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler calico-node"
+    shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler"
     ignore_errors: true
 
   - name: 清理目录和文件
