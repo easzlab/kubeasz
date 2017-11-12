@@ -22,8 +22,6 @@ ExecStart={{ bin_dir }}/kubelet \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
   --hairpin-mode promiscuous-bridge \
   --allow-privileged=true \
-  --fail-swap-on=false
-  --serialize-image-pulls=false \
   --logtostderr=true \
   --v=2
 #kubelet cAdvisor 默认在所有接口监听 4194 端口的请求, 以下iptables限制内网访问

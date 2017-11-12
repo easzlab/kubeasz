@@ -5,6 +5,14 @@
     shell: "systemctl stop calico-node docker"
     ignore_errors: true
 
+  # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
+  # 卸载 /var/run/docker/netns/default
+  - name: 卸载docker 相关fs1
+    mount: path=/var/run/docker/netns/default state=unmounted
+
+  - name: 卸载docker 相关fs2
+    mount: path=/var/lib/docker/overlay state=unmounted
+
   - name: 清理目录和文件
     file: name={{ item }} state=absent
     with_items:
