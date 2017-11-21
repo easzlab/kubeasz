@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test
+spec:
+  rules:
+  - host: k8s.test.tf56
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: test-hello
+          servicePort: 80
+      - path: /site
+        backend:
+          serviceName: test-site
+          servicePort: 80
