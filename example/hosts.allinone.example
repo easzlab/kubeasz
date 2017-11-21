@@ -2,12 +2,13 @@
 [deploy]
 192.168.1.1
 
-#etcd集群请提供如下NODE_NAME、NODE_IP变量
+# etcd集群请提供如下NODE_NAME、NODE_IP变量
+# 请注意etcd集群必须是1,3,5,7...奇数个节点
 [etcd]
 192.168.1.1 NODE_NAME=etcd1 NODE_IP="192.168.1.1"
 
 [kube-master]
-192.168.1.1
+192.168.1.1 NODE_IP="192.168.1.1"
 
 #确保node节点有变量NODE_ID=node1
 [kube-node]
@@ -17,7 +18,7 @@
 kube-node
 kube-master
 
-[kube-cluster:vars]
+[all:vars]
 # ---------集群主要参数---------------
 #集群 MASTER IP
 MASTER_IP="192.168.1.1"
