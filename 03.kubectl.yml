@@ -1,3 +1,5 @@
-- hosts: kube-cluster
+- hosts: 
+  - kube-cluster
+  - lb
   roles:
   - kubectl

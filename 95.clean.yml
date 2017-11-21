@@ -28,7 +28,7 @@
     shell: iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat
 
   - name: 清理网络
-    shell: "ip link del docker0; ip link del tunl0"
+    shell: "ip link del docker0; ip link del tunl0; systemctl restart networking"
     ignore_errors: true
 
 - hosts: kube-node

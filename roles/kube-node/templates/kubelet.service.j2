@@ -13,7 +13,6 @@ ExecStart={{ bin_dir }}/kubelet \
   --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.0 \
   --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  --require-kubeconfig \
   --cert-dir={{ ca_dir }} \
   --network-plugin=cni \
   --cni-conf-dir=/etc/cni/net.d \
@@ -22,6 +21,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
   --hairpin-mode promiscuous-bridge \
   --allow-privileged=true \
+  --fail-swap-on=false \
   --logtostderr=true \
   --v=2
 #kubelet cAdvisor 默认在所有接口监听 4194 端口的请求, 以下iptables限制内网访问

@@ -4,11 +4,14 @@
   - ca
 
 # 集群节点的公共配置任务
-- hosts: kube-cluster
+- hosts:
+  - kube-cluster
+  - etcd
+  - lb
   roles:
   - prepare
 
-# 可选，多master部署时的负载均衡配置
+# [可选]多master部署时的负载均衡配置
 - hosts: lb
   roles:
   - lb
