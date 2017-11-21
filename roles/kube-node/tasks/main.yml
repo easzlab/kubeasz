@@ -51,7 +51,7 @@
   shell: systemctl restart kubelet
 
 - name: approve-kubelet-csr
-  shell: "{{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
+  shell: "sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
   when: NODE_ID is defined and NODE_ID == "node1"
   ignore_errors: true
 

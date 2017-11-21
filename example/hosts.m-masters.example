@@ -17,14 +17,14 @@
 # 负载均衡至少两个节点，安装 haproxy+keepalived
 # 根据master节点数量同步修改roles/lb/templates/haproxy.cfg.j2 
 [lb]
-192.168.1.31 LB_IF="ens3" LB_ROLE=backup
-192.168.1.61 LB_IF="ens3" LB_ROLE=master
+192.168.1.31 LB_IF="eth0" LB_ROLE=backup
+192.168.1.61 LB_IF="eth0" LB_ROLE=master
 [lb:vars]
 LB_EP1="192.168.1.34:6443"	# api-server 实际成员地址端口
 LB_EP2="192.168.1.35:6443"	# api-server 实际成员地址端口
 LB_EP3="192.168.1.63:6443"	# api-server 实际成员地址端口
 MASTER_IP="192.168.1.30"  	# api-server 虚地址
-MASTER_PORT="6443"		# api-server 服务端口
+MASTER_PORT="8443"		# api-server 服务端口
 
 #确保node节点有变量NODE_ID=node1
 [kube-node]
@@ -42,7 +42,7 @@ kube-master
 # ---------集群主要参数---------------
 #集群 MASTER IP, 需要外部负载均衡，一般为VIP地址
 MASTER_IP="192.168.1.30"
-KUBE_APISERVER="https://192.168.1.30:6443"
+KUBE_APISERVER="https://192.168.1.30:8443"
 
 #TLS Bootstrapping 使用的 Token，使用 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
 BOOTSTRAP_TOKEN="c30302226d4b810e08731702d3890f50"
