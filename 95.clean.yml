@@ -16,7 +16,7 @@
     file: name={{ item }} state=absent
     with_items:
     - "/etc/cni/"
-    - "/etc/calico/ssl/"
+    - "/etc/calico/"
     - "/var/run/calico/"
     - "/var/log/calico/"
     - "/var/lib/docker/"

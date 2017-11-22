@@ -15,7 +15,7 @@ ExecStart={{ bin_dir }}/docker run --net=host --privileged --name=calico-node \
   -e CALICO_NETWORKING_BACKEND=bird \
   -e CALICO_DISABLE_FILE_LOGGING=true \
   -e CALICO_IPV4POOL_CIDR={{ CLUSTER_CIDR }} \
-  -e CALICO_IPV4POOL_IPIP=always \
+  -e CALICO_IPV4POOL_IPIP=off \
   -e FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT \
   -e FELIX_IPV6SUPPORT=false \
   -e FELIX_LOGSEVERITYSCREEN=info \
