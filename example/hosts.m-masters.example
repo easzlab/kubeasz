@@ -38,6 +38,11 @@ MASTER_PORT="8443"		# api-server 服务端口
 kube-node
 kube-master
 
+# 预留组，后续添加node节点使用
+[new-node]
+#192.168.1.xx NODE_ID=node6 NODE_IP="192.168.1.xx"
+#192.168.1.xx NODE_ID=node7 NODE_IP="192.168.1.xx"
+
 [all:vars]
 # ---------集群主要参数---------------
 #集群 MASTER IP, 需要外部负载均衡，一般为VIP地址

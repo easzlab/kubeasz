@@ -1,0 +1,13 @@
+- hosts: new-node
+  roles:
+  - prepare
+  - kubectl
+  - docker
+  - calico
+  - kube-node
+
+- hosts: deploy
+  tasks:
+  - name: 批准新增node节点
+    shell: "sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
+    ignore_errors: true
