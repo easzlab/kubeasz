@@ -6,8 +6,8 @@
 # 集群节点的公共配置任务
 - hosts:
   - kube-cluster
+  - deploy
   - etcd
-  - lb
   roles:
   - prepare
 

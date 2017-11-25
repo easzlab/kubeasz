@@ -1,5 +1,5 @@
 - hosts: 
   - kube-cluster
-  - lb
+  - deploy
   roles:
   - kubectl
