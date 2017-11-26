@@ -2,27 +2,24 @@
 
 ![docker](./pics/docker.jpg) ![kube](./pics/kube.jpg) ![ansible](./pics/ansible.jpg)
 
-本文档记录自己实践部署高可用k8s集群的过程，利用ansible-playbook简化二进制方式部署过程。
+本系列文档致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项。**二进制方式部署优势：有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题**
 
-网上有很多类似shell脚本和ansible部署版本，要不看得太复杂，或者久未更新，所以这里自己造轮子吧。
+集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`
 
-二进制方式手动部署，将有助于理解系统各组件的交互原理和熟悉组建启动参数，进而能快速解决实际问题。
+文档基于`Ubuntu 16.04`，其他系统如`CentOS 7`需要读者自行替换部分命令；由于使用`ansible`经验有限和简化`ansible-playbook`脚本考虑，已经尽量避免高级特性和复杂逻辑。
 
-1. 建议阅读 [feisky.gitbooks](https://feisky.gitbooks.io/kubernetes/) 原理和部署章节。
-1. 建议阅读 [opsnull教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
+## 组件版本
 
-本文是按照上述文档，更新组件实践修饰而成，修改了部分安全特性。
-
-## 特性
-
-1. 截至2017-10-4 最新组件版本，参见[down版本](./down/download.sh) 文件。
-1. 因本人部署节点IP属于同一网段，使用flannel新后端[host-gw](https://github.com/coreos/flannel/blob/master/Documentation/backends.md) 提升部分性能。
+1. kubernetes	v1.8.4
+1. etcd		v3.2.10
+1. docker	17.09.0-ce
+1. calico/node	v2.6.2
 
 ## 快速指南
 
 以下为快速体验k8s集群的测试、开发环境--AllinOne部署，觉得比官方的minikube方便、简单很多。
 
-### 1.准备一台虚机(推荐内存3G，CPU 2，硬盘 30G以上)，安装Ubuntu16.04，配置基础网络、更新源、SSH登陆等。
+### 1.准备一台虚机(推荐内存3G，硬盘20G以上)，安装Ubuntu16.04，配置基础网络、更新源、SSH登陆等。
 ### 2.安装python2/git/python-pip/ansible
 ``` bash
 # 更新
@@ -80,3 +77,7 @@ kubectl get svc --all-namespaces # 可以查看所有集群服务状态
 1. 规划集群节点，完成ansible inventory文件[参考](hosts)
 1. 其他安装步骤同单节点安装
 
+1. 建议阅读 [feisky.gitbooks](https://feisky.gitbooks.io/kubernetes/) 原理和部署章节。
+1. 建议阅读 [opsnull教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
+
+[ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261)

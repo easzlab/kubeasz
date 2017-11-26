@@ -1,6 +1,7 @@
 down/*
 !down/download.sh
-bin/
+bin/*
+!bin/VERSION.md
 hosts
 *.crt
 *.pem
