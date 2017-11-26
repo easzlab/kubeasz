@@ -1,6 +1,9 @@
 
+- name: apt更新缓存刷新
+  apt: update_cache=yes cache_valid_time=72000
+
 - name: 安装 haproxy
-  shell: "apt-get update && apt-get install haproxy -y"
+  apt: name=haproxy state=latest
 
 - name: 创建haproxy配置目录
   file: name=/etc/haproxy state=directory
@@ -9,7 +12,7 @@
   template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
 
 - name: 安装 keepalived
-  shell: "apt-get install keepalived -y"
+  apt: name=keepalived state=latest
 
 - name: 创建keepalived配置目录
   file: name=/etc/keepalived state=directory

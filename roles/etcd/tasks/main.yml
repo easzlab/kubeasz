@@ -17,9 +17,18 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd"
 
-- name: 复制ectd相关证书生成calico secrets使用
-  shell: "cd /etc/etcd/ssl && \
-	cp etcd.pem etcd-key.pem {{ base_dir }}/roles/calico/files/"
+- name: 获取ectd.pem 供calico secrets使用
+  fetch:
+    src: /etc/etcd/ssl/etcd.pem
+    dest: /etc/ansible/roles/calico/files/
+    flat: yes
+  when: NODE_NAME is defined and NODE_NAME == "etcd1"
+
+- name: 获取ectd-key.pem 供calico secrets使用
+  fetch:
+    src: /etc/etcd/ssl/etcd-key.pem
+    dest: /etc/ansible/roles/calico/files/
+    flat: yes
   when: NODE_NAME is defined and NODE_NAME == "etcd1"
 
 - name: 创建etcd工作目录
