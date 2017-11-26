@@ -7,8 +7,9 @@
 
 # kubelet 启动时向 kube-apiserver 发送 TLS bootstrapping 请求，需要绑定该角色
 # 只需单节点执行一次，重复执行的报错可以忽略
+# 增加15s等待kube-apiserver正常工作
 - name: kubelet-bootstrap-setting
-  shell: "{{ bin_dir }}/kubectl create clusterrolebinding kubelet-bootstrap \
+  shell: "sleep 15 && {{ bin_dir }}/kubectl create clusterrolebinding kubelet-bootstrap \
         --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
   when: NODE_ID is defined and NODE_ID == "node1"
   ignore_errors: true
@@ -120,9 +121,10 @@
   template: src=calico-kube-controllers.yaml.j2 dest=/root/local/kube-system/calico/calico-kube-controllers.yaml
 
 # 只需单节点执行一次，重复执行的报错可以忽略
+# 增加15s等待node ready
 - name: 运行calico-kube-controllers
   tags: calico-controller
-  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/rbac.yaml && \ 
+  shell: "sleep 15 && {{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/rbac.yaml && \ 
 	{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/calico-kube-controllers.yaml"
   when: NODE_ID is defined and NODE_ID == "node1"
   ignore_errors: true

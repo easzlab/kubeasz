@@ -1,5 +1,7 @@
 # 利用Ansible部署kubernetes集群
 
+![docker](./pics/docker.jpg) ![kube](./pics/kube.jpg) ![ansible](./pics/ansible.jpg)
+
 本文档记录自己实践部署高可用k8s集群的过程，利用ansible-playbook简化二进制方式部署过程。
 
 网上有很多类似shell脚本和ansible部署版本，要不看得太复杂，或者久未更新，所以这里自己造轮子吧。
