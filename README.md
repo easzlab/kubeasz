@@ -5,6 +5,7 @@
 本系列文档致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项。
 
 **集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
+
 **二进制方式部署优势：有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题**
 
 文档基于`Ubuntu 16.04`，其他系统如`CentOS 7`需要读者自行替换部分命令；由于使用经验有限和简化脚本考虑，已经尽量避免`ansible-playbook`的高级特性和复杂逻辑。
@@ -22,14 +23,20 @@
 
 ## 详细步骤
 
-
-## 部署指南
+1. [集群规划和基础参数设定](docs/00-集群规划和基础参数设定.md)
+1. [创建CA证书和环境配置](docs/01-创建CA证书和环境配置.md)
+1. [安装etcd集群](docs/02-安装etcd集群.md)
+1. [配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
+1. [安装docker服务](docs/04-安装docker服务.md)
+1. [安装calico网络组件](docs/05-安装calico网络组件.md)
+1. [安装kube-master节点](docs/06-安装kube-master节点.md)
+1. [安装kube-node节点](docs/07-安装kube-node节点.md)
 
 ## 补充阅读
 
 1. 建议阅读 [feisky.gitbooks](https://feisky.gitbooks.io/kubernetes/) 原理和部署章节。
 1. 建议阅读 [opsnull教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
-1. 建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261)基本够用。
+1. 建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 基本够用。
 
 ## 版权
 
