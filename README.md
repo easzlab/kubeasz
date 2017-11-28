@@ -17,6 +17,8 @@
 1. docker	17.09.0-ce
 1. calico/node	v2.6.2
 
+附：集群用到的所有二进制文件已打包好供下载 `https://pan.baidu.com/s/1eSetFSA`
+
 ## 快速指南
 
 单机快速体验k8s集群的测试、开发环境--[AllinOne部署](docs/quickStart.md)；在国内的网络环境下要比官方的minikube方便、简单很多。

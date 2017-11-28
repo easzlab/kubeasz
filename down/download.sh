@@ -5,6 +5,11 @@ export ETCD_VER=v3.2.10
 export DOCKER_VER=17.09.0-ce
 export CALICO_VER=v2.6.2
 
+echo "\n建议直接下载本人打包好的所有必要二进制包k8s-184.all.tar.gz，然后解压到bin目录"
+echo "\n建议不使用此脚本，如果你想升级组件或者实验，请通读该脚本，必要时适当修改后使用"
+echo "\n注意1：因为网络原因不进行自动下载,请按照以下链接手动下载二进制包到down目录中"
+echo "\n注意2：如果还没有手工下载tar包，请Ctrl-c结束此脚本"
+
 echo "\n----download k8s binary at:"
 echo https://dl.k8s.io/${K8S_VER}/kubernetes-server-linux-amd64.tar.gz
 
@@ -20,19 +25,11 @@ echo https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
 echo https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
 echo https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
 
-echo "\n注意1：因为网络原因不进行自动下载"
-echo "请按照以上链接手动下载二进制包到down目录中，包含如下："
-echo "-rw-r--r-- 1 root root   6595195 Mar 30  2016 cfssl-certinfo_linux-amd64"
-echo "-rw-r--r-- 1 root root   2277873 Mar 30  2016 cfssljson_linux-amd64"
-echo "-rw-r--r-- 1 root root  10376657 Mar 30  2016 cfssl_linux-amd64"
-echo "-rwxr--r-- 1 root root  29699281 Aug 24 17:09 docker-17.06.1-ce.tgz*"
-echo "-rwxr--r-- 1 root root  10176124 Aug 24 17:09 etcd-v3.2.6-linux-amd64.tar.gz*"
-echo "-rwxr--r-- 1 root root 437406487 Aug 24 17:09 kubernetes-server-linux-amd64.tar.gz*"
+echo "\n----download calico at:"
+echo https://docs.projectcalico.org/v2.6/releases/
 
-echo "\n注意2：如果还没有手工下载tar包，请Ctrl-c结束此脚本\nsleep 60"
-sleep 60
+sleep 30
 
-mkdir -p ../bin
 ### 准备证书工具程序
 echo "\n准备证书工具程序..."
 if [ -f "cfssl_linux-amd64" ]; then
@@ -60,9 +57,6 @@ if [ -f "etcd-${ETCD_VER}-linux-amd64.tar.gz" ]; then
 else
   echo 请先下载etcd-${ETCD_VER}-linux-amd64.tar.gz
 fi
-
-### 准备calico程序
-echo "\n下载calico/node镜像\ndocker pull calico/node:2.6.2"
 
 ### 准备kubernetes程序
 echo "\n准备kubernetes二进制程序..."
