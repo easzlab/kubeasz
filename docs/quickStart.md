@@ -26,12 +26,12 @@ ssh-copy-id $IP #$IP为本虚机地址，按照提示输入yes 和root密码
 ``` bash
 git clone https://github.com/gjmzj/kubeasz.git
 mv kubeasz /etc/ansible
-# 下载已打包好的binaries，并且解压缩到./bin目录
+# 下载已打包好的binaries，并且解压缩到/etc/ansible/bin目录
 # 国内请从我分享的百度云链接下载 https://pan.baidu.com/s/1eSetFSA
 # 如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包到 ./down目录，并执行download.sh
 tar zxvf k8s.184.tar.gz
 mv bin/* /etc/ansible/bin
-# 配置集群hosts
+# 配置ansible的hosts文件
 cd /etc/ansible
 cp example/hosts.allinone.example hosts
 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
