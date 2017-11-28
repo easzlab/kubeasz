@@ -56,6 +56,7 @@ kubectl clusterinfo # 可以看到kubernetes master(apiserver)组件 running
 kubectl get node # 可以看到单 node Ready状态
 kubectl get pod --all-namespaces # 可以查看所有集群pod状态
 kubectl get svc --all-namespaces # 可以查看所有集群服务状态
+calicoctl node status	# 可以在master或者node节点上查看calico网络状态 
 ```
 ### 5.安装主要组件
 ``` bash
