@@ -27,7 +27,10 @@
   shell: systemctl enable docker
 
 - name: flush-iptables
-  shell: iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat
+  shell: "iptables -F && iptables -X \
+        && iptables -F -t nat && iptables -X -t nat \
+        && iptables -F -t raw && iptables -X -t raw \
+        && iptables -F -t mangle && iptables -X -t mangle"
 
 - name: start-docker
   shell: systemctl restart docker
