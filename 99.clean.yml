@@ -1,5 +1,40 @@
 # 警告：此脚本将清理真个K8S集群，包括所有POD、ETCD数据等
 # 请三思后运行此脚本 ansible-playbook 99.clean.yml
+
+- hosts: kube-node
+  tasks:
+  - name: stop kube-node service
+    shell: "systemctl stop kubelet kube-proxy"
+    ignore_errors: true
+
+  - name: umount kubelet 挂载的目录
+    shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount"
+    ignore_errors: true
+
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/var/lib/kubelet/"
+    - "/etc/kubernetes/"
+    - "/etc/systemd/system/kubelet.service"
+    - "/etc/systemd/system/kube-proxy.service"
+   # - "/root/local/bin/"
+
+- hosts: kube-master
+  tasks:
+  - name: stop kube-master service
+    shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler"
+    ignore_errors: true
+
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/var/run/kubernetes"
+    - "/etc/systemd/system/kube-apiserver.service"
+    - "/etc/systemd/system/kube-controller-manager.service"
+    - "/etc/systemd/system/kube-scheduler.service"
+    - "/etc/kubernetes/"
+
 - hosts: kube-cluster
   tasks:
   - name: stop calico-node service
@@ -36,40 +71,6 @@
   - name: 清理网络
     shell: "ip link del docker0; ip link del tunl0; systemctl restart networking"
     ignore_errors: true
-
-- hosts: kube-node
-  tasks:
-  - name: stop kube-node service
-    shell: "systemctl stop kubelet kube-proxy"
-    ignore_errors: true
-
-  - name: umount kubelet 挂载的目录
-    shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount"
-    ignore_errors: true
-
-  - name: 清理目录和文件
-    file: name={{ item }} state=absent
-    with_items:
-    - "/var/lib/kubelet/"
-    - "/etc/kubernetes/"
-    - "/etc/systemd/system/kubelet.service"
-    - "/etc/systemd/system/kube-proxy.service"
-   # - "/root/local/bin/"
-
-- hosts: kube-master
-  tasks:
-  - name: stop kube-master service
-    shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler"
-    ignore_errors: true
-
-  - name: 清理目录和文件
-    file: name={{ item }} state=absent
-    with_items:
-    - "/var/run/kubernetes"
-    - "/etc/systemd/system/kube-apiserver.service"
-    - "/etc/systemd/system/kube-controller-manager.service"
-    - "/etc/systemd/system/kube-scheduler.service"
-    - "/etc/kubernetes/"
 
 - hosts: etcd
   tasks:
