@@ -10,7 +10,9 @@ roles/etcd
 ```
 kuberntes 系统使用 etcd 存储所有数据，是最重要的组件之一，注意 etcd集群只能有奇数个节点(1,3,5...)，本文档使用3个节点做集群。
 
-按照[roles/etcd/tasks/main.yml](../roles/etcd/tasks/main.yml) 下载etcd/etcdctl 二进制文件、创建证书目录
+请在另外窗口打开[roles/etcd/tasks/main.yml](../roles/etcd/tasks/main.yml) 文件，对照看以下讲解内容。
+
+### 下载etcd/etcdctl 二进制文件、创建证书目录
 
 ### 创建etcd证书请求 [etcd-csr.json.j2](../roles/etcd/templates/etcd-csr.json.j2)
 
@@ -102,8 +104,7 @@ systemctl daemon-reload && systemctl enable etcd && systemctl start etcd
 
 + systemctl status etcd 查看服务状态
 + journalctl -u etcd 查看运行日志
-
-部署完 etcd 集群后，在任一 etcd 集群节点上执行如下命令：
++ 在任一 etcd 集群节点上执行如下命令
 
 ``` bash
 # 根据hosts中配置设置shell变量 $NODE_IPS
