@@ -35,15 +35,15 @@ mv bin/* /etc/ansible/bin
 cd /etc/ansible
 cp example/hosts.allinone.example hosts
 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
-# 采用分步安装或者一步安装
-ansible-playbook 01.prepare.yml
-ansible-playbook 02.etcd.yml
-ansible-playbook 03.kubectl.yml
-ansible-playbook 04.docker.yml
-ansible-playbook 05.calico.yml
-ansible-playbook 06.kube-master.yml
-ansible-playbook 07.kube-node.yml
-# ansible-playbook 90.setup.yml # 一步安装
+# 采用一步安装或者分步安装
+ansible-playbook 90.setup.yml # 一步安装
+#ansible-playbook 01.prepare.yml
+#ansible-playbook 02.etcd.yml
+#ansible-playbook 03.kubectl.yml
+#ansible-playbook 04.docker.yml
+#ansible-playbook 05.calico.yml
+#ansible-playbook 06.kube-master.yml
+#ansible-playbook 07.kube-node.yml
 ```
 如果执行成功，k8s集群就安装好了。
 

@@ -10,6 +10,8 @@
 
 文档基于`Ubuntu 16.04`，其他系统如`CentOS 7`需要读者自行替换部分命令；由于使用经验有限和简化脚本考虑，已经尽量避免`ansible-playbook`的高级特性和复杂逻辑。
 
+欢迎提`Issues`和`PRs`参与维护项目。
+
 ## 组件版本
 
 1. kubernetes	v1.8.4
@@ -47,4 +49,5 @@ Copyright 2017 gjmzj (jmgaozz@163.com)
 Apache License 2.0，详情见 [LICENSE](LICENSE) 文件。
 
 如果你觉得这份文档对你有帮助，请支付宝扫描下方的二维码进行捐赠，谢谢！
+
 ![donate](./pics/alipay.png) 
