@@ -1,38 +1,34 @@
 # 部署节点：运行这份 ansible 脚本的节点
 [deploy]
-192.168.1.31
+192.168.1.1
 
 # etcd集群请提供如下NODE_NAME、NODE_IP变量
 # 请注意etcd集群必须是1,3,5,7...奇数个节点
 [etcd]
-192.168.1.32 NODE_NAME=etcd1 NODE_IP="192.168.1.32"
-192.168.1.33 NODE_NAME=etcd2 NODE_IP="192.168.1.33"
-192.168.1.62 NODE_NAME=etcd3 NODE_IP="192.168.1.62"
+192.168.1.1 NODE_NAME=etcd1 NODE_IP="192.168.1.1"
+192.168.1.2 NODE_NAME=etcd2 NODE_IP="192.168.1.2"
+192.168.1.3 NODE_NAME=etcd3 NODE_IP="192.168.1.3"
 
 [kube-master]
-192.168.1.34 NODE_IP="192.168.1.34"
-192.168.1.35 NODE_IP="192.168.1.35"
-192.168.1.63 NODE_IP="192.168.1.63"
+192.168.1.1 NODE_IP="192.168.1.1"
+192.168.1.2 NODE_IP="192.168.1.2"
 
 # 负载均衡至少两个节点，安装 haproxy+keepalived
 # 根据master节点数量同步修改roles/lb/templates/haproxy.cfg.j2 
 [lb]
-192.168.1.31 LB_IF="eth0" LB_ROLE=backup
-192.168.1.61 LB_IF="eth0" LB_ROLE=master
+192.168.1.1 LB_IF="eth0" LB_ROLE=backup
+192.168.1.2 LB_IF="eth0" LB_ROLE=master
 [lb:vars]
-LB_EP1="192.168.1.34:6443"	# api-server 实际成员地址端口
-LB_EP2="192.168.1.35:6443"	# api-server 实际成员地址端口
-LB_EP3="192.168.1.63:6443"	# api-server 实际成员地址端口
-MASTER_IP="192.168.1.30"  	# api-server 虚地址
+LB_EP1="192.168.1.1:6443"	# api-server 实际成员地址端口
+LB_EP2="192.168.1.2:6443"	# api-server 实际成员地址端口
+MASTER_IP="192.168.1.10"  	# api-server 虚地址
 MASTER_PORT="8443"		# api-server 服务端口
 
 #确保node节点有变量NODE_ID=node1
 [kube-node]
-192.168.1.36 NODE_ID=node1 NODE_IP="192.168.1.36"
-192.168.1.37 NODE_ID=node2 NODE_IP="192.168.1.37"
-192.168.1.64 NODE_ID=node3 NODE_IP="192.168.1.64"
-192.168.1.65 NODE_ID=node4 NODE_IP="192.168.1.65"
-192.168.1.66 NODE_ID=node5 NODE_IP="192.168.1.66"
+192.168.1.2 NODE_ID=node1 NODE_IP="192.168.1.2"
+192.168.1.3 NODE_ID=node2 NODE_IP="192.168.1.3"
+192.168.1.4 NODE_ID=node3 NODE_IP="192.168.1.4"
 
 [kube-cluster:children]
 kube-node
@@ -45,9 +41,9 @@ kube-master
 
 [all:vars]
 # ---------集群主要参数---------------
-#集群 MASTER IP, 需要外部负载均衡，一般为VIP地址
-MASTER_IP="192.168.1.30"
-KUBE_APISERVER="https://192.168.1.30:8443"
+#集群 MASTER IP, 需要负载均衡，一般为VIP地址
+MASTER_IP="192.168.1.10"
+KUBE_APISERVER="https://192.168.1.10:8443"
 
 #TLS Bootstrapping 使用的 Token，使用 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
 BOOTSTRAP_TOKEN="c30302226d4b810e08731702d3890f50"
@@ -55,14 +51,11 @@ BOOTSTRAP_TOKEN="c30302226d4b810e08731702d3890f50"
 # 服务网段 (Service CIDR），部署前路由不可达，部署后集群内使用 IP:Port 可达
 SERVICE_CIDR="10.68.0.0/16"
 
-# POD 网段 (Cluster CIDR），部署前路由不可达，**部署后**路由可达 (flanneld 保证)
+# POD 网段 (Cluster CIDR），部署前路由不可达，**部署后**路由可达
 CLUSTER_CIDR="172.20.0.0/16"
 
 # 服务端口范围 (NodePort Range)
 NODE_PORT_RANGE="2000-8000"
-
-# flanneld 网络配置前缀
-FLANNEL_ETCD_PREFIX="/kubernetes/network"
 
 # kubernetes 服务 IP (预分配，一般是 SERVICE_CIDR 中第一个IP)
 CLUSTER_KUBERNETES_SVC_IP="10.68.0.1"
@@ -74,10 +67,10 @@ CLUSTER_DNS_SVC_IP="10.68.0.2"
 CLUSTER_DNS_DOMAIN="cluster.local."
 
 # etcd 集群间通信的IP和端口, **根据实际 etcd 集群成员设置**
-ETCD_NODES="etcd1=https://192.168.1.32:2380,etcd2=https://192.168.1.33:2380,etcd3=https://192.168.1.62:2380"
+ETCD_NODES="etcd1=https://192.168.1.1:2380,etcd2=https://192.168.1.2:2380,etcd3=https://192.168.1.3:2380"
 
 # etcd 集群服务地址列表, **根据实际 etcd 集群成员设置**
-ETCD_ENDPOINTS="https://192.168.1.32:2379,https://192.168.1.33:2379,https://192.168.1.62:2379"
+ETCD_ENDPOINTS="https://192.168.1.1:2379,https://192.168.1.2:2379,https://192.168.1.3:2379"
 
 # 集群basic auth 使用的用户名和密码
 BASIC_AUTH_USER="admin"
@@ -90,7 +83,7 @@ bin_dir="/root/local/bin"
 #证书目录
 ca_dir="/etc/kubernetes/ssl"
 
-#部署目录，即 ansible 工作目录
+#部署目录，即 ansible 工作目录，建议不要修改
 base_dir="/etc/ansible"
 
 #私有仓库 harbor服务器 (域名或者IP)

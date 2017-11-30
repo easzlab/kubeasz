@@ -32,14 +32,11 @@ BOOTSTRAP_TOKEN="d18f94b5fa585c7123f56803d925d2e7"
 # 服务网段 (Service CIDR），部署前路由不可达，部署后集群内使用 IP:Port 可达
 SERVICE_CIDR="10.68.0.0/16"
 
-# POD 网段 (Cluster CIDR），部署前路由不可达，**部署后**路由可达 (flanneld 保证)
+# POD 网段 (Cluster CIDR），部署前路由不可达，**部署后**路由可达
 CLUSTER_CIDR="172.20.0.0/16"
 
 # 服务端口范围 (NodePort Range)
 NODE_PORT_RANGE="2000-8000"
-
-# flanneld 网络配置前缀
-FLANNEL_ETCD_PREFIX="/kubernetes/network"
 
 # kubernetes 服务 IP (预分配，一般是 SERVICE_CIDR 中第一个IP)
 CLUSTER_KUBERNETES_SVC_IP="10.68.0.1"
