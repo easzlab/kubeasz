@@ -11,7 +11,7 @@
   - 容器自己看到的IP跟其他容器看到的一样
 - 3.Service cluster IP尽可在集群内部访问，外部请求需要通过NodePort、LoadBalance或者Ingress来访问
 
-**Container Network Interface (CNI)**是目前CNCF主推的网络模型，它由两部分组成：
+`Container Network Interface (CNI)`是目前CNCF主推的网络模型，它由两部分组成：
 
 - CNI Plugin负责给容器配置网络，它包括两个基本的接口
   - 配置网络: AddNetwork(net *NetworkConfig, rt *RuntimeConf) (types.Result, error)
@@ -19,7 +19,7 @@
 - IPAM Plugin负责给容器分配IP地址
 
 Kubernetes Pod的网络是这样创建的：
-- 0.每个Pod除了创建时指定的容器外，都有一个kubelet启动时指定的`基础容器`，比如：[mirrorgooglecontainers/pause-amd64]() [registry.access.redhat.com/rhel7/pod-infrastructure]()
+- 0.每个Pod除了创建时指定的容器外，都有一个kubelet启动时指定的`基础容器`，比如：`mirrorgooglecontainers/pause-amd64` `registry.access.redhat.com/rhel7/pod-infrastructure`
 - 1.首先 kubelet创建`基础容器`生成network namespace
 - 2.然后 kubelet调用网络CNI driver，由它根据配置调用具体的CNI 插件
 - 3.然后 CNI 插件给`基础容器`配置网络

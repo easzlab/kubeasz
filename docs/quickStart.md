@@ -52,7 +52,7 @@ ansible-playbook 90.setup.yml # 一步安装
 # 如果提示kubectl: command not found，退出重新ssh登陆一下，环境变量生效即可
 kubectl version
 kubectl get componentstatus # 可以看到scheduler/controller-manager/etcd等组件 Healthy
-kubectl clusterinfo # 可以看到kubernetes master(apiserver)组件 running
+kubectl cluster-info # 可以看到kubernetes master(apiserver)组件 running
 kubectl get node # 可以看到单 node Ready状态
 kubectl get pod --all-namespaces # 可以查看所有集群pod状态
 kubectl get svc --all-namespaces # 可以查看所有集群服务状态
