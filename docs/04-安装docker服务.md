@@ -68,6 +68,8 @@ iptables -F && iptables -X \
         && iptables -F -t raw && iptables -X -t raw \
         && iptables -F -t mangle && iptables -X -t mangle
 ```
++ calico 网络支持 `network-policy`，使用的`calico-kube-controllers` 会使用到`iptables` 所有的四个表 `filter` `nat` `raw` `mangle`，所以一并清理
+
 ### 启动 docker 略
 
 ### 安装docker查询镜像 tag的小工具
