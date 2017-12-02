@@ -53,7 +53,10 @@ WantedBy=multi-user.target
 
 这将在后续部署calico下载 calico/node:v2.6.2镜像和kubedns/heapster/dashboard镜像时起到重要加速效果。
 
-由于K8S的官方镜像存放在`gcr.io`仓库，因此这个镜像加速对K8S的官方镜像没有效果；好在`Docker Hub`上有很多K8S镜像的转存，而`Docker Hub`上的镜像是国内可以加速的。这里推荐https://hub.docker.com/u/mirrorgooglecontainers/几乎能找到所有K8S相关的google镜像，而且更新及时，感谢维护者的辛勤付出！后文将看到部署附加组件时基本都是用他们的镜像，
+由于K8S的官方镜像存放在`gcr.io`仓库，因此这个镜像加速对K8S的官方镜像没有效果；好在`Docker Hub`上有很多K8S镜像的转存，而`Docker Hub`上的镜像是国内可以加速的。
+这里推荐[mirrorgooglecontainers](https://hub.docker.com/u/mirrorgooglecontainers/)几乎能找到所有K8S相关的google镜像，而且更新及时，感谢维护者的辛勤付出！后文将看到部署附加组件时基本都是用他们的镜像。
+
+当然对于企业内部应用的docker镜像，想要在K8S平台运行的话，特别是结合开发`CI/CD` 流程，肯定是需要部署私有镜像仓库的，后续会简单提到 `Harbor`的部署。
 
 ### 清理 iptables
 
