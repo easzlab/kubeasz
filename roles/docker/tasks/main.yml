@@ -34,3 +34,16 @@
 
 - name: start-docker
   shell: systemctl restart docker
+
+## 可选 ------安装docker查询镜像 tag的小工具----
+- name: apt更新缓存刷新
+  apt: update_cache=yes cache_valid_time=72000
+  tags: docker-tag
+
+- name: 安装轻量JSON处理程序
+  apt: name=jq state=latest
+  tags: docker-tag
+
+- name: 下载 docker-tag
+  copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
+  tags: docker-tag
