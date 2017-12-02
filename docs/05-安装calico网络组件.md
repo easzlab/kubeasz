@@ -146,7 +146,25 @@ spec:
 执行calico安装 `ansible-playbook 05.calico.yml` 成功后
 
 ``` bash
- # 查看所有calico节点状态
+# 查看网卡和路由信息
+ip a   #...省略其他网卡信息，可以看到包含类似cali1c548f86afd@if3这样的网卡
+4: cali1c548f86afd@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether ae:88:58:31:82:60 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::ac88:58ff:fe31:8260/64 scope link 
+       valid_lft forever preferred_lft forever
+
+route -n  # 看到类似如下路由表
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.1.254   0.0.0.0         UG    0      0        0 ens3
+192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 ens3
+172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
+172.20.33.128   0.0.0.0         255.255.255.255 UH    0      0        0 cali1c548f86afd
+172.20.33.128   0.0.0.0         255.255.255.192 U     0      0        0 *
+172.20.104.0    192.168.1.3	255.255.255.192 UG    0      0        0 ens3
+172.20.166.128  192.168.1.4     255.255.255.192 UG    0      0        0 ens3
+
+# 查看所有calico节点状态
 calicoctl node status
 Calico process is running.
 

@@ -27,7 +27,7 @@
 
 单机快速体验k8s集群的测试、开发环境--[AllinOne部署](docs/quickStart.md)；在国内的网络环境下要比官方的minikube方便、简单很多。
 
-## 详细步骤
+## 安装步骤
 
 1. [集群规划和基础参数设定](docs/00-集群规划和基础参数设定.md)
 1. [创建CA证书和环境配置](docs/01-创建CA证书和环境配置.md)
@@ -38,7 +38,9 @@
 1. [安装kube-master节点](docs/06-安装kube-master节点.md)
 1. [安装kube-node节点](docs/07-安装kube-node节点.md)
 
-## 补充阅读
+## [使用指南](docs/userGuide.md)
+
+## 参考阅读
 
 1. 建议阅读 [feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md) 原理和部署章节。
 1. 建议阅读 [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
