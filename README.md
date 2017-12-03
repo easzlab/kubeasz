@@ -38,7 +38,9 @@
 1. [安装kube-master节点](docs/06-安装kube-master节点.md)
 1. [安装kube-node节点](docs/07-安装kube-node节点.md)
 
-## [使用指南](docs/userGuide.md)
+## 使用指南
+
+基本k8s集群安装完成后，需要安装一些常用插件(`kubedns` `dashboard` `ingress`等)；接着介绍一些集群操作场景和思路；然后介绍一些应用部署实践，请根据这份[目录](docs/guide/index.md)阅读你所感兴趣的内容。
 
 ## 参考阅读
 

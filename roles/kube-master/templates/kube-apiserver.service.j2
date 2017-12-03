@@ -5,11 +5,10 @@ After=network.target
 
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
-  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
+  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \
   --bind-address={{ NODE_IP }} \
   --insecure-bind-address=127.0.0.1 \
   --authorization-mode=Node,RBAC \
-  --runtime-config=rbac.authorization.k8s.io/v1 \
   --kubelet-https=true \
   --anonymous-auth=false \
   --basic-auth-file={{ ca_dir }}/basic-auth.csv \
