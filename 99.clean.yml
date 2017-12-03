@@ -35,7 +35,9 @@
     - "/etc/systemd/system/kube-scheduler.service"
     - "/etc/kubernetes/"
 
-- hosts: kube-cluster
+- hosts:
+  - kube-cluster
+  - deploy
   tasks:
   - name: stop calico-node service
     shell: "systemctl stop calico-node docker"
@@ -53,6 +55,7 @@
     file: name={{ item }} state=absent
     with_items:
     - "/etc/cni/"
+    - "/root/.kube/"
     - "/etc/calico/"
     - "/var/run/calico/"
     - "/var/log/calico/"
