@@ -4,12 +4,18 @@
   - /etc/calico/ssl
   - /etc/cni/net.d
 
-- name: 复制CA 证书和etcd 证书
-  copy: src={{ item }} dest=/etc/calico/ssl/{{ item }}
-  with_items:
-  - ca.pem
-  - etcd.pem
-  - etcd-key.pem
+- name: 复制CA 证书到calico 证书目录
+  copy: src=ca.pem dest=/etc/calico/ssl/ca.pem
+
+- name: 创建calico 证书请求
+  template: src=calico-csr.json.j2 dest=/etc/calico/ssl/calico-csr.json
+
+- name: 创建 calico证书和私钥
+  shell: "cd /etc/calico/ssl && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes calico-csr.json | {{ bin_dir }}/cfssljson -bare calico"
 
 - name: 创建 calico 的 systemd unit 文件
   template: src=calico-node.service.j2 dest=/etc/systemd/system/calico-node.service

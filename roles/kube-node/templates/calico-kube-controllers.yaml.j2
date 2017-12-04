@@ -42,10 +42,10 @@ spec:
               value: "/calico-secrets/ca.pem"
             # Location of the client key for etcd.
             - name: ETCD_KEY_FILE
-              value: "/calico-secrets/etcd-key.pem"
+              value: "/calico-secrets/calico-key.pem"
             # Location of the client certificate for etcd.
             - name: ETCD_CERT_FILE
-              value: "/calico-secrets/etcd.pem"
+              value: "/calico-secrets/calico.pem"
           volumeMounts:
             # Mount in the etcd TLS secrets.
             - mountPath: /calico-secrets
