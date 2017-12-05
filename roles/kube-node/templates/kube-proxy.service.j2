@@ -10,6 +10,7 @@ ExecStart={{ bin_dir }}/kube-proxy \
   --hostname-override={{ NODE_IP }} \
   --cluster-cidr={{ SERVICE_CIDR }} \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
+  --masquerade-all=false \
   --logtostderr=true \
   --v=2
 Restart=on-failure
