@@ -3,7 +3,6 @@
   with_items:
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
-  - "{{ base_dir }}/roles/calico/files/"
   - "{{ base_dir }}/roles/prepare/files/"
 
 - name: 下载证书工具 CFSSL
@@ -24,7 +23,4 @@
 
 - name: 准备分发 CA证书
   shell: "cd {{ ca_dir }} && cp ca*  {{ base_dir }}/roles/prepare/files/"
-
-- name: 复制 CA证书生成calico secret 使用
-  shell: "cp -f {{ ca_dir }}/ca.pem  {{ base_dir }}/roles/calico/files/"
 

@@ -92,7 +92,7 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --kubelet-https=true \
   --anonymous-auth=false \
   --basic-auth-file={{ ca_dir }}/basic-auth.csv \
-  --experimental-bootstrap-token-auth \
+  --enable-bootstrap-token-auth \
   --token-auth-file={{ ca_dir }}/token.csv \
   --service-cluster-ip-range={{ SERVICE_CIDR }} \
   --service-node-port-range={{ NODE_PORT_RANGE }} \

@@ -23,11 +23,5 @@
 - name: 创建etcd的systemd unit文件
   template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
 
-- name: daemon-reload
-  shell: systemctl daemon-reload
-
-- name: enable-etcd
-  shell: systemctl enable etcd
-
-- name: 重启etcd服务
-  shell: systemctl restart etcd
+- name: 开启etcd服务
+  shell: systemctl daemon-reload && systemctl enable etcd && systemctl restart etcd

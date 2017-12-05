@@ -17,23 +17,17 @@
 - name: docker国内镜像加速
   copy: src=daemon.json dest=/etc/docker/daemon.json
 
-- name: 创建docker的systemd unit文件
-  template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
-
-- name: daemon-reload
-  shell: systemctl daemon-reload
-
-- name: enable-docker
-  shell: systemctl enable docker
-
 - name: flush-iptables
   shell: "iptables -F && iptables -X \
         && iptables -F -t nat && iptables -X -t nat \
         && iptables -F -t raw && iptables -X -t raw \
         && iptables -F -t mangle && iptables -X -t mangle"
 
-- name: start-docker
-  shell: systemctl restart docker
+- name: 创建docker的systemd unit文件
+  template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
+
+- name: 开启docker 服务
+  shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker
 
 ## 可选 ------安装docker查询镜像 tag的小工具----
 - name: apt更新缓存刷新

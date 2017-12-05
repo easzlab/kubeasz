@@ -5,7 +5,7 @@
   - /etc/cni/net.d
 
 - name: 复制CA 证书到calico 证书目录
-  copy: src=ca.pem dest=/etc/calico/ssl/ca.pem
+  copy: src={{ ca_dir }}/ca.pem dest=/etc/calico/ssl/ca.pem
 
 - name: 创建calico 证书请求
   template: src=calico-csr.json.j2 dest=/etc/calico/ssl/calico-csr.json
@@ -20,14 +20,8 @@
 - name: 创建 calico 的 systemd unit 文件
   template: src=calico-node.service.j2 dest=/etc/systemd/system/calico-node.service
 
-- name: daemon-reload
-  shell: systemctl daemon-reload
-
-- name: enable-calico
-  shell: systemctl enable calico-node
-
-- name: 重新启动calico
-  shell: systemctl restart calico-node
+- name: 启动calico 服务
+  shell: systemctl daemon-reload && systemctl enable calico-node && systemctl restart calico-node
 
 - name: 下载calico cni plugins和calicoctl 客户端
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755

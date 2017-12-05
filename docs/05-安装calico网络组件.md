@@ -33,10 +33,6 @@ calico-node需要在所有master节点和node节点安装
 
 ``` bash
 roles/calico/
-├── files
-│   ├── ca.pem
-│   ├── etcd-key.pem
-│   └── etcd.pem
 ├── tasks
 │   └── main.yml
 └── templates
@@ -46,9 +42,28 @@ roles/calico/
 ```
 请在另外窗口打开[roles/calico/tasks/main.yml](../roles/calico/tasks/main.yml) 文件，对照看以下讲解内容。
 
-### 准备与etcd集群交互的证书
+### 创建calico 证书申请
 
-这里为了方便直接复制使用了etcd1节点的证书
+``` bash
+{
+  "CN": "calico",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "HangZhou",
+      "L": "XS",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+```
+然后生成证书
 
 ### 创建 calico-node 的服务文件 [calico-node.service.j2](../roles/calico/templates/calico-node.service.j2)
 
@@ -64,8 +79,8 @@ PermissionsStartOnly=true
 ExecStart={{ bin_dir }}/docker run --net=host --privileged --name=calico-node \
   -e ETCD_ENDPOINTS={{ ETCD_ENDPOINTS }} \
   -e ETCD_CA_CERT_FILE=/etc/calico/ssl/ca.pem \
-  -e ETCD_CERT_FILE=/etc/calico/ssl//etcd.pem \
-  -e ETCD_KEY_FILE=/etc/calico/ssl/etcd-key.pem \
+  -e ETCD_CERT_FILE=/etc/calico/ssl/calico.pem \
+  -e ETCD_KEY_FILE=/etc/calico/ssl/calico-key.pem \
   -e CALICO_LIBNETWORK_ENABLED=true \
   -e CALICO_NETWORKING_BACKEND=bird \
   -e CALICO_DISABLE_FILE_LOGGING=true \
@@ -92,11 +107,11 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 + 详细配置参数请参考[calico官方文档](https://docs.projectcalico.org/v2.6/reference/node/configuration)
++ calico-node是以docker容器运行在host上的，因此需要把之前的证书目录 /etc/calico/ssl挂载到容器中
 + 配置ETCD_ENDPOINTS 、CA、证书等，所有{{ }}变量与ansible hosts文件中设置对应
 + 配置集群POD网络 CALICO_IPV4POOL_CIDR={{ CLUSTER_CIDR }}
 + 本K8S集群运行在自有kvm虚机上，虚机间没有网络ACL限制，因此可以设置CALICO_IPV4POOL_IPIP=off，如果运行在公有云虚机上可能需要打开这个选项
 + 配置FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT 默认允许Pod到Node的网络流量，更多[felix配置选项](https://docs.projectcalico.org/v2.6/reference/felix/configuration)
-+ calico-node是以docker容器运行在host上的，因此需要把之前的证书目录 /etc/calico/ssl挂载到容器中
 
 ### 启动calico-node
 
@@ -108,8 +123,8 @@ WantedBy=multi-user.target
     "cniVersion": "0.1.0",
     "type": "calico",
     "etcd_endpoints": "{{ ETCD_ENDPOINTS }}",
-    "etcd_key_file": "/etc/calico/ssl/etcd-key.pem",
-    "etcd_cert_file": "/etc/calico/ssl//etcd.pem",
+    "etcd_key_file": "/etc/calico/ssl/calico-key.pem",
+    "etcd_cert_file": "/etc/calico/ssl/calico.pem",
     "etcd_ca_cert_file": "/etc/calico/ssl/ca.pem",
     "log_level": "info",
     "mtu": 1500,
@@ -136,51 +151,74 @@ metadata:
 spec:
   datastoreType: "etcdv2"
   etcdEndpoints: {{ ETCD_ENDPOINTS }}
-  etcdKeyFile: /etc/calico/ssl/etcd-key.pem
-  etcdCertFile: /etc/calico/ssl/etcd.pem
+  etcdKeyFile: /etc/calico/ssl/calico-key.pem
+  etcdCertFile: /etc/calico/ssl/calico.pem
   etcdCACertFile: /etc/calico/ssl/ca.pem
 ```
 
 ### 验证calico网络
 
-执行calico安装 `ansible-playbook 05.calico.yml` 成功后
+执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：
+
+**查看网卡和路由信息**
 
 ``` bash
-# 查看网卡和路由信息
-ip a   #...省略其他网卡信息，可以看到包含类似cali1c548f86afd@if3这样的网卡
-4: cali1c548f86afd@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
-    link/ether ae:88:58:31:82:60 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet6 fe80::ac88:58ff:fe31:8260/64 scope link 
+ip a   #...省略其他网卡信息，可以看到包含类似cali1cxxx的网卡
+3: caliccc295a6d4f@if4: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 12:79:2f:fe:8d:28 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::1079:2fff:fefe:8d28/64 scope link 
        valid_lft forever preferred_lft forever
+5: tunl0@NONE: <NOARP> mtu 1480 qdisc noop state DOWN group default qlen 1
+    link/ipip 0.0.0.0 brd 0.0.0.0
+# tunl0网卡现在不用管，是默认生成的，当开启IPIP 特性时使用的隧道
 
-route -n  # 看到类似如下路由表
+route -n
 Kernel IP routing table
 Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-0.0.0.0         192.168.1.254   0.0.0.0         UG    0      0        0 ens3
-192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 ens3
+0.0.0.0         10.100.80.1     0.0.0.0         UG    0      0        0 ens3
+10.100.80.0     0.0.0.0         255.255.255.0   U     0      0        0 ens3
 172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
-172.20.33.128   0.0.0.0         255.255.255.255 UH    0      0        0 cali1c548f86afd
+172.20.3.64     10.100.80.65    255.255.255.192 UG    0      0        0 ens3
 172.20.33.128   0.0.0.0         255.255.255.192 U     0      0        0 *
-172.20.104.0    192.168.1.3	255.255.255.192 UG    0      0        0 ens3
-172.20.166.128  192.168.1.4     255.255.255.192 UG    0      0        0 ens3
+172.20.33.129   0.0.0.0         255.255.255.255 UH    0      0        0 caliccc295a6d4f
+172.20.104.0    10.100.80.37    255.255.255.192 UG    0      0        0 ens3
+172.20.166.128  10.100.80.36    255.255.255.192 UG    0      0        0 ens3
+```
 
-# 查看所有calico节点状态
+**查看所有calico节点状态**
+
+``` bash
 calicoctl node status
 Calico process is running.
 
 IPv4 BGP status
-+--------------+-------------------+-------+------------+-------------+
-| PEER ADDRESS |     PEER TYPE     | STATE |   SINCE    |    INFO     |
-+--------------+-------------------+-------+------------+-------------+
-| 192.168.1.2  | node-to-node mesh | up    | 2017-11-30 | Established |
-| 192.168.1.3  | node-to-node mesh | up    | 2017-11-30 | Established |
-| 192.168.1.4  | node-to-node mesh | up    | 2017-11-30 | Established |
-+--------------+-------------------+-------+------------+-------------+
++--------------+-------------------+-------+----------+-------------+
+| PEER ADDRESS |     PEER TYPE     | STATE |  SINCE   |    INFO     |
++--------------+-------------------+-------+----------+-------------+
+| 10.100.80.34 | node-to-node mesh | up    | 12:34:00 | Established |
+| 10.100.80.35 | node-to-node mesh | up    | 12:34:00 | Established |
+| 10.100.80.63 | node-to-node mesh | up    | 12:34:01 | Established |
+| 10.100.80.36 | node-to-node mesh | up    | 12:34:00 | Established |
+| 10.100.80.65 | node-to-node mesh | up    | 12:34:00 | Established |
+| 10.100.80.37 | node-to-node mesh | up    | 12:34:15 | Established |
++--------------+-------------------+-------+----------+-------------+
+```
 
-IPv6 BGP status
-No IPv6 peers found.
+**BGP 协议是通过TCP 连接来建立邻居的，因此可以用netstat 命令验证 BGP Peer**
 
-# 查看集群ipPool情况
+``` bash
+netstat -antlp|grep ESTABLISHED|grep 179
+tcp        0      0 10.100.80.66:179        10.100.80.35:41316      ESTABLISHED 28479/bird      
+tcp        0      0 10.100.80.66:179        10.100.80.36:52823      ESTABLISHED 28479/bird      
+tcp        0      0 10.100.80.66:179        10.100.80.65:56311      ESTABLISHED 28479/bird      
+tcp        0      0 10.100.80.66:42000      10.100.80.37:179        ESTABLISHED 28479/bird 
+tcp        0      0 10.100.80.66:179        10.100.80.34:40243      ESTABLISHED 28479/bird      
+tcp        0      0 10.100.80.66:179        10.100.80.63:48979      ESTABLISHED 28479/bird
+```
+
+**查看集群ipPool情况**
+
+``` bash
 calicoctl get ipPool -o yaml
 - apiVersion: v1
   kind: ipPool
@@ -189,4 +227,3 @@ calicoctl get ipPool -o yaml
   spec:
     nat-outgoing: true
 ```
-
