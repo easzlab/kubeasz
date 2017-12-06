@@ -49,7 +49,6 @@ cd /etc/etcd/ssl && {{ bin_dir }}/cfssl gencert \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd
 ```
-+ 因为证书是在**etcd**节点生成的，所以要用ansible 模块`fetch` 把证书传送到**deploy**节点，以便后续再通过**deploy**节点传送到**calico/node**节点
 
 ###  创建etcd 服务文件 [etcd.service.j2](../roles/etcd/templates/etcd.service.j2)
 
@@ -90,8 +89,8 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 ```
 + 完整参数列表请使用 `etcd --help` 查询
++ 注意etcd 即需要服务器证书也需要客户端证书，这里为方便使用一个peer 证书代替两个证书，更多证书相关请阅读 [01-创建CA证书和环境配置.md](01-创建CA证书和环境配置.md)
 + 注意{{ }} 中的参数与ansible hosts文件中设置对应
-+ 为了保证通信安全，需要指定 etcd 的公私钥(cert-file和key-file)、Peers 通信的公私钥和 CA 证书(peer-cert-file、peer-key-file、peer-trusted-ca-file)、客户端的CA证书（trusted-ca-file）；
 + `--initial-cluster-state` 值为 `new` 时，`--name` 的参数值必须位于 `--initial-cluster` 列表中；
 
 ### 启动etcd服务
