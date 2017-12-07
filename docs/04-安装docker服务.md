@@ -47,7 +47,8 @@ WantedBy=multi-user.target
 
 ``` bash
 {
-  "registry-mirrors": ["https://registry.docker-cn.com"] 
+  "registry-mirrors": ["https://registry.docker-cn.com"],
+  "max-concurrent-downloads": 6
 }
 ```
 
@@ -72,7 +73,7 @@ iptables -F && iptables -X \
 
 ### 启动 docker 略
 
-### 安装docker查询镜像 tag的小工具
+### 可选-安装docker查询镜像 tag的小工具
 
 docker官方目前没有提供在命令行直接查询某个镜像的tag信息的方式，网上找来一个脚本工具，使用很方便。
 
@@ -107,4 +108,36 @@ docker官方目前没有提供在命令行直接查询某个镜像的tag信息�
 ``` bash
 #!/bin/bash
 curl -s -S "https://registry.hub.docker.com/v2/repositories/$@/tags/" | jq '."results"[]["name"]' |sort
+```
++ 对于 CentOS7 安装 `jq` 稍微费力一点，需要启用 `EPEL` 源
+
+``` bash
+wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -ivh epel-release-latest-7.noarch.rpm
+yum install jq
+```
+
+### 验证
+
+运行`ansible-playbook 04.docker.yml` 成功后可以验证
+
+``` bash
+systemctl status docker # 服务状态
+journalctl -u docker # 运行日志
+docker version
+docker info
+```
+`iptables-save|grep FORWARD` 查看 iptables filter表 FORWARD链，最后要有一个 `-A FORWARD -j ACCEPT` 保底允许规则
+
+``` bash
+iptables-save|grep FORWARD
+:FORWARD ACCEPT [0:0]
+:FORWARD DROP [0:0]
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+-A FORWARD -j ACCEPT
 ```

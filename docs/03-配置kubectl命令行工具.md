@@ -63,6 +63,13 @@ subjects:
 ```
 ### 创建admin 证书和私钥
 
+``` bash
+cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes admin-csr.json | {{ bin_dir }}/cfssljson -bare admin
+```
 ### 创建 kubectl kubeconfig 文件
 
 #### 设置集群参数，指定CA证书和apiserver地址

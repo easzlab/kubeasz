@@ -213,3 +213,27 @@ calico networkpolicy正常工作需要3个组件：
         {{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/calico-kube-controllers.yaml"
 ```
 + 增加15s等待集群node ready
+
+### 验证 node 状态
+
+``` bash
+systemctl status kubelet	# 查看状态
+systemctl status kube-proxy
+journalctl -u kubelet		# 查看日志
+journalctl -u kube-proxy 
+```
+运行 `kubectl get node` 可以看到类似
+
+``` bash
+NAME           STATUS    ROLES     AGE       VERSION
+192.168.1.42   Ready     <none>    2d        v1.8.4
+192.168.1.43   Ready     <none>    2d        v1.8.4
+192.168.1.44   Ready     <none>    2d        v1.8.4
+```
+并且稍等一会，`kubectl get pod -n kube-system -o wide` 可以看到有个calico controller 的POD运行，且使用了host 网络
+
+``` bash
+kubectl get pod -n kube-system -o wide
+NAME                                      READY     STATUS    RESTARTS   AGE       IP              NODE
+calico-kube-controllers-69bcb79c6-b444q   1/1       Running   0          2d        192.168.1.44    192.168.1.44
+```

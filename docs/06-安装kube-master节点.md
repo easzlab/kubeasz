@@ -59,8 +59,10 @@ roles/kube-master/
   ]
 }
 ```
-+ kubernetes 证书既是服务器证书(kubelet kubectl kube-proxy 访问apiserver)，同时apiserver又作为客户端证书去访问etcd 集群；作为服务器证书需要设置hosts 指定使用该证书的IP 或域名列表，如上设置了这些IP 和域名，需要注意的是 `kubectl get svc` 将看到集群中由api-server 创建的默认服务 `kubernetes`
-+ 注意所有{{ }}变量与ansible hosts中设置的对应关系
+- kubernetes 证书既是服务器证书，同时apiserver又作为客户端证书去访问etcd 集群；作为服务器证书需要设置hosts 指定使用该证书的IP 或域名列表，需要注意的是：
+  - 多主高可用集群需要把master VIP地址 {{ MASTER_IP }} 也添加进去
+  - `kubectl get svc` 将看到集群中由api-server 创建的默认服务 `kubernetes`，因此也要把 `kubernetes` 服务名和各个服务域名也添加进去
+- 注意所有{{ }}变量与ansible hosts中设置的对应关系
 
 ### 创建 token 认证配置
 
@@ -184,3 +186,28 @@ WantedBy=multi-user.target
 + --address 同样值必须为 127.0.0.1
 + --master=http://127.0.0.1:8080 使用非安全 8080 端口与 kube-apiserver 通信
 + --leader-elect=true 部署多台机器组成的 master 集群时选举产生一个处于工作状态的 kube-controller-manager 进程
+
+### master 集群的验证
+
+运行 `ansible-playbook 06.kube-master.yml` 成功后，验证 master节点的主要组件：
+
+``` bash
+# 查看进程状态
+systemctl status kube-apiserver
+systemctl status kube-controller-manager
+systemctl status kube-scheduler
+# 查看进程运行日志
+journalctl -u kube-apiserver
+journalctl -u kube-controller-manager
+journalctl -u kube-scheduler
+```
+执行 `kubectl get componentstatus` 可以看到
+
+``` bash
+NAME                 STATUS    MESSAGE              ERROR
+scheduler            Healthy   ok                   
+controller-manager   Healthy   ok                   
+etcd-0               Healthy   {"health": "true"}   
+etcd-2               Healthy   {"health": "true"}   
+etcd-1               Healthy   {"health": "true"} 
+```
