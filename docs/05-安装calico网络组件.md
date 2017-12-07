@@ -162,7 +162,13 @@ spec:
 
 ### 验证calico网络
 
-执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：
+执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：需要等待一会儿
+
+``` bash
+docker ps 
+CONTAINER ID        IMAGE                COMMAND             CREATED             STATUS              PORTS               NAMES
+631dde89eada        calico/node:v2.6.2   "start_runit"       10 minutes ago      Up 10 minutes                           calico-node
+```
 
 **查看网卡和路由信息**
 
