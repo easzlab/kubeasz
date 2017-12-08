@@ -162,7 +162,7 @@ spec:
 
 ### 验证calico网络
 
-执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：需要等待一会儿
+执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：(需要等待calico/node:v2.6.2 镜像下载完成，有时候即便上一步已经配置了docker国内加速，还是可能比较慢，建议确认以下容器运行起来以后，再执行后续步骤)
 
 ``` bash
 docker ps 
