@@ -24,3 +24,7 @@
 - name: 准备分发 CA证书
   shell: "cd {{ ca_dir }} && cp ca*  {{ base_dir }}/roles/prepare/files/"
 
+# kubedns.yaml文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+- name: 准备 kubedns的部署文件 kubedns.yaml
+  template: src=kubedns.yaml.j2 dest={{ base_dir }}/manifests/kubedns/kubedns.yaml
+

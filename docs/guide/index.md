@@ -1,5 +1,13 @@
 ## 使用指南
 
+### 附加组件
+
+- 安装 [kubedns](kubedns.md)
+- 安装 heapster
+- 安装 dashboard
+- 安装 ingress
+- 安装 efk
+
 ### 集群维护
 
 - 集群状态检查
@@ -8,13 +16,6 @@
   - master 节点扩容
   - etcd 集群扩容
 - 清理集群
-
-### 附加组件
-
-- 安装 kubedns
-- 安装 heapster
-- 安装 dashboard
-- 安装 efk
 
 ### 应用实践
 

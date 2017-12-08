@@ -1,7 +1,7 @@
-# 在deploy节点生成CA相关证书，以供整个集群使用
+# 在deploy节点生成CA相关证书，以及kubedns.yaml配置文件
 - hosts: deploy
   roles:
-  - ca
+  - deploy
 
 # 集群节点的公共配置任务
 - hosts:
