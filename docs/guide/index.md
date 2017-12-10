@@ -3,8 +3,8 @@
 ### 附加组件
 
 - 安装 [kubedns](kubedns.md)
+- 安装 [dashboard](dashboard.md)
 - 安装 heapster
-- 安装 dashboard
 - 安装 ingress
 - 安装 efk
 
