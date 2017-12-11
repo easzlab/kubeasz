@@ -21,8 +21,14 @@
 - name: 生成 CA 证书和私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert -initca ca-csr.json | {{ bin_dir }}/cfssljson -bare ca" 
 
+# 为了保证整个安装的幂等性，如果已经生成过CA证书，就使用已经存在的CA；删除/roles/prepare/files/ca* 可以使用新CA 证书
 - name: 准备分发 CA证书
-  shell: "cd {{ ca_dir }} && cp ca*  {{ base_dir }}/roles/prepare/files/"
+  copy: src={{ ca_dir }}/{{ item }} dest={{ base_dir }}/roles/prepare/files/{{ item }} force=no
+  with_items:
+  - ca.pem
+  - ca-key.pem
+  - ca.csr
+  - ca-config.json
 
 # kubedns.yaml文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
 - name: 准备 kubedns的部署文件 kubedns.yaml
