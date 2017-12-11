@@ -114,7 +114,7 @@ WantedBy=multi-user.target
 + calico-node是以docker容器运行在host上的，因此需要把之前的证书目录 /etc/calico/ssl挂载到容器中
 + 配置ETCD_ENDPOINTS 、CA、证书等，所有{{ }}变量与ansible hosts文件中设置对应
 + 配置集群POD网络 CALICO_IPV4POOL_CIDR={{ CLUSTER_CIDR }}
-+ 本K8S集群运行在自有kvm虚机上，虚机间没有网络ACL限制，因此可以设置CALICO_IPV4POOL_IPIP=off，如果运行在公有云虚机上可能需要打开这个选项
++ 本K8S集群运行在自有kvm虚机上，虚机间没有网络ACL限制，因此可以设置`CALICO_IPV4POOL_IPIP=off`，如果运行在公有云虚机上可能需要打开这个选项 `CALICO_IPV4POOL_IPIP=always`
 + 配置FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT 默认允许Pod到Node的网络流量，更多[felix配置选项](https://docs.projectcalico.org/v2.6/reference/felix/configuration)
 
 ### 启动calico-node
