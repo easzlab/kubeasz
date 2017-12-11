@@ -10,7 +10,8 @@
 #  copy: src=hosts.j2 dest=/etc/hosts
 
 - name: 写入环境变量$PATH 
-  shell: "echo export PATH={{ bin_dir }}:$PATH >> /etc/profile"
+  shell: "sed -i '/export PATH/d' /etc/profile && \
+	echo export PATH={{ bin_dir }}:$PATH >> /etc/profile"
 
 - name: 下载证书工具 CFSSL
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
