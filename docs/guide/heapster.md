@@ -1,8 +1,8 @@
 ## heapster
 
-`Heapster` 监控整个集群资源的过程：heapster从kubelet提供的API采集节点和容器的资源占用，然后Kubelet向内置的cAdvisor收集本node节点的容器资源占用，最后heapster 持久化数据存储到`InfluxDB`中（也可以是其他的存储后端,Google Cloud Monitoring等）。
+`Heapster` 监控整个集群资源的过程：首先kubelet内置的cAdvisor收集本node节点的容器资源占用情况，然后heapster从kubelet提供的api采集节点和容器的资源占用，最后heapster 持久化数据存储到`influxdb`中（也可以是其他的存储后端,Google Cloud Monitoring等）。
 
-`Grafana` 则通过配置数据源指向上述 `InfluxDB`，从而界面化显示监控信息。
+`Grafana` 则通过配置数据源指向上述 `influxdb`，从而界面化显示监控信息。
 
 ### 部署
 
@@ -49,7 +49,7 @@ $ kubectl logs monitoring-influxdb-884893134-3vb6n -n kube-system
 
 ### 访问 grafana
 
-#### 1.通过apiserver 访问(建议方式)
+#### 1.通过apiserver 访问（建议的方式）
 
 ``` bash
 kubectl cluster-info | grep grafana
@@ -75,7 +75,7 @@ monitoring-grafana        NodePort    10.68.135.50    <none>        80:5855/TCP	
 
 官方建议使用命令行或 HTTP API 接口来查询`influxdb`数据库，如非必要就跳过此步骤
 
-目前根据测试 k8s v1.8.4只能使用 NodePort 方式访问 admin 界面
+目前根据测试 k8s v1.8.4 使用 NodePort 方式访问 admin 界面后才能正常连接数据库
 
 ``` bash
 kubectl get svc -n kube-system|grep influxdb
