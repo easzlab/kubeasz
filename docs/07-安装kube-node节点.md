@@ -82,7 +82,6 @@ ExecStart={{ bin_dir }}/kubelet \
   --cni-bin-dir={{ bin_dir }} \
   --cluster-dns={{ CLUSTER_DNS_SVC_IP }} \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
-  --cloud-provider='' \
   --hairpin-mode hairpin-veth \
   --allow-privileged=true \
   --fail-swap-on=false \
