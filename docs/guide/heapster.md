@@ -84,7 +84,7 @@ monitoring-influxdb    NodePort    10.68.195.193   <none>        8086:3382/TCP,8
 + 如上例子，8083是管理页面端口，对外暴露的端口为7651
 + 8086 是数据连接端口，对外暴露的端口为3382
 
-使用浏览器访问 http://NodeIP:7651，如图：
+使用浏览器访问 http://NodeIP:7651，如图在页面的 “Connection Settings” 的 Host 中输入 node IP， Port 中输入 3382(由8086对外暴露的端口)，点击 “Save” 即可
 
 ![influxdb](../../pics/influxdb.png)
 
