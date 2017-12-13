@@ -61,9 +61,9 @@ monitoring-grafana is running at https://x.x.x.x:6443/api/v1/namespaces/kube-sys
 
 #### 2.通过NodePort 访问
 
-+ 注意必须修改 grafana.yaml 配置后重新安装 grafana。
 + 修改 `Service` 允许 type: NodePort
 + 修改 `Deployment`中参数`- name: GF_SERVER_ROOT_URL`为 `value: /`
++ 如果之前grafana已经运行，使用 `kubectl replace --force -f /etc/ansible/manifests/heapster/grafana.yaml` 重启 grafana插件
 
 ``` bash
 kubectl get svc -n kube-system|grep grafana
