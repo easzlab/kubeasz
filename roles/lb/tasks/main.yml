@@ -3,11 +3,11 @@
   apt: update_cache=yes cache_valid_time=72000
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
 
-- name: 安装 haproxy using apt
+- name: apt安装 haproxy using apt
   apt: name=haproxy state=latest
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
 
-- name: 安装 haproxy using yum
+- name: yum安装 haproxy using yum
   yum: name=haproxy state=latest
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
 
@@ -17,11 +17,11 @@
 - name: 配置 haproxy
   template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
 
-- name: 安装 keepalived using apt
+- name: apt安装 keepalived using apt
   apt: name=keepalived state=latest
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
 
-- name: 安装 keepalived using yum
+- name: yum安装 keepalived using yum
   yum: name=keepalived state=latest
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
 

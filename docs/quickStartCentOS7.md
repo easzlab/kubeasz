@@ -2,7 +2,7 @@
 
 ### 1.准备一台虚机(推荐内存3G，硬盘20G以上)，最小化安装最新 CentOS7，配置基础网络、更新源、SSH登陆等。
 
-+ 关闭selinux: `echo SELINUX=disabled > /etc/selinux/config` 
++ 关闭selinux: `setenforce 0 && echo SELINUX=disabled > /etc/selinux/config` 
 
 ### 2.安装python2/git/python-pip/ansible
 ``` bash
