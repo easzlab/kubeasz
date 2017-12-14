@@ -2,10 +2,10 @@
 
 node 是集群中承载应用的节点，前置条件需要先部署好master节点(因为需要操作`用户角色绑定`、`批准kubelet TLS 证书请求`等)，它需要部署如下组件：
 
-+ docker 运行容器
-+ calico 配置容器网络
-+ kubelet node上最主要的服务
-+ kubeproxy 发布应用服务与负载均衡
++ docker：运行容器
++ calico： 配置容器网络
++ kubelet： node上最主要的组件
++ kube-proxy： 发布应用服务与负载均衡
 
 ``` bash
 roles/kube-node
@@ -98,7 +98,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 ```
-+ --pod-infra-container-image 指定`基础容器`的镜像，负责创建Pod 内部共享的网络、文件系统等
++ --pod-infra-container-image 指定`基础容器`的镜像，负责创建Pod 内部共享的网络、文件系统等，这个基础容器非常重要：**K8S每一个运行的 POD里面必然包含这个基础容器**，如果它没有运行起来那么你的POD 肯定创建不了，kubelet日志里面会看到类似 ` FailedCreatePodSandBox` 错误，本项目集群常见 `SandBox` 容器起不来有两个原因：a. pause镜像没有下载到 b. calico/node 容器还没有正常运行，可用`docker ps -a` 验证
 + --experimental-bootstrap-kubeconfig 指向 bootstrap kubeconfig 文件，kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求
 + --cluster-dns 指定 kubedns 的 Service IP(可以先分配，后续创建 kubedns 服务时指定该 IP)，--cluster-domain 指定域名后缀，这两个参数同时指定后才会生效；
 + --network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir={{ bin_dir }} 为使用cni 网络，并调用calico管理网络所需的配置
