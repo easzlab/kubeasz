@@ -1,18 +1,19 @@
 ## 快速指南
 
-以下为基于Ubuntu16.04 快速体验k8s集群的测试、开发环境--AllinOne部署，觉得比官方的minikube方便、简单很多。CentOS7 指南请点[这里](quickStartCentOS7.md)
+### 1.准备一台虚机(推荐内存3G，硬盘20G以上)，最小化安装最新 CentOS7，配置基础网络、更新源、SSH登陆等。
 
-### 1.准备一台虚机(推荐内存3G，硬盘20G以上)，最小化安装Ubuntu16.04 server，配置基础网络、更新源、SSH登陆等。
++ 关闭selinux: `echo SELINUX=disabled > /etc/selinux/config` 
+
 ### 2.安装python2/git/python-pip/ansible
 ``` bash
 # 文档中脚本默认均以root用户执行
-apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y
+# 安装 epel 源并更新
+yum install epel-release -y
+yum update
 # 删除不要的默认安装
-apt-get purge ufw lxd lxd-client lxcfs lxc-common
+yum erase firewalld firewalld-filesystem python-firewall -y
 # 安装依赖工具
-apt-get install python2.7 git python-pip
-# Ubuntu16.04可能需要配置以下软连接
-ln -s /usr/bin/python2.7 /usr/bin/python
+yum install git python python-pip -y
 # 安装ansible (国内如果安装太慢可以直接用pip阿里云加速)
 #pip install pip --upgrade
 #pip install ansible
