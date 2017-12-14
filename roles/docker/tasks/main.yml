@@ -32,12 +32,12 @@
 ## 可选 ------安装docker查询镜像 tag的小工具----
 - name: 安装轻量JSON处理程序
   apt: name=jq state=latest
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version = "16"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
   tags: docker-tag
 
 - name: 安装轻量JSON处理程序
   yum: name=jq state=latest
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version = "7"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
   tags: docker-tag
 
 - name: 下载 docker-tag

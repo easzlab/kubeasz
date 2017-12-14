@@ -1,15 +1,15 @@
 # 
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version = "16"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
 
 - name: 安装 haproxy using apt
   apt: name=haproxy state=latest
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version = "16"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
 
 - name: 安装 haproxy using yum
   yum: name=haproxy state=latest
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version = "7"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
 
 - name: 创建haproxy配置目录
   file: name=/etc/haproxy state=directory
@@ -19,11 +19,11 @@
 
 - name: 安装 keepalived using apt
   apt: name=keepalived state=latest
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version = "16"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
 
 - name: 安装 keepalived using yum
   yum: name=keepalived state=latest
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version = "7"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
 
 - name: 创建keepalived配置目录
   file: name=/etc/keepalived state=directory
