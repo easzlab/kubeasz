@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/haproxy
-ExecStartPre=/usr/bin/mkdir /run/haproxy
+ExecStartPre=/usr/bin/mkdir -p /run/haproxy
 ExecStart=/usr/sbin/haproxy-systemd-wrapper -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid $OPTIONS
 ExecReload=/bin/kill -USR2 $MAINPID
 KillMode=mixed
