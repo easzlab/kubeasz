@@ -17,6 +17,9 @@
 - name: 创建haproxy配置目录
   file: name=/etc/haproxy state=directory
 
+- name: 创建haproxy工作目录
+  file: name=/run/haproxy state=directory
+
 - name: 配置 haproxy
   template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
 
