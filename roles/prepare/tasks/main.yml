@@ -27,3 +27,11 @@
   - ca-key.pem
   - ca.csr
   - ca-config.json
+
+# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续when 判断可能失败
+- name: 缓存ansilbe setup信息
+  setup: gather_subset=min
+
+- name: 关闭 selinux
+  shell: "setenforce 0 && echo SELINUX=disabled > /etc/selinux/config"
+  when: ansible_distribution == "CentOS"
