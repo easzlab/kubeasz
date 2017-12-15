@@ -30,6 +30,11 @@
   shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker
 
 ## 可选 ------安装docker查询镜像 tag的小工具----
+# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续when 判断可能失败
+- name: 缓存ansilbe setup信息
+  setup: gather_subset=min
+  tags: docker-tag
+
 - name: apt安装轻量JSON处理程序
   apt: name=jq state=latest
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
