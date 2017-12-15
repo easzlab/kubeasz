@@ -35,3 +35,4 @@
 - name: 关闭 selinux
   shell: "setenforce 0 && echo SELINUX=disabled > /etc/selinux/config"
   when: ansible_distribution == "CentOS"
+  ignore_errors: true
