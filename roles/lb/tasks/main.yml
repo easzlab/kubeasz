@@ -18,7 +18,7 @@
   file: name=/etc/haproxy state=directory
 
 - name: 创建haproxy工作目录
-  file: name=/run/haproxy state=directory
+  file: name=/run/haproxy state=directory owner=haproxy group=haproxy
 
 - name: 配置 haproxy
   template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
@@ -29,6 +29,11 @@
 
 - name: yum安装 keepalived
   yum: name=keepalived state=latest
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+# CentOS 需要安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
+- name: yum安装 psmisc
+  yum: name=psmisc state=latest
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
 
 - name: 创建keepalived配置目录
