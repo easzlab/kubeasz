@@ -48,8 +48,11 @@
   template: src=keepalived-backup.conf.j2 dest=/etc/keepalived/keepalived.conf
   when: LB_ROLE == "backup"
 
+- name: daemon-reload for haproxy.service
+  shell: systemctl daemon-reload
+
 - name: 重启haproxy服务
-  shell: systemctl enable haproxy && systemctl daemon-reload && systemctl restart haproxy
+  shell: systemctl enable haproxy && systemctl restart haproxy
 
 - name: 重启keepalived服务
   shell: systemctl enable keepalived && systemctl restart keepalived
