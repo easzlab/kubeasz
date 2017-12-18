@@ -212,4 +212,4 @@ etcd-2               Healthy   {"health": "true"}
 etcd-1               Healthy   {"health": "true"} 
 ```
 
-[前一篇](05-安装calico网络组件.md) -- [目录](https://github.com/gjmzj/kubeasz/tree/master/docs) -- [后一篇](07-安装kube-node节点.md)
+[前一篇](05-安装calico网络组件.md) -- [后一篇](07-安装kube-node节点.md)

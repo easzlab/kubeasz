@@ -106,4 +106,4 @@ cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
 + 以上生成的 kubeconfig 自动保存到 ~/.kube/config 文件
 
 
-[前一篇](02-安装etcd集群.md) -- [目录](https://github.com/gjmzj/kubeasz/tree/master/docs) -- [后一篇](04-安装docker服务.md)
+[前一篇](02-安装etcd集群.md) -- [后一篇](04-安装docker服务.md)
