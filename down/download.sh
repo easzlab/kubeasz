@@ -1,9 +1,9 @@
 #!/bin/bash
 #主要组件版本如下
-export K8S_VER=v1.8.4
-export ETCD_VER=v3.2.10
-export DOCKER_VER=17.09.0-ce
-export CALICO_VER=v2.6.2
+export K8S_VER=v1.9.0
+export ETCD_VER=v3.2.11
+export DOCKER_VER=17.09.1-ce
+export CALICO_VER=v2.6.3
 
 echo "\n建议直接下载本人打包好的所有必要二进制包k8s-184.all.tar.gz，然后解压到bin目录"
 echo "\n建议不使用此脚本，如果你想升级组件或者实验，请通读该脚本，必要时适当修改后使用"
