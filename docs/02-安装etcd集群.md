@@ -124,3 +124,6 @@ https://192.168.1.2:2379 is healthy: successfully committed proposal: took = 2.7
 https://192.168.1.3:2379 is healthy: successfully committed proposal: took = 3.275709ms
 ```
 三台 etcd 的输出均为 healthy 时表示集群服务正常。
+
+
+[前一篇](01-创建CA证书和环境配置.md) -- [目录](https://github.com/gjmzj/kubeasz/tree/master/docs) -- [后一篇](03-配置kubectl命令行工具.md)

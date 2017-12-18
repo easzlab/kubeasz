@@ -59,4 +59,4 @@ Address 2: 180.97.33.107
 / #
 ```
 
-[后一篇](dashboard.md) -- [目录](index.md)
+[前一篇](index.md) -- [目录](index.md) -- [后一篇](dashboard.md)

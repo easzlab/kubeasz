@@ -236,3 +236,6 @@ kubectl get pod -n kube-system -o wide
 NAME                                      READY     STATUS    RESTARTS   AGE       IP              NODE
 calico-kube-controllers-69bcb79c6-b444q   1/1       Running   0          2d        192.168.1.44    192.168.1.44
 ```
+
+
+[前一篇](06-安装kube-master节点.md) -- [目录](https://github.com/gjmzj/kubeasz/tree/master/docs) -- [后一篇]()

@@ -94,3 +94,4 @@ spec:
 这样在集群外部可以使用 `curl -H Host:traefik-ui.test.com 192.168.1.1:23456` 尝试访问WEB管理页面，返回 `<a href="/dashboard/">Found</a>.`说明 traefik-ui的ingress配置生效了。
 
 
+[前一篇](heapster.md) -- [目录](index.md) -- [后一篇](efk.md)

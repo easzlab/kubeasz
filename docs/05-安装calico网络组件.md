@@ -237,3 +237,5 @@ calicoctl get ipPool -o yaml
   spec:
     nat-outgoing: true
 ```
+
+[前一篇](04-安装docker服务.md) -- [目录](https://github.com/gjmzj/kubeasz/tree/master/docs) -- [后一篇](06-安装kube-master节点.md)

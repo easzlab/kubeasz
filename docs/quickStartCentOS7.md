@@ -46,7 +46,7 @@ ansible-playbook 90.setup.yml # 一步安装
 #ansible-playbook 06.kube-master.yml
 #ansible-playbook 07.kube-node.yml
 ```
-如果执行成功，k8s集群就安装好了。详细安装步骤讲解请移步[安装步骤](https://github.com/gjmzj/kubeasz/tree/master/docs)
+如果执行成功，k8s集群就安装好了。详细分步讲解请移步 [安装步骤](https://github.com/gjmzj/kubeasz/tree/master/docs)
 
 ### 4.验证安装
 ``` bash
@@ -68,4 +68,4 @@ kubectl create -f /etc/ansible/manifests/heapster
 # 安装dashboard
 kubectl create -f /etc/ansible/manifests/dashboard
 ```
-+ 更新后`dashboard`已经默认关闭非安全端口访问和NodePort方式访问，请使用`https://10.100.80.30:6443/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy`访问，并用默认用户 `admin:test1234` 登陆，更多内容请查阅[dashboard文档](guide/dashboard.md)
++ 更新后`dashboard`已经默认关闭非安全端口访问，请使用`https://10.100.80.30:6443/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy`访问，并用默认用户 `admin:test1234` 登陆，更多内容请查阅[dashboard文档](guide/dashboard.md)
