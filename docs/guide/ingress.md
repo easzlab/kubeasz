@@ -93,5 +93,69 @@ spec:
 ```
 这样在集群外部可以使用 `curl -H Host:traefik-ui.test.com 192.168.1.1:23456` 尝试访问WEB管理页面，返回 `<a href="/dashboard/">Found</a>.`说明 traefik-ui的ingress配置生效了。
 
+### [可选] 部署`ingress-service`的代理
+
+在客户端主机上可以通过修改本机 `hosts` 文件，如上例子，增加两条记录：
+
+``` text
+192.168.1.1	hello.test.com
+192.168.1.1	traefik-ui.test.com
+```
+打开浏览器输入域名 `http://hello.test.com:23456` 和 `http://traefik-ui.test.com:23456` 就可以访问k8s的应用服务了。
+
+当然如果你的环境中有类似 nginx/haproxy 等代理，可以做代理转发以去掉 `23456`这个端口，这里以 haproxy演示下。
+
+如果你的集群根据本项目部署了高可用方案，那么可以利用`LB` 节点haproxy 来做，当然如果生产环境K8S应用已经部署非常多，建议还是使用独立的 `nginx/haproxy`集群
+
+在 LB 主备节点，修改 `/etc/haproxy/haproxy.cfg`类似如下：
+
+``` bash
+global
+        log /dev/log    local0
+        log /dev/log    local1 notice
+        chroot /var/lib/haproxy
+        stats socket /run/haproxy/admin.sock mode 660 level admin
+        stats timeout 30s
+        user haproxy
+        group haproxy
+        daemon
+        nbproc 1
+
+defaults
+        log     global
+        timeout connect 5000
+        timeout client  50000
+        timeout server  50000
+
+listen kube-master
+        bind 0.0.0.0:8443
+        mode tcp
+        option tcplog
+        balance source
+        # 根据实际kube-master 节点数量增减如下endpoints
+        server s1 192.168.1.1:6443  check inter 10000 fall 2 rise 2 weight 1
+        server s2 192.168.1.2:6443  check inter 10000 fall 2 rise 2 weight 1
+
+listen kube-node
+	# 先确认 LB节点80端口可用
+        bind 0.0.0.0:80		
+        mode tcp
+        option tcplog
+        balance source
+        # 根据实际kube-node 节点数量增减如下endpoints
+        server s1 192.168.1.1:23456  check inter 10000 fall 2 rise 2 weight 1
+        server s2 192.168.1.2:23456  check inter 10000 fall 2 rise 2 weight 1
+        server s3 192.168.1.3:23456  check inter 10000 fall 2 rise 2 weight 1
+```
+修改保存后，重启haproxy服务；
+
+这样我们就可以访问集群`master-VIP`的`80`端口，由haproxy代理转发到实际的node节点和nodePort端口上了。这时可以修改客户端本机 `hosts`文件如下：(假定 master-VIP=192.168.1.10)
+
+``` text
+192.168.1.10     hello.test.com
+192.168.1.10    traefik-ui.test.com
+```
+打开浏览器输入域名 `http://hello.test.com` 和 `http://traefik-ui.test.com`可以正常访问。
+
 
 [前一篇](heapster.md) -- [目录](index.md) -- [后一篇](efk.md)
