@@ -45,6 +45,9 @@ kube-master
 MASTER_IP="192.168.1.10"
 KUBE_APISERVER="https://192.168.1.10:8443"
 
+#pause镜像地址
+POD_INFRA_CONTAINER_IMAGE=mirrorgooglecontainers/pause-amd64:3.0
+
 #TLS Bootstrapping 使用的 Token，使用 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
 BOOTSTRAP_TOKEN="c30302226d4b810e08731702d3890f50"
 
