@@ -21,8 +21,8 @@
 1. docker	17.09.1-ce
 1. calico/node	v2.6.3
 
-附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1i5u3SEh](https://pan.baidu.com/s/1i5u3SEh)
-注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`
++ 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1i5u3SEh](https://pan.baidu.com/s/1i5u3SEh)
++ 注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`, 若你需要从v1.8 升级至 v1.9，请参考 [升级注意](docs/upgrade.md)
 
 ## 快速指南
 
