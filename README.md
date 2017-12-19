@@ -16,12 +16,13 @@
 
 ## 组件版本
 
-1. kubernetes	v1.8.4
-1. etcd		v3.2.10
-1. docker	17.09.0-ce
-1. calico/node	v2.6.2
+1. kubernetes	v1.9.0
+1. etcd		v3.2.11
+1. docker	17.09.1-ce
+1. calico/node	v2.6.3
 
-附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1eSetFSA](https://pan.baidu.com/s/1eSetFSA)
+附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1i5u3SEh](https://pan.baidu.com/s/1i5u3SEh)
+注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`
 
 ## 快速指南
 
