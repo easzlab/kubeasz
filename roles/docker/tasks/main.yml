@@ -30,14 +30,21 @@
   shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker
 
 ## 可选 ------安装docker查询镜像 tag的小工具----
-- name: apt更新缓存刷新
-  apt: update_cache=yes cache_valid_time=72000
+# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续when 判断可能失败
+- name: 缓存ansilbe setup信息
+  setup: gather_subset=min
   tags: docker-tag
 
-- name: 安装轻量JSON处理程序
-  apt: name=jq state=latest
-  tags: docker-tag
+#- name: apt安装轻量JSON处理程序
+#  apt: name=jq state=latest
+#  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
+#  tags: docker-tag
 
-- name: 下载 docker-tag
-  copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
-  tags: docker-tag
+#- name: yum安装轻量JSON处理程序
+#  yum: name=jq state=latest
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+#  tags: docker-tag
+
+#- name: 下载 docker-tag
+#  copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
+#  tags: docker-tag

@@ -1,18 +1,41 @@
-
+# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续when 判断可能失败
+- name: 缓存ansilbe setup信息
+  setup: gather_subset=min
+ 
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
 
-- name: 安装 haproxy
+- name: apt安装 haproxy
   apt: name=haproxy state=latest
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
+
+- name: yum安装 haproxy
+  yum: name=haproxy state=latest
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
 
 - name: 创建haproxy配置目录
   file: name=/etc/haproxy state=directory
 
+- name: 修改centos的haproxy.service
+  template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
 - name: 配置 haproxy
   template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
 
-- name: 安装 keepalived
+- name: apt安装 keepalived
   apt: name=keepalived state=latest
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
+
+- name: yum安装 keepalived
+  yum: name=keepalived state=latest
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+# CentOS 需要安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
+- name: yum安装 psmisc
+  yum: name=psmisc state=latest
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
 
 - name: 创建keepalived配置目录
   file: name=/etc/keepalived state=directory
@@ -24,6 +47,9 @@
 - name: 配置 keepalived 备节点
   template: src=keepalived-backup.conf.j2 dest=/etc/keepalived/keepalived.conf
   when: LB_ROLE == "backup"
+
+- name: daemon-reload for haproxy.service
+  shell: systemctl daemon-reload
 
 - name: 重启haproxy服务
   shell: systemctl enable haproxy && systemctl restart haproxy

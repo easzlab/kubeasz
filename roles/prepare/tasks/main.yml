@@ -10,7 +10,7 @@
 #  copy: src=hosts.j2 dest=/etc/hosts
 
 - name: 写入环境变量$PATH 
-  shell: "sed -i '/export PATH/d' /etc/profile && \
+  shell: "sed -i '/export PATH=/d' /etc/profile && \
 	echo export PATH={{ bin_dir }}:$PATH >> /etc/profile"
 
 - name: 下载证书工具 CFSSL
@@ -27,3 +27,32 @@
   - ca-key.pem
   - ca.csr
   - ca-config.json
+
+# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续when 判断可能失败
+- name: 缓存ansilbe setup信息
+  setup: gather_subset=min
+
+# 删除默认安装
+- name: 删除ubuntu默认安装
+  when: ansible_distribution == "Ubuntu"
+  apt: name={{ item }} state=absent
+  with_items:
+  - ufw
+  - lxd
+  - lxd-client
+  - lxcfs
+  - lxc-common
+
+# 删除默认安装
+- name: 删除centos默认安装
+  when: ansible_distribution == "CentOS"
+  yum: name={{ item }} state=absent
+  with_items:
+  - firewalld
+  - firewalld-filesystem
+  - python-firewall
+
+- name: 关闭 selinux
+  shell: "setenforce 0 && echo SELINUX=disabled > /etc/selinux/config"
+  when: ansible_distribution == "CentOS"
+  ignore_errors: true
