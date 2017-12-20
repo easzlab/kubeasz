@@ -28,6 +28,9 @@ echo https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
 echo "\n----download calico at:"
 echo https://docs.projectcalico.org/v2.6/releases/
 
+echo "\n----download calico cni-plugin at:"
+echo https://github.com/projectcalico/cni-plugin/releases
+
 sleep 30
 
 ### 准备证书工具程序
