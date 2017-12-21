@@ -5,7 +5,7 @@ export ETCD_VER=v3.2.11
 export DOCKER_VER=17.09.1-ce
 export CALICO_VER=v2.6.3
 
-echo "\n建议直接下载本人打包好的所有必要二进制包k8s-184.all.tar.gz，然后解压到bin目录"
+echo "\n建议直接下载本人打包好的所有必要二进制包k8s-190.all.tar.gz，然后解压到bin目录"
 echo "\n建议不使用此脚本，如果你想升级组件或者实验，请通读该脚本，必要时适当修改后使用"
 echo "\n注意1：因为网络原因不进行自动下载,请按照以下链接手动下载二进制包到down目录中"
 echo "\n注意2：如果还没有手工下载tar包，请Ctrl-c结束此脚本"

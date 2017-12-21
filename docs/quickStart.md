@@ -51,7 +51,7 @@ ssh-copy-id $IP #$IP为本虚机地址，按照提示输入yes 和root密码
 git clone https://github.com/gjmzj/kubeasz.git
 mv kubeasz /etc/ansible
 # 下载已打包好的binaries，并且解压缩到/etc/ansible/bin目录
-# 国内请从分享的百度云链接下载
+# 国内请从分享的百度云链接下载 https://pan.baidu.com/s/1c4RFaA
 # 如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包到 ./down目录，并执行download.sh
 tar zxvf k8s.190.tar.gz
 mv bin/* /etc/ansible/bin
