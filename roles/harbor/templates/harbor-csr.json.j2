@@ -1,0 +1,21 @@
+{
+  "CN": "harbor",
+  "hosts": [
+    "127.0.0.1",
+    "{{ NODE_IP }}",
+    "{{ HARBOR_DOMAIN }}"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "HangZhou",
+      "L": "XS",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}

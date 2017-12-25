@@ -1,0 +1,44 @@
+- name: 下载docker compose 二进制文件
+  copy: src={{ base_dir }}/bin/docker-compose dest={{ bin_dir }}/docker-compose mode=0755
+
+# 注册变量result，根据result结果判断是否已经安装过harbor
+# result|failed 说明没有安装过harbor，下一步进行安装
+# result|succeeded 说明已经安装过harbor，下一步跳过安装
+- name: 注册变量result
+  command: ls /data
+  register: result
+  ignore_errors: True
+
+- name: 解压harbor离线安装包
+  unarchive: 
+    src: "{{ base_dir }}/down/harbor-offline-installer-v1.2.2.tgz"
+    dest: /root/local
+    copy: yes
+    keep_newer: yes
+  when: result|failed
+
+- name: 导入harbor所需 docker images
+  shell: "{{ bin_dir }}/docker load -i /root/local/harbor/harbor.v1.2.2.tar.gz"
+  when: result|failed
+
+- name: 创建harbor证书请求
+  template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json
+  when: result|failed
+
+- name: 创建harbor证书和私钥
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes harbor-csr.json | {{ bin_dir }}/cfssljson -bare harbor"
+  when: result|failed
+
+- name: 配置 harbor.cfg 文件
+  template: src=harbor.cfg.j2 dest=/root/local/harbor/harbor.cfg
+  when: result|failed
+
+- name: 安装 harbor
+  shell: "cd /root/local/harbor && \
+	export PATH={{ bin_dir }}:$PATH && \
+	 ./install.sh"
+  when: result|failed

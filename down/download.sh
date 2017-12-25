@@ -4,6 +4,8 @@ export K8S_VER=v1.9.0
 export ETCD_VER=v3.2.11
 export DOCKER_VER=17.09.1-ce
 export CALICO_VER=v2.6.3
+export DOCKER_COMPOSE=1.18.0
+export HARBOR=v1.2.2
 
 echo "\n建议直接下载本人打包好的所有必要二进制包k8s-190.all.tar.gz，然后解压到bin目录"
 echo "\n建议不使用此脚本，如果你想升级组件或者实验，请通读该脚本，必要时适当修改后使用"
@@ -30,6 +32,12 @@ echo https://docs.projectcalico.org/v2.6/releases/
 
 echo "\n----download calico cni-plugin at:"
 echo https://github.com/projectcalico/cni-plugin/releases
+
+echo "\n----download docker-compose at:"
+echo https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE}/docker-compose-Linux-x86_64
+
+echo "\n----download harbor-offline-installer at:"
+echo https://github.com/vmware/harbor/releases/download/${HARBOR}/harbor-offline-installer-${HARBOR}.tgz
 
 sleep 30
 

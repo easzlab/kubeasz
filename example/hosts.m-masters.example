@@ -34,6 +34,10 @@ MASTER_PORT="8443"		# api-server 服务端口
 kube-node
 kube-master
 
+# 如果启用harbor，请配置后面harbor相关参数
+[harbor]
+#10.100.97.44 NODE_IP="192.168.1.8"
+
 # 预留组，后续添加node节点使用
 [new-node]
 #192.168.1.xx NODE_ID=node6 NODE_IP="192.168.1.xx"
@@ -90,5 +94,5 @@ ca_dir="/etc/kubernetes/ssl"
 base_dir="/etc/ansible"
 
 #私有仓库 harbor服务器 (域名或者IP)
-#需要把 harbor服务器证书复制到roles/harbor/files/harbor-ca.crt
-HARBOR_SERVER="harbor.mydomain.com"
+#HARBOR_IP="192.168.1.8"
+#HARBOR_DOMAIN="harbor.yourdomain.com"
