@@ -18,6 +18,10 @@
 kube-node
 kube-master
 
+# 如果启用harbor，请配置后面harbor相关参数
+[harbor]
+#10.100.97.44 NODE_IP="192.168.1.8"
+
 [all:vars]
 # ---------集群主要参数---------------
 #集群 MASTER IP
@@ -25,6 +29,9 @@ MASTER_IP="192.168.1.1"
 
 #集群 APISERVER
 KUBE_APISERVER="https://192.168.1.1:6443"
+
+#pause镜像地址
+POD_INFRA_CONTAINER_IMAGE=mirrorgooglecontainers/pause-amd64:3.0
 
 #TLS Bootstrapping 使用的 Token，使用 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
 BOOTSTRAP_TOKEN="d18f94b5fa585c7123f56803d925d2e7"
@@ -68,5 +75,5 @@ ca_dir="/etc/kubernetes/ssl"
 base_dir="/etc/ansible"
 
 #私有仓库 harbor服务器 (域名或者IP)
-#需要把 harbor服务器证书复制到roles/harbor/files/harbor-ca.crt
-HARBOR_SERVER="harbor.yourdomain.com"
+#HARBOR_IP="192.168.1.8"
+#HARBOR_DOMAIN="harbor.yourdomain.com"
