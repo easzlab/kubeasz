@@ -5,7 +5,7 @@
 # result|failed 说明没有安装过harbor，下一步进行安装
 # result|succeeded 说明已经安装过harbor，下一步跳过安装
 - name: 注册变量result
-  command: ls /data
+  command: ls /data/registry
   register: result
   ignore_errors: True
 

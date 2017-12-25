@@ -7,6 +7,7 @@
 - 安装 [heapster](heapster.md)
 - 安装 [ingress](ingress.md)
 - 安装 efk
+- 安装 [harbor](harbor.md)
 
 ### 集群维护
 
@@ -26,4 +27,3 @@
 
 ### 其他
 
-- Harbor 部署
