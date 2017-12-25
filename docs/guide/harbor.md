@@ -2,17 +2,31 @@
 
 Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是在Docker Registry上进行了相应的企业级扩展，从而获得了更加广泛的应用，这些新的企业级特性包括：管理用户界面，基于角色的访问控制 ，水平扩展，同步，AD/LDAP集成以及审计日志等。本文档仅说明部署单个基础harbor服务的步骤。
 
-### 准备安装文件
+### 安装步骤
 
-1. 下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `bin`目录下，后续版本会一起打包进百度云盘`k8s.xxx.tar.gz`文件中
+1. 在deploy节点下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录下，后续版本会一起打包进百度云盘`k8s.xxx.tar.gz`文件中，可以省略该步骤
 
 ``` bash
 wget https://github.com/docker/compose/releases/download/1.18.0/docker-compose-Linux-x86_64
 mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
 ```
-2. 下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `down` 目录下，也可以从分享的百度云盘下载
+2. 在deploy节点下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `/etc/ansible/down` 目录下，也可以从分享的百度云盘下载
 
-### 安装步骤
+3. 在deploy节点编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
+
+``` bash
+# 如果启用harbor，请配置后面harbor相关参数
+[harbor]
+192.168.1.8 NODE_IP="192.168.1.8"
+
+#私有仓库 harbor服务器 (域名或者IP)
+HARBOR_IP="192.168.1.8"
+HARBOR_DOMAIN="harbor.test.com"
+```
+
+4. 在deploy节点执行 `cd /etc/ansible && ansible-playbook 11.harbor.yml`，完成harbor安装
+
+### 安装讲解
 
 根据 `11.harbor.yml`文件，harbor节点需要以下步骤：
 
@@ -20,7 +34,7 @@ mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
 1. role `docker` 安装docker
 1. role `harbor` 安装harbor
 
-harbor部署完之后，集群所有运行docker的节点需要配置harbor的证书，并可以在hosts里面添加harbor的域名解析，如果你的环境中有dns服务器，可以跳过hosts文件设置
+`kube-node`节点在harbor部署完之后，需要配置harbor的证书，并可以在hosts里面添加harbor的域名解析，如果你的环境中有dns服务器，可以跳过hosts文件设置
 
 请在另外窗口打开 [roles/harbor/tasks/main.yml](../../roles/harbor/tasks/main.yml)，对照以下讲解
 
@@ -94,7 +108,7 @@ metadata:
 spec:
   containers:
   - name: test-busybox
-    image: harbor.test.com/library/busybox:latest
+    image: harbor.test.com/xxx/busybox:latest
     imagePullPolicy: Always
 ```
 
