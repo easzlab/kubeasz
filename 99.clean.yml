@@ -1,7 +1,9 @@
-# 警告：此脚本将清理真个K8S集群，包括所有POD、ETCD数据等
+# 警告：此脚本将清理整个K8S集群，包括所有POD、ETCD数据等
 # 请三思后运行此脚本 ansible-playbook 99.clean.yml
 
-- hosts: kube-node
+- hosts:
+  - kube-node
+  - new-node
   tasks:
   - name: stop kube-node service
     shell: "systemctl stop kubelet kube-proxy"
@@ -37,6 +39,7 @@
 
 - hosts:
   - kube-cluster
+  - new-node
   - deploy
   tasks:
   - name: stop calico-node service

@@ -91,7 +91,7 @@ kubectl create -f /etc/ansible/manifests/heapster
 # 安装dashboard
 kubectl create -f /etc/ansible/manifests/dashboard
 ```
-+ 更新后`dashboard`已经默认关闭非安全端口访问，请使用`https://10.100.80.30:6443/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy`访问，并用默认用户 `admin:test1234` 登陆，更多内容请查阅[dashboard文档](guide/dashboard.md)
++ 更新后`dashboard`已经默认关闭非安全端口访问，请使用`https://xx.xx.xx.xx:6443/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy`访问，并用默认用户 `admin:test1234` 登陆，更多内容请查阅[dashboard文档](guide/dashboard.md)
 
 ### 7.清理集群
 
