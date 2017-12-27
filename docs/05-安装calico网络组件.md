@@ -102,7 +102,7 @@ ExecStart={{ bin_dir }}/docker run --net=host --privileged --name=calico-node \
   -v /run/docker/plugins:/run/docker/plugins \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/log/calico:/var/log/calico \
-  calico/node:v2.6.2
+  calico/node:v2.6.3
 ExecStop={{ bin_dir }}/docker rm -f calico-node
 Restart=always
 RestartSec=10
@@ -162,12 +162,12 @@ spec:
 
 ### 验证calico网络
 
-执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：(需要等待calico/node:v2.6.2 镜像下载完成，有时候即便上一步已经配置了docker国内加速，还是可能比较慢，建议确认以下容器运行起来以后，再执行后续步骤)
+执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：(需要等待calico/node:v2.6.3 镜像下载完成，有时候即便上一步已经配置了docker国内加速，还是可能比较慢，建议确认以下容器运行起来以后，再执行后续步骤)
 
 ``` bash
 docker ps 
 CONTAINER ID        IMAGE                COMMAND             CREATED             STATUS              PORTS               NAMES
-631dde89eada        calico/node:v2.6.2   "start_runit"       10 minutes ago      Up 10 minutes                           calico-node
+631dde89eada        calico/node:v2.6.3   "start_runit"       10 minutes ago      Up 10 minutes                           calico-node
 ```
 
 **查看网卡和路由信息**
