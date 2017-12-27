@@ -102,7 +102,7 @@ ExecStart={{ bin_dir }}/docker run --net=host --privileged --name=calico-node \
   -v /run/docker/plugins:/run/docker/plugins \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/log/calico:/var/log/calico \
-  calico/node:v2.6.3
+  calico/node:v2.6.2
 ExecStop={{ bin_dir }}/docker rm -f calico-node
 Restart=always
 RestartSec=10
@@ -114,7 +114,7 @@ WantedBy=multi-user.target
 + calico-node是以docker容器运行在host上的，因此需要把之前的证书目录 /etc/calico/ssl挂载到容器中
 + 配置ETCD_ENDPOINTS 、CA、证书等，所有{{ }}变量与ansible hosts文件中设置对应
 + 配置集群POD网络 CALICO_IPV4POOL_CIDR={{ CLUSTER_CIDR }}
-+ 本K8S集群运行在自有kvm虚机上，虚机间没有网络ACL限制，因此可以设置`CALICO_IPV4POOL_IPIP=off`，如果运行在公有云虚机上可能需要打开这个选项 `CALICO_IPV4POOL_IPIP=always`
++ **重要**本K8S集群运行在同网段kvm虚机上，虚机间没有网络ACL限制，因此可以设置`CALICO_IPV4POOL_IPIP=off`，如果你的主机位于不同网段，或者运行在公有云上需要打开这个选项 `CALICO_IPV4POOL_IPIP=always`
 + 配置FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT 默认允许Pod到Node的网络流量，更多[felix配置选项](https://docs.projectcalico.org/v2.6/reference/felix/configuration)
 
 ### 启动calico-node
@@ -162,12 +162,12 @@ spec:
 
 ### 验证calico网络
 
-执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：(需要等待calico/node:v2.6.x 镜像下载完成，有时候即便上一步已经配置了docker国内加速，还是可能比较慢，建议确认以下容器运行起来以后，再执行后续步骤)
+执行calico安装 `ansible-playbook 05.calico.yml` 成功后可以验证如下：(需要等待calico/node:v2.6.2 镜像下载完成，有时候即便上一步已经配置了docker国内加速，还是可能比较慢，建议确认以下容器运行起来以后，再执行后续步骤)
 
 ``` bash
 docker ps 
 CONTAINER ID        IMAGE                COMMAND             CREATED             STATUS              PORTS               NAMES
-631dde89eada        calico/node:v2.6.x   "start_runit"       10 minutes ago      Up 10 minutes                           calico-node
+631dde89eada        calico/node:v2.6.2   "start_runit"       10 minutes ago      Up 10 minutes                           calico-node
 ```
 
 **查看网卡和路由信息**
