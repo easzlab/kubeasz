@@ -1,19 +1,21 @@
 ## Horizontal Pod Autoscaling
 
-自动水平伸缩，是指运行在k8s上的应用负载(POD)，可以根据资源使用率进行自动扩容、缩容；我们知道应用的资源使用率通常都有高峰和低谷的时候，`HPA` 就是k8s 上最能体现区别于传统运维的一个优势特性，不仅能够弹性伸缩，而且完全自动化！
+自动水平伸缩，是指运行在k8s上的应用负载(POD)，可以根据资源使用率进行自动扩容、缩容；我们知道应用的资源使用率通常都有高峰和低谷，所以k8s的`HPA`特性应运而生；它也是最能体现区别于传统运维的优势之一，不仅能够弹性伸缩，而且完全自动化！
 
-它可以根据 CPU 使用率或应用自定义 metrics 自动扩展 Pod 数量（支持 replication controller、deployment）；k8s1.6版本之前是通过kubelet来获取监控指标来判断是否需要扩缩容，1.6版本之后必须通过API server、Heapseter或者kube-aggregator来获取监控指标。
+根据 CPU 使用率或自定义 metrics 自动扩展 Pod 数量（支持 replication controller、deployment）；k8s1.6版本之前是通过kubelet来获取监控指标，1.6版本之后是通过api server、heapster或者kube-aggregator来获取监控指标。
 
 ### Metrics支持
 
 根据不同版本的API中，HPA autoscale时靠以下指标来判断资源使用率：
 - autoscaling/v1: CPU
 - autoscaling/v2alpha1
- - 内存
- - 自定义metrics
- - 多metrics组合: 根据每个metric的值计算出scale的值，并将最大的那个指作为扩容的最终结果
+  - 内存
+  - 自定义metrics
+  - 多metrics组合: 根据每个metric的值计算出scale的值，并将最大的那个指作为扩容的最终结果
 
 ### 基础示例
+
+本实验环境基于k8s 1.8 和 1.9，仅使用`autoscaling/v1` 版本API
 
 ``` bash
 # 创建deploy和service
@@ -46,11 +48,9 @@ $ kubectl get hpa php-apache
 NAME         REFERENCE               TARGETS     MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   52% / 50%   1         10        10         12m
 
-# 清除负载，CTRL + C 结束上述负载循环下载程序，过段时间后又缩容到1个副本
+# 清除负载，CTRL+C 结束上述循环程序，稍后副本数目变回1
 $ kubectl get hpa php-apache
 NAME         REFERENCE               TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   0% / 50%   1         10        1          17m
 ```
-### 自定义metrics示例
 
-待更新

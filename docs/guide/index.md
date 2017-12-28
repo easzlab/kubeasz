@@ -11,8 +11,8 @@
 
 ### 基础特性演示
 
-- 自动水平伸缩-基础[Horizontal Pod Autoscaling](hpa.md)
-- 网络安全策略[Network Policy](NetworkPolicy.md)
+- 自动水平伸缩-基础 [Horizontal Pod Autoscaling](hpa.md)
+- 网络安全策略 [Network Policy](networkpolicy.md)
 
 ### 集群维护指南
 

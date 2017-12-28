@@ -41,7 +41,12 @@
 
 ## 使用指南
 
-基本k8s集群安装完成后，需要安装一些常用插件(`kubedns` `dashboard` `ingress`等)；接着介绍一些集群操作场景和思路；然后介绍一些应用部署实践，请根据这份[目录](docs/guide/index.md)阅读你所感兴趣的内容。尚在更新中...
+- 常用插件部署  [kubedns](docs/guide/kubedns.md) [dashboard](docs/guide/dashboard.md) [heapster](docs/guide/heapster.md) [ingress](docs/guide/ingress.md) [efk](docs/guide/efk.md) [harbor](docs/guide/harbor.md)
+- K8S 特性实验  [HPA](docs/guide/hpa.md) [NetworkPolicy](docs/guide/networkpolicy.md)
+- 集群运维指南
+- 应用部署实践
+
+请根据这份 [目录] (docs/guide/index.md)阅读你所感兴趣的内容，尚在更新中...
 
 ## 参考阅读
 
