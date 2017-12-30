@@ -41,9 +41,11 @@
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
+  tags: kubelet
 
 - name: 开启kubelet 服务
   shell: systemctl daemon-reload && systemctl enable kubelet && systemctl restart kubelet
+  tags: kubelet 
 
 - name: approve-kubelet-csr
   shell: "sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
@@ -98,23 +100,23 @@
 
 ##-------calico-kube-controllers部分----------------
 #
-- name: 创建calico-kube-controllers目录
-  tags: calico-controller
-  file: name=/root/local/kube-system/calico state=directory
+#- name: 创建calico-kube-controllers目录
+#  tags: calico-controller
+#  file: name=/root/local/kube-system/calico state=directory
 
-- name: 准备RBAC 配置文件
-  tags: calico-controller
-  copy: src=rbac.yaml dest=/root/local/kube-system/calico/rbac.yaml
+#- name: 准备RBAC 配置文件
+#  tags: calico-controller
+#  copy: src=rbac.yaml dest=/root/local/kube-system/calico/rbac.yaml
 
-- name: 准备calico-kube-controllers.yaml 文件
-  tags: calico-controller
-  template: src=calico-kube-controllers.yaml.j2 dest=/root/local/kube-system/calico/calico-kube-controllers.yaml
+#- name: 准备calico-kube-controllers.yaml 文件
+#  tags: calico-controller
+#  template: src=calico-kube-controllers.yaml.j2 dest=/root/local/kube-system/calico/calico-kube-controllers.yaml
 
 # 只需单节点执行一次，重复执行的报错可以忽略
 # 增加15s等待node ready
-- name: 运行calico-kube-controllers
-  tags: calico-controller
-  shell: "sleep 15 && {{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/rbac.yaml && \ 
-	{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/calico-kube-controllers.yaml"
-  when: NODE_ID is defined and NODE_ID == "node1"
-  ignore_errors: true
+#- name: 运行calico-kube-controllers
+#  tags: calico-controller
+#  shell: "sleep 15 && {{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/rbac.yaml && \ 
+#	{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/calico-kube-controllers.yaml"
+#  when: NODE_ID is defined and NODE_ID == "node1"
+#  ignore_errors: true
