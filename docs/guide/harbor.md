@@ -51,30 +51,6 @@ HARBOR_DOMAIN="harbor.test.com"
 1. 在harbor节点使用`docker ps -a` 查看harbor容器组件运行情况
 1. 浏览器访问harbor节点的IP地址 `https://{{ NODE_IP }}`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登陆系统
 
-### 管理harbor
-
-+ 日志目录 `/var/log/harbor`
-+ 数据目录 `/data` ，其中最主要是 `/data/database` 和 `/data/registry` 目录，如果你要彻底重新安装harbor，删除这两个目录即可
-
-先进入harbor安装目录 `cd /root/local/harbor`，常规操作如下：
-
-1. 暂停harbor `docker-compose stop` : docker容器stop，并不删除容器
-2. 恢复harbor `docker-compose start` : 恢复docker容器运行
-3. 停止harbor `docker-compose down -v` : 停止并删除docker容器
-4. 启动harbor `docker-compose up -d` : 启动所有docker容器
-
-修改harbor的运行配置，需要如下步骤：
-
-``` bash
-# 停止 harbor
- docker-compose down -v
-# 修改配置
- vim harbor.cfg
-# 执行./prepare已更新配置到docker-compose.yml文件
- ./prepare
-# 启动 harbor
- docker-compose up -d
-```
 ### 在k8s集群使用harbor
 
 admin用户web登陆后可以方便的创建项目，并指定项目属性(公开或者私有)；然后创建用户，并在项目`成员`选项中选择用户和权限；
@@ -144,5 +120,59 @@ data:
 type: kubernetes.io/dockerconfigjson
 ```
 前面docker login会在~/.docker下面创建一个config.json文件保存鉴权串，这里secret yaml的.dockerconfigjson后面的数据就是那个json文件的base64编码输出（-w 0让base64输出在单行上，避免折行）
+
+### 管理harbor
+
++ 日志目录 `/var/log/harbor`
++ 数据目录 `/data` ，其中最主要是 `/data/database` 和 `/data/registry` 目录，如果你要彻底重新安装harbor，删除这两个目录即可
+
+先进入harbor安装目录 `cd /root/local/harbor`，常规操作如下：
+
+1. 暂停harbor `docker-compose stop` : docker容器stop，并不删除容器
+2. 恢复harbor `docker-compose start` : 恢复docker容器运行
+3. 停止harbor `docker-compose down -v` : 停止并删除docker容器
+4. 启动harbor `docker-compose up -d` : 启动所有docker容器
+
+修改harbor的运行配置，需要如下步骤：
+
+``` bash
+# 停止 harbor
+ docker-compose down -v
+# 修改配置
+ vim harbor.cfg
+# 执行./prepare已更新配置到docker-compose.yml文件
+ ./prepare
+# 启动 harbor
+ docker-compose up -d
+```
+#### harbor 升级
+
+以下步骤基于harbor 1.1.2 版本升级到 1.2.2版本 
+
+``` bash
+# 进入harbor解压缩后的目录，停止harbor
+cd /root/local/harbor
+docker-compose down
+
+# 备份这个目录
+cd ..
+mkdir -p /backup && mv harbor /backup/harbor
+
+# 下载更新的离线安装包，并解压
+tar zxvf harbor-offline-installer-v1.2.2.tgz  -C /root/local
+
+# 使用官方数据库迁移工具，备份数据库，修改数据库连接用户和密码，创建数据库备份目录
+# 迁移工具使用docker镜像，镜像tag由待升级到目标harbor版本决定，这里由 1.1.2升级到1.2.2，所以使用 tag 1.2
+docker pull vmware/harbor-db-migrator:1.2
+mkdir -p /backup/db-1.1.2
+docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mysql -v /backup/db-1.1.2:/harbor-migration/backup vmware/harbor-db-migrator:1.2 backup
+
+# 因为新老版本数据库结构不一样，需要数据库migration
+docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mysql vmware/harbor-db-migrator:1.2 up head
+
+# 修改新版本 harbor.cfg配置，需要保持与老版本相关配置项保持一致，然后执行安装即可
+cd /root/local/harbor
+vi harbor.cfg
+./install.sh
 
 [前一篇]() -- [目录](index.md) -- [后一篇]()
