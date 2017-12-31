@@ -75,7 +75,12 @@
 	&& iptables -F -t mangle && iptables -X -t mangle"
 
   - name: 清理网络
-    shell: "ip link del docker0; ip link del tunl0; systemctl restart networking; systemctl restart network"
+    shell: "ip link del docker0; \
+	ip link del tunl0; \
+	ip link del flannel.1; \
+	ip link del cni0; \
+	systemctl restart networking; \
+	systemctl restart network"
     ignore_errors: true
 
 - hosts: etcd
