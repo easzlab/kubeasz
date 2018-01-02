@@ -1,0 +1,28 @@
+- name: 创建flannel cni 相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - /etc/cni/net.d
+  - /root/local/kube-system/flannel
+
+- name: 下载flannel cni plugins
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - bridge
+  - flannel
+  - host-local
+  - loopback
+  - portmap
+
+- name: 准备 flannel DaemonSet yaml文件
+  template: src=kube-flannel.yaml.j2 dest=/root/local/kube-system/flannel/kube-flannel.yaml
+
+# 只需单节点执行一次，重复执行的报错可以忽略
+- name: 运行 flannel网络
+  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/flannel/ && sleep 15"
+  when: NODE_ID is defined and NODE_ID == "node1"
+  ignore_errors: true
+
+# 删除原有cni配置
+- name: 删除默认cni配置 
+  file: path=/etc/cni/net.d/10-default.conf state=absent
+

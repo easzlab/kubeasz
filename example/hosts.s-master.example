@@ -44,6 +44,9 @@ POD_INFRA_CONTAINER_IMAGE=mirrorgooglecontainers/pause-amd64:3.0
 #TLS Bootstrapping 使用的 Token，使用 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
 BOOTSTRAP_TOKEN="d18f94b5fa585c7123f56803d925d2e7"
 
+# 集群网络插件，目前支持calico和flannel
+CLUSTER_NETWORK="calico"
+
 # 服务网段 (Service CIDR），部署前路由不可达，部署后集群内使用 IP:Port 可达
 SERVICE_CIDR="10.68.0.0/16"
 

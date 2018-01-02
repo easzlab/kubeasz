@@ -17,6 +17,7 @@
     file: name={{ item }} state=absent
     with_items:
     - "/var/lib/kubelet/"
+    - "/var/lib/kube-proxy/"
     - "/etc/kubernetes/"
     - "/etc/systemd/system/kubelet.service"
     - "/etc/systemd/system/kube-proxy.service"
@@ -42,8 +43,8 @@
   - new-node
   - deploy
   tasks:
-  - name: stop calico-node service
-    shell: "systemctl stop calico-node docker"
+  - name: stop docker service
+    shell: "systemctl stop docker"
     ignore_errors: true
 
   # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
@@ -59,6 +60,7 @@
     with_items:
     - "/etc/cni/"
     - "/root/.kube/"
+    - "/run/flannel/"
     - "/etc/calico/"
     - "/var/run/calico/"
     - "/var/log/calico/"

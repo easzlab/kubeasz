@@ -1,0 +1,20 @@
+{
+    "name": "calico-k8s-network",
+    "cniVersion": "0.1.0",
+    "type": "calico",
+    "etcd_endpoints": "{{ ETCD_ENDPOINTS }}",
+    "etcd_key_file": "/etc/calico/ssl/calico-key.pem",
+    "etcd_cert_file": "/etc/calico/ssl/calico.pem",
+    "etcd_ca_cert_file": "/etc/calico/ssl/ca.pem",
+    "log_level": "info",
+    "mtu": 1500,
+    "ipam": {
+        "type": "calico-ipam"
+    },
+    "policy": {
+        "type": "k8s"
+    },
+    "kubernetes": {
+        "kubeconfig": "/root/.kube/config"
+    }
+}
