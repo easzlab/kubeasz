@@ -75,7 +75,7 @@ data:
     {
       "Network": "{{ CLUSTER_CIDR }}",
       "Backend": {
-        "Type": "vxlan"
+        "Type": "{{ FLANNEL_BACKEND }}"
       }
     }
 ---
@@ -104,7 +104,7 @@ spec:
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: harbor.tf56.lo/k8s/flannel:v0.9.1-amd64
+        image: jmgao1983/flannel:v0.9.1-amd64
         #image: quay.io/coreos/flannel:v0.9.1-amd64
         command:
         - cp
@@ -120,7 +120,7 @@ spec:
       containers:
       - name: kube-flannel
         #image: quay.io/coreos/flannel:v0.9.1-amd64
-        image: harbor.tf56.lo/k8s/flannel:v0.9.1-amd64
+        image: jmgao1983/flannel:v0.9.1-amd64
         command:
         - /opt/bin/flanneld
         args:
