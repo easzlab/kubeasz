@@ -47,6 +47,12 @@ BOOTSTRAP_TOKEN="d18f94b5fa585c7123f56803d925d2e7"
 # 集群网络插件，目前支持calico和flannel
 CLUSTER_NETWORK="calico"
 
+# 部分calico相关配置，更全配置可以去roles/calico/templates/calico.yaml.j2自定义
+# 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 05.安装calico网络组件.md
+CALICO_IPV4POOL_IPIP="always"
+# 设置 calico-node使用的host IP，bgp邻居通过该地址建立，可手动指定端口"interface=eth0"或使用如下自动发现
+IP_AUTODETECTION_METHOD="can-reach=223.5.5.5"
+
 # 服务网段 (Service CIDR），部署前路由不可达，部署后集群内使用 IP:Port 可达
 SERVICE_CIDR="10.68.0.0/16"
 

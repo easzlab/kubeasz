@@ -33,7 +33,7 @@
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
-# [可选]cni calico plugins 已经在calico.yaml完成安装
+# [可选]cni calico plugins 已经在calico.yaml完成自动安装
 - name: 下载calicoctl 客户端
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
