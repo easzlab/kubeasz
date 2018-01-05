@@ -91,7 +91,7 @@ if [ -f "docker-${DOCKER_VER}.tgz" ]; then
   tar zxf docker-${DOCKER_VER}.tgz
   mv docker/docker* ../bin
   if [ -f "docker/completion/bash/docker" ]; then
-    mv -f docker/completion/bash/docker ../roles/kube-node/files/docker
+    mv -f docker/completion/bash/docker ../roles/docker/files/docker
   fi
 else
   echo 请先下载docker-${DOCKER_VER}.tgz

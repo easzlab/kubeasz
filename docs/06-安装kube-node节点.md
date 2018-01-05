@@ -1,20 +1,18 @@
-## 07-安装kube-node节点.md
+## 06-安装kube-node节点.md
 
-node 是集群中承载应用的节点，前置条件需要先部署好master节点(因为需要操作`用户角色绑定`、`批准kubelet TLS 证书请求`等)，它需要部署如下组件：
+`kube-node` 是集群中承载应用的节点，前置条件需要先部署好`kube-master`节点(因为需要操作`用户角色绑定`、`批准kubelet TLS 证书请求`等)，它需要部署如下组件：
 
 + docker：运行容器
-+ calico： 配置容器网络
-+ kubelet： node上最主要的组件
++ calico： 配置容器网络 (或者 flannel)
++ kubelet： kube-node上最主要的组件
 + kube-proxy： 发布应用服务与负载均衡
 
 ``` bash
 roles/kube-node
-├── files
-│   └── rbac.yaml
 ├── tasks
 │   └── main.yml
 └── templates
-    ├── calico-kube-controllers.yaml.j2
+    ├── cni-default.conf.j2
     ├── kubelet.service.j2
     ├── kube-proxy-csr.json.j2
     └── kube-proxy.service.j2
@@ -56,6 +54,10 @@ kubelet 启动时向 kube-apiserver 发送 TLS bootstrapping 请求，需要先�
 + 注意 kubelet bootstrapping认证时是靠 token的，后续由 `master`为其生成证书和私钥
 + 以上生成的bootstrap.kubeconfig配置文件需要移动到/etc/kubernetes/目录下，后续在kubelet启动参数中指定该目录下的 bootstrap.kubeconfig
 
+### 创建cni 基础网络插件配置文件
+
+因为后续需要用 `DaemonSet Pod`方式运行k8s网络插件，所以kubelet.server服务必须开启cni相关参数，并且提供cni网络配置文件
+
 ### 创建 kubelet 的服务文件
 
 + 必须先创建工作目录 `/var/lib/kubelet`
@@ -73,7 +75,7 @@ WorkingDirectory=/var/lib/kubelet
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ NODE_IP }} \
   --hostname-override={{ NODE_IP }} \
-  --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.0 \
+  --pod-infra-container-image={{ POD_INFRA_CONTAINER_IMAGE }} \
   --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --cert-dir={{ ca_dir }} \
@@ -189,30 +191,6 @@ WantedBy=multi-user.target
 + --hostname-override 参数值必须与 kubelet 的值一致，否则 kube-proxy 启动后会找不到该 Node，从而不会创建任何 iptables 规则
 + 特别注意：kube-proxy 根据 --cluster-cidr 判断集群内部和外部流量，指定 --cluster-cidr 或 --masquerade-all 选项后 kube-proxy 才会对访问 Service IP 的请求做 SNAT；但是这个特性与calico 实现 network policy冲突，所以如果要用 network policy，这两个选项都不要指定。
 
-### 部署calico-kube-controllers 
-
-calico networkpolicy正常工作需要3个组件：
-
-+ `master/node` 节点需要运行的 docker 容器 `calico/node`
-+ `cni-plugin` 所需的插件二进制和配置文件
-+ `calico kubernetes controllers` 负责监听Network Policy的变化，并将Policy应用到相应的网络接口
-
-#### 准备RBAC和calico-kube-controllers.yaml 文件
-
-- [RBAC](../roles/kube-node/files/rbac.yaml)
-  - 最小化权限使用
-- [Controllers](../roles/kube-node/templates/calico-kube-controllers.yaml.j2)
-  - 注意只能跑一个 controller实例
-  - 注意该 controller实例需要使用宿主机网络 `hostNetwork: true`
-
-#### 创建calico-kube-controllers
-
-``` bash
-"sleep 15 && {{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/rbac.yaml && \ 
-        {{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/calico-kube-controllers.yaml"
-```
-+ 增加15s等待集群node ready
-
 ### 验证 node 状态
 
 ``` bash
@@ -225,17 +203,10 @@ journalctl -u kube-proxy
 
 ``` bash
 NAME           STATUS    ROLES     AGE       VERSION
-192.168.1.42   Ready     <none>    2d        v1.8.4
-192.168.1.43   Ready     <none>    2d        v1.8.4
-192.168.1.44   Ready     <none>    2d        v1.8.4
-```
-并且稍等一会，`kubectl get pod -n kube-system -o wide` 可以看到有个calico controller 的POD运行，且使用了host 网络
-
-``` bash
-kubectl get pod -n kube-system -o wide
-NAME                                      READY     STATUS    RESTARTS   AGE       IP              NODE
-calico-kube-controllers-69bcb79c6-b444q   1/1       Running   0          2d        192.168.1.44    192.168.1.44
+192.168.1.42   Ready     <none>    2d        v1.9.0
+192.168.1.43   Ready     <none>    2d        v1.9.0
+192.168.1.44   Ready     <none>    2d        v1.9.0
 ```
 
 
-[前一篇](06-安装kube-master节点.md) -- [后一篇]()
+[前一篇](05-安装kube-master节点.md) -- [后一篇](07-安装calico网络组件.md)

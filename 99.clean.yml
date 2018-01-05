@@ -81,6 +81,7 @@
 	ip link del tunl0; \
 	ip link del flannel.1; \
 	ip link del cni0; \
+        ip link del mynet0; \
 	systemctl restart networking; \
 	systemctl restart network"
     ignore_errors: true
