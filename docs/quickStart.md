@@ -65,9 +65,11 @@ ansible-playbook 90.setup.yml # 一步安装
 #ansible-playbook 02.etcd.yml
 #ansible-playbook 03.kubectl.yml
 #ansible-playbook 04.docker.yml
-#ansible-playbook 05.calico.yml
-#ansible-playbook 06.kube-master.yml
-#ansible-playbook 07.kube-node.yml
+#ansible-playbook 05.kube-master.yml
+#ansible-playbook 06.kube-node.yml
+# 网络只可选择calico flannel一种安装
+#ansible-playbook 07.calico.yml 
+#ansible-playbook 07.flannel.yml
 ```
 如果执行成功，k8s集群就安装好了。详细分步讲解请查看项目目录 `/docs` 下相关文档
 
@@ -80,7 +82,6 @@ kubectl cluster-info # 可以看到kubernetes master(apiserver)组件 running
 kubectl get node # 可以看到单 node Ready状态
 kubectl get pod --all-namespaces # 可以查看所有集群pod状态
 kubectl get svc --all-namespaces # 可以查看所有集群服务状态
-calicoctl node status	# 可以在master或者node节点上查看calico网络状态 
 ```
 ### 6.安装主要组件
 ``` bash

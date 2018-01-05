@@ -6,7 +6,9 @@
 
 **集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
 
-**二进制方式部署优势：有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题**
+二进制方式部署优势：有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题
+
+**注意：** 为提高集群网络插件安装的灵活性，使用`DaemonSet Pod`方式运行网络插件，目前支持`Calico` `flannel`可选
 
 文档基于`Ubuntu 16.04/CentOS 7`，其他系统需要读者自行替换部分命令；由于使用经验有限和简化脚本考虑，已经尽量避免`ansible-playbook`的高级特性和复杂逻辑。
 
@@ -19,7 +21,8 @@
 1. kubernetes	v1.9.0
 1. etcd		v3.2.11
 1. docker	17.09.1-ce
-1. calico/node	v2.6.3
+1. calico/node	v2.6.5
+1. flannel	v0.9.1
 
 + 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)
 + 注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`, 若你需要从v1.8 升级至 v1.9，请参考 [升级注意](docs/upgrade.md)
@@ -35,9 +38,10 @@
 1. [安装etcd集群](docs/02-安装etcd集群.md)
 1. [配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
 1. [安装docker服务](docs/04-安装docker服务.md)
-1. [安装calico网络组件](docs/05-安装calico网络组件.md)
-1. [安装kube-master节点](docs/06-安装kube-master节点.md)
-1. [安装kube-node节点](docs/07-安装kube-node节点.md)
+1. [安装kube-master节点](docs/05-安装kube-master节点.md)
+1. [安装kube-node节点](docs/06-安装kube-node节点.md)
+1. [安装calico网络组件](docs/07-安装calico网络组件.md)
+1. [安装flannel网络组件](docs/07-安装flannel网络组件.md)
 
 ## 使用指南
 
