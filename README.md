@@ -2,11 +2,9 @@
 
 ![docker](./pics/docker.jpg) ![kube](./pics/kube.jpg) ![ansible](./pics/ansible.jpg)
 
-本系列文档致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项。
+本系列文档致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项；二进制方式部署有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题。
 
 **集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
-
-二进制方式部署优势：有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题
 
 **注意：** 为提高集群网络插件安装的灵活性，使用`DaemonSet Pod`方式运行网络插件，目前支持`Calico` `flannel`可选
 
@@ -14,13 +12,13 @@
 
 你可能需要掌握基本`kubernetes` `docker` `linux shell` 知识，关于`ansible`建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 基本够用。
 
-欢迎提`Issues`和`PRs`参与维护项目。
+请阅读[项目分支说明](branch.md)，欢迎提`Issues`和`PRs`参与维护项目。
 
 ## 组件版本
 
-1. kubernetes	v1.9.0
-1. etcd		v3.2.11
-1. docker	17.09.1-ce
+1. kubernetes	v1.9.1
+1. etcd		v3.2.13
+1. docker	17.12.0-ce
 1. calico/node	v2.6.5
 1. flannel	v0.9.1
 

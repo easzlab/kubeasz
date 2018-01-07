@@ -1,10 +1,10 @@
 ## 07-安装flannel网络组件.md
 
-**注意：**只需选择安装`calico` `flannel`其中之一，如果你已经安装了`calico`，请跳过此步骤。
+** 注意: ** 只需选择安装`calico` `flannel`其中之一，如果你已经安装了`calico`，请跳过此步骤。
 
 关于k8s网络设计和CNI Plugin的介绍请阅读[安装calico](07-安装calico网络组件.md)中相关内容。
 
-`Flannel`是最早应用到k8s集群的网络插件之一，简单高效，且提供多个后端`backend`模式供选择；本文介绍已`DaemonSet Pod`方式集成到k8s集群，需要在所有master节点和node节点安装。
+`Flannel`是最早应用到k8s集群的网络插件之一，简单高效，且提供多个后端`backend`模式供选择；本文介绍以`DaemonSet Pod`方式集成到k8s集群，需要在所有master节点和node节点安装。
 
 ``` text
 roles/flannel/
