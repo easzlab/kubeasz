@@ -1,5 +1,5 @@
-# Calico Version v2.6.2
-# https://docs.projectcalico.org/v2.6/releases#v2.6.2
+# Calico Version v2.6.5
+# https://docs.projectcalico.org/v2.6/releases#v2.6.5
 
 ---
 
@@ -15,11 +15,11 @@ rules:
       - pods
       - namespaces
       - networkpolicies
+      - nodes
     verbs:
       - watch
       - list
 ---
-
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -34,8 +34,31 @@ subjects:
   namespace: kube-system
 
 ---
-apiVersion: v1
-kind: ServiceAccount
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: calico-kube-controllers
+  name: calico-node
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - nodes
+    verbs:
+      - get
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: calico-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: calico-node
+subjects:
+- kind: ServiceAccount
+  name: calico-node
   namespace: kube-system
+

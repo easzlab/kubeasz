@@ -1,10 +1,21 @@
-##----------kubelet 配置部分--------------
-- name: 下载 kubelet和kube-proxy 二进制
+# 创建kubelet,kube-proxy工作目录和cni配置目录
+- name: 创建kube-node 相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - /var/lib/kubelet
+  - /var/lib/kube-proxy
+  - /etc/cni/net.d
+
+- name: 下载 kubelet,kube-proxy 二进制和基础 cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
   - kubelet
   - kube-proxy
-
+  - bridge
+  - host-local
+  - loopback
+  
+##----------kubelet 配置部分--------------
 # kubelet 启动时向 kube-apiserver 发送 TLS bootstrapping 请求，需要绑定该角色
 # 只需单节点执行一次，重复执行的报错可以忽略
 # 增加15s等待kube-apiserver正常工作
@@ -36,14 +47,16 @@
 - name: 安装bootstrap.kubeconfig配置文件
   shell: "mv $HOME/bootstrap.kubeconfig /etc/kubernetes/bootstrap.kubeconfig"
 
-- name: 创建kubelet的工作目录
-  file: name=/var/lib/kubelet state=directory
+- name: 准备 cni配置文件
+  template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
+  tags: kubelet
 
 - name: 开启kubelet 服务
   shell: systemctl daemon-reload && systemctl enable kubelet && systemctl restart kubelet
+  tags: kubelet 
 
 - name: approve-kubelet-csr
   shell: "sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
@@ -85,9 +98,6 @@
 - name: 安装kube-proxy.kubeconfig配置文件
   shell: "mv $HOME/kube-proxy.kubeconfig /etc/kubernetes/kube-proxy.kubeconfig"
 
-- name: 创建kube-proxy的工作目录
-  file: name=/var/lib/kube-proxy state=directory
-
 - name: 创建kube-proxy 服务文件
   tags: reload-kube-proxy
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
@@ -96,25 +106,3 @@
   tags: reload-kube-proxy
   shell: systemctl daemon-reload && systemctl enable kube-proxy && systemctl restart kube-proxy
 
-##-------calico-kube-controllers部分----------------
-#
-- name: 创建calico-kube-controllers目录
-  tags: calico-controller
-  file: name=/root/local/kube-system/calico state=directory
-
-- name: 准备RBAC 配置文件
-  tags: calico-controller
-  copy: src=rbac.yaml dest=/root/local/kube-system/calico/rbac.yaml
-
-- name: 准备calico-kube-controllers.yaml 文件
-  tags: calico-controller
-  template: src=calico-kube-controllers.yaml.j2 dest=/root/local/kube-system/calico/calico-kube-controllers.yaml
-
-# 只需单节点执行一次，重复执行的报错可以忽略
-# 增加15s等待node ready
-- name: 运行calico-kube-controllers
-  tags: calico-controller
-  shell: "sleep 15 && {{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/rbac.yaml && \ 
-	{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/calico-kube-controllers.yaml"
-  when: NODE_ID is defined and NODE_ID == "node1"
-  ignore_errors: true

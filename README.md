@@ -2,26 +2,27 @@
 
 ![docker](./pics/docker.jpg) ![kube](./pics/kube.jpg) ![ansible](./pics/ansible.jpg)
 
-本系列文档致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项。
+本系列文档致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项；二进制方式部署有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题。
 
 **集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
 
-**二进制方式部署优势：有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题**
+**注意：** 为提高集群网络插件安装的灵活性，使用`DaemonSet Pod`方式运行网络插件，目前支持`Calico` `flannel`可选
 
 文档基于`Ubuntu 16.04/CentOS 7`，其他系统需要读者自行替换部分命令；由于使用经验有限和简化脚本考虑，已经尽量避免`ansible-playbook`的高级特性和复杂逻辑。
 
 你可能需要掌握基本`kubernetes` `docker` `linux shell` 知识，关于`ansible`建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 基本够用。
 
-欢迎提`Issues`和`PRs`参与维护项目。
+请阅读[项目分支说明](branch.md)，欢迎提`Issues`和`PRs`参与维护项目。
 
 ## 组件版本
 
-1. kubernetes	v1.9.0
-1. etcd		v3.2.11
-1. docker	17.09.1-ce
-1. calico/node	v2.6.3
+1. kubernetes	v1.9.1
+1. etcd		v3.2.13
+1. docker	17.12.0-ce
+1. calico/node	v2.6.5
+1. flannel	v0.9.1
 
-+ 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1i5u3SEh](https://pan.baidu.com/s/1i5u3SEh)
++ 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)
 + 注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`, 若你需要从v1.8 升级至 v1.9，请参考 [升级注意](docs/upgrade.md)
 
 ## 快速指南
@@ -35,13 +36,19 @@
 1. [安装etcd集群](docs/02-安装etcd集群.md)
 1. [配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
 1. [安装docker服务](docs/04-安装docker服务.md)
-1. [安装calico网络组件](docs/05-安装calico网络组件.md)
-1. [安装kube-master节点](docs/06-安装kube-master节点.md)
-1. [安装kube-node节点](docs/07-安装kube-node节点.md)
+1. [安装kube-master节点](docs/05-安装kube-master节点.md)
+1. [安装kube-node节点](docs/06-安装kube-node节点.md)
+1. [安装calico网络组件](docs/07-安装calico网络组件.md)
+1. [安装flannel网络组件](docs/07-安装flannel网络组件.md)
 
 ## 使用指南
 
-基本k8s集群安装完成后，需要安装一些常用插件(`kubedns` `dashboard` `ingress`等)；接着介绍一些集群操作场景和思路；然后介绍一些应用部署实践，请根据这份[目录](docs/guide/index.md)阅读你所感兴趣的内容。尚在更新中...
+- 常用插件部署  [kubedns](docs/guide/kubedns.md) [dashboard](docs/guide/dashboard.md) [heapster](docs/guide/heapster.md) [ingress](docs/guide/ingress.md) [efk](docs/guide/efk.md) [harbor](docs/guide/harbor.md)
+- K8S 特性实验  [HPA](docs/guide/hpa.md) [NetworkPolicy](docs/guide/networkpolicy.md)
+- 集群运维指南
+- 应用部署实践
+
+请根据这份 [目录](docs/guide/index.md) 阅读你所感兴趣的内容，尚在更新中...
 
 ## 参考阅读
 

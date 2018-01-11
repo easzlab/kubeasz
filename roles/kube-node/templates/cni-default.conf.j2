@@ -1,0 +1,12 @@
+{
+	"name": "mynet",
+	"type": "bridge",
+	"bridge": "mynet0",
+	"isDefaultGateway": true,
+	"ipMasq": true,
+	"hairpinMode": true,
+	"ipam": {
+		"type": "host-local",
+		"subnet": "{{ CLUSTER_CIDR }}"
+	}
+}

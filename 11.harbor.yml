@@ -1,0 +1,18 @@
+- hosts: harbor
+  roles:
+  - prepare
+  - docker
+  - harbor
+
+- hosts: kube-node
+  tasks:
+  - name: harbor证书目录创建
+    file: name=/etc/docker/certs.d/{{ HARBOR_DOMAIN }} state=directory
+
+  - name: harbor服务器证书安装
+    copy: src={{ base_dir }}/roles/prepare/files/ca.pem dest=/etc/docker/certs.d/{{ HARBOR_DOMAIN }}/ca.crt
+
+# 如果你的环境中有dns服务器，可以跳过hosts文件设置
+  - name: 增加harbor的hosts解析
+    shell: "sed -i '/{{ HARBOR_DOMAIN }}/d' /etc/hosts && \
+	echo {{ HARBOR_IP }} {{ HARBOR_DOMAIN }} >> /etc/hosts"

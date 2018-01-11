@@ -2,7 +2,7 @@
   file: name={{ item }} state=directory
   with_items:
   - /etc/calico/ssl
-  - /etc/cni/net.d
+  - /root/local/kube-system/calico 
 
 - name: 复制CA 证书到calico 证书目录
   copy: src={{ ca_dir }}/ca.pem dest=/etc/calico/ssl/ca.pem
@@ -17,22 +17,35 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes calico-csr.json | {{ bin_dir }}/cfssljson -bare calico"
 
-- name: 创建 calico 的 systemd unit 文件
-  template: src=calico-node.service.j2 dest=/etc/systemd/system/calico-node.service
+- name: 准备 calico DaemonSet yaml文件
+  template: src=calico.yaml.j2 dest=/root/local/kube-system/calico/calico.yaml
 
-- name: 启动calico 服务
-  shell: systemctl daemon-reload && systemctl enable calico-node && systemctl restart calico-node
+- name: 准备 calico rbac文件 
+  template: src=calico-rbac.yaml.j2 dest=/root/local/kube-system/calico/calico-rbac.yaml
 
-- name: 下载calico cni plugins和calicoctl 客户端
+# 只需单节点执行一次，重复执行的报错可以忽略
+- name: 运行 calico网络
+  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/ && sleep 15"
+  when: NODE_ID is defined and NODE_ID == "node1"
+  ignore_errors: true
+
+# 删除原有cni配置
+- name: 删除默认cni配置
+  file: path=/etc/cni/net.d/10-default.conf state=absent
+
+# 删除原有cni插件网卡mynet0
+- name: 删除默认cni插件网卡mynet0
+  shell: "ip link del mynet0"
+  ignore_errors: true
+
+# [可选]cni calico plugins 已经在calico.yaml完成自动安装
+- name: 下载calicoctl 客户端
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
-  - calico
-  - calico-ipam
-  - loopback
+  #- calico
+  #- calico-ipam
+  #- loopback
   - calicoctl
 
 - name: 准备 calicoctl配置文件
   template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg
-
-- name: 准备 cni配置文件
-  template: src=cni-calico.conf.j2 dest=/etc/cni/net.d/10-calico.conf

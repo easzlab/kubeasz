@@ -1,4 +1,4 @@
-## 06-安装kube-master节点.md
+## 05-安装kube-master节点.md
 
 部署master节点包含三个组件`apiserver` `scheduler` `controller-manager`，其中：
 
@@ -212,4 +212,4 @@ etcd-2               Healthy   {"health": "true"}
 etcd-1               Healthy   {"health": "true"} 
 ```
 
-[前一篇](05-安装calico网络组件.md) -- [后一篇](07-安装kube-node节点.md)
+[前一篇](04-安装docker服务.md) -- [后一篇](06-安装kube-node节点.md)

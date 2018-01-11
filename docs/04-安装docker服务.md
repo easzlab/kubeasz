@@ -142,4 +142,4 @@ iptables-save|grep FORWARD
 -A FORWARD -j ACCEPT
 ```
 
-[前一篇](03-配置kubectl命令行工具.md) -- [后一篇](05-安装calico网络组件.md)
+[前一篇](03-配置kubectl命令行工具.md) -- [后一篇](05-安装kube-master节点.md)

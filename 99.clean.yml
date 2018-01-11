@@ -1,7 +1,9 @@
-# 警告：此脚本将清理真个K8S集群，包括所有POD、ETCD数据等
+# 警告：此脚本将清理整个K8S集群，包括所有POD、ETCD数据等
 # 请三思后运行此脚本 ansible-playbook 99.clean.yml
 
-- hosts: kube-node
+- hosts:
+  - kube-node
+  - new-node
   tasks:
   - name: stop kube-node service
     shell: "systemctl stop kubelet kube-proxy"
@@ -15,6 +17,7 @@
     file: name={{ item }} state=absent
     with_items:
     - "/var/lib/kubelet/"
+    - "/var/lib/kube-proxy/"
     - "/etc/kubernetes/"
     - "/etc/systemd/system/kubelet.service"
     - "/etc/systemd/system/kube-proxy.service"
@@ -37,10 +40,11 @@
 
 - hosts:
   - kube-cluster
+  - new-node
   - deploy
   tasks:
-  - name: stop calico-node service
-    shell: "systemctl stop calico-node docker"
+  - name: stop docker service
+    shell: "systemctl stop docker"
     ignore_errors: true
 
   # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
@@ -56,6 +60,7 @@
     with_items:
     - "/etc/cni/"
     - "/root/.kube/"
+    - "/run/flannel/"
     - "/etc/calico/"
     - "/var/run/calico/"
     - "/var/log/calico/"
@@ -72,7 +77,13 @@
 	&& iptables -F -t mangle && iptables -X -t mangle"
 
   - name: 清理网络
-    shell: "ip link del docker0; ip link del tunl0; systemctl restart networking; systemctl restart network"
+    shell: "ip link del docker0; \
+	ip link del tunl0; \
+	ip link del flannel.1; \
+	ip link del cni0; \
+        ip link del mynet0; \
+	systemctl restart networking; \
+	systemctl restart network"
     ignore_errors: true
 
 - hosts: etcd
