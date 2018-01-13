@@ -54,10 +54,10 @@ mv kubeasz /etc/ansible
 # 国内请从分享的百度云链接下载 https://pan.baidu.com/s/1c4RFaA
 # 如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包到 ./down目录，并执行download.sh
 tar zxvf k8s.191.tar.gz
-mv bin/* /etc/ansible/bin
+mv bin /etc/ansible/
 # 配置ansible的hosts文件
 cd /etc/ansible
-cp example/hosts.allinone.example hosts
+cp /etc/ansible/kubeasz/example/hosts.allinone.example hosts
 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
 # 采用一步安装或者分步安装
 ansible-playbook 90.setup.yml # 一步安装
