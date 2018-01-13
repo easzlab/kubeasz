@@ -63,7 +63,8 @@
   copy: src=95-k8s-sysctl.conf dest=/etc/sysctl.d/95-k8s-sysctl.conf
 
 - name: 加载br_netfilter模块
-  shell: "modprobe br_netfilter"
+  modprobe: name=br_netfilter state=present
+  #shell: "modprobe br_netfilter"
   
 - name: 生效系统参数
   shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
