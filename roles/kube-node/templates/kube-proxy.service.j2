@@ -12,7 +12,6 @@ ExecStart={{ bin_dir }}/kube-proxy \
   --hostname-override={{ NODE_IP }} \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
   --logtostderr=true \
-  --feature-gates="DevicePlugins=true" \
   --v=2
 Restart=on-failure
 RestartSec=5

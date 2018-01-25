@@ -6,4 +6,3 @@ hosts
 *.crt
 *.pem
 roles/prepare/files/ca*
-.idea
