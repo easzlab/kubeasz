@@ -31,7 +31,6 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --audit-log-maxsize=100 \
   --audit-log-path=/var/lib/audit.log \
   --event-ttl=1h \
-  --feature-gates="DevicePlugins=true" \
   --v=2
 Restart=on-failure
 RestartSec=5
