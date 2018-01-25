@@ -1,0 +1,30 @@
+- name: 下载nvidia driver安装包
+  copy: src={{ base_dir }}/bin/nvidia-diag-driver-local-repo.deb dest=/tmp/nvidia-diag-driver-local-repo.deb
+  when: ansible_distribution == "Ubuntu"
+
+- name: 安装nvidia dirver驱动
+  apt:
+    deb: /tmp/nvidia-diag-driver-local-repo.deb
+  when: ansible_distribution == "Ubuntu"
+
+- name: Add the package repositories 1
+  shell: curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | apt-key add -
+  when: ansible_distribution == "Ubuntu"
+
+- name: Add the package repositories 2
+  shell: curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu16.04/amd64/nvidia-docker.list | tee /etc/apt/sources.list.d/nvidia-docker.list
+  when: ansible_distribution == "Ubuntu"
+
+- name: Update apt-get and Install nvidia docker 2
+  apt:
+    name: nvidia-docker2
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: 配置nvidia docker runtime
+  copy: src=daemon.json dest=/etc/docker/daemon.json
+
+- name: restart docker
+  service:
+    name: docker
+    state: restarted

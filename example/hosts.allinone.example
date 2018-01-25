@@ -14,6 +14,11 @@
 [kube-node]
 192.168.1.1 NODE_ID=node1 NODE_IP="192.168.1.1"
 
+#gpu-node 是 kube-node的子集
+[gpu-node]
+192.168.1.1 NODE_IP="192.168.1.1"
+
+
 [kube-cluster:children]
 kube-node
 kube-master
