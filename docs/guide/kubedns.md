@@ -4,6 +4,14 @@ kubedns 是 k8s 集群首先需要部署的，集群中的其他 pods 使用它�
 
 配置文件参考 `https://github.com/kubernetes/kubernetes` 项目目录 `kubernetes/cluster/addons/dns` 
 
+更新 `kube-dns to 1.14.8`，如果集群中已经运行kubedns插件，请使用`RollingUpdate`如下：
+
+```
+kubectl set image -n kube-system deploy/kube-dns kubedns=mirrorgooglecontainers/k8s-dns-kube-dns-amd64:1.14.8
+kubectl set image -n kube-system deploy/kube-dns dnsmasq=mirrorgooglecontainers/k8s-dns-dnsmasq-nanny-amd64:1.14.8
+kubectl set image -n kube-system deploy/kube-dns sidecar=mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.8
+```
+
 ### 安装
 
 **kubectl create -f /etc/ansible/manifests/kubedns/[kubedns.yaml](../../manifests/kubedns/kubedns.yaml)**
