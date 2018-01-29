@@ -1,4 +1,10 @@
 {
   "registry-mirrors": ["https://registry.docker-cn.com"], 
-  "max-concurrent-downloads": 6
+  "max-concurrent-downloads": 10,
+  "log-driver": "json-file",
+  "log-level": "warn",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+    }
 }

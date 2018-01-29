@@ -1,4 +1,4 @@
 - hosts: kube-cluster
-  gather_facts: True
+  #gather_facts: True
   roles:
   - docker
