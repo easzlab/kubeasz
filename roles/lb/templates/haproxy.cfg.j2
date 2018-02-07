@@ -12,8 +12,8 @@ global
 defaults
         log     global
         timeout connect 5000
-        timeout client  50000
-        timeout server  50000
+        timeout client  10m
+        timeout server  10m
 
 listen kube-master
         bind 0.0.0.0:{{ MASTER_PORT }}
