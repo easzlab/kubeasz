@@ -1,7 +1,7 @@
 # Calico Version v2.6.x
 # https://docs.projectcalico.org/v2.6/releases
 # This manifest includes the following component versions:
-#   calico/kube-controllers:v1.0.1
+#   calico/kube-controllers:v1.0.3
 
 # Create this manifest using kubectl to deploy
 # the Calico Kubernetes controllers.
@@ -31,8 +31,8 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          #image: quay.io/calico/kube-controllers:v1.0.1
-          image: calico/kube-controllers:v1.0.1
+          #image: quay.io/calico/kube-controllers:v1.0.3
+          image: calico/kube-controllers:v1.0.3
           env:
             # Configure the location of your etcd cluster.
             - name: ETCD_ENDPOINTS

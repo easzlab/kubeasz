@@ -28,7 +28,7 @@ ExecStart={{ bin_dir }}/docker run --net=host --privileged --name=calico-node \
   -v /run/docker/plugins:/run/docker/plugins \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/log/calico:/var/log/calico \
-  calico/node:v2.6.3
+  calico/node:v2.6.7
 ExecStop={{ bin_dir }}/docker rm -f calico-node
 Restart=always
 RestartSec=10
