@@ -4,11 +4,22 @@
   - etcd
   - etcdctl
 
+# 注册变量result，根据result结果判断是否已经生成过etcd证书
+# result|failed 说明没有生成过证书，下一步生成证书
+# result|succeeded 说明已经有etcd证书，使用原证书可以保证api-server和calico/node等对etcd集群
+# 的访问不受影响，因此跳过证书生成的步骤
+- name: 注册变量result
+  command: ls /etc/etcd/ssl/etcd.pem
+  register: result
+  ignore_errors: True
+
 - name: 创建etcd证书目录
   file: name=/etc/etcd/ssl state=directory
+  when: result|failed
 
 - name: 创建etcd证书请求
   template: src=etcd-csr.json.j2 dest=/etc/etcd/ssl/etcd-csr.json
+  when: result|failed
 
 - name: 创建 etcd证书和私钥
   shell: "cd /etc/etcd/ssl && {{ bin_dir }}/cfssl gencert \
@@ -16,6 +27,7 @@
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd"
+  when: result|failed
 
 - name: 创建etcd工作目录
   file: name=/var/lib/etcd state=directory
