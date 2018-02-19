@@ -1,3 +1,3 @@
 - hosts: kube-cluster
   roles:
-  - calico 
+  - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
