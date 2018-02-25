@@ -1,9 +1,9 @@
-# Calico Version v2.6.5
-# https://docs.projectcalico.org/v2.6/releases#v2.6.5
+# Calico Version v2.6.7
+# https://docs.projectcalico.org/v2.6/releases#v2.6.7
 # This manifest includes the following component versions:
-#   calico/node:v2.6.5
+#   calico/node:v2.6.7
 #   calico/cni:v1.11.2
-#   calico/kube-controllers:v1.0.2
+#   calico/kube-controllers:v1.0.3
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -82,8 +82,8 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          #image: quay.io/calico/node:v2.6.5
-          image: calico/node:v2.6.5
+          #image: quay.io/calico/node:v2.6.7
+          image: calico/node:v2.6.7
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -259,8 +259,8 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          #image: quay.io/calico/kube-controllers:v1.0.2
-          image: calico/kube-controllers:v1.0.2
+          #image: quay.io/calico/kube-controllers:v1.0.3
+          image: calico/kube-controllers:v1.0.3
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
