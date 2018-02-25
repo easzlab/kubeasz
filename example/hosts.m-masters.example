@@ -2,8 +2,7 @@
 [deploy]
 192.168.1.1
 
-# etcd集群请提供如下NODE_NAME、NODE_IP变量
-# 请注意etcd集群必须是1,3,5,7...奇数个节点
+# etcd集群请提供如下NODE_NAME、NODE_IP变量,注意etcd集群必须是1,3,5,7...奇数个节点
 [etcd]
 192.168.1.1 NODE_NAME=etcd1 NODE_IP="192.168.1.1"
 192.168.1.2 NODE_NAME=etcd2 NODE_IP="192.168.1.2"
@@ -24,7 +23,6 @@ LB_EP2="192.168.1.2:6443"	# api-server 实际成员地址端口
 MASTER_IP="192.168.1.10"  	# api-server 虚地址
 MASTER_PORT="8443"		# api-server 服务端口
 
-#确保node节点有变量NODE_ID=node1
 [kube-node]
 192.168.1.2 NODE_ID=node1 NODE_IP="192.168.1.2"
 192.168.1.3 NODE_ID=node2 NODE_IP="192.168.1.3"
@@ -49,14 +47,11 @@ kube-master
 MASTER_IP="192.168.1.10"
 KUBE_APISERVER="https://192.168.1.10:8443"
 
-#pause镜像地址
-POD_INFRA_CONTAINER_IMAGE=mirrorgooglecontainers/pause-amd64:3.0
-
 #TLS Bootstrapping 使用的 Token，使用 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
 BOOTSTRAP_TOKEN="c30302226d4b810e08731702d3890f50"
 
 # 集群网络插件，目前支持calico和flannel
-CLUSTER_NETWORK="calico"
+CLUSTER_NETWORK="flannel"
 
 # 部分calico相关配置，更全配置可以去roles/calico/templates/calico.yaml.j2自定义
 # 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 05.安装calico网络组件.md
