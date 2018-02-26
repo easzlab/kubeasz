@@ -31,15 +31,23 @@
 
 ## 安装步骤
 
-1. [集群规划和基础参数设定](docs/00-集群规划和基础参数设定.md)
-1. [创建CA证书和环境配置](docs/01-创建CA证书和环境配置.md)
-1. [安装etcd集群](docs/02-安装etcd集群.md)
-1. [配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
-1. [安装docker服务](docs/04-安装docker服务.md)
-1. [安装kube-master节点](docs/05-安装kube-master节点.md)
-1. [安装kube-node节点](docs/06-安装kube-node节点.md)
-1. [安装calico网络组件](docs/07-安装calico网络组件.md)
-1. [安装flannel网络组件](docs/07-安装flannel网络组件.md)
+[集群规划和基础参数设定](docs/00-集群规划和基础参数设定.md)
+
+[创建CA证书和环境配置](docs/01-创建CA证书和环境配置.md)
+
+[安装etcd集群](docs/02-安装etcd集群.md)
+
+[配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
+
+[安装docker服务](docs/04-安装docker服务.md)
+
+[安装kube-master节点](docs/05-安装kube-master节点.md)
+
+[安装kube-node节点](docs/06-安装kube-node节点.md)
+
+[安装calico网络组件](docs/07-安装calico网络组件.md)
+
+[安装flannel网络组件](docs/07-安装flannel网络组件.md)
 
 ## 使用指南
 
@@ -52,9 +60,9 @@
 
 ## 参考阅读
 
-1. 建议阅读 [rootsongjc-Kubernetes指南](https://github.com/rootsongjc/kubernetes-handbook) 原理和实践指南。
-1. 建议阅读 [feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md) 原理和部署章节。
-1. 建议阅读 [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
+- 建议阅读 [rootsongjc-Kubernetes指南](https://github.com/rootsongjc/kubernetes-handbook) 原理和实践指南。
+- 建议阅读 [feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md) 原理和部署章节。
+- 建议阅读 [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
 
 ## 版权
 
