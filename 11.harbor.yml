@@ -4,7 +4,9 @@
   - docker
   - harbor
 
-- hosts: kube-node
+- hosts: 
+  - kube-node
+  - new-node
   tasks:
   - name: harbor证书目录创建
     file: name=/etc/docker/certs.d/{{ HARBOR_DOMAIN }} state=directory
