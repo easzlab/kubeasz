@@ -16,14 +16,13 @@
 
 ## 组件版本
 
-1. kubernetes	v1.9.3
-1. etcd		v3.3.1
-1. docker	17.12.0-ce
-1. calico/node	v2.6.7
-1. flannel	v0.10.0
-
-+ 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)
-+ 注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`, 若你需要从v1.8 升级至 v1.9，请参考 [升级注意](docs/upgrade.md)
+- kubernetes	v1.9.3
+- etcd		v3.3.1
+- docker	17.12.0-ce
+- calico/node	v2.6.7
+- flannel	v0.10.0
+  - 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)
+  - 注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`, 若你需要从v1.8 升级至 v1.9，请参考 [升级注意](docs/upgrade.md)
 
 ## 快速指南
 
@@ -31,23 +30,15 @@
 
 ## 安装步骤
 
-[集群规划和基础参数设定](docs/00-集群规划和基础参数设定.md)
-
-[创建CA证书和环境配置](docs/01-创建CA证书和环境配置.md)
-
-[安装etcd集群](docs/02-安装etcd集群.md)
-
-[配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
-
-[安装docker服务](docs/04-安装docker服务.md)
-
-[安装kube-master节点](docs/05-安装kube-master节点.md)
-
-[安装kube-node节点](docs/06-安装kube-node节点.md)
-
-[安装calico网络组件](docs/07-安装calico网络组件.md)
-
-[安装flannel网络组件](docs/07-安装flannel网络组件.md)
+- [集群规划和基础参数设定](docs/00-集群规划和基础参数设定.md)
+- [创建CA证书和环境配置](docs/01-创建CA证书和环境配置.md)
+- [安装etcd集群](docs/02-安装etcd集群.md)
+- [配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
+- [安装docker服务](docs/04-安装docker服务.md)
+- [安装kube-master节点](docs/05-安装kube-master节点.md)
+- [安装kube-node节点](docs/06-安装kube-node节点.md)
+- [安装calico网络组件](docs/07-安装calico网络组件.md)
+- [安装flannel网络组件](docs/07-安装flannel网络组件.md)
 
 ## 使用指南
 
