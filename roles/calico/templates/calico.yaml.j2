@@ -1,9 +1,9 @@
-# Calico Version v2.6.7
-# https://docs.projectcalico.org/v2.6/releases#v2.6.7
+# Calico Version v3.0.3
+# https://docs.projectcalico.org/v3.0/releases#v3.0.3
 # This manifest includes the following component versions:
-#   calico/node:v2.6.7
-#   calico/cni:v1.11.2
-#   calico/kube-controllers:v1.0.3
+#   calico/node:v3.0.3
+#   calico/cni:v2.0.1
+#   calico/kube-controllers:v2.0.1
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -13,7 +13,7 @@ metadata:
   namespace: kube-system
 data:
   # Configure this with the location of your etcd cluster.
-  etcd_endpoints: "{{ ETCD_ENDPOINTS }}"
+  etcd_endpoints: "{{ ETCD_ENDPOINTS }}" 
 
   # Configure the Calico backend to use.
   calico_backend: "bird"
@@ -21,31 +21,41 @@ data:
   # The CNI network configuration to install on each node.
   cni_network_config: |-
     {
-        "name": "k8s-pod-network",
-        "cniVersion": "0.1.0",
-        "type": "calico",
-        "etcd_endpoints": "{{ ETCD_ENDPOINTS }}",
-        "etcd_key_file": "/etc/calico/ssl/calico-key.pem",
-        "etcd_cert_file": "/etc/calico/ssl/calico.pem",
-        "etcd_ca_cert_file": "/etc/calico/ssl/ca.pem",
-        "log_level": "info",
-        "mtu": 1500,
-        "ipam": {
-            "type": "calico-ipam"
+      "name": "k8s-pod-network",
+      "cniVersion": "0.3.0",
+      "plugins": [
+        {
+            "type": "calico",
+            "etcd_endpoints": "{{ ETCD_ENDPOINTS }}",
+            "etcd_key_file": "/etc/calico/ssl/calico-key.pem",
+            "etcd_cert_file": "/etc/calico/ssl/calico.pem",
+            "etcd_ca_cert_file": "/etc/calico/ssl/ca.pem",
+            "log_level": "info",
+            "mtu": 1500,
+            "ipam": {
+                "type": "calico-ipam"
+            },
+            "policy": {
+                "type": "k8s"
+            },
+            "kubernetes": {
+                "kubeconfig": "/root/.kube/config" 
+            }
         },
-        "policy": {
-            "type": "k8s"
-        },
-        "kubernetes": {
-            "kubeconfig": "/root/.kube/config"
+        {
+          "type": "portmap",
+          "snat": true,
+          "capabilities": {"portMappings": true}
         }
+      ]
     }
 
   # If you're using TLS enabled etcd uncomment the following.
   # You must also populate the Secret below with these files.
-  etcd_ca: "/calico-secrets/ca.pem"
-  etcd_cert: "/calico-secrets/calico.pem"
-  etcd_key: "/calico-secrets/calico-key.pem"
+  etcd_ca: "/calico-secrets/etcd-ca" 
+  etcd_cert: "/calico-secrets/etcd-cert"
+  etcd_key: "/calico-secrets/etcd-key"
+
 ---
 
 # This manifest installs the calico/node container, as well
@@ -62,6 +72,10 @@ spec:
   selector:
     matchLabels:
       k8s-app: calico-node
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   template:
     metadata:
       labels:
@@ -82,8 +96,8 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          #image: quay.io/calico/node:v2.6.7
-          image: calico/node:v2.6.7
+          #image: quay.io/calico/node:v3.0.3
+          image: calico/node:v3.0.3
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -103,6 +117,11 @@ spec:
             # Disable file logging so `kubectl logs` works.
             - name: CALICO_DISABLE_FILE_LOGGING
               value: "true"
+            # Set noderef for node controller.
+            - name: CALICO_K8S_NODE_REF
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             # Set Felix endpoint to host default action to ACCEPT.
             - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
               value: "ACCEPT"
@@ -111,11 +130,6 @@ spec:
               value: "{{ CLUSTER_CIDR }}"
             - name: CALICO_IPV4POOL_IPIP
               value: "{{ CALICO_IPV4POOL_IPIP }}"
-            # Set noderef for node controller.
-            - name: CALICO_K8S_NODE_REF
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
             # Disable IPv6 on Kubernetes.
             - name: FELIX_IPV6SUPPORT
               value: "false"
@@ -145,7 +159,7 @@ spec:
                   key: etcd_cert
             # Auto-detect the BGP IP address.
             - name: IP
-              value: ""
+              value: "autodetect"
             - name: IP_AUTODETECTION_METHOD
               value: "{{ IP_AUTODETECTION_METHOD }}"
             - name: FELIX_HEALTHENABLED
@@ -179,10 +193,13 @@ spec:
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          #image: quay.io/calico/cni:v1.11.2
-          image: calico/cni:v1.11.2
+          #image: quay.io/calico/cni:v2.0.1
+          image: calico/cni:v2.0.1
           command: ["/install-cni.sh"]
           env:
+            # Name of the CNI config file to create.
+            - name: CNI_CONF_NAME
+              value: "10-calico.conflist"
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
               valueFrom:
@@ -259,8 +276,8 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          #image: quay.io/calico/kube-controllers:v1.0.3
-          image: calico/kube-controllers:v1.0.3
+          #image: quay.io/calico/kube-controllers:v2.0.1
+          image: calico/kube-controllers:v2.0.1
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS

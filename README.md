@@ -19,7 +19,7 @@
 - kubernetes	v1.9.3
 - etcd		v3.3.1
 - docker	17.12.0-ce
-- calico/node	v2.6.7
+- calico/node	v3.0.3
 - flannel	v0.10.0
   - 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)
   - 注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`, 若你需要从v1.8 升级至 v1.9，请参考 [升级注意](docs/upgrade.md)

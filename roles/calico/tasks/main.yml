@@ -17,6 +17,10 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes calico-csr.json | {{ bin_dir }}/cfssljson -bare calico"
 
+# 因官方calico.yaml文件中使用特定的证书名，所以要重命名
+- name: 重命名相关证书
+  shell: "cd /etc/calico/ssl && cp ca.pem etcd-ca && cp calico.pem etcd-cert && cp calico-key.pem etcd-key"
+
 - name: 准备 calico DaemonSet yaml文件
   template: src=calico.yaml.j2 dest=/root/local/kube-system/calico/calico.yaml
 
