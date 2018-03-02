@@ -18,7 +18,6 @@
     with_items:
     - "/var/lib/kubelet/"
     - "/var/lib/kube-proxy/"
-    - "/etc/kubernetes/"
     - "/etc/systemd/system/kubelet.service"
     - "/etc/systemd/system/kube-proxy.service"
    # - "/root/local/bin/"
@@ -36,7 +35,6 @@
     - "/etc/systemd/system/kube-apiserver.service"
     - "/etc/systemd/system/kube-controller-manager.service"
     - "/etc/systemd/system/kube-scheduler.service"
-    - "/etc/kubernetes/"
 
 - hosts:
   - kube-master
@@ -123,7 +121,7 @@
   - deploy
   - etcd
   - lb
-  task:
+  tasks:
   - name: 清理证书目录和文件
     file: name={{ item }} state=absent
     with_items:
