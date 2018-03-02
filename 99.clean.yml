@@ -1,6 +1,7 @@
 # 警告：此脚本将清理整个K8S集群，包括所有POD、ETCD数据等
 # 请三思后运行此脚本 ansible-playbook 99.clean.yml
 
+# 清理 kube-node 相关服务
 - hosts:
   - kube-node
   - new-node
@@ -22,6 +23,7 @@
     - "/etc/systemd/system/kube-proxy.service"
    # - "/root/local/bin/"
 
+# 清理 kube-master 相关
 - hosts: kube-master
   tasks:
   - name: stop kube-master service
@@ -36,8 +38,8 @@
     - "/etc/systemd/system/kube-controller-manager.service"
     - "/etc/systemd/system/kube-scheduler.service"
 
+# 清理集群docker服务、网络相关
 - hosts:
-  - kube-master
   - kube-node
   - new-node
   tasks:
@@ -64,6 +66,7 @@
     - "/var/log/calico/"
     - "/var/lib/docker/"
     - "/var/run/docker/"
+    - "/root/local/kube-system/"
     - "/etc/systemd/system/calico-node.service"
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
@@ -84,6 +87,7 @@
 	systemctl restart network"
     ignore_errors: true
 
+# 清理etcd 集群相关
 - hosts: etcd
   tasks:
   - name: stop etcd service
@@ -97,6 +101,7 @@
     - "/etc/etcd/"
     - "/etc/systemd/system/etcd.service"
 
+# 清理负载均衡相关
 - hosts: lb
   tasks:
   - name: stop keepalived service
@@ -126,4 +131,5 @@
     file: name={{ item }} state=absent
     with_items:
     - "{{ ca_dir }}" 
-
+    - /root/.kube
+    - /etc/docker
