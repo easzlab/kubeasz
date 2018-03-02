@@ -39,9 +39,9 @@
     - "/etc/kubernetes/"
 
 - hosts:
-  - kube-cluster
+  - kube-master
+  - kube-node
   - new-node
-  - deploy
   tasks:
   - name: stop docker service
     shell: "systemctl stop docker"
@@ -115,4 +115,17 @@
     - "/etc/haproxy"
     - "/etc/keepalived"
     ignore_errors: true
+
+- hosts:
+  - kube-master
+  - kube-node
+  - new-node
+  - deploy
+  - etcd
+  - lb
+  task:
+  - name: 清理证书目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "{{ ca_dir }}" 
 

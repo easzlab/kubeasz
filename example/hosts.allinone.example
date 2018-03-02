@@ -12,10 +12,6 @@
 [kube-node]
 192.168.1.1 NODE_ID=node1 NODE_IP="192.168.1.1"
 
-[kube-cluster:children]
-kube-node
-kube-master
-
 # 如果启用harbor，请配置后面harbor相关参数
 [harbor]
 #192.168.1.8 NODE_IP="192.168.1.8"

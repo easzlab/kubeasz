@@ -5,7 +5,8 @@
 
 # 集群节点的公共配置任务
 - hosts:
-  - kube-cluster
+  - kube-master
+  - kube-node
   - deploy
   - etcd
   - lb
