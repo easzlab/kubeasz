@@ -20,5 +20,5 @@ listen kube-master
         mode tcp
         option tcplog
         balance source
-        server s1 {{ LB_EP1 }}  check inter 10000 fall 2 rise 2 weight 1
-        server s2 {{ LB_EP2 }}  check inter 10000 fall 2 rise 2 weight 1
+        server s1 {{ master1 }}  check inter 10000 fall 2 rise 2 weight 1
+        server s2 {{ master2 }}  check inter 10000 fall 2 rise 2 weight 1
