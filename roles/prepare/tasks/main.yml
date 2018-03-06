@@ -64,6 +64,7 @@
 
 - name: 加载br_netfilter模块
   modprobe: name=br_netfilter state=present
+  ignore_errors: true
   #shell: "modprobe br_netfilter"
   
 - name: 生效系统参数
