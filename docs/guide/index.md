@@ -18,7 +18,7 @@
 
 - 集群状态检查
 - 集群扩容
-  - node 节点扩容
+  - [node 节点扩容](op/AddNode.md)
   - master 节点扩容
   - etcd 集群扩容
 - 清理集群
