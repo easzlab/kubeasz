@@ -13,7 +13,7 @@ vrrp_instance VI-kube-master {
     priority 120
     dont_track_primary
     interface {{ LB_IF }}
-    virtual_router_id 51
+    virtual_router_id {{ ROUTER_ID }}
     advert_int 3
     track_script {
         check-haproxy

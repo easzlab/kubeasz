@@ -20,6 +20,7 @@
 master1="192.168.1.1:6443"	# 根据实际master节点数量设置
 master2="192.168.1.2:6443"	# 需同步设置roles/lb/templates/haproxy.cfg.j2 
 #master3="192.168.1.x:6443"
+ROUTER_ID=57                    # 取值在0-255之间，区分多个instance的VRRP组播，同网段不能重复
 MASTER_PORT="8443"		# 设置 api-server VIP地址的服务端口
 
 [kube-node]
