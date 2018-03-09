@@ -1,18 +1,18 @@
 ## 增加 kube-node 节点
 
 新增`kube-node`节点大致流程为：
-- 1. 节点预处理 prepare
-- 2. 安装 kubectl (可选)
-- 3. 安装 docker
-- 4. 安装 kubelet 和 kube-proxy
-- 5. 准备网络插件 calico 或 flannel
-- 6. 批准新节点 kubectl certificate approve
+- 节点预处理 prepare
+- 安装 kubectl (可选)
+- 安装 docker
+- 安装 kubelet 和 kube-proxy
+- 准备网络插件 calico 或 flannel
+- 批准新节点 kubectl certificate approve
 
 ### 操作步骤
 
 按照本项目说明，首先确保deploy节点能够ssh免密码登陆新增节点，然后在**deploy**节点执行两步：
 
-- 1. 修改ansible hosts 文件，在 [new-node] 组编辑需要新增的节点，例如：
+- 修改ansible hosts 文件，在 [new-node] 组编辑需要新增的节点，例如：
 
 ``` bash
 ...
@@ -21,7 +21,7 @@
 192.168.1.6 NODE_ID=node6 NODE_IP="192.168.1.6"
 ...
 ```
-- 2. 执行安装脚本
+- 执行安装脚本
 
 ``` bash
 $ cd /etc/ansible && ansible-playbook 20.addnode.yml

@@ -130,6 +130,7 @@
   - name: 清理证书目录和文件
     file: name={{ item }} state=absent
     with_items:
+    - "/etc/kubernetes/"
     - "{{ ca_dir }}" 
-    - /root/.kube
-    - /etc/docker
+    - "/root/.kube/"
+    - "/etc/docker/"

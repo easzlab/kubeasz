@@ -8,10 +8,20 @@
   - kube-proxy
   - kubelet
 
+# 注册变量result，根据result结果判断是否已经生成过 kubernetes证书
+# result|failed 说明没有生成过证书，下一步生成证书
+# result|succeeded 说明已经有kubernetes证书，使用原证书，跳过生成证书步骤
+- name: 注册变量result
+  command: ls /etc/kubernetes/ssl/kubernetes.pem
+  register: result
+  ignore_errors: True
+
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
+  when: result|failed
 
 - name: 创建 kubernetes 证书和私钥
+  when: result|failed
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \

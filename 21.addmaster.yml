@@ -1,0 +1,14 @@
+# 集群节点的公共配置任务
+- hosts:
+  - kube-master
+  roles:
+  - prepare
+
+# [可选]多master部署时的负载均衡配置
+- hosts: lb
+  roles:
+  - lb
+
+- hosts: kube-master
+  roles:
+  - kube-master
