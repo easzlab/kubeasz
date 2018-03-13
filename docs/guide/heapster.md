@@ -56,7 +56,7 @@ $ kubectl logs monitoring-influxdb-884893134-3vb6n -n kube-system
 kubectl cluster-info | grep grafana
 monitoring-grafana is running at https://x.x.x.x:6443/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy
 ```
-请参考上一步 [访问dashboard](dashboard.md)同样的方式，使用证书或者密码认证，访问`https://x.x.x.x:6443/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy`即可，如图可以点击[Home]选择查看 `Cluster` `Pods`的监控图形
+请参考上一步 [访问dashboard](dashboard.md)同样的方式，使用证书或者密码认证（参照hosts文件配置，默认：用户admin 密码test1234），访问`https://x.x.x.x:6443/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy`即可，如图可以点击[Home]选择查看 `Cluster` `Pods`的监控图形
 
 ![grafana](../../pics/grafana.png)
 

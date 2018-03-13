@@ -1,6 +1,6 @@
 ## EFK
 
-`EFK` 插件是`k8s`项目的一个日志解决方案，它包括三个组件：[Elasticsearch](),[Fluentd](),[Kibana]()；Elasticsearch 是日志存储和日志搜索引擎，Fluentd 负载把`k8s`集群的日志发送给 Elasticsearch, Kibana 是可视化界面查看和检索存储在 Elasticsearch 的数据。
+`EFK` 插件是`k8s`项目的一个日志解决方案，它包括三个组件：[Elasticsearch](), [Fluentd](), [Kibana]()；Elasticsearch 是日志存储和日志搜索引擎，Fluentd 负载把`k8s`集群的日志发送给 Elasticsearch, Kibana 则是可视化界面查看和检索存储在 Elasticsearch 的数据。
 
 ### 部署
 
@@ -46,7 +46,7 @@ $ kubectl logs -n kube-system kibana-logging-d5cffd7c6-9lz2p -f
 $ kubectl cluster-info | grep Kibana
 Kibana is running at https://192.168.1.10:8443/api/v1/namespaces/kube-system/services/kibana-logging/proxy
 ```
-浏览器访问 URL：`https://192.168.1.10:8443/api/v1/namespaces/kube-system/services/kibana-logging/proxy`，然后使用`basic auth`或者`证书` 的方式认证后即可，关于认证可以参考[dashboard文档](dashboard.md)
+浏览器访问 URL：`https://192.168.1.10:8443/api/v1/namespaces/kube-system/services/kibana-logging/proxy`，然后使用`basic auth（参照hosts文件设置，默认：用户admin 密码test1234）`或者`证书` 的方式认证后即可，关于认证可以参考[dashboard文档](dashboard.md)
 
 首次登陆需要在`Management` - `Index Patterns` 创建 `index pattern`，可以使用默认的 logstash-* pattern，点击 Create; 创建Index后，稍等几分钟就可以在 Discover 菜单看到 ElasticSearch logging 中汇聚的日志；
 
