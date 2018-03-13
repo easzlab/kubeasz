@@ -1,0 +1,89 @@
+# Download ks8 binary 
+- name: download k8s binary
+  get_url:
+    url: "https://dl.k8s.io/{{ K8S_VER }}/kubernetes-server-linux-amd64.tar.gz"
+    dest: "{{ down_dir }}"
+
+# Download download etcd binary 
+- name: download etcd binary
+  get_url:
+    url: "https://github.com/coreos/etcd/releases/download/{{ ETCD_VER }}/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz"
+    dest: "{{ down_dir }}"
+
+# Download docker binary 
+- name: download docker binary
+  get_url:
+    url: "https://download.docker.com/linux/static/stable/x86_64/docker-{{ DOCKER_VER }}.tgz"
+    dest: "{{ down_dir }}"
+
+# Download ca tools  
+- name: download ca tools
+  get_url:
+    url: "{{item}}"
+    dest: "{{ down_dir }}"
+    mode: 0755
+  with_items:
+  - "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64"
+  - "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64"
+  - "https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64"
+
+# Download docker-compose  binary 
+- name: download docker-compose binary
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{ DOCKER_COMPOSE }}/docker-compose-Linux-x86_64"
+    dest: "{{ down_dir }}"
+    mode: 0755
+
+# Download cni plugins
+- name: download cni plugins
+  get_url:
+    url: "https://github.com/containernetworking/plugins/releases/download/{{ CNI_VER }}/cni-plugins-amd64-{{ CNI_VER }}.tgz"
+    dest: "{{ down_dir }}"
+
+# TODO(ogre0403):Download HARBOR 
+#- name: download harbor
+#  get_url:
+#   url: https://github.com/vmware/harbor/releases/download/{{ HARBOR }}/harbor-offline-installer-{{ HARBOR }}.tgz
+#   dest: {{ down_dir }}
+
+# Rename cfssl tools  
+- name: rename cfssl
+  command: mv "{{ base_dir }}/down/cfssl_linux-amd64" "{{ bin_dir }}/cfssl"
+
+# Rename cfssljson tools  
+- name: rename cfssljson
+  command: mv "{{ base_dir }}/down/cfssljson_linux-amd64" "{{ bin_dir }}/cfssljson"
+
+# Rename cfssl-certinfo tools  
+- name: rename cfssl-certinfo
+  command: mv "{{ base_dir }}/down/cfssl-certinfo_linux-amd64" "{{ bin_dir }}/cfssl-certinfo"
+
+# Extract downloaded binary
+- name: extract download binary
+  unarchive: 
+    src: "{{item}}"
+    dest: "{{ down_dir }}"
+  with_items:
+  - "{{ down_dir }}/etcd-{{ ETCD_VER }}-linux-amd64.tar.gz" 
+  - "{{ down_dir }}/kubernetes-server-linux-amd64.tar.gz"
+  - "{{ down_dir }}/docker-{{ DOCKER_VER }}.tgz"
+  - "{{ down_dir }}/cni-plugins-amd64-{{ CNI_VER }}.tgz"
+ 
+# copy binary files
+- name: copy binary files
+  shell: "mv {{item}} {{ bin_dir }}"
+  with_items:
+  - "{{ down_dir }}/etcd-{{ ETCD_VER }}-linux-amd64/etcd*"
+  - "{{ down_dir }}/kubernetes/server/bin/kube-apiserver"
+  - "{{ down_dir }}/kubernetes/server/bin/kube-controller-manager"
+  - "{{ down_dir }}/kubernetes/server/bin/kubectl"
+  - "{{ down_dir }}/kubernetes/server/bin/kubelet"
+  - "{{ down_dir }}/kubernetes/server/bin/kube-proxy"
+  - "{{ down_dir }}/kubernetes/server/bin/kube-scheduler"
+  - "{{ down_dir }}/docker/docker*"
+  - "{{ down_dir }}/bridge"
+  - "{{ down_dir }}/flannel"
+  - "{{ down_dir }}/host-local"
+  - "{{ down_dir }}/loopback"
+  - "{{ down_dir }}/portmap"
+

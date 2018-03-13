@@ -88,3 +88,21 @@ base_dir="/etc/ansible"
 #私有仓库 harbor服务器 (域名或者IP)
 #HARBOR_IP="192.168.1.8"
 #HARBOR_DOMAIN="harbor.yourdomain.com"
+
+#Download related env var
+down_dir="/etc/ansible/down"
+K8S_VER=v1.9.3
+ETCD_VER=v3.3.1
+DOCKER_VER=17.12.0-ce
+CNI_VER=v0.7.0
+DOCKER_COMPOSE=1.18.0
+HARBOR=v1.2.2
+
+#Download related env var
+down_dir="/etc/ansible/down"
+K8S_VER=v1.9.3
+ETCD_VER=v3.3.1
+DOCKER_VER=17.12.0-ce
+CNI_VER=v0.7.0
+DOCKER_COMPOSE=1.18.0
+HARBOR=v1.2.2

@@ -1,0 +1,5 @@
+# Download all required binary files
+- hosts: deploy
+  roles:
+  - download
+
