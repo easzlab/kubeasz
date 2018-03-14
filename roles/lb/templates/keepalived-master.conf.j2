@@ -19,6 +19,6 @@ vrrp_instance VI-kube-master {
         check-haproxy
     }
     virtual_ipaddress {
-        {{ MASTER_IP }}
+        {{ MASTER_IP }}/24
     }
 }
