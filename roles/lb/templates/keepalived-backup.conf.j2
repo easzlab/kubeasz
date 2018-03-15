@@ -10,6 +10,6 @@ vrrp_instance VI-kube-master {
     virtual_router_id {{ ROUTER_ID }} 
     advert_int 3
     virtual_ipaddress {
-        {{ MASTER_IP }}
+        {{ MASTER_IP }}/24
     }
 }

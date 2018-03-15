@@ -27,11 +27,16 @@
 - name: 准备 calico rbac文件 
   template: src=calico-rbac.yaml.j2 dest=/root/local/kube-system/calico/calico-rbac.yaml
 
-# 只需单节点执行一次，重复执行的报错可以忽略
+- name: 获取所有已经创建的POD信息
+  command: "kubectl get pod --all-namespaces"
+  register: pod_info
+  run_once: true
+
+# 只需单节点执行一次
 - name: 运行 calico网络
   shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/ && sleep 15"
-  when: NODE_ID is defined and NODE_ID == "node1"
-  ignore_errors: true
+  run_once: true
+  when: '"calico" not in pod_info.stdout'
 
 # 删除原有cni配置
 - name: 删除默认cni配置

@@ -10,7 +10,7 @@
 192.168.1.1 NODE_IP="192.168.1.1"
 
 [kube-node]
-192.168.1.1 NODE_ID=node1 NODE_IP="192.168.1.1"
+192.168.1.1 NODE_IP="192.168.1.1"
 
 # 如果启用harbor，请配置后面harbor相关参数
 [harbor]
@@ -18,7 +18,7 @@
 
 # 预留组，后续添加node节点使用
 [new-node]
-#192.168.1.xx NODE_ID=node6 NODE_IP="192.168.1.xx"
+#192.168.1.xx NODE_IP="192.168.1.xx"
 
 [all:vars]
 # ---------集群主要参数---------------

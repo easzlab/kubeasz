@@ -14,16 +14,20 @@
   - bridge
   - host-local
   - loopback
+
+- name: get clusterrolebinding info
+  command: "kubectl get clusterrolebinding --all-namespaces"
+  register: clusterrolebinding_info
+  run_once: true
   
 ##----------kubelet 配置部分--------------
 # kubelet 启动时向 kube-apiserver 发送 TLS bootstrapping 请求，需要绑定该角色
-# 只需单节点执行一次，重复执行的报错可以忽略
-# 增加15s等待kube-apiserver正常工作
+# 只需单节点执行一次
 - name: kubelet-bootstrap-setting
-  shell: "sleep 15 && {{ bin_dir }}/kubectl create clusterrolebinding kubelet-bootstrap \
+  shell: "{{ bin_dir }}/kubectl create clusterrolebinding kubelet-bootstrap \
         --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
-  when: NODE_ID is defined and NODE_ID == "node1"
-  ignore_errors: true
+  run_once: True
+  when: '"kubelet-bootstrap" not in clusterrolebinding_info.stdout'
 
 #创建bootstrap.kubeconfig配置文件
 - name: 设置集群参数
@@ -59,8 +63,8 @@
   tags: kubelet 
 
 - name: approve-kubelet-csr
-  shell: "sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
-  when: NODE_ID is defined and NODE_ID == "node1"
+  shell: "{{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
+  run_once: true
   ignore_errors: true
 
 ##-------kube-proxy部分----------------
