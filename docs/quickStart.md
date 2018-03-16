@@ -59,6 +59,10 @@ mv bin/* /etc/ansible/bin
 cd /etc/ansible
 cp example/hosts.allinone.example hosts
 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
+
+# 下載所需的binary file
+ansible-playbook 00.download.yml
+
 # 采用一步安装或者分步安装
 ansible-playbook 90.setup.yml # 一步安装
 #ansible-playbook 01.prepare.yml
