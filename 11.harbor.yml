@@ -5,6 +5,7 @@
   - harbor
 
 - hosts: 
+  - kube-master
   - kube-node
   - new-node
   tasks:

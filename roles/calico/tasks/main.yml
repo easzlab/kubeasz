@@ -28,13 +28,13 @@
   template: src=calico-rbac.yaml.j2 dest=/root/local/kube-system/calico/calico-rbac.yaml
 
 - name: 获取所有已经创建的POD信息
-  command: "kubectl get pod --all-namespaces"
+  command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
   register: pod_info
   run_once: true
 
 # 只需单节点执行一次
 - name: 运行 calico网络
-  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/ && sleep 15"
+  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/ && sleep 5"
   run_once: true
   when: '"calico" not in pod_info.stdout'
 

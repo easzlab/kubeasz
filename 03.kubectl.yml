@@ -1,6 +1,0 @@
-- hosts: 
-  - kube-master
-  - kube-node
-  - deploy
-  roles:
-  - kubectl

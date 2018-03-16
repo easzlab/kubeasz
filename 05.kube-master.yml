@@ -1,3 +1,11 @@
 - hosts: kube-master
   roles:
   - kube-master
+  - kube-node
+  # 禁止业务 pod调度到 master节点
+  tasks:
+  - name: 禁止业务 pod调度到 master节点
+    shell: "{{ bin_dir }}/kubectl cordon {{ NODE_IP }} "
+    when: DEPLOY_MODE != "allinone"
+    ignore_errors: true
+

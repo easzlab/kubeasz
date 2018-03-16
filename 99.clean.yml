@@ -3,6 +3,7 @@
 
 # 清理 kube-node 相关服务
 - hosts:
+  - kube-master
   - kube-node
   - new-node
   tasks:
@@ -21,7 +22,7 @@
     - "/var/lib/kube-proxy/"
     - "/etc/systemd/system/kubelet.service"
     - "/etc/systemd/system/kube-proxy.service"
-   # - "/root/local/bin/"
+    - "/root/local/kube-system/"
 
 # 清理 kube-master 相关
 - hosts: kube-master
@@ -40,6 +41,7 @@
 
 # 清理集群docker服务、网络相关
 - hosts:
+  - kube-master
   - kube-node
   - new-node
   tasks:
@@ -117,7 +119,6 @@
     with_items:
     - "/etc/haproxy"
     - "/etc/keepalived"
-    ignore_errors: true
 
 - hosts:
   - kube-master

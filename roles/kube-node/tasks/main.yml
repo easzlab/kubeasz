@@ -15,41 +15,22 @@
   - host-local
   - loopback
 
-- name: get clusterrolebinding info
-  command: "kubectl get clusterrolebinding --all-namespaces"
-  register: clusterrolebinding_info
-  run_once: true
-  
 ##----------kubelet 配置部分--------------
 # kubelet 启动时向 kube-apiserver 发送 TLS bootstrapping 请求，需要绑定该角色
 # 只需单节点执行一次
+- name: get clusterrolebinding info
+  shell: "{{ bin_dir }}/kubectl get clusterrolebinding --all-namespaces"
+  register: clusterrolebinding_info
+  run_once: true
+  
 - name: kubelet-bootstrap-setting
   shell: "{{ bin_dir }}/kubectl create clusterrolebinding kubelet-bootstrap \
         --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap"
   run_once: True
   when: '"kubelet-bootstrap" not in clusterrolebinding_info.stdout'
 
-#创建bootstrap.kubeconfig配置文件
-- name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
-        --embed-certs=true \
-        --server={{ KUBE_APISERVER }} \
-        --kubeconfig=bootstrap.kubeconfig"
-- name: 设置客户端认证参数
-  shell: "{{ bin_dir }}/kubectl config set-credentials kubelet-bootstrap \
-        --token={{ BOOTSTRAP_TOKEN }} \
-        --kubeconfig=bootstrap.kubeconfig"
-- name: 设置上下文参数
-  shell: "{{ bin_dir }}/kubectl config set-context default \
-	--cluster=kubernetes \
-	--user=kubelet-bootstrap \
-	--kubeconfig=bootstrap.kubeconfig"
-- name: 选择默认上下文
-  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig=bootstrap.kubeconfig"
-
 - name: 安装bootstrap.kubeconfig配置文件
-  shell: "mv $HOME/bootstrap.kubeconfig /etc/kubernetes/bootstrap.kubeconfig"
+  copy: src=/etc/kubernetes/bootstrap.kubeconfig dest=/etc/kubernetes/bootstrap.kubeconfig  
 
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
@@ -62,45 +43,9 @@
   shell: systemctl daemon-reload && systemctl enable kubelet && systemctl restart kubelet
   tags: kubelet 
 
-- name: approve-kubelet-csr
-  shell: "{{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
-  run_once: true
-  ignore_errors: true
-
 ##-------kube-proxy部分----------------
-- name: 准备kube-proxy 证书签名请求
-  template: src=kube-proxy-csr.json.j2 dest={{ ca_dir }}/kube-proxy-csr.json
-
-- name: 创建 kube-proxy证书与私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes kube-proxy-csr.json | {{ bin_dir }}/cfssljson -bare kube-proxy"
-
-#创建kube-proxy.kubeconfig配置文件
-- name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
-        --embed-certs=true \
-        --server={{ KUBE_APISERVER }} \
-        --kubeconfig=kube-proxy.kubeconfig"
-- name: 设置客户端认证参数
-  shell: "{{ bin_dir }}/kubectl config set-credentials kube-proxy \
-	--client-certificate={{ ca_dir }}/kube-proxy.pem \
-	--client-key={{ ca_dir }}/kube-proxy-key.pem \
-        --embed-certs=true \
-        --kubeconfig=kube-proxy.kubeconfig"
-- name: 设置上下文参数
-  shell: "{{ bin_dir }}/kubectl config set-context default \
-        --cluster=kubernetes \
-        --user=kube-proxy \
-        --kubeconfig=kube-proxy.kubeconfig"
-- name: 选择默认上下文
-  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig"
-
 - name: 安装kube-proxy.kubeconfig配置文件
-  shell: "mv $HOME/kube-proxy.kubeconfig /etc/kubernetes/kube-proxy.kubeconfig"
+  copy: src=/etc/kubernetes/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
 
 - name: 创建kube-proxy 服务文件
   tags: reload-kube-proxy
@@ -110,3 +55,9 @@
   tags: reload-kube-proxy
   shell: systemctl daemon-reload && systemctl enable kube-proxy && systemctl restart kube-proxy
 
+# 批准 node 节点
+- name: approve-kubelet-csr
+  shell: "sleep 10 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| \
+	xargs {{ bin_dir }}/kubectl certificate approve"
+  run_once: true
+  ignore_errors: true

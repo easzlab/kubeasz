@@ -26,6 +26,9 @@
 
 [all:vars]
 # ---------集群主要参数---------------
+#集群部署模式：allinone, single-master, multi-master
+DEPLOY_MODE=single-master
+
 #集群 MASTER IP
 MASTER_IP="192.168.1.1"
 

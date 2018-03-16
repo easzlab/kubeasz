@@ -4,9 +4,6 @@
   - kube-apiserver
   - kube-controller-manager
   - kube-scheduler
-  - kubectl
-  - kube-proxy
-  - kubelet
 
 # 注册变量result，根据result结果判断是否已经生成过 kubernetes证书
 # result|failed 说明没有生成过证书，下一步生成证书
@@ -43,29 +40,15 @@
 - name: 创建kube-scheduler的systemd unit文件
   template: src=kube-scheduler.service.j2 dest=/etc/systemd/system/kube-scheduler.service
 
-- name: daemon-reload
-  shell: systemctl daemon-reload
+- name: enable master 服务
+  shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
 
-- name: enable-kube-apiserver
-  shell: systemctl enable kube-apiserver
-
-- name: enable-kube-controller-manager
-  shell: systemctl enable kube-controller-manager
-
-- name: enable-kube-scheduler
-  shell: systemctl enable kube-scheduler
-
-- name: start-kube-apiserver
-  shell: systemctl restart kube-apiserver
-
-- name: start-kube-controller-manager
-  shell: systemctl restart kube-controller-manager
-
-- name: start-kube-scheduler
-  shell: systemctl restart kube-scheduler
+- name: 启动 master 服务
+  shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
+	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
 
 - name: 以轮询的方式等待master服务启动完成
-  command: "kubectl get node"
+  command: "{{ bin_dir }}/kubectl get node"
   register: result
   until:    result.rc == 0
   retries:  5

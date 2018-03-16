@@ -1,14 +1,13 @@
-# 集群节点的公共配置任务
-- hosts:
-  - kube-master
-  roles:
-  - prepare
-
-# [可选]多master部署时的负载均衡配置
+# 重新配置启动 haproxy
 - hosts: lb
-  roles:
-  - lb
+  tasks:
+  - name: 配置 haproxy
+    template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+  - name: 重启haproxy服务
+    shell: systemctl enable haproxy && systemctl restart haproxy
 
 - hosts: kube-master
   roles:
+  - prepare
   - kube-master
+  - kube-node

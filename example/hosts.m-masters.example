@@ -39,6 +39,9 @@ MASTER_PORT="8443"		# 设置 api-server VIP地址的服务端口
 
 [all:vars]
 # ---------集群主要参数---------------
+#集群部署模式：allinone, single-master, multi-master
+DEPLOY_MODE=multi-master
+
 #集群 MASTER IP，一般为VIP地址
 MASTER_IP="192.168.1.10"
 KUBE_APISERVER="https://192.168.1.10:8443"

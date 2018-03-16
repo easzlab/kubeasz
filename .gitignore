@@ -5,4 +5,3 @@ bin/*
 hosts
 *.crt
 *.pem
-roles/prepare/files/ca*

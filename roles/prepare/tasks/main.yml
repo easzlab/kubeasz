@@ -6,22 +6,23 @@
   - /root/.kube
   - /etc/docker
 
-#- name: 集群hosts文件更新
-#  copy: src=hosts.j2 dest=/etc/hosts
-
 - name: 写入环境变量$PATH 
   shell: "sed -i '/export PATH=/d' /etc/profile && \
 	echo export PATH={{ bin_dir }}:$PATH >> /etc/profile"
 
-- name: 下载证书工具 CFSSL
+- name: 下载证书工具 CFSSL和 kubectl
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
   - cfssl
   - cfssl-certinfo
   - cfssljson
+  - kubectl
+
+- name: 安装kubeconfig配置文件
+  copy: src=/root/.kube/config dest=/root/.kube/config
 
 - name: 分发CA 证书
-  copy: src={{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  copy: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
   with_items:
   - ca.pem
   - ca-key.pem
