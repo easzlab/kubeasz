@@ -1,6 +1,6 @@
 ## 快速指南
 
-以下为基于Ubuntu 16.04/CentOS 7.4 快速体验k8s集群的测试、开发环境--AllinOne部署，觉得比官方的minikube方便、简单很多。
+以下为快速体验k8s集群的测试、开发环境--allinone部署，国内环境下觉得比官方的minikube方便、简单很多。
 
 ### 1.基础系统配置
 
@@ -15,8 +15,6 @@ Ubuntu 16.04 请执行以下脚本:
 ``` bash
 # 文档中脚本默认均以root用户执行
 apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y
-# 删除不要的默认安装
-apt-get purge ufw lxd lxd-client lxcfs lxc-common
 # 安装依赖工具
 apt-get install python2.7 git python-pip
 # Ubuntu16.04可能需要配置以下软连接
@@ -29,8 +27,6 @@ CentOS 7 请执行以下脚本：
 # 安装 epel 源并更新
 yum install epel-release -y
 yum update
-# 删除不要的默认安装
-yum erase firewalld firewalld-filesystem python-firewall -y
 # 安装依赖工具
 yum install git python python-pip -y
 ```
@@ -50,7 +46,7 @@ ssh-copy-id $IP #$IP为本虚机地址，按照提示输入yes 和root密码
 ``` bash
 git clone https://github.com/gjmzj/kubeasz.git
 mv kubeasz /etc/ansible
-# 下载已打包好的binaries，并且解压缩到/etc/ansible/bin目录
+# 下载已打包好的binaries，解压到/etc/ansible/bin目录
 # 国内请从分享的百度云链接下载 https://pan.baidu.com/s/1c4RFaA
 # 如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包到 ./down目录，并执行download.sh
 tar zxvf k8s.193.tar.gz
@@ -58,18 +54,18 @@ mv bin/* /etc/ansible/bin
 # 配置ansible的hosts文件
 cd /etc/ansible
 cp example/hosts.allinone.example hosts
-然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
-# 采用一步安装或者分步安装
-ansible-playbook 90.setup.yml # 一步安装
-#ansible-playbook 01.prepare.yml
-#ansible-playbook 02.etcd.yml
-#ansible-playbook 03.kubectl.yml
-#ansible-playbook 04.docker.yml
-#ansible-playbook 05.kube-master.yml
-#ansible-playbook 06.kube-node.yml
-# 网络只可选择calico flannel一种安装
-#ansible-playbook 07.calico.yml 
-#ansible-playbook 07.flannel.yml
+# 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
+# 开始集群安装，如果你对集群安装流程不熟悉，请阅读分步安装讲解后一步一步安装，并对每步都
+进行验证
+# 分步安装
+ansible-playbook 01.prepare.yml
+ansible-playbook 02.etcd.yml
+ansible-playbook 03.docker.yml
+ansible-playbook 04.kube-master.yml
+ansible-playbook 05.kube-node.yml
+ansible-playbook 06.network.yml
+# 一步安装
+#ansible-playbook 90.setup.yml
 ```
 如果执行成功，k8s集群就安装好了。详细分步讲解请查看项目目录 `/docs` 下相关文档
 
@@ -92,7 +88,7 @@ kubectl create -f /etc/ansible/manifests/heapster
 # 安装dashboard
 kubectl create -f /etc/ansible/manifests/dashboard
 ```
-+ 更新后`dashboard`已经默认关闭非安全端口访问，请使用`https://xx.xx.xx.xx:6443/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy`访问，并用默认用户 `admin:test1234` 登陆，更多内容请查阅[dashboard文档](guide/dashboard.md)
++ 登陆 `dashboard`可以查看和管理集群，更多内容请查阅[dashboard文档](guide/dashboard.md)
 
 ### 7.清理集群
 
