@@ -4,6 +4,7 @@
 # 清理 kube-node 相关服务
 - hosts:
   - kube-master
+  - new-master
   - kube-node
   - new-node
   tasks:
@@ -25,7 +26,9 @@
     - "/root/local/kube-system/"
 
 # 清理 kube-master 相关
-- hosts: kube-master
+- hosts:
+  - kube-master
+  - new-master
   tasks:
   - name: stop kube-master service
     shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler"
@@ -42,6 +45,7 @@
 # 清理集群docker服务、网络相关
 - hosts:
   - kube-master
+  - new-master
   - kube-node
   - new-node
   tasks:
@@ -120,13 +124,7 @@
     - "/etc/haproxy"
     - "/etc/keepalived"
 
-- hosts:
-  - kube-master
-  - kube-node
-  - new-node
-  - deploy
-  - etcd
-  - lb
+- hosts: all
   tasks:
   - name: 清理证书目录和文件
     file: name={{ item }} state=absent

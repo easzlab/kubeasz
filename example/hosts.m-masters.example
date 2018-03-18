@@ -32,9 +32,12 @@ MASTER_PORT="8443"		# 设置 api-server VIP地址的服务端口
 [harbor]
 #192.168.1.8 NODE_IP="192.168.1.8"
 
+# 预留组，后续添加master节点使用
+[new-master]
+#192.168.1.5 NODE_IP="192.168.1.5"
+
 # 预留组，后续添加node节点使用
 [new-node]
-#192.168.1.xx NODE_IP="192.168.1.xx"
 #192.168.1.xx NODE_IP="192.168.1.xx"
 
 [all:vars]
@@ -42,7 +45,7 @@ MASTER_PORT="8443"		# 设置 api-server VIP地址的服务端口
 #集群部署模式：allinone, single-master, multi-master
 DEPLOY_MODE=multi-master
 
-#集群 MASTER IP，一般为VIP地址
+#集群 MASTER IP即 LB节点VIP地址，并根据 LB节点的 MASTER_PORT组成 KUBE_APISERVER
 MASTER_IP="192.168.1.10"
 KUBE_APISERVER="https://192.168.1.10:8443"
 

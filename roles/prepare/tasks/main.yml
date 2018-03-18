@@ -45,7 +45,7 @@
   - lxc-common
 
 - block:
-    # 删除默认安装
+  when: ansible_distribution == "CentOS"
     - name: 删除centos默认安装
       yum: name={{ item }} state=absent
       with_items:
@@ -73,10 +73,9 @@
         regexp: "^SELINUX"
         line: "SELINUX=disabled"
 
-  when: ansible_distribution == "CentOS"
-
 - name: 添加 kubectl 命令自动补全
-  shell: "echo 'source <(kubectl completion bash)' >> ~/.bashrc"
+  shell: "sed -i '/kubectl completion/d' ~/.bashrc && \
+	echo 'source <(kubectl completion bash)' >> ~/.bashrc"
 
 # 设置系统参数for k8s
 # 消除docker info 警告WARNING: bridge-nf-call-ip[6]tables is disabled
@@ -86,7 +85,6 @@
 - name: 加载br_netfilter模块
   modprobe: name=br_netfilter state=present
   ignore_errors: true
-  #shell: "modprobe br_netfilter"
   
 - name: 生效系统参数
   shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
