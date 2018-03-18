@@ -27,7 +27,7 @@ Kubernetes Pod的网络是这样创建的：
 
 本文档基于CNI driver 调用calico 插件来配置kubernetes的网络，常用CNI插件有 `flannel` `calico` `weave`等等，这些插件各有优势，也在互相借鉴学习优点，比如：在所有node节点都在一个二层网络时候，flannel提供hostgw实现，避免vxlan实现的udp封装开销，估计是目前最高效的；calico也针对L3 Fabric，推出了IPinIP的选项，利用了GRE隧道封装；因此这些插件都能适合很多实际应用场景，这里选择calico，主要考虑它支持 `kubernetes network policy`。
 
-推荐阅读[calico kubernetes guide](https://docs.projectcalico.org/v2.6/getting-started/kubernetes/)
+推荐阅读[calico kubernetes guide](https://docs.projectcalico.org/v3.0/getting-started/kubernetes/)
 
 calico-node需要在所有master节点和node节点安装 
 
@@ -84,7 +84,7 @@ roles/calico/
 ### 安装calico 网络
 
 + 安装之前必须确保`kube-master`和`kube-node`节点已经成功部署
-+ 只需要在任意装有kubectl客户端的节点运行 `kubectl create `安装即可，脚本中选取`NODE_ID=node1`节点安装
++ 只需要在任意装有kubectl客户端的节点运行 `kubectl create `安装即可
 + 等待15s后(视网络拉取calico相关镜像速度)，calico 网络插件安装完成，删除之前kube-node安装时默认cni网络配置
 
 ### [可选]配置calicoctl工具 [calicoctl.cfg.j2](roles/calico/templates/calicoctl.cfg.j2)
@@ -176,6 +176,26 @@ calicoctl get ipPool -o yaml
     cidr: 172.20.0.0/16
   spec:
     nat-outgoing: true
+```
+
+**查看etcd中calico相关信息**
+
+因为这里calico网络使用etcd存储数据，所以可以在etcd集群中查看数据
+
++ calico 3.x 版本默认使用 etcd v3存储，**登陆集群的一个etcd 节点**，查看命令：
+
+``` bash
+# 查看所有calico相关数据
+ETCDCTL_API=3 etcdctl --endpoints="http://127.0.0.1:2379" get --prefix /calico
+# 查看 calico网络为各节点分配的网段
+ETCDCTL_API=3 etcdctl --endpoints="http://127.0.0.1:2379" get --prefix /calico/ipam/v2/host
+```
+
++ calico 2.x 版本默认使用 etcd v2存储，**登陆集群的一个etcd 节点**，查看命令：
+
+``` bash
+# 查看所有calico相关数据
+etcdctl --endpoints=http://127.0.0.1:2379 --ca-file=/etc/kubernetes/ssl/ca.pem ls /calico
 ```
 
 [前一篇](06-安装kube-node节点.md) -- [后一篇]()

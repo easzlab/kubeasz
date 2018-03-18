@@ -33,7 +33,7 @@
   when: result|failed
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert -initca ca-csr.json | {{ bin_dir }}/cfssljson -bare ca" 
 
-# 创建kubectl kubeconfig文件: /root/.kube/config
+#----------- 创建kubectl kubeconfig文件: /root/.kube/config
 - name: 准备kubectl使用的admin 证书签名请求
   template: src=admin-csr.json.j2 dest={{ ca_dir }}/admin-csr.json
 
@@ -43,24 +43,27 @@
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes admin-csr.json | {{ bin_dir }}/cfssljson -bare admin"
-
+# 设置集群参数，指定CA证书和apiserver地址
 - name: 设置集群参数
   shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
         --certificate-authority={{ ca_dir }}/ca.pem \
         --embed-certs=true \
         --server={{ KUBE_APISERVER }}"
+# 设置客户端认证参数，指定使用admin证书和私钥
 - name: 设置客户端认证参数
   shell: "{{ bin_dir }}/kubectl config set-credentials admin \
         --client-certificate={{ ca_dir }}/admin.pem \
         --embed-certs=true \
         --client-key={{ ca_dir }}/admin-key.pem"
+# 设置上下文参数，说明使用cluster集群和用户admin
 - name: 设置上下文参数
   shell: "{{ bin_dir }}/kubectl config set-context kubernetes \
         --cluster=kubernetes --user=admin"
+# 选择默认上下文
 - name: 选择默认上下文
   shell: "{{ bin_dir }}/kubectl config use-context kubernetes"
 
-#创建bootstrap.kubeconfig配置文件: /root/bootstrap.kubeconfig
+#-------------创建bootstrap.kubeconfig配置文件: /root/bootstrap.kubeconfig
 - name: 设置集群参数
   shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
         --certificate-authority={{ ca_dir }}/ca.pem \
@@ -82,7 +85,7 @@
 - name: 移动 bootstrap.kubeconfig
   shell: "mv /root/bootstrap.kubeconfig /etc/kubernetes/"
 
-#创建kube-proxy.kubeconfig配置文件: /root/kube-proxy.kubeconfig
+#------------创建kube-proxy.kubeconfig配置文件: /root/kube-proxy.kubeconfig
 - name: 准备kube-proxy 证书签名请求
   template: src=kube-proxy-csr.json.j2 dest={{ ca_dir }}/kube-proxy-csr.json
 

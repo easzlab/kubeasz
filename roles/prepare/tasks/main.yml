@@ -59,6 +59,7 @@
         - vim
         - git
         - wget
+        - psmisc # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
         - net-tools
         - bash-completion
 

@@ -30,15 +30,14 @@
 
 ## 安装步骤
 
-- [集群规划和基础参数设定](docs/00-集群规划和基础参数设定.md)
-- [创建CA证书和环境配置](docs/01-创建CA证书和环境配置.md)
+- [规划集群和安装概览](docs/00-集群规划和基础参数设定.md)
+- [创建证书和安装准备](docs/01-创建CA证书和环境配置.md)
 - [安装etcd集群](docs/02-安装etcd集群.md)
-- [配置kubectl命令行工具](docs/03-配置kubectl命令行工具.md)
 - [安装docker服务](docs/04-安装docker服务.md)
 - [安装kube-master节点](docs/05-安装kube-master节点.md)
 - [安装kube-node节点](docs/06-安装kube-node节点.md)
-- [安装calico网络组件](docs/07-安装calico网络组件.md)
-- [安装flannel网络组件](docs/07-安装flannel网络组件.md)
+- [安装calico网络](docs/07-安装calico网络组件.md)
+- [安装flannel网络](docs/07-安装flannel网络组件.md)
 
 ## 使用指南
 

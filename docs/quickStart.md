@@ -53,10 +53,8 @@ tar zxvf k8s.193.tar.gz
 mv bin/* /etc/ansible/bin
 # 配置ansible的hosts文件
 cd /etc/ansible
-cp example/hosts.allinone.example hosts
-# 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
-# 开始集群安装，如果你对集群安装流程不熟悉，请阅读分步安装讲解后一步一步安装，并对每步都
-进行验证
+cp example/hosts.allinone.example hosts # 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
+# 开始集群安装，如果你对集群安装流程不熟悉，请阅读分步安装讲解后一步一步安装，并对每步都进行验证
 # 分步安装
 ansible-playbook 01.prepare.yml
 ansible-playbook 02.etcd.yml

@@ -59,7 +59,7 @@ FLANNEL_IPMASQ=true
 
 请阅读 `roles/flannel/templates/kube-flannel.yaml.j2` 内容，注意：
 
-+ 本安装方式，flannel使用apiserver 存储数据，而不是 etcd
++ 本安装方式，flannel使用apiserver 存储数据
 + 配置相关RBAC 权限和 `service account`
 + 配置`ConfigMap`包含 CNI配置和 flannel配置(指定backend等)，和`hosts`文件中相关设置对应
 + `DaemonSet Pod`包含两个容器，一个容器运行flannel本身，另一个init容器部署cni 配置文件
@@ -68,7 +68,7 @@ FLANNEL_IPMASQ=true
 ### 安装 flannel网络
 
 + 安装之前必须确保kube-master和kube-node节点已经成功部署
-+ 只需要在任意装有kubectl客户端的节点运行 kubectl create安装即可，脚本中选取NODE_ID=node1节点安装
++ 只需要在任意装有kubectl客户端的节点运行 kubectl create安装即可
 + 等待15s后(视网络拉取相关镜像速度)，flannel 网络插件安装完成，删除之前kube-node安装时默认cni网络配置
 
 ### 验证flannel网络

@@ -23,7 +23,7 @@ Documentation=http://docs.docker.io
 
 [Service]
 Environment="PATH={{ bin_dir }}:/bin:/sbin:/usr/bin:/usr/sbin"
-ExecStart={{ bin_dir }}/dockerd --log-level=error
+ExecStart={{ bin_dir }}/dockerd
 ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
 ExecReload=/bin/kill -s HUP $MAINPID
 Restart=on-failure
@@ -39,20 +39,26 @@ WantedBy=multi-user.target
 ```
 + dockerd 运行时会调用其它 docker 命令，如 docker-proxy，所以需要将 docker 命令所在的目录加到 PATH 环境变量中；
 + docker 从 1.13 版本开始，将`iptables` 的`filter` 表的`FORWARD` 链的默认策略设置为`DROP`，从而导致 ping 其它 Node 上的 Pod IP 失败，因此必须在 `filter` 表的`FORWARD` 链增加一条默认允许规则 `iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT`
-+ 运行`dockerd --help` 查看所有可以可配置参数，确保默认开启 `--iptables` 和 `--ip-masq` 选项
++ 运行`dockerd --help` 查看所有可配置参数，确保默认开启 `--iptables` 和 `--ip-masq` 选项
 
 ### 配置国内镜像加速
 
-众所周知从国内下载docker官方仓库镜像非常缓慢，所以对于k8s集群来说配置镜像加速非常重要，配置 `/etc/docker/daemon.json`
+从国内下载docker官方仓库镜像非常缓慢，所以对于k8s集群来说配置镜像加速非常重要，配置 `/etc/docker/daemon.json`
 
 ``` bash
 {
   "registry-mirrors": ["https://registry.docker-cn.com"],
-  "max-concurrent-downloads": 6
+  "max-concurrent-downloads": 10,
+  "log-driver": "json-file",
+  "log-level": "warn",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+    }
 }
 ```
 
-这将在后续部署calico下载 calico/node:v2.6.2镜像和kubedns/heapster/dashboard镜像时起到重要加速效果。
+这将在后续部署calico下载 calico/node镜像和kubedns/heapster/dashboard镜像时起到重要加速效果。
 
 由于K8S的官方镜像存放在`gcr.io`仓库，因此这个镜像加速对K8S的官方镜像没有效果；好在`Docker Hub`上有很多K8S镜像的转存，而`Docker Hub`上的镜像可以加速。这里推荐两个K8S镜像的`Docker Hub`项目,几乎能找到所有K8S相关的镜像，而且更新及时，感谢维护者的辛勤付出！
 
@@ -60,6 +66,8 @@ WantedBy=multi-user.target
 + [anjia0532](https://hub.docker.com/u/anjia0532/), [项目github地址](https://github.com/anjia0532/gcr.io_mirror)
 
 当然对于企业内部应用的docker镜像，想要在K8S平台运行的话，特别是结合开发`CI/CD` 流程，肯定是需要部署私有镜像仓库的，后续会简单提到 `Harbor`的部署。
+
+另外，daemon.json配置中也配置了docker 容器日志相关参数，设置单个容器日志超过10M则进行回卷，回卷的副本数超过3个就进行清理。
 
 ### 清理 iptables
 
@@ -80,7 +88,7 @@ iptables -F && iptables -X \
 docker官方目前没有提供在命令行直接查询某个镜像的tag信息的方式，网上找来一个脚本工具，使用很方便。
 
 ``` bash
-> docker-tag library/ubuntu
+$ docker-tag library/ubuntu
 "14.04"
 "16.04"
 "17.04"
@@ -91,7 +99,7 @@ docker官方目前没有提供在命令行直接查询某个镜像的tag信息�
 "xenial-20171114"
 "zesty"
 "zesty-20171114"
->docker-tag mirrorgooglecontainers/kubernetes-dashboard-amd64
+$ docker-tag mirrorgooglecontainers/kubernetes-dashboard-amd64
 "v0.1.0"
 "v1.0.0"
 "v1.0.0-beta1"
@@ -121,11 +129,11 @@ yum install jq
 
 ### 验证
 
-运行`ansible-playbook 04.docker.yml` 成功后可以验证
+运行`ansible-playbook 03.docker.yml` 成功后可以验证
 
 ``` bash
-systemctl status docker # 服务状态
-journalctl -u docker # 运行日志
+systemctl status docker 	# 服务状态
+journalctl -u docker 		# 运行日志
 docker version
 docker info
 ```
@@ -144,4 +152,4 @@ iptables-save|grep FORWARD
 -A FORWARD -j ACCEPT
 ```
 
-[前一篇](03-配置kubectl命令行工具.md) -- [后一篇](05-安装kube-master节点.md)
+[前一篇](02-安装etcd集群.md) -- [后一篇](05-安装kube-master节点.md)

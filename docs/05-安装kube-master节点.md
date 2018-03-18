@@ -1,6 +1,6 @@
 ## 05-安装kube-master节点.md
 
-部署master节点包含三个组件`apiserver` `scheduler` `controller-manager`，其中：
+部署master节点主要包含三个组件`apiserver` `scheduler` `controller-manager`，其中：
 
 - apiserver提供集群管理的REST API接口，包括认证授权、数据校验以及集群状态变更等
   - 只有API Server才直接操作etcd
@@ -29,6 +29,8 @@ roles/kube-master/
 请在另外窗口打开[roles/kube-master/tasks/main.yml](../roles/kube-master/tasks/main.yml) 文件，对照看以下讲解内容。
 
 ### 创建 kubernetes 证书签名请求
+
+增加判断是否已经有kubernetes证书，如果是就使用原证书，跳过生成证书步骤
 
 ``` bash
 {
@@ -186,6 +188,28 @@ WantedBy=multi-user.target
 + --address 同样值必须为 127.0.0.1
 + --master=http://127.0.0.1:8080 使用非安全 8080 端口与 kube-apiserver 通信
 + --leader-elect=true 部署多台机器组成的 master 集群时选举产生一个处于工作状态的 kube-controller-manager 进程
+
+### 在master 节点安装 node 服务: kubelet kube-proxy 
+
+项目master 分支使用 DaemonSet 方式安装网络插件，如果master 节点不安装 kubelet 服务是无法安装网络插件的，如果 master 节点不安装网络插件，那么通过`apiserver` 方式无法访问 `dashboard` `kibana`等管理界面，[ISSUES #130](https://github.com/gjmzj/kubeasz/issues/130)
+
+项目v1.8 分支使用二进制方式安装网络插件，所以没有这个问题
+
+``` bash
+# vi 04.kube-master.yml
+- hosts: kube-master
+  roles:
+  - kube-master
+  - kube-node
+  # 禁止业务 pod调度到 master节点
+  tasks:
+  - name: 禁止业务 pod调度到 master节点
+    shell: "{{ bin_dir }}/kubectl cordon {{ NODE_IP }} "
+    when: DEPLOY_MODE != "allinone"
+    ignore_errors: true
+```
+在master 节点也同时成为 node 节点后，默认业务 POD也会调度到 master节点，多主模式下这显然增加了 master节点的负载，因此可以使用 `kubectl cordon`命令禁止业务 POD调度到 master节点
+
 
 ### master 集群的验证
 
