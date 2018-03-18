@@ -2,7 +2,7 @@
 
 ![docker](./pics/docker.jpg) ![kube](./pics/kube.jpg) ![ansible](./pics/ansible.jpg)
 
-本系列文档致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项；二进制方式部署有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题。
+本项目致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项；二进制方式部署有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题。
 
 **集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
 
@@ -10,7 +10,7 @@
 
 文档基于`Ubuntu 16.04/CentOS 7`，其他系统需要读者自行替换部分命令；由于使用经验有限和简化脚本考虑，已经尽量避免`ansible-playbook`的高级特性和复杂逻辑。
 
-你可能需要掌握基本`kubernetes` `docker` `linux shell` 知识，关于`ansible`建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 基本够用。
+你可能需要掌握基础`kubernetes` `docker` `linux shell` 知识，关于`ansible`建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 基本够用。
 
 请阅读[项目分支说明](branch.md)，欢迎提`Issues`和`PRs`参与维护项目。
 
@@ -48,18 +48,17 @@
 
 请根据这份 [目录](docs/guide/index.md) 阅读你所感兴趣的内容，尚在更新中...
 
-## 参考阅读
+## 推荐阅读
 
-- 建议阅读 [rootsongjc-Kubernetes指南](https://github.com/rootsongjc/kubernetes-handbook) 原理和实践指南。
-- 建议阅读 [feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/zh/SUMMARY.md) 原理和部署章节。
-- 建议阅读 [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
+- [rootsongjc-Kubernetes指南](https://github.com/rootsongjc/kubernetes-handbook) 原理和实践指南。
+- [feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/zh/SUMMARY.md) 原理和部署章节。
+- [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster) 二进制手工部署。
 
-## 版权
+## 沟通交流
+
+- 微信群：k8s&kubeasz实践，搜索微信号`badtobone`，请备注（城市-github用户名），验证通过会加入群聊。
 
 Copyright 2017 gjmzj (jmgaozz@163.com)
 
 Apache License 2.0，详情见 [LICENSE](LICENSE) 文件。
 
-如果觉得这份文档对你有帮助，请支付宝扫描下方的二维码进行捐赠，谢谢！
-
-![donate](./pics/alipay.png) 
