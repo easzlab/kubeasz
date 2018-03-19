@@ -45,14 +45,12 @@
   - lxc-common
 
 - block:
-  when: ansible_distribution == "CentOS"
     - name: 删除centos默认安装
       yum: name={{ item }} state=absent
       with_items:
         - firewalld
         - python-firewall
         - firewalld-filesystem
-
     - name: 安装基础软件包
       yum: name={{ item }}  state=installed
       with_items:
@@ -62,16 +60,15 @@
         - psmisc # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
         - net-tools
         - bash-completion
-
     - name: 临时关闭 selinux
       shell: "setenforce 0" 
       failed_when: false
-
     - name: 永久关闭 selinux
       lineinfile:
         dest: /etc/selinux/config
         regexp: "^SELINUX"
         line: "SELINUX=disabled"
+  when: ansible_distribution == "CentOS"
 
 - name: 添加 kubectl 命令自动补全
   shell: "sed -i '/kubectl completion/d' ~/.bashrc && \
