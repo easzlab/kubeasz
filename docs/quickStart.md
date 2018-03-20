@@ -45,7 +45,8 @@ ssh-copy-id $IP #$IP为本虚机地址，按照提示输入yes 和root密码
 ### 4.安装kubernetes集群
 ``` bash
 git clone https://github.com/gjmzj/kubeasz.git
-mv kubeasz /etc/ansible
+mkdir -p /etc/ansible
+mv kubeasz/* /etc/ansible
 # 下载已打包好的binaries，解压到/etc/ansible/bin目录
 # 国内请从分享的百度云链接下载 https://pan.baidu.com/s/1c4RFaA
 # 如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包到 ./down目录，并执行download.sh
@@ -53,7 +54,7 @@ tar zxvf k8s.193.tar.gz
 mv bin/* /etc/ansible/bin
 # 配置ansible的hosts文件
 cd /etc/ansible
-cp example/hosts.allinone.example hosts # 然后根据实际情况修改此hosts文件，所有节点都是本虚机IP
+cp example/hosts.allinone.example hosts # 然后根据实际情况修改此hosts文件，所有节点改成本虚机IP
 # 开始集群安装，如果你对集群安装流程不熟悉，请阅读分步安装讲解后一步一步安装，并对每步都进行验证
 # 分步安装
 ansible-playbook 01.prepare.yml

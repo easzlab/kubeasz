@@ -69,7 +69,7 @@ spec:
           serviceName: test-hello
           servicePort: 80
 ```
-+ 集群内部尝试访问: `curl -H Host:hello.test.com 10.68.124.115` 能够看到欢迎页面 `Welcome to nginx!`；在集群外部尝试访问(假定集群一个NodeIP为 192.168.1.1): `curl -H Host:hello.test.com 192.168.1.1:23456`，也能够看到欢迎页面 `Welcome to nginx!`，说明ingress测试成功
++ 集群内部尝试访问: `curl -H Host:hello.test.com 10.68.69.170(traefik-ingress-service的服务地址)` 能够看到欢迎页面 `Welcome to nginx!`；在集群外部尝试访问(假定集群一个NodeIP为 192.168.1.1): `curl -H Host:hello.test.com 192.168.1.1:23456`，也能够看到欢迎页面 `Welcome to nginx!`，说明ingress测试成功
 
 + 最后我们可以为traefik WEB管理页面也创建一个ingress, `kubectl create -f /etc/ansible/manifests/ingress/traefik-ui.ing.yaml`
 
