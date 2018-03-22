@@ -55,9 +55,22 @@
   tags: reload-kube-proxy
   shell: systemctl daemon-reload && systemctl enable kube-proxy && systemctl restart kube-proxy
 
-# 批准 node 节点
-- name: approve-kubelet-csr
-  shell: "sleep 10 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| \
-	xargs {{ bin_dir }}/kubectl certificate approve"
+# 批准 node 节点，首先轮询等待kubelet启动完成
+- name: 轮询等待kubelet启动
+  shell: "systemctl status kubelet.service|grep Active"
+  register: kubelet_status
+  until: '"running" in kubelet_status.stdout'
+  retries: 3
+  delay: 2
+
+- name: 获取csr 请求信息
+  shell: "sleep 3 && {{ bin_dir }}/kubectl get csr"
+  register: csr_info
   run_once: true
-  ignore_errors: true
+
+- name: approve-kubelet-csr
+  shell: "{{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| \
+        xargs {{ bin_dir }}/kubectl certificate approve"
+  when: '"Pending" in csr_info.stdout'
+  run_once: true
+
