@@ -11,11 +11,11 @@
 - autoscaling/v2alpha1
   - 内存
   - 自定义metrics
-  - 多metrics组合: 根据每个metric的值计算出scale的值，并将最大的那个指作为扩容的最终结果
+  - 多metrics组合: 根据每个metric的值计算出scale的值，并将最大的那个值作为扩容的最终结果
 
 ### 基础示例
 
-本实验环境基于k8s 1.8 和 1.9，仅使用`autoscaling/v1` 版本API
+本实验环境基于k8s 1.8 和 1.9，仅使用`autoscaling/v1` 版本API，**注意确保**`k8s` 集群插件`kubedns` 和 `heapster` 工作正常。
 
 ``` bash
 # 创建deploy和service
@@ -24,17 +24,17 @@ $ kubectl run php-apache --image=pilchard/hpa-example --requests=cpu=200m --expo
 # 创建autoscaler
 $ kubectl autoscale deploy php-apache --cpu-percent=50 --min=1 --max=10
 
-# 稍等查看hpa状态
+# 等待3~5分钟查看hpa状态
 $ kubectl get hpa php-apache
 NAME         REFERENCE               TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
-php-apache   Deployment/php-apache   0% / 50%   1         10        1          1d
+php-apache   Deployment/php-apache   0% / 50%   1         10        1          3m
 
 # 增加负载
 $ kubectl run --rm -it load-generator --image=busybox /bin/sh
 Hit enter for command prompt
 $ while true; do wget -q -O- http://php-apache; done;
 
-# 稍等查看hpa显示负载增加，且副本数目增加为4
+# 等待约5分钟查看hpa显示负载增加，且副本数目增加为4
 $ kubectl get hpa php-apache
 NAME         REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   430% / 50%   1         10        4          4m
