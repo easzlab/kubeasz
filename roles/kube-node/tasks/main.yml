@@ -74,3 +74,9 @@
   when: '"Pending" in csr_info.stdout'
   run_once: true
 
+- name: 轮询等待node达到Ready状态
+  shell: "{{ bin_dir }}/kubectl get node|grep {{ NODE_IP }}"
+  register: node_status
+  until: '"NotReady" not in node_status.stdout'
+  retries: 5
+  delay: 2
