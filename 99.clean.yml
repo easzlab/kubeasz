@@ -93,6 +93,11 @@
 	systemctl restart network"
     ignore_errors: true
 
+  - name: 清理calico残留路由
+    shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
+    when: "CLUSTER_NETWORK == 'calico'"
+    ignore_errors: true
+
 # 清理etcd 集群相关
 - hosts: etcd
   tasks:
