@@ -60,7 +60,7 @@
   shell: "systemctl status kubelet.service|grep Active"
   register: kubelet_status
   until: '"running" in kubelet_status.stdout'
-  retries: 3
+  retries: 8
   delay: 2
 
 - name: 获取csr 请求信息
@@ -78,5 +78,5 @@
   shell: "{{ bin_dir }}/kubectl get node|grep {{ NODE_IP }}|awk '{print $2}'"
   register: node_status
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
-  retries: 5
+  retries: 8
   delay: 5 

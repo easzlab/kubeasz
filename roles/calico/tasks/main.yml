@@ -42,11 +42,6 @@
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
-# 删除原有cni插件网卡mynet0
-- name: 删除默认cni插件网卡mynet0
-  shell: "ip link del mynet0"
-  ignore_errors: true
-
 # [可选]cni calico plugins 已经在calico.yaml完成自动安装
 - name: 下载calicoctl 客户端
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
