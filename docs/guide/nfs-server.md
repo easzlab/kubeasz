@@ -59,6 +59,11 @@ Ubuntu 16.04，首先需要安装 `nfs-common` 包
 ``` bash
 apt install nfs-common
 ```
+CentOS 7, 需要安装 `nfs-utils` 包
+
+``` bash
+yum install nfs-utils
+```
 
 使用 mount 命令来挂载其他机器共享的 NFS 目录。可以在终端提示符后输入以下类似的命令：
 

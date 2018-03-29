@@ -44,6 +44,14 @@
   - lxcfs
   - lxc-common
 
+# Ubuntu 安装基础软件包
+- name: 安装 ubuntu基础软件
+  when: ansible_distribution == "Ubuntu"
+  apt: name={{ item }} state=latest
+  with_items:
+  - jq			# 轻量JSON处理程序，安装docker查询镜像需要
+  - nfs-common 		# 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
+
 - block:
     - name: 删除centos默认安装
       yum: name={{ item }} state=absent
@@ -52,12 +60,11 @@
         - python-firewall
         - firewalld-filesystem
     - name: 安装基础软件包
-      yum: name={{ item }}  state=installed
+      yum: name={{ item }}  state=latest
       with_items:
-        - vim
-        - git
-        - wget
-        - psmisc # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
+        - jq		# 轻量JSON处理程序，安装docker查询镜像需要
+        - psmisc 	# 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
+        - nfs-utils	# 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
         - net-tools
         - bash-completion
     - name: 临时关闭 selinux
