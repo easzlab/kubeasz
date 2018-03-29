@@ -121,3 +121,6 @@
 - name: 准备 kubedns的部署文件 kubedns.yaml
   template: src=kubedns.yaml.j2 dest={{ base_dir }}/manifests/kubedns/kubedns.yaml
 
+# coredns.yaml文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+- name: 准备 coredns的部署文件 coredns.yaml
+  template: src=coredns.yaml.j2 dest={{ base_dir }}/manifests/coredns/coredns.yaml
