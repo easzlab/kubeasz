@@ -47,7 +47,7 @@ roleRef:
   apiGroup: ""
 ---
 # Elasticsearch deployment itself
-apiVersion: apps/v1
+apiVersion: apps/v1beta2
 kind: StatefulSet
 metadata:
   name: elasticsearch-logging
@@ -111,7 +111,7 @@ spec:
       name: elasticsearch-logging
     spec:
       accessModes: [ "ReadWriteMany" ]
-      storageClassName: "es-storage-class"
+      storageClassName: "nfs-dynamic-class"
       resources:
         requests:
           storage: 4Gi

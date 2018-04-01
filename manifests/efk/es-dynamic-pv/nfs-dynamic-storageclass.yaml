@@ -1,0 +1,6 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-dynamic-class 
+#此处引用nfs-client-provisioner里面的 nfs-prov-1
+provisioner: nfs-prov-1
