@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-es-1
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: "es-storage-class"
+  nfs:
+    # 根据实际共享目录修改
+    path: /share/es1
+    # 根据实际 nfs服务器地址修改
+    server: 192.168.1.208
