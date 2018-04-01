@@ -144,7 +144,6 @@ $ kubectl create -f /etc/ansible/manifests/efk/es-dynamic-pv/
 ```
 + 首先 `nfs-client-provisioner.yaml` 创建一个工作 POD，它监听集群的 PVC请求，并当 PVC请求来到时调用 `nfs-client` 去请求 `nfs-server`的存储资源，成功后即动态生成对应的 PV资源。
 + `nfs-dynamic-storageclass.yaml` 定义 NFS存储类型的类型名 `nfs-dynamic-class`，然后在 `es-statefulset.yaml`中必须使用这个类型名才能动态请求到资源。
-+ [nfs-client-provisioner参考](https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client)
 
 #### 验证安装
 
@@ -182,9 +181,10 @@ kube-system-elasticsearch-logging-elasticsearch-logging-1-pvc-5b105ee6-358b-11e8
 
 ### 参考
 
-1.[EFK 配置](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch)
-2.[nfs-client-provisioner](https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client)
-3.[persistent-volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims)
-4.[storage-classes](https://kubernetes.io/docs/concepts/storage/storage-classes/)
+1. [EFK 配置](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch)
+1. [nfs-client-provisioner](https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client)
+1. [persistent-volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims)
+1. [storage-classes](https://kubernetes.io/docs/concepts/storage/storage-classes/)
+
 
 [前一篇](ingress.md) -- [目录](index.md) -- [后一篇](harbor.md)
