@@ -129,14 +129,14 @@ subjects:
   kind: User
   name: readonly
 ```
-- 2.3 访问 `https://x.x.x.x:6443/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy` 使用 admin登陆拥有所有权限，比如删除某个部署；使用 readonly登陆只有查看权限，尝试删除某个部署会提示错误 `forbidden: User \"readonly\" cannot delete services/proxy in the namespace \"kube-system\"`
+- 2.3 访问 `https://x.x.x.x:8443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy` (该URL具体使用`kubectl cluster-info`查看) 使用 admin登陆拥有所有权限，比如删除某个部署；使用 readonly登陆只有查看权限，尝试删除某个部署会提示错误 `forbidden: User \"readonly\" cannot delete services/proxy in the namespace \"kube-system\"`
 
 - dashboard自带的登陆流程同上
 
 #### 3. 证书访问：最安全的方式，配置较复杂
 - 使用集群CA 生成客户端证书，可以根据需要生成权限不同的证书，这里为了演示直接使用 kubectl使用的证书和key(在03.kubectl.yml阶段生成)，该证书拥有所有权限
 - 指定格式导出该证书，进入`/etc/kubernetes/ssl`目录，使用命令`openssl pkcs12 -export -in admin.pem -inkey admin-key.pem -out kube-admin.p12` 提示输入证书密码和确认密码，可以用密码再增加一层保护，也可以直接回车跳过，完成后目录下多了 `kube-admin.p12`文件，将它分发给授权的用户
-- 用户将 `kube-admin.p12` 双击导入证书即可，`IE` 和`Chrome` 中输入`https://x.x.x.x:8443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy` 即可访问。补充：最新firefox需要在浏览器中单独导入 [选项] - [隐私与安全] - [证书/查看证书] - [您的证书] 页面点击 [导入] 该证书
+- 用户将 `kube-admin.p12` 双击导入证书即可，`IE` 和`Chrome` 中输入`https://x.x.x.x:8443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy`(该URL具体使用`kubectl cluster-info`查看) 即可访问。补充：最新firefox需要在浏览器中单独导入 [选项] - [隐私与安全] - [证书/查看证书] - [您的证书] 页面点击 [导入] 该证书
 - dashboard自带的登陆流程同上
 
 ### 小结

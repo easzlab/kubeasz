@@ -51,6 +51,7 @@
   with_items:
   - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
   - nfs-common          # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
+  - conntrack           # network connection cleanup 用到
 
 - block:
     - name: 删除centos默认安装
