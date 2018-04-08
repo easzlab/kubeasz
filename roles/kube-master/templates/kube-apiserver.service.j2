@@ -25,6 +25,7 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --etcd-keyfile={{ ca_dir }}/kubernetes-key.pem \
   --etcd-servers={{ ETCD_ENDPOINTS }} \
   --enable-swagger-ui=true \
+  --endpoint-reconciler-type=lease \
   --allow-privileged=true \
   --audit-log-maxage=30 \
   --audit-log-maxbackup=3 \
