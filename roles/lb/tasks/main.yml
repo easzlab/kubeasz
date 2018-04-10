@@ -46,8 +46,16 @@
 - name: daemon-reload for haproxy.service
   shell: systemctl daemon-reload
 
+- name: 开机启用haproxy服务
+  shell: systemctl enable haproxy
+  ignore_errors: true 
+
 - name: 重启haproxy服务
-  shell: systemctl enable haproxy && systemctl restart haproxy
+  shell: systemctl restart haproxy
+
+- name: 开机启用keepalived服务
+  shell: systemctl enable keepalived
+  ignore_errors: true
 
 - name: 重启keepalived服务
-  shell: systemctl enable keepalived && systemctl restart keepalived
+  shell: systemctl restart keepalived

@@ -4,7 +4,7 @@
   - name: 配置 haproxy
     template: src={{ base_dir }}/roles/lb/templates/haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
   - name: 重启haproxy服务
-    shell: systemctl enable haproxy && systemctl restart haproxy
+    shell: systemctl restart haproxy
 
 - hosts: new-master 
   roles:

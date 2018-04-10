@@ -40,6 +40,7 @@
 
 - name: enable master 服务
   shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
+  ignore_errors: true
 
 - name: 启动 master 服务
   shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
