@@ -8,7 +8,8 @@
 >1. 创建一个新的replication controller。
 >2. 增加或减少pod副本数量，直到满足当前批次期望的数量。
 >3. 删除旧的replication controller。
-##4、演示
+
+## 4、演示
 >使用kubectl更新一个已部署的应用程序，并模拟回滚。为了方便分析，将应用程序的pod副本数量设置为10。
 ```javascript
 kubectl -n k8s-ecoysystem-apps scale deployment helloworldapi  --replicas=10
@@ -22,12 +23,16 @@ $ kubectl get pods -n k8s-ecoysystem-apps
 通过pod描述，查看应用程序的当前映像版本
 $ kubectl describe pods -n k8s-ecoysystem-apps
 ```
+
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410154409814-1314131317.png)
+
 ```javascript
 升级镜像版本到v2.3
 $ kubectl -n k8s-ecoysystem-apps set image deployments/helloworldapi helloworldapi=registry.wuling.com/justmine/helloworldapi:v2.3
 ```
+
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410154935764-1314470605.png)
+
 ### 4.2. 验证发布
 ```javascript
 检查rollout状态
@@ -35,6 +40,7 @@ kubectl -n k8s-ecoysystem-apps rollout status deployments/helloworldapi
 检查pod详情
 kubectl describe pods -n k8s-ecoysystem-apps
 ```
+
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410160924346-999250417.png)
 
 从上图可以看到，镜像已经升级到v2.3版本
