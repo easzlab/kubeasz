@@ -40,6 +40,7 @@ kubectl describe pods -n k8s-ecoysystem-apps
 kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi 
 ```
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410162257177-338903127.png)
+
 到目前为止，整个滚动发布工作就圆满完成了！！！
 **那么如果我们想回滚到指定版本呢？答案是k8s完美支持，并且还可以通过资源文件进行配置保留的历史版次量。**由于篇幅有限，感兴趣的朋友，可以自己下去实战，回滚命令如下：
 ```javascript
