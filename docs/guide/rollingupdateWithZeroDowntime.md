@@ -93,3 +93,5 @@ kubectl -n k8s-ecoysystem-apps describe deployment helloworldapi
 >只要销毁成功，新副本集就会创造新的pod，一直循环，直到旧的副本集pod数量为0。
 ### 5.4 总结
 **`无论理想还是不理想，k8s最终都会使应用程序全部更新到期望状态，都会始终保持最大的副本总数和可用副本总数的不变性！！！`**
+
+# ![阅读原文](http://www.cnblogs.com/justmine/p/8688828.html)
