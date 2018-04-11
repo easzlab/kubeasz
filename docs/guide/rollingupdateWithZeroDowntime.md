@@ -10,7 +10,9 @@
 >3. 删除旧的replication controller。
 ##4、演示
 >使用kubectl更新一个已部署的应用程序，并模拟回滚。为了方便分析，将应用程序的pod副本数量设置为10。
-`kubectl -n k8s-ecoysystem-apps scale deployment helloworldapi  --replicas=10`
+```javascript
+kubectl -n k8s-ecoysystem-apps scale deployment helloworldapi  --replicas=10
+```
 ### 4.1. 发布微服务
 ```javascript
 查看部署列表
