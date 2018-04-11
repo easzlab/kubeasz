@@ -56,19 +56,6 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi
 kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revision=<版次>
 ```
 ## 5、原理
-### 5.1. 浅析部署概况
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
-
->* `DESIRED`    最终期望处于READY状态的副本数   
->* `CURRENT`   当前的副本总数    
->* `UP-TO-DATE`   当前完成更新的副本数   
->* `AVAILABLE`   当前可用的副本数     
-
-### 5.2. 浅析部署详情
-```javascript
-kubectl -n k8s-ecoysystem-apps describe deployment helloworldapi  
-```
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410171712425-955953191.png)
 k8s精确地控制着整个发布过程，分批次有序地进行着滚动更新，直到把所有旧的副本全部更新到新版本。实际上，k8s提供了两个参数maxSurge和maxUnavailable来精确地控制每次滚动的pod数量，如下：
 >* **maxSurge 滚动更新过程中运行操作期望副本数的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
 >* **maxUnavailable  滚动更新过程中不可用的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
@@ -80,10 +67,22 @@ kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410174631074-750818831.png)
 
+### 5.1. 浅析部署概况
+![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
+
+>* `DESIRED`    最终期望处于READY状态的副本数   
+>* `CURRENT`   当前的副本总数    
+>* `UP-TO-DATE`   当前完成更新的副本数   
+>* `AVAILABLE`   当前可用的副本数     
 剖析部署helloworldapi的标准输出：
 
 >当前的副本总数 = 10 + 10 * 25% = 13，所以CURRENT为13。
 >当前可用的副本数 = 10 - 10 * 25% = 8，所以AVAILABLE为8。
+### 5.2. 浅析部署详情
+```javascript
+kubectl -n k8s-ecoysystem-apps describe deployment helloworldapi  
+```
+![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410171712425-955953191.png)
 
 整个滚动过程是通过控制两个副本集来完成的，新的副本集：helloworldapi-6564f59f66；旧的副本集：helloworldapi-6f4959c8c7 。
 理想状态下的滚动过程：
