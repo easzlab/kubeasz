@@ -1,18 +1,14 @@
 # 1、前言
-- - -
 >在当下微服务架构盛行的时代，用户希望应用程序时时刻刻都是可用，为了满足不断变化的新业务，需要不断升级更新应用程序，有时可能需要频繁的发布版本。实现"零停机"、“零感知”的持续集成(Continuous Integration)和持续交付/部署(Continuous Delivery)应用程序，一直都是软件升级换代不得不面对的一个难题和痛点，也是一种追求的理想方式，也是DevOps诞生的目的。
 # 2、滚动发布
-- - -
 >把一次完整的发布过程，合理地分成多个批次，每次发布一个批次，**成功后**，再发布下一个批次，最终完成所有批次的发布。在整个滚动过程期间，保证始终有可用的副本在运行，从而平滑的发布新版本，实现**零停机(without an outage)**、用户**零感知**，是一种非常主流的发布方式。由于其自动化程度比较高，通常需要复杂的发布工具支撑，而k8s可以完美的胜任这个任务。 
 #3、k8s滚动更新机制
-- - -
 >**k8s创建副本应用程序的最佳方法就是部署(Deployment)，部署自动创建副本集(ReplicaSet)，副本集可以精确地控制每次替换的Pod数量，从而可以很好的实现滚动更新。**具体来说，k8s每次使用一个新的副本控制器(replication controller)来替换已存在的副本控制器，从而始终使用一个新的Pod模板来替换旧的pod模板。
 >大致步骤如下：
 >1. 创建一个新的replication controller。
 >2. 增加或减少pod副本数量，直到满足当前批次期望的数量。
 >3. 删除旧的replication controller。
 #4、演示
-- - -
 >使用kubectl更新一个已部署的应用程序，并模拟回滚。为了方便分析，将应用程序的pod副本数量设置为10。`kubectl -n k8s-ecoysystem-apps scale deployment helloworldapi  --replicas=10`
 ##4.1. 发布微服务
 ```javascript
@@ -49,7 +45,6 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi
 kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revision=<版次>
 ```
 #5、原理
-- - -
 ##5.1. 部署概况
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
 上图包含的几个滚动发布过程标量，说明如下：
@@ -87,15 +82,3 @@ kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 有时整个滚动过程也是不理想的，如下：
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410182600267-949753596.png)
 **无论理想还是不理想，k8s最终都会使应用程序全部更新到期望状态，都会始终保持最大的副本总数和可用副本总数的不变性！！！**
-#6、总结
-- - -
->本篇详解了k8s滚动更新机制，并通过实战演示了微服务的滚动更新，基础打牢后，我们将结合实际情况，实战更多的例子，下一篇将实战**金丝雀发布微服务**，请继续关注。
-
-参考链接：
-https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#rolling-update
-https://kubernetes.io/docs/tutorials/kubernetes-basics/update-intro/
-https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#rolling-update
-https://github.com/kubernetes/community/blob/master/contributors/design-proposals/cli/simple-rolling-update.md
-https://kubernetes.io/docs/tasks/run-application/rolling-update-replication-controller
-https://kubernetes.io/docs/tutorials/kubernetes-basics/update-interactive
-https://kubernetes.io/images/docs/kubectl_rollingupdate.svg
