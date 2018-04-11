@@ -56,11 +56,12 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi
 kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revision=<版次>
 ```
 ## 5、原理
-k8s精确地控制着整个发布过程，分批次有序地进行着滚动更新，直到把所有旧的副本全部更新到新版本。实际上，k8s提供了两个参数maxSurge和maxUnavailable来精确地控制每次滚动的pod数量，如下：
->* **maxSurge 滚动更新过程中运行操作期望副本数的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
->* **maxUnavailable  滚动更新过程中不可用的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
+k8s精确地控制着整个发布过程，分批次有序地进行着滚动更新，直到把所有旧的副本全部更新到新版本。实际上，k8s是通过两个参数来精确地控制着每次滚动的pod数量：
 
-如果未指定这两个可选参数，则k8s会使用默认配置，如下：
+>* **`maxSurge` 滚动更新过程中运行操作期望副本数的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
+>* **`maxUnavailable`  滚动更新过程中不可用的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
+
+如果未指定这两个可选参数，则k8s会使用默认配置：
 ```javascript
 kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 ```
@@ -74,10 +75,10 @@ kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 >* `CURRENT`   当前的副本总数    
 >* `UP-TO-DATE`   当前完成更新的副本数   
 >* `AVAILABLE`   当前可用的副本数     
-剖析部署helloworldapi的标准输出：
 
->当前的副本总数 = 10 + 10 * 25% = 13，所以CURRENT为13。
->当前可用的副本数 = 10 - 10 * 25% = 8，所以AVAILABLE为8。
+当前的副本总数 = 10 + 10 * 25% = 13，所以CURRENT为13。
+当前可用的副本数 = 10 - 10 * 25% = 8，所以AVAILABLE为8。
+
 ### 5.2. 浅析部署详情
 ```javascript
 kubectl -n k8s-ecoysystem-apps describe deployment helloworldapi  
