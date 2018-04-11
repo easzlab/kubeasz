@@ -59,10 +59,10 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revis
 ### 5.1. 浅析部署概况
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
 
-* **`DESIRED`    ==最终期望处于READY状态的副本数==**   
-* **`CURRENT`   当前的副本总数**     
-* **`UP-TO-DATE`   当前完成更新的副本数**    
-* **`AVAILABLE`   当前可用的副本数**     
+>* `DESIRED`    最终期望处于READY状态的副本数   
+>* `CURRENT`   当前的副本总数    
+>* `UP-TO-DATE`   当前完成更新的副本数   
+>* `AVAILABLE`   当前可用的副本数     
 
 ### 5.2. 浅析部署详情
 ```javascript
@@ -77,11 +77,13 @@ k8s精确地控制着整个发布过程，分批次有序地进行着滚动更�
 ```javascript
 kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 ```
+
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410174631074-750818831.png)
+
 剖析部署helloworldapi的标准输出：
 
-==当前的副本总数 = 10 + 10 * 25% = 13，所以CURRENT为13==。
-==当前可用的副本数 = 10 - 10 * 25% = 8，所以AVAILABLE为8==。
+>当前的副本总数 = 10 + 10 * 25% = 13，所以CURRENT为13。
+>当前可用的副本数 = 10 - 10 * 25% = 8，所以AVAILABLE为8。
 
 整个滚动过程是通过控制两个副本集来完成的，新的副本集：helloworldapi-6564f59f66；旧的副本集：helloworldapi-6f4959c8c7 。
 理想状态下的滚动过程：
