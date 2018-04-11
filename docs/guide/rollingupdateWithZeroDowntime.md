@@ -9,7 +9,8 @@
 >2. 增加或减少pod副本数量，直到满足当前批次期望的数量。
 >3. 删除旧的replication controller。
 ##4、演示
->使用kubectl更新一个已部署的应用程序，并模拟回滚。为了方便分析，将应用程序的pod副本数量设置为10。`kubectl -n k8s-ecoysystem-apps scale deployment helloworldapi  --replicas=10`
+>使用kubectl更新一个已部署的应用程序，并模拟回滚。为了方便分析，将应用程序的pod副本数量设置为10。
+`kubectl -n k8s-ecoysystem-apps scale deployment helloworldapi  --replicas=10`
 ### 4.1. 发布微服务
 ```javascript
 查看部署列表
@@ -42,7 +43,7 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410162257177-338903127.png)
 
 到目前为止，整个滚动发布工作就圆满完成了！！！
-**那么如果我们想回滚到指定版本呢？答案是k8s完美支持，并且还可以通过资源文件进行配置保留的历史版次量。**由于篇幅有限，感兴趣的朋友，可以自己下去实战，回滚命令如下：
+**那么如果我们想回滚到指定版本呢？答案是k8s完美支持，并且还可以通过资源文件进行配置保留的历史版次量**。由于篇幅有限，感兴趣的朋友，可以自己下去实战，回滚命令如下：
 ```javascript
 kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revision=<版次>
 ```
