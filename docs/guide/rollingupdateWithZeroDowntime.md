@@ -53,7 +53,7 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revis
 ### 5.1. 部署概况
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
 上图包含的几个滚动发布过程标量，说明如下：
-* **DESIRED    最终期望处于READY状态的副本数**   
+* **`DESIRED`    最终期望处于READY状态的副本数**   
 * **CURRENT   当前的副本总数**     
 * **UP-TO-DATE   当前完成更新的副本数**    
 * **AVAILABLE   当前可用的副本数**     
