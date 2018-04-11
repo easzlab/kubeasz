@@ -50,32 +50,32 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi
 kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revision=<版次>
 ```
 ## 5、原理
-### 5.1. 部署概况
+### 5.1. 浅析部署概况
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
-上图包含的几个滚动发布过程标量，说明如下：
-* **`DESIRED`    最终期望处于READY状态的副本数**   
+
+* **`DESIRED`    ==最终期望处于READY状态的副本数==**   
 * **`CURRENT`   当前的副本总数**     
 * **`UP-TO-DATE`   当前完成更新的副本数**    
 * **`AVAILABLE`   当前可用的副本数**     
 
-### 5.2. 部署详情
+### 5.2. 浅析部署详情
 ```javascript
 kubectl -n k8s-ecoysystem-apps describe deployment helloworldapi  
 ```
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410171712425-955953191.png)
-从上图可以看到，k8s精确地控制着整个发布过程，滚动进行，直到所有副本全部更新。其实，k8s提供了两个参数maxSurge和maxUnavailable来精确地控制每次滚动的pod数量，如下：
-* **maxSurge 滚动更新过程中运行操作期望副本数的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
-* **maxUnavailable  滚动更新过程中不可用的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
+k8s精确地控制着整个发布过程，分批次有序地进行着滚动更新，直到把所有旧的副本全部更新到新版本。实际上，k8s提供了两个参数maxSurge和maxUnavailable来精确地控制每次滚动的pod数量，如下：
+>* **maxSurge 滚动更新过程中运行操作期望副本数的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
+>* **maxUnavailable  滚动更新过程中不可用的最大pod数，可以为绝对数值(eg：5)，但不能为0；也可以为百分数(eg：10%)。默认为25%。**
 
-如果未指定这两个可选参数，则k8s使用默认配置，如下：
+如果未指定这两个可选参数，则k8s会使用默认配置，如下：
 ```javascript
 kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 ```
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410174631074-750818831.png)
 剖析部署helloworldapi的标准输出：
 
-当前的副本总数 = 10 + 10 * 25% = 13，所以CURRENT为13。
-当前可用的副本数 = 10 - 10 * 25% = 8，所以AVAILABLE为8。
+==当前的副本总数 = 10 + 10 * 25% = 13，所以CURRENT为13==。
+==当前可用的副本数 = 10 - 10 * 25% = 8，所以AVAILABLE为8==。
 
 整个滚动过程是通过控制两个副本集来完成的，新的副本集：helloworldapi-6564f59f66；旧的副本集：helloworldapi-6f4959c8c7 。
 理想状态下的滚动过程：
@@ -83,7 +83,5 @@ kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 >2. 通知旧副本集，销毁2个旧版本的pod，使可用副本总数保持到8，一起正常。
 >3. 当两个副本销毁成功后，通知新副本集，再新增2个新版本的pod，使副本总数达到13，一切正常。
 >只要销毁成功，新副本集，就会创造新的pod，一直循环，直到旧的副本集pod数量为0。
-
-有时整个滚动过程也是不理想的，如下：
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410182600267-949753596.png)
-**无论理想还是不理想，k8s最终都会使应用程序全部更新到期望状态，都会始终保持最大的副本总数和可用副本总数的不变性！！！**
+#### 总结
+**`无论理想还是不理想，k8s最终都会使应用程序全部更新到期望状态，都会始终保持最大的副本总数和可用副本总数的不变性！！！`**
