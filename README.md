@@ -22,7 +22,6 @@
 - calico/node	v3.0.4
 - flannel	v0.10.0
   - 附：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)
-  - 注：`Kubernetes v1.8.x` 版本请切换到项目分支 `v1.8`, 若你需要从v1.8 升级至 v1.9，请参考 [升级注意](docs/upgrade.md)
 
 ## 快速指南
 
@@ -42,7 +41,7 @@
 ## 使用指南
 
 - 常用插件部署  [kubedns](docs/guide/kubedns.md) [dashboard](docs/guide/dashboard.md) [heapster](docs/guide/heapster.md) [ingress](docs/guide/ingress.md) [efk](docs/guide/efk.md) [harbor](docs/guide/harbor.md)
-- K8S 特性实验  [HPA](docs/guide/hpa.md) [NetworkPolicy](docs/guide/networkpolicy.md)
+- K8S 特性实验  [HPA](docs/guide/hpa.md) [NetworkPolicy](docs/guide/networkpolicy.md) [RollingUpdate](docs/guide/rollingupdateWithZeroDowntime.md)
 - 集群运维指南 [AddNode](docs/guide/op/AddNode.md) [AddMaster](docs/guide/op/AddMaster.md)
 - 应用部署实践
 
