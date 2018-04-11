@@ -23,15 +23,14 @@ $ kubectl get pods -n k8s-ecoysystem-apps
 通过pod描述，查看应用程序的当前映像版本
 $ kubectl describe pods -n k8s-ecoysystem-apps
 ```
-
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410154409814-1314131317.png)
+![](../../pics/prePublish.png)
 
 ```javascript
 升级镜像版本到v2.3
 $ kubectl -n k8s-ecoysystem-apps set image deployments/helloworldapi helloworldapi=registry.wuling.com/justmine/helloworldapi:v2.3
 ```
 
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410154935764-1314470605.png)
+![](../../pics/postPublish.png)
 
 ### 4.2. 验证发布
 ```javascript
@@ -41,14 +40,15 @@ kubectl -n k8s-ecoysystem-apps rollout status deployments/helloworldapi
 kubectl describe pods -n k8s-ecoysystem-apps
 ```
 
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410160924346-999250417.png)
+![](../../pics/validatePublish.png)
 
 从上图可以看到，镜像已经升级到v2.3版本
 ### 4.3. 回滚发布
 ```javascript
 kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi 
 ```
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410162257177-338903127.png)
+
+![](../../pics/rollbackPublish.png)
 
 到目前为止，整个滚动发布工作就圆满完成了！！！
 **那么如果我们想回滚到指定版本呢？答案是k8s完美支持，并且还可以通过资源文件进行配置保留的历史版次量**。由于篇幅有限，感兴趣的朋友，可以自己下去实战，回滚命令如下：
@@ -66,10 +66,10 @@ k8s精确地控制着整个发布过程，分批次有序地进行着滚动更�
 kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 ```
 
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410174631074-750818831.png)
+![](../../pics/publishDefaulConfig.png)
 
 ### 5.1. 浅析部署概况
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
+![](../../pics/theory-dep-summary.png)
 
 >* `DESIRED`    最终期望处于READY状态的副本数   
 >* `CURRENT`   当前的副本总数    
@@ -83,7 +83,7 @@ kubectl -n k8s-ecoysystem-apps get deployment helloworldapi -o yaml
 ```javascript
 kubectl -n k8s-ecoysystem-apps describe deployment helloworldapi  
 ```
-![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410171712425-955953191.png)
+![](../../pics/theory-dep-detail.png)
 
 整个滚动过程是通过控制两个副本集来完成的，新的副本集：helloworldapi-6564f59f66；旧的副本集：helloworldapi-6f4959c8c7 。
 理想状态下的滚动过程：
