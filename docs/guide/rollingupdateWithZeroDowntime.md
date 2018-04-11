@@ -10,7 +10,7 @@
 >3. 删除旧的replication controller。
 ##4、演示
 >使用kubectl更新一个已部署的应用程序，并模拟回滚。为了方便分析，将应用程序的pod副本数量设置为10。`kubectl -n k8s-ecoysystem-apps scale deployment helloworldapi  --replicas=10`
-###4.1. 发布微服务
+### 4.1. 发布微服务
 ```javascript
 查看部署列表
 $ kubectl get deployments -n k8s-ecoysystem-apps
@@ -25,7 +25,7 @@ $ kubectl describe pods -n k8s-ecoysystem-apps
 $ kubectl -n k8s-ecoysystem-apps set image deployments/helloworldapi helloworldapi=registry.wuling.com/justmine/helloworldapi:v2.3
 ```
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410154935764-1314470605.png)
-###4.2. 验证发布
+### 4.2. 验证发布
 ```javascript
 检查rollout状态
 kubectl -n k8s-ecoysystem-apps rollout status deployments/helloworldapi 
@@ -34,7 +34,7 @@ kubectl describe pods -n k8s-ecoysystem-apps
 ```
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410160924346-999250417.png)
 从上图可以看到，镜像已经升级到v2.3版本
-###4.3. 回滚发布
+### 4.3. 回滚发布
 ```javascript
 kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi 
 ```
@@ -44,8 +44,8 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployments/helloworldapi
 ```javascript
 kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revision=<版次>
 ```
-##5、原理
-###5.1. 部署概况
+## 5、原理
+### 5.1. 部署概况
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410164244911-1200541035.png)
 上图包含的几个滚动发布过程标量，说明如下：
 * **DESIRED    最终期望处于READY状态的副本数**   
@@ -53,7 +53,7 @@ kubectl -n k8s-ecoysystem-apps rollout undo deployment/helloworldapi  --to-revis
 * **UP-TO-DATE   当前完成更新的副本数**    
 * **AVAILABLE   当前可用的副本数**     
 
-###5.2. 部署详情
+### 5.2. 部署详情
 ```javascript
 kubectl -n k8s-ecoysystem-apps describe deployment helloworldapi  
 ```
