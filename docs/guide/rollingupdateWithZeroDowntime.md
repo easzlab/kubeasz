@@ -33,6 +33,7 @@ kubectl -n k8s-ecoysystem-apps rollout status deployments/helloworldapi
 kubectl describe pods -n k8s-ecoysystem-apps
 ```
 ![](https://images2018.cnblogs.com/blog/1082769/201804/1082769-20180410160924346-999250417.png)
+
 从上图可以看到，镜像已经升级到v2.3版本
 ### 4.3. 回滚发布
 ```javascript
