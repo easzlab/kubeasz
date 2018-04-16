@@ -2,7 +2,7 @@
 
 set -e
 
-# curl http://filecdn.code2life.top/ansible_k8s_setup.sh | sh -s
+# curl http://filecdn.code2life.top/basic-env-setup.sh | sh -s
 
 # 默认1.10.0 版本的 Kubernetes
 bin_resource_url='http://filecdn.code2life.top/k8s.1100.tar.gz'
