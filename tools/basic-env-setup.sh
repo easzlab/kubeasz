@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# 本脚本提供如下功能，作者：Joey Yang, https://github.com/Code2Life
+# 1. 在Ubuntu/CentOS/Fedora/ArchLinux中自动化的安装python+ansible;
+# 2. clone kubeasz项目代码, 并将需要的二进制文件下载解压到/etc/ansible/bin中;
+# 另外, 相关的k8s二进制文件, 我同步到了个人在七牛上的CDN存储中（速度更快）, 方便大家下载: filecdn.code2life.top;
+# 
+# 使用方法：
+# 1. 支持带参数的运行, 如: ./basic-env-setup.sh k8s.193.tar.gz 指定不同的kubernetes二进制文件, 无参数时默认最新的k8s.1100.tar.gz (k8s 1.10.0 + etcd 3.3.2).
+# 2. 也可以在任何一台支持的linux设备运行：curl http://filecdn.code2life.top/kubeasz-basic-env-setup.sh | sh -s
+# 已经亲测centos7/ubuntu16.04/debian9/fedora27都是可以的, 二进制包下载速度贼快.脚本运行完毕之后, 只需到/etc/ansible目录下配置好hosts, 复制完ssh的公钥即可通过ansible-playbook迅速搭建集群了.
+
 set -e
 
 # curl http://filecdn.code2life.top/kubeasz-basic-env-setup.sh | sh -s
