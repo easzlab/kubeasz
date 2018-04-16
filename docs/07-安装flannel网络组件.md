@@ -63,8 +63,22 @@ FLANNEL_IPMASQ=true
 + 配置相关RBAC 权限和 `service account`
 + 配置`ConfigMap`包含 CNI配置和 flannel配置(指定backend等)，和`hosts`文件中相关设置对应
 + `DaemonSet Pod`包含两个容器，一个容器运行flannel本身，另一个init容器部署cni 配置文件
-+ 为方便国内加速使用镜像 `jmgao1983/flannel:v0.9.1-amd64` (官方镜像在docker-hub上的转存)
++ 为方便国内加速使用镜像 `jmgao1983/flannel:v0.10.0-amd64` (官方镜像在docker-hub上的转存)
++ 特别注意：如果服务器是多网卡（例如vagrant环境），则需要在`roles/flannel/templates/kube-flannel.yaml.j2 `中增加指定的外网出口的网卡，例如:
 
+``` bash
+      ...
+      containers:
+      - name: kube-flannel
+        image: quay.io/coreos/flannel:v0.10.0-amd64
+        command:
+        - /opt/bin/flanneld
+        args:
+        - --ip-masq
+        - --kube-subnet-mgr
+        #- --iface=eth1  多网卡需要去掉注释，指定外网出口网卡
+      ...
+```
 ### 安装 flannel网络
 
 + 安装之前必须确保kube-master和kube-node节点已经成功部署
@@ -100,7 +114,7 @@ default via 192.168.1.254 dev ens3 onlink
 172.20.1.0/24 via 192.168.1.2 dev ens3 
 172.20.2.0/24 dev cni0  proto kernel  scope link  src 172.20.2.1 
 ```
-现在各节点上分配 ping 这三个POD网段地址，确保能通：
+在各节点上分别 ping 这三个POD IP地址，确保能通：
 
 ``` bash
 ping 172.20.2.7

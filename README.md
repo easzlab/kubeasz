@@ -16,7 +16,7 @@
 
 ## 组件版本
 
-- kubernetes	v1.9.6
+- kubernetes	v1.10.0
 - etcd		v3.3.2
 - docker	18.03.0-ce
 - calico/node	v3.0.4
@@ -40,7 +40,7 @@
 
 ## 使用指南
 
-- 常用插件部署  [kubedns](docs/guide/kubedns.md) [dashboard](docs/guide/dashboard.md) [heapster](docs/guide/heapster.md) [ingress](docs/guide/ingress.md) [efk](docs/guide/efk.md) [harbor](docs/guide/harbor.md)
+- 常用插件部署  [DNS](docs/guide/kubedns.md) [dashboard](docs/guide/dashboard.md) [heapster](docs/guide/heapster.md) [ingress](docs/guide/ingress.md) [efk](docs/guide/efk.md) [harbor](docs/guide/harbor.md)
 - K8S 特性实验  [HPA](docs/guide/hpa.md) [NetworkPolicy](docs/guide/networkpolicy.md) [RollingUpdate](docs/guide/rollingupdateWithZeroDowntime.md)
 - 集群运维指南 [AddNode](docs/guide/op/AddNode.md) [AddMaster](docs/guide/op/AddMaster.md) [ChangeVip](docs/guide/op/ChangeVIP.md)
 - 应用部署实践
