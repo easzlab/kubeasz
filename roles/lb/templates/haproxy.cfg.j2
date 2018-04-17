@@ -16,7 +16,7 @@ defaults
         timeout server  10m
 
 listen kube-master
-        bind 0.0.0.0:{{ MASTER_PORT }}
+        bind 0.0.0.0:{{ KUBE_APISERVER.split(':')[2] }}
         mode tcp
         option tcplog
         balance source

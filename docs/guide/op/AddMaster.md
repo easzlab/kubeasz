@@ -34,7 +34,7 @@ master3="192.168.1.5:6443"		# 新增 master节点
 
 ``` bash
 listen kube-master
-        bind 0.0.0.0:{{ MASTER_PORT }}
+        bind 0.0.0.0:{{ KUBE_APISERVER.split(':')[2] }}
         mode tcp
         option tcplog
         balance source
