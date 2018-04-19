@@ -146,10 +146,10 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: KUBERNETES_SERVICE_HOST
-          value: {{ MASTER_IP }}
-          #value: {{ KUBE_APISERVER.split(':')[1].lstrip('/') }}
+          value: "{{ MASTER_IP }}"
+          #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
         - name: KUBERNETES_SERVICE_PORT
-          value: {{ KUBE_APISERVER.split(':')[2] }}
+          value: "{{ KUBE_APISERVER.split(':')[2] }}"
         volumeMounts:
         - name: run
           mountPath: /run
