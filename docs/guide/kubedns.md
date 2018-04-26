@@ -17,6 +17,20 @@ $ kubectl create -f /etc/ansible/manifests/coredns
 ```
 
 + 集群 pod默认继承 node的dns 解析，修改 kubelet服务启动参数 --resolv-conf=""，可以更改这个特性，详见 kubelet 启动参数
++ 如果你使用`calico`网络组件，通过命令`ansible-playbook 90.setup.yml`安装完集群后，直接安装dns组件，可能会出现如下BUG，分析是因为calico分配pod地址时候会从网段的第一个地址（网络地址）开始，详见提交的 [ISSUE #1710](https://github.com/projectcalico/calico/issues/1710)，临时解决办法为手动删除POD，重新创建后获取后面的IP地址
+
+```
+# BUG出现现象
+$ kubectl get pod --all-namespaces -o wide
+NAMESPACE     NAME                                       READY     STATUS             RESTARTS   AGE       IP              NODE
+default       busy-5cc98488d4-s894w                      1/1       Running            0          28m       172.20.24.193   192.168.97.24
+kube-system   calico-kube-controllers-6597d9c664-nq9hn   1/1       Running            0          1h        192.168.97.24   192.168.97.24
+kube-system   calico-node-f8gnf                          2/2       Running            0          1h        192.168.97.24   192.168.97.24
+kube-system   kube-dns-69bf9d5cc9-c68mw                  0/3       CrashLoopBackOff   27         31m       172.20.24.192   192.168.97.24
+
+# 解决办法，删除pod，自动重建
+$ kubectl delete pod -n kube-system kube-dns-69bf9d5cc9-c68mw
+```
 
 ### 验证 dns服务
 
