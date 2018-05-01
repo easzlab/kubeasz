@@ -1,0 +1,9 @@
+---
+- name: create login.defs | os-05, os-05b
+  template:
+    src: 'login.defs.j2'
+    dest: '/etc/login.defs'
+    owner: 'root'
+    group: 'root'
+    mode: '0444'
+

@@ -1,0 +1,6 @@
+# {{ ansible_managed | comment }}
+
+
+# A list of TTYs, from which root can log in
+# see `man securetty` for reference
+{{ "\n".join(os_auth_root_ttys) }}

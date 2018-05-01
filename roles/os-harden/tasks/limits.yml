@@ -1,0 +1,35 @@
+---
+
+- block:
+  - name: create limits.d-directory if it does not exist | sysctl-31a, sysctl-31b
+    file:
+      path: '/etc/security/limits.d'
+      owner: 'root'
+      group: 'root'
+      mode: '0755'
+      state: 'directory'
+      
+  - name: create aditional limits config file -> 10.hardcore.conf | sysctl-31a, sysctl-31b
+    pam_limits:
+      dest: '/etc/security/limits.d/10.hardcore.conf'
+      domain: '*'
+      limit_type: hard
+      limit_item: core
+      value: 0
+      comment: Prevent core dumps for all users. These are usually only needed by developers and may contain sensitive information
+      
+  - name: set 10.hardcore.conf perms to 0400 and root ownership
+    file:
+      path: /etc/security/limits.d/10.hardcore.conf
+      owner: 'root'
+      group: 'root'
+      mode: '0440'
+  
+  when: 'not os_security_kernel_enable_core_dump'
+
+- name: remove 10.hardcore.conf config file
+  file:
+    path: /etc/security/limits.d/10.hardcore.conf
+    state: absent
+
+  when: 'os_security_kernel_enable_core_dump'

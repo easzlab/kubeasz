@@ -1,0 +1,39 @@
+# {{ ansible_managed | comment }}
+
+#%PAM-1.0
+{% if os_auth_retries > 0 %}
+auth        required      pam_tally2.so deny={{ os_auth_retries }} onerr=fail unlock_time={{ os_auth_lockout_time }}
+{% endif %}
+auth        required      pam_env.so
+auth        sufficient    pam_unix.so nullok try_first_pass
+auth        requisite     pam_succeed_if.so uid >= 500 quiet
+auth        required      pam_deny.so
+
+{% if os_auth_retries > 0 %}
+account     required      pam_tally2.so
+{% endif %}
+account     required      pam_unix.so
+account     sufficient    pam_localuser.so
+account     sufficient    pam_succeed_if.so uid < 500 quiet
+account     required      pam_permit.so
+
+{% if (os_auth_pam_passwdqc_enable|bool) %}
+  {%- if ((ansible_os_family == 'RedHat' and ansible_distribution_version >= '7') or ansible_distribution == 'Amazon') %}
+password    required      pam_pwquality.so {{ os_auth_pam_pwquality_options }}
+  {%- else %}
+password    requisite     pam_passwdqc.so {{ os_auth_pam_passwdqc_options }}
+  {%- endif %}
+{% else %}
+password    requisite     pam_cracklib.so try_first_pass retry=3 type=
+{% endif %}
+
+
+# NSA 2.3.3.5 Upgrade Password Hashing Algorithm to SHA-512
+# NSA 2.3.3.6 Limit Password Reuse
+password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok remember=5
+password    required      pam_deny.so
+
+session     optional      pam_keyinit.so revoke
+session     required      pam_limits.so
+session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet use_uid
+session     required      pam_unix.so

@@ -1,0 +1,45 @@
+---
+- name: get UID_MIN from login.defs
+  shell: awk '/^\s*UID_MIN\s*([0-9]*).*?$/ {print $2}' /etc/login.defs
+  args:
+    removes: /etc/login.defs
+  register: uid_min
+  check_mode: False
+  changed_when: False
+
+- name: calculate UID_MAX from UID_MIN by substracting 1
+  set_fact:
+    uid_max: '{{ uid_min.stdout | int - 1 }}'
+  when: uid_min is defined
+
+- name: set UID_MAX on Debian-systems if no login.defs exist
+  set_fact:
+    uid_max: '999'
+  when: ansible_os_family == 'Debian' and not uid_min
+
+- name: set UID_MAX on other systems if no login.defs exist
+  set_fact:
+    uid_max: '499'
+  when: not uid_min
+
+- name: get all system accounts
+  command: awk -F'':'' '{ if ( $3 <= {{ uid_max|quote }} ) print $1}' /etc/passwd
+  args:
+    removes: /etc/passwd
+  changed_when: False
+  check_mode: False
+  register: sys_accs
+
+- name: remove always ignored system accounts from list
+  set_fact:
+    sys_accs_cond: '{{ sys_accs.stdout_lines | difference(os_always_ignore_users) }}'
+  check_mode: False
+
+- name: change system accounts not on the user provided ignore-list
+  user:
+    name: '{{ item }}'
+    shell: '{{ os_nologin_shell_path }}'
+    password: '*'
+    createhome: False
+  with_flattened:
+    - '{{ sys_accs_cond | default([]) | difference(os_ignore_users) | list }}'

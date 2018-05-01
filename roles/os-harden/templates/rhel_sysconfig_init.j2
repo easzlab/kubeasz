@@ -1,0 +1,31 @@
+# {{ ansible_managed | comment }}
+
+# color => new RH6.0 bootup
+# verbose => old-style bootup
+# anything else => new style bootup without ANSI colors or positioning
+BOOTUP=color
+# column to start "[  OK  ]" label in
+RES_COL=60
+# terminal sequence to move to that column. You could change this
+# to something like "tput hpa ${RES_COL}" if your terminal supports it
+MOVE_TO_COL="echo -en \\033[${RES_COL}G"
+# terminal sequence to set color to a 'success' color (currently: green)
+SETCOLOR_SUCCESS="echo -en \\033[0;32m"
+# terminal sequence to set color to a 'failure' color (currently: red)
+SETCOLOR_FAILURE="echo -en \\033[0;31m"
+# terminal sequence to set color to a 'warning' color (currently: yellow)
+SETCOLOR_WARNING="echo -en \\033[0;33m"
+# terminal sequence to reset to the default color.
+SETCOLOR_NORMAL="echo -en \\033[0;39m"
+# Set to anything other than 'no' to allow hotkey interactive startup...
+PROMPT={{ 'yes' if (os_security_init_prompt|bool) else 'no' }}
+# Set to 'yes' to allow probing for devices with swap signatures
+AUTOSWAP=no
+# What ttys should gettys be started on?
+ACTIVE_CONSOLES=/dev/tty[1-6]
+# Set to '/sbin/sulogin' to prompt for password on single-user mode
+# Set to '/sbin/sushell' otherwise
+SINGLE={{ '/sbin/sulogin' if os_security_init_single else '/sbin/sushell' }}
+
+# NSA 2.2.4.1 Set Daemon umask
+umask 027

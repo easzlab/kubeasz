@@ -1,0 +1,7 @@
+Name: passwdqc password strength enforcement
+Default: yes
+Priority: 1024
+Conflicts: cracklib
+Password-Type: Primary
+Password:
+  requisite     pam_passwdqc.so {{ os_auth_pam_passwdqc_options }}

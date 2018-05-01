@@ -1,0 +1,245 @@
+os_desktop_enable: false
+os_env_extra_user_paths: []
+os_auth_pw_max_age: 60
+os_auth_pw_min_age: 7 # discourage password cycling
+os_auth_retries: 5
+os_auth_lockout_time: 600 # 10min
+os_auth_timeout: 60
+os_auth_allow_homeless: false
+os_auth_pam_passwdqc_enable: true
+os_auth_pam_passwdqc_options: 'min=disabled,disabled,16,12,8' # used in RHEL6
+os_auth_pam_pwquality_options: 'try_first_pass retry=3 type=' # used in RHEL7
+os_auth_root_ttys: [console, tty1, tty2, tty3, tty4, tty5, tty6]
+
+os_chfn_restrict: ''
+# may contain: change_user
+os_security_users_allow: []
+# specify system accounts those login should not be disabled and password not changed
+os_ignore_users: ['vagrant', 'kitchen']
+os_security_kernel_enable_module_loading: true
+os_security_kernel_enable_core_dump: false
+os_security_suid_sgid_enforce: true
+# user-defined blacklist and whitelist
+os_security_suid_sgid_blacklist: []
+os_security_suid_sgid_whitelist: []
+# if this is true, remove any suid/sgid bits from files that were not in the whitelist
+os_security_suid_sgid_remove_from_unknown: false
+
+# remove packages with known issues
+os_security_packages_clean: true
+os_security_packages_list: ['xinetd','inetd','ypserv','telnet-server','rsh-server', 'prelink']
+
+# Allow interactive startup (rhel, centos)
+os_security_init_prompt: true
+# Require root password for single user mode. (rhel, centos)
+os_security_init_single: false
+
+# Apply ufw defaults
+ufw_manage_defaults: true
+
+# Empty variable disables IPT_SYSCTL in /etc/default/ufw
+# by default in Ubuntu it set to: /etc/ufw/sysctl.conf
+# CAUTION
+# if you enable it - it'll overwrite /etc/sysctl.conf file, managed by hardening framework
+ufw_ipt_sysctl: ''
+
+# Default ufw variables
+ufw_default_input_policy: 'DROP'
+ufw_default_output_policy: 'ACCEPT'
+ufw_default_forward_policy: 'DROP'
+ufw_default_application_policy: 'SKIP'
+ufw_manage_builtins: 'no'
+ufw_ipt_modules: 'nf_conntrack_ftp nf_nat_ftp nf_conntrack_netbios_ns'
+
+sysctl_config:
+  # Disable IPv4 traffic forwarding. | sysctl-01
+  net.ipv4.ip_forward: 0
+
+  # Disable IPv6 traffic forwarding. | sysctl-19
+  net.ipv6.conf.all.forwarding: 0
+
+  # ignore RAs on Ipv6. | sysctl-25
+  net.ipv6.conf.all.accept_ra: 0
+  net.ipv6.conf.default.accept_ra: 0
+
+  # Enable RFC-recommended source validation feature. | sysctl-02
+  net.ipv4.conf.all.rp_filter: 1
+  net.ipv4.conf.default.rp_filter: 1
+
+  # Reduce the surface on SMURF attacks. | sysctl-04
+  # Make sure to ignore ECHO broadcasts, which are only required in broad network analysis.
+  net.ipv4.icmp_echo_ignore_broadcasts: 1
+
+  # There is no reason to accept bogus error responses from ICMP, so ignore them instead. | sysctl-03
+  net.ipv4.icmp_ignore_bogus_error_responses: 1
+
+  # Limit the amount of traffic the system uses for ICMP. | sysctl-05
+  net.ipv4.icmp_ratelimit: 100
+
+  # Adjust the ICMP ratelimit to include ping, dst unreachable,
+  # source quench, ime exceed, param problem, timestamp reply, information reply | sysctl-06
+  net.ipv4.icmp_ratemask: 88089
+
+  # Disable IPv6 | sysctl-18
+  net.ipv6.conf.all.disable_ipv6: 1
+
+  # Protect against wrapping sequence numbers at gigabit speeds | sysctl-07
+  net.ipv4.tcp_timestamps: 0
+
+  # Define restriction level for announcing the local source IP | sysctl-08
+  net.ipv4.conf.all.arp_ignore: 1
+
+  # Define mode for sending replies in response to
+  # received ARP requests that resolve local target IP addresses | sysctl-09
+  net.ipv4.conf.all.arp_announce: 2
+
+  # RFC 1337 fix F1 | sysctl-10
+  net.ipv4.tcp_rfc1337: 1
+
+  # Send(router) or accept(host) RFC1620 shared media redirects | sysctl-12
+  net.ipv4.conf.all.shared_media: 1
+  net.ipv4.conf.default.shared_media: 1
+
+  # Accepting source route can lead to malicious networking behavior,
+  # so disable it if not needed. | sysctl-13
+  net.ipv4.conf.all.accept_source_route: 0
+  net.ipv4.conf.default.accept_source_route: 0
+
+  # Accepting redirects can lead to malicious networking behavior, so disable
+  # it if not needed. | sysctl-13 | sysctl-14 | sysctl-15 | sysctl-20
+  net.ipv4.conf.default.accept_redirects: 0
+  net.ipv4.conf.all.accept_redirects: 0
+  net.ipv4.conf.all.secure_redirects: 0
+  net.ipv4.conf.default.secure_redirects: 0
+  net.ipv6.conf.default.accept_redirects: 0
+  net.ipv6.conf.all.accept_redirects: 0
+
+  # For non-routers: don't send redirects, these settings are 0 | sysctl-16
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.conf.default.send_redirects: 0
+
+  # log martian packets | sysctl-17
+  net.ipv4.conf.all.log_martians: 1
+  net.ipv4.conf.default.log_martians: 1
+
+  # ipv6 config
+  # Disable acceptance of IPv6 router solicitations messages | sysctl-21
+  net.ipv6.conf.default.router_solicitations: 0
+
+  # Disable Accept Router Preference from router advertisement | sysctl-22
+  net.ipv6.conf.default.accept_ra_rtr_pref: 0
+
+  # Disable learning Prefix Information from router advertisement | sysctl-23
+  net.ipv6.conf.default.accept_ra_pinfo: 0
+
+  # Disable learning Hop limit from router advertisement | sysctl-24
+  net.ipv6.conf.default.accept_ra_defrtr: 0
+
+  # Disable IPv6 autoconfiguration | sysctl-26
+  net.ipv6.conf.default.autoconf: 0
+
+  # Disable neighbor solicitations to send out per address | sysctl-27
+  net.ipv6.conf.default.dad_transmits: 0
+
+  # Assign one global unicast IPv6 addresses to each interface | sysctl-28
+  net.ipv6.conf.default.max_addresses: 1
+
+  # This settings controls how the kernel behaves towards module changes at
+  # runtime. Setting to 1 will disable module loading at runtime.
+  # Setting it to 0 is actually never supported. | sysctl-29
+  # kernel.modules_disabled: 1
+
+  # Magic Sysrq should be disabled, but can also be set to a safe value if so
+  # desired for physical machines. It can allow a safe reboot if the system hangs
+  # and is a 'cleaner' alternative to hitting the reset button. | sysctl-30
+  # The following values are permitted:
+  # * **0**   - disable sysrq
+  # * **1**   - enable sysrq completely
+  # * **>1**  - bitmask of enabled sysrq functions:
+  # * **2**   - control of console logging level
+  # * **4**   - control of keyboard (SAK, unraw)
+  # * **8**   - debugging dumps of processes etc.
+  # * **16**  - sync command
+  # * **32**  - remount read-only
+  # * **64**  - signalling of processes (term, kill, oom-kill)
+  # * **128** - reboot/poweroff
+  # * **256** - nicing of all RT tasks
+  kernel.sysrq: 0
+
+  # Prevent core dumps with SUID. These are usually only
+  # needed by developers and may contain sensitive information. | sysctl-31
+  fs.suid_dumpable: 0
+
+  # Virtual memory regions protection | sysctl-32
+  kernel.randomize_va_space: 2
+
+  kernel.core_uses_pid: 1
+
+  # When an attacker is trying to exploit the local kernel, it is often
+  # helpful to be able to examine where in memory the kernel, modules,
+  # and data structures live. As such, kernel addresses should be treated
+  # as sensitive information.
+  #
+  # Many files and interfaces contain these addresses (e.g. /proc/kallsyms,
+  # /proc/modules, etc), and this setting can censor the addresses. A value
+  # of "0" allows all users to see the kernel addresses. A value of "1"
+  # limits visibility to the root user, and "2" blocks even the root user.
+  kernel.kptr_restrict: 1
+
+  # The PTRACE system is used for debugging.  With it, a single user process
+  # can attach to any other dumpable process owned by the same user.  In the
+  # case of malicious software, it is possible to use PTRACE to access
+  # credentials that exist in memory (re-using existing SSH connections,
+  # extracting GPG agent information, etc).
+  #
+  # A PTRACE scope of "0" is the more permissive mode.  A scope of "1" limits
+  # PTRACE only to direct child processes (e.g. "gdb name-of-program" and
+  # "strace -f name-of-program" work, but gdb's "attach" and "strace -fp $PID"
+  # do not).  The PTRACE scope is ignored when a user has CAP_SYS_PTRACE, so
+  # "sudo strace -fp $PID" will work as before.  For more details see:
+  # https://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace
+  #
+  # For applications launching crash handlers that need PTRACE, exceptions can
+  # be registered by the debugee by declaring in the segfault handler
+  # specifically which process will be using PTRACE on the debugee:
+  #   prctl(PR_SET_PTRACER, debugger_pid, 0, 0, 0);
+  #
+  # In general, PTRACE is not needed for the average running Ubuntu system.
+  # To that end, the default is to set the PTRACE scope to "1".  This value
+  # may not be appropriate for developers or servers with only admin accounts.
+  # kernel.yama.ptrace_scope = 1
+  kernel.yama.ptrace_scope: 1
+
+  # Protect the zero page of memory from userspace mmap to prevent kernel
+  # NULL-dereference attacks against potential future kernel security
+  # vulnerabilities.  (Added in kernel 2.6.23.)
+  #
+  # While this default is built into the Ubuntu kernel, there is no way to
+  # restore the kernel default if the value is changed during runtime; for
+  # example via package removal (e.g. wine, dosemu).  Therefore, this value
+  # is reset to the secure default each time the sysctl values are loaded.
+  vm.mmap_min_addr: 65536
+          
+  # These settings eliminate an entire class of security vulnerability:
+  # time-of-check-time-of-use cross-privilege attacks using guessable
+  # filenames (generally seen as "/tmp file race" vulnerabilities).
+  fs.protected_hardlinks: 1
+  fs.protected_symlinks: 1
+
+# Do not delete the following line or otherwise the playbook will fail
+# at task 'create a combined sysctl-dict if overwrites are defined'
+sysctl_overwrite:
+
+# disable unused filesystems
+os_unused_filesystems:
+  - "cramfs"
+  - "freevxfs"
+  - "jffs2"
+  - "hfs"
+  - "hfsplus"
+  - "squashfs"
+  - "udf"
+  - "vfat"
+
+# whitelist for used filesystems
+os_filesystem_whitelist: []

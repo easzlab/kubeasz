@@ -1,0 +1,47 @@
+---
+- name: remove unused repositories
+  file:
+    name: '/etc/yum.repos.d/{{ item }}.repo'
+    state: 'absent'
+  with_items:
+    - 'CentOS-Debuginfo'
+    - 'CentOS-Media'
+    - 'CentOS-Vault'
+  when: os_security_packages_clean
+
+- name: get yum-repository-files
+  shell: 'find /etc/yum.repos.d/ -type f -name *.repo'
+  changed_when: False
+  register: yum_repos
+
+- name: check if rhnplugin.conf exists
+  stat:
+    path: '/etc/yum/pluginconf.d/rhnplugin.conf'
+  register: rhnplugin_file
+
+  # for the 'default([])' see here:
+  # https://github.com/dev-sec/ansible-os-hardening/issues/99 and
+  # https://stackoverflow.com/questions/37067827/ansible-deprecation-warning-for-undefined-variable-despite-when-clause
+- name: activate gpg-check for yum-repos
+  replace:
+    dest: '{{ item }}'
+    regexp: '^\s*gpgcheck: 0'
+    replace: 'gpgcheck: 1'
+  with_flattened:
+    - '/etc/yum.conf'
+    - '{{ yum_repos.stdout_lines| default([]) }}'
+
+- name: activate gpg-check for yum rhn if it exists
+  replace:
+    dest: '/etc/yum/pluginconf.d/rhnplugin.conf'
+    regexp: '^\s*gpgcheck: 0'
+    replace: 'gpgcheck: 1'
+  when: rhnplugin_file.stat.exists
+
+- name: remove deprecated or insecure packages | package-01 - package-09
+  yum:
+    name: '{{ item }}'
+    state: 'absent'
+  with_items:
+    - '{{ os_security_packages_list }}'
+  when: os_security_packages_clean

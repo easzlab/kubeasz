@@ -1,0 +1,111 @@
+# {{ ansible_managed | comment }}
+# This file contains the names of kernel modules that should be loaded at boot time, one per line. Lines beginning with "#" are ignored.
+#
+# A list of all available kernel modules kann be found with `find /lib/modules/$(uname -r)/kernel/`
+# We will sort by folder.
+
+
+# Arch
+# ----
+#
+# Modules for certains builds, contains support modules and some CPU-specific optimizations.
+
+{% if ansible_architecture == 'x86_64' %}
+# Optimize for x86_64 cryptographic features
+twofish-x86_64-3way
+twofish-x86_64
+aes-x86_64
+salsa20-x86_64
+blowfish-x86_64
+{% endif %}
+
+{% if 'amd' in ansible_processor %}
+# AMD-specific optimizations
+kvm-amd
+{% else %}
+# Intel-specific optimizations
+ghash-clmulni-intel
+aesni-intel
+kvm-intel
+{% endif %}
+
+kvm
+
+# Crypto
+# ------
+
+# Some core modules which comprise strong cryptography.
+blowfish_common
+blowfish_generic
+ctr
+cts
+lrw
+lzo
+rmd160
+rmd256
+rmd320
+serpent
+sha512_generic
+twofish_common
+twofish_generic
+xts
+zlib
+
+
+# Drivers
+# -------
+
+# Basics
+lp
+rtc
+loop
+
+# Filesystems
+ext2
+btrfs
+
+{% if os_desktop_enable %}
+# Desktop
+psmouse
+snd
+snd_ac97_codec
+snd_intel8x0
+snd_page_alloc
+snd_pcm
+snd_timer
+soundcore
+usbhid
+{% endif %}
+
+# Lib
+# ---
+xz
+
+
+# Net
+# ---
+
+# All packets needed for netfilter rules (ie iptables, ebtables).
+ip_tables
+x_tables
+iptable_filter
+iptable_nat
+
+# Targets
+ipt_LOG
+ipt_REJECT
+
+# Modules
+xt_connlimit
+xt_tcpudp
+xt_recent
+xt_limit
+xt_conntrack
+nf_conntrack
+nf_conntrack_ipv4
+nf_defrag_ipv4
+xt_state
+nf_nat
+
+# Addons
+xt_pknock

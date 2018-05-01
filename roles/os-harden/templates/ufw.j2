@@ -1,0 +1,45 @@
+# {{ ansible_managed | comment }}
+# /etc/default/ufw
+#
+
+# Set to yes to apply rules to support IPv6 (no means only IPv6 on loopback
+# accepted). You will need to 'disable' and then 'enable' the firewall for
+# the changes to take affect.
+IPV6={{ 'no' if sysctl_config['net.ipv6.conf.all.disable_ipv6'] is defined and sysctl_config['net.ipv6.conf.all.disable_ipv6'] == 1 else 'yes' }}
+
+# Set the default input policy to ACCEPT, DROP, or REJECT. Please note that if
+# you change this you will most likely want to adjust your rules.
+DEFAULT_INPUT_POLICY="{{ ufw_default_input_policy }}"
+
+# Set the default output policy to ACCEPT, DROP, or REJECT. Please note that if
+# you change this you will most likely want to adjust your rules.
+DEFAULT_OUTPUT_POLICY="{{ ufw_default_output_policy }}"
+
+# Set the default forward policy to ACCEPT, DROP or REJECT.  Please note that
+# if you change this you will most likely want to adjust your rules
+DEFAULT_FORWARD_POLICY="{{ ufw_default_forward_policy }}"
+
+# Set the default application policy to ACCEPT, DROP, REJECT or SKIP. Please
+# note that setting this to ACCEPT may be a security risk. See 'man ufw' for
+# details
+DEFAULT_APPLICATION_POLICY="{{ ufw_default_application_policy }}"
+
+# By default, ufw only touches its own chains. Set this to 'yes' to have ufw
+# manage the built-in chains too. Warning: setting this to 'yes' will break
+# non-ufw managed firewall rules
+MANAGE_BUILTINS="{{ ufw_manage_builtins }}"
+
+#
+# IPT backend
+#
+# only enable if using iptables backend and want to overwrite /etc/sysctl.conf
+{% if ufw_ipt_sysctl == '' %}#{% endif %}IPT_SYSCTL={{ ufw_ipt_sysctl }}
+
+# Extra connection tracking modules to load. Complete list can be found in
+# net/netfilter/Kconfig of your kernel source. Some common modules:
+# nf_conntrack_irc, nf_nat_irc: DCC (Direct Client to Client) support
+# nf_conntrack_netbios_ns: NetBIOS (samba) client support
+# nf_conntrack_pptp, nf_nat_pptp: PPTP over stateful firewall/NAT
+# nf_conntrack_ftp, nf_nat_ftp: active FTP support
+# nf_conntrack_tftp, nf_nat_tftp: TFTP support (server side)
+IPT_MODULES="{{ ufw_ipt_modules }}"

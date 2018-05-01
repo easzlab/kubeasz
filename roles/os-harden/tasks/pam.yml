@@ -1,0 +1,102 @@
+---
+- name: update pam on Debian systems
+  command: 'pam-auth-update --package'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  changed_when: False
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+- name: remove pam ccreds on Debian systems
+  apt:
+    name: '{{ os_packages_pam_ccreds }}'
+    state: 'absent'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: remove pam ccreds on Redhat systems
+  yum:
+    name: '{{ os_packages_pam_ccreds }}'
+    state: 'absent'
+  when: ansible_os_family == 'RedHat'
+
+- name: remove pam_cracklib, because it does not play nice with passwdqc
+  apt:
+    name: '{{ os_packages_pam_cracklib }}'
+    state: 'absent'
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and os_auth_pam_passwdqc_enable
+
+- name: install the package for strong password checking
+  apt:
+    name: '{{ os_packages_pam_passwdqc }}'
+    state: 'present'
+    update_cache: 'yes'
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and os_auth_pam_passwdqc_enable
+
+- name: configure passwdqc
+  template:
+    src: 'pam_passwdqd.j2'
+    dest: '{{ passwdqc_path }}'
+    mode: '0640'
+    owner: 'root'
+    group: 'root'
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and os_auth_pam_passwdqc_enable
+
+- name: remove passwdqc
+  apt:
+    name: '{{ os_packages_pam_passwdqc }}'
+    state: 'absent'
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and not os_auth_pam_passwdqc_enable
+
+- name: install tally2
+  apt:
+    name: 'libpam-modules'
+    state: 'present'
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and not os_auth_pam_passwdqc_enable and os_auth_retries > 0
+
+- name: configure tally2
+  template:
+    src: 'pam_tally2.j2'
+    dest: '{{ tally2_path }}'
+    mode: '0640'
+    owner: 'root'
+    group: 'root'
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and not os_auth_pam_passwdqc_enable and os_auth_retries > 0
+
+- name: delete tally2 when retries is 0
+  file:
+    path: '{{ tally2_path }}'
+    state: 'absent'
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and not os_auth_pam_passwdqc_enable and os_auth_retries == 0
+
+- name: remove pam_cracklib, because it does not play nice with passwdqc
+  yum:
+    name: '{{ os_packages_pam_cracklib }}'
+    state: 'absent'
+  when: ((ansible_os_family == 'RedHat' and ansible_distribution_version < '7') or ansible_distribution == 'Amazon') and os_auth_pam_passwdqc_enable
+
+- name: install the package for strong password checking
+  yum:
+    name: '{{ os_packages_pam_passwdqc }}'
+    state: 'present'
+  when: ((ansible_os_family == 'RedHat' and ansible_distribution_version < '7') or ansible_distribution == 'Amazon') and os_auth_pam_passwdqc_enable
+
+- name: remove passwdqc
+  yum:
+    name: '{{ os_packages_pam_passwdqc }}'
+    state: 'absent'
+  when: ansible_os_family == 'RedHat' and not os_auth_pam_passwdqc_enable
+
+- name: configure passwdqc and tally via central system-auth confic
+  template:
+    src: 'rhel_system_auth.j2'
+    dest: '/etc/pam.d/system-auth-ac'
+    mode: '0640'
+    owner: 'root'
+    group: 'root'
+
+- name: NSA 2.3.3.5 Upgrade Password Hashing Algorithm to SHA-512
+  template:
+    src: 'rhel_libuser.conf.j2'
+    dest: '/etc/libuser.conf'
+    mode: '0640'
+    owner: 'root'
+    group: 'root'

@@ -1,0 +1,15 @@
+---
+- name: add pinerolo_profile.sh to profile.d
+  template:
+    src: 'profile.conf.j2'
+    dest: '/etc/profile.d/pinerolo_profile.sh'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  when: not os_security_kernel_enable_core_dump
+  
+- name: remove pinerolo_profile.sh from profile.d
+  file:
+    path: /etc/profile.d/pinerolo_profile.sh
+    state: absent
+  when: os_security_kernel_enable_core_dump

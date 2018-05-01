@@ -1,0 +1,23 @@
+---
+- name: Get user accounts | os-09
+  command: "awk -F: '{print $1}' /etc/passwd"
+  changed_when: False
+  check_mode: False
+  register: users
+
+- name: delete rhosts-files from system | os-09
+  file:
+    dest: '~{{ item }}/.rhosts'
+    state: 'absent'
+  with_flattened: '{{ users.stdout_lines | default([]) }}'
+
+- name: delete hosts.equiv from system | os-01
+  file:
+    dest: '/etc/hosts.equiv'
+    state: 'absent'
+
+- name: delete .netrc-files from system | os-09
+  file:
+    dest: '~{{ item }}/.netrc'
+    state: 'absent'
+  with_flattened: '{{ users.stdout_lines | default([]) }}'

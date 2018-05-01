@@ -1,0 +1,14 @@
+---
+- name: install modprobe to disable filesystems | os-10
+  package:
+    name: '{{modprobe_package}}'
+    state: 'present'
+
+- name: disable unused filesystems | os-10
+  template:
+    src: 'modprobe.j2'
+    dest: '/etc/modprobe.d/dev-sec.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0640'
+

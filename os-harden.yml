@@ -1,0 +1,4 @@
+- hosts: localhost
+  gather_facts: true
+  roles:
+    - ansible-os-hardening

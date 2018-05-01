@@ -1,0 +1,44 @@
+---
+# Using a two-pass approach for checking directories in order to support symlinks.
+- name: find directories for minimizing access
+  stat:
+    path: '{{ item }}'
+  register: minimize_access_directories
+  with_items:
+    - '/usr/local/sbin'
+    - '/usr/local/bin'
+    - '/usr/sbin'
+    - '/usr/bin'
+    - '/sbin'
+    - '/bin'
+    - '{{ os_env_extra_user_paths }}'
+
+- name: minimize access
+  file:
+    path: '{{ item.stat.path }}'
+    mode: 'go-w'
+    recurse: 'yes'
+  when: item.stat.isdir
+  with_items: '{{ minimize_access_directories.results }}'
+
+- name: change shadow ownership to root and mode to 0600 | os-02
+  file:
+    dest: '/etc/shadow'
+    owner: '{{ os_shadow_perms.owner }}'
+    group: '{{ os_shadow_perms.group }}'
+    mode: '{{ os_shadow_perms.mode }}'
+
+- name: change passwd ownership to root and mode to 0644 | os-03
+  file:
+    dest: '/etc/passwd'
+    owner: '{{ os_passwd_perms.owner }}'
+    group: '{{ os_passwd_perms.group }}'
+    mode: '{{ os_passwd_perms.mode }}'
+
+- name: change su-binary to only be accessible to user and group root
+  file:
+    dest: '/bin/su'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  when: os_security_users_allow != None
