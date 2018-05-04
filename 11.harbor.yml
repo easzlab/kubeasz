@@ -6,6 +6,7 @@
 
 - hosts: 
   - kube-master
+  - new-master
   - kube-node
   - new-node
   tasks:
@@ -15,7 +16,10 @@
   - name: harbor服务器证书安装
     copy: src={{ ca_dir }}/ca.pem dest=/etc/docker/certs.d/{{ HARBOR_DOMAIN }}/ca.crt
 
-# 如果你的环境中有dns服务器，可以跳过hosts文件设置
+  # 如果你的环境中有dns服务器，可以跳过hosts文件设置
   - name: 增加harbor的hosts解析
-    shell: "sed -i '/{{ HARBOR_DOMAIN }}/d' /etc/hosts && \
-	echo {{ HARBOR_IP }} {{ HARBOR_DOMAIN }} >> /etc/hosts"
+    lineinfile:
+      dest: /etc/hosts
+      state: present
+      regexp: '{{ HARBOR_DOMAIN }}'
+      line: '{{ HARBOR_IP }} {{ HARBOR_DOMAIN }}'

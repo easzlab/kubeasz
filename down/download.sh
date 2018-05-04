@@ -1,7 +1,7 @@
 #!/bin/bash
 #主要组件版本如下
-export K8S_VER=v1.9.6
-export ETCD_VER=v3.3.2
+export K8S_VER=v1.10.2
+export ETCD_VER=v3.3.4
 export DOCKER_VER=18.03.0-ce
 export CNI_VER=v0.7.0
 export DOCKER_COMPOSE=1.18.0
