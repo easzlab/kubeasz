@@ -147,5 +147,7 @@
   - lb
   tasks:
   - name: 清理自动生成的PATH
-    shell: sed -i '/kubeasz/d' /etc/profile
-    ignore_errors: true
+    lineinfile:
+      dest: /etc/profile
+      state: absent
+      regexp: 'kubeasz'
