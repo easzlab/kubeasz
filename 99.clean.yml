@@ -23,7 +23,7 @@
     - "/var/lib/kube-proxy/"
     - "/etc/systemd/system/kubelet.service"
     - "/etc/systemd/system/kube-proxy.service"
-    - "/root/local/kube-system/"
+    - "/opt/kube/kube-system/"
 
 # 清理 kube-master 相关
 - hosts:
@@ -72,7 +72,6 @@
     - "/var/log/calico/"
     - "/var/lib/docker/"
     - "/var/run/docker/"
-    - "/root/local/kube-system/"
     - "/etc/systemd/system/calico-node.service"
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"

@@ -2,7 +2,7 @@
   file: name={{ item }} state=directory
   with_items:
   - /etc/cni/net.d
-  - /root/local/kube-system/flannel
+  - /opt/kube/kube-system/flannel
 
 - name: 下载flannel cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -14,7 +14,7 @@
   - portmap
 
 - name: 准备 flannel DaemonSet yaml文件
-  template: src=kube-flannel.yaml.j2 dest=/root/local/kube-system/flannel/kube-flannel.yaml
+  template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
 
 - name: 获取所有已经创建的POD信息
   command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
@@ -23,7 +23,7 @@
 
 # 只需单节点执行一次
 - name: 运行 flannel网络
-  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/flannel/ && sleep 5"
+  shell: "{{ bin_dir }}/kubectl create -f /opt/kube/kube-system/flannel/ && sleep 5"
   run_once: true
   when: '"flannel" not in pod_info.stdout'
 
