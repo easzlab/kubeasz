@@ -17,7 +17,9 @@
 - docker	18.03.0-ce
 - calico	v3.0.6
 - flannel	v0.10.0
+
 **注1：** 集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)
+
 **注2：** 为提高集群网络插件安装的灵活性，使用`DaemonSet Pod`方式运行网络插件，目前支持`Calico` `flannel`可选
 
 ## 快速指南
