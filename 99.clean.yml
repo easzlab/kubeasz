@@ -141,13 +141,13 @@
 
   - name: 清理自动生成的PATH
     lineinfile:
-      dest: /etc/profile
+      dest: ~/.bashrc
       state: absent
       regexp: 'kubeasz'
 
   - name: 清理 kubectl 命令自动补全 
     lineinfile:
-      dest: /etc/profile
+      dest: ~/.bashrc
       state: absent
       regexp: 'kubectl completion'
 

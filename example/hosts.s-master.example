@@ -80,7 +80,7 @@ BASIC_AUTH_PASS="test1234"
 
 # ---------附加参数--------------------
 #默认二进制文件目录
-bin_dir="/root/local/bin"
+bin_dir="/opt/kube/bin"
 
 #证书目录
 ca_dir="/etc/kubernetes/ssl"

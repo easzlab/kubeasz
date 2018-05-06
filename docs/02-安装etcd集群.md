@@ -111,7 +111,7 @@ systemctl daemon-reload && systemctl enable etcd && systemctl start etcd
 # 根据hosts中配置设置shell变量 $NODE_IPS
 export NODE_IPS="192.168.1.1 192.168.1.2 192.168.1.3"
 $ for ip in ${NODE_IPS}; do
-  ETCDCTL_API=3 /root/local/bin/etcdctl \
+  ETCDCTL_API=3 etcdctl \
   --endpoints=https://${ip}:2379  \
   --cacert=/etc/kubernetes/ssl/ca.pem \
   --cert=/etc/etcd/ssl/etcd.pem \
