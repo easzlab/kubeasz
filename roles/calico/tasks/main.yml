@@ -2,7 +2,7 @@
   file: name={{ item }} state=directory
   with_items:
   - /etc/calico/ssl
-  - /root/local/kube-system/calico 
+  - /opt/kube/kube-system/calico 
 
 - name: 复制CA 证书到calico 证书目录
   copy: src={{ ca_dir }}/ca.pem dest=/etc/calico/ssl/ca.pem
@@ -22,10 +22,10 @@
   shell: "cd /etc/calico/ssl && cp ca.pem etcd-ca && cp calico.pem etcd-cert && cp calico-key.pem etcd-key"
 
 - name: 准备 calico DaemonSet yaml文件
-  template: src=calico.yaml.j2 dest=/root/local/kube-system/calico/calico.yaml
+  template: src=calico.yaml.j2 dest=/opt/kube/kube-system/calico/calico.yaml
 
 - name: 准备 calico rbac文件 
-  template: src=calico-rbac.yaml.j2 dest=/root/local/kube-system/calico/calico-rbac.yaml
+  template: src=calico-rbac.yaml.j2 dest=/opt/kube/kube-system/calico/calico-rbac.yaml
 
 - name: 获取所有已经创建的POD信息
   command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
@@ -34,7 +34,7 @@
 
 # 只需单节点执行一次
 - name: 运行 calico网络
-  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/ && sleep 5"
+  shell: "{{ bin_dir }}/kubectl create -f /opt/kube/kube-system/calico/ && sleep 5"
   run_once: true
   when: '"calico" not in pod_info.stdout'
 

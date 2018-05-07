@@ -1,9 +1,9 @@
-# Calico Version v3.0.4
-# https://docs.projectcalico.org/v3.0/releases#v3.0.4
+# Calico Version v3.0.6
+# https://docs.projectcalico.org/v3.0/releases#v3.0.6
 # This manifest includes the following component versions:
-#   calico/node:v3.0.4
-#   calico/cni:v2.0.3
-#   calico/kube-controllers:v2.0.2
+#   calico/node:v3.0.6
+#   calico/cni:v2.0.5
+#   calico/kube-controllers:v2.0.4
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -82,11 +82,17 @@ spec:
         k8s-app: calico-node
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
-        scheduler.alpha.kubernetes.io/tolerations: |
-          [{"key": "dedicated", "value": "master", "effect": "NoSchedule" },
-           {"key":"CriticalAddonsOnly", "operator":"Exists"}]
     spec:
       hostNetwork: true
+      tolerations:
+        # Make sure calico/node gets scheduled on all nodes.
+        - effect: NoSchedule
+          operator: Exists
+        # Mark the pod as a critical add-on for rescheduling.
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
       serviceAccountName: calico-node
       # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a "force
       # deletion": https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
@@ -96,8 +102,8 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          #image: quay.io/calico/node:v3.0.4
-          image: calico/node:v3.0.4
+          #image: quay.io/calico/node:v3.0.6
+          image: calico/node:v3.0.6
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -193,8 +199,8 @@ spec:
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          #image: quay.io/calico/cni:v2.0.3
-          image: calico/cni:v2.0.3
+          #image: quay.io/calico/cni:v2.0.5
+          image: calico/cni:v2.0.5
           command: ["/install-cni.sh"]
           env:
             # Name of the CNI config file to create.
@@ -276,8 +282,8 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          #image: quay.io/calico/kube-controllers:v2.0.2
-          image: calico/kube-controllers:v2.0.2
+          #image: quay.io/calico/kube-controllers:v2.0.4
+          image: calico/kube-controllers:v2.0.4
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
