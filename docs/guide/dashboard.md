@@ -139,6 +139,58 @@ subjects:
 - 用户将 `kube-admin.p12` 双击导入证书即可，`IE` 和`Chrome` 中输入`https://x.x.x.x:8443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy`(该URL具体使用`kubectl cluster-info`查看) 即可访问。补充：最新firefox需要在浏览器中单独导入 [选项] - [隐私与安全] - [证书/查看证书] - [您的证书] 页面点击 [导入] 该证书
 - dashboard自带的登陆流程同上
 
+#### 4. 授予admin权限，跳过登录
+**注意：** 首先需要确保你知道这样做的后果，授予admin权限后安全性较低，不建议在生产环境中使用。
+
+- 创建admin角色
+```
+$ kubectl create -f /etc/ansible/manifests/dashboard/admin-user-sa-rbac.yaml
+```
+
+- 修改dashboard角色配置
+编辑`/etc/ansible/manifests/dashboard/kubernetes-dashboard.yaml`文件
+
+找到以下配置：
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubernetes-dashboard-minimal
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kubernetes-dashboard-minimal
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard
+  namespace: kube-system
+```
+
+修改为：
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard-admin
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard
+  namespace: kube-system
+```
+
+- 最后再创建dashboard
+`# kubectl create -f /etc/ansible/manifests/dashboard/kubernetes-dashboard.yaml`
+
+访问dashboard：
+`https://x.x.x.x:8443/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy`(该URL具体使用`kubectl cluster-info`查看) ，直接点击跳过按钮即可
+
+
 ### 小结
 
 + dashboard 访问控制实现较复杂，文档中给出的例子也有助于你理解 RBAC的灵活控制能力，当然最好去[官方文档](https://kubernetes.io/docs/admin/authorization/rbac/)学习一下，这块篇幅不长
