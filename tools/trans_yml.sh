@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# 不同k8s版本使用的'api-versions'版本不同，此脚本用于切换yaml文件使用的'api-versions'
+# WARNNING: 此脚本还在修改中，还未完成
+# 说明：不同k8s版本使用的'api-versions'版本不同，此脚本用于切换yaml文件使用的'api-versions'
+# Example 01: 转换单个配置文件为k8s 1.8的版本
+#  bash tools/trans_yml.sh -v 1.8 -f manifests/dashboard/kubernetes-dashboard.yaml
+# Example 02: 转换某个目录下所有yaml文件为k8s 1.8的版本
+#  for YML in `find manifests/heapster/ -name '*.yaml'`;do bash tools/trans_yml.sh -v 1.8 -f $YML;done;
 
 #set -x
 

@@ -72,6 +72,9 @@ Kibana is running at https://192.168.1.10:8443/api/v1/namespaces/kube-system/ser
 
 #### 使用静态 PV安装 EFK
 
+- 请按实际日志容量需求修改 `es-static-pv/es-statefulset.yaml` 文件中 volumeClaimTemplates 设置的 storage: 4Gi 大小
+- 请根据实际nfs服务器地址、共享目录、容量大小修改 `es-static-pv/es-pv*.yaml` 文件中对应的设置
+
 ``` bash
 # 如果之前已经安装了默认的EFK，请用以下两个命令先删除它
 $ kubectl delete -f /etc/ansible/manifests/efk/
@@ -131,6 +134,9 @@ es0  es1  es2
 ```
 
 #### 使用动态 PV安装 EFK
+
+- 请按实际日志容量需求修改 `es-dynamic-pv/es-statefulset.yaml` 文件中 volumeClaimTemplates 设置的 storage: 4Gi 大小   
+- 请根据实际nfs服务器地址和共享目录修改 `es-dynamic-pv/nfs-client-provisioner.yaml` 文件中对应的设置
 
 ``` bash
 # 如果之前已经安装了默认的EFK或者静态PV EFK，请用以下命令先删除它
