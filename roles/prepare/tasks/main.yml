@@ -20,6 +20,7 @@
   - cfssl-certinfo
   - cfssljson
   - kubectl
+  tags: upgrade_k8s
 
 - name: 安装kubeconfig配置文件
   copy: src=/root/.kube/config dest=/root/.kube/config

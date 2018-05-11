@@ -1,4 +1,4 @@
-## 07-安装calico网络组件.md
+## 06-安装calico网络组件.md
 
 推荐阅读[feiskyer-kubernetes指南](https://github.com/feiskyer/kubernetes-handbook) 网络相关内容
 
