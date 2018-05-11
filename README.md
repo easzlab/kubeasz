@@ -8,7 +8,7 @@
 
 项目基于`Ubuntu 16.04/CentOS 7`，其他系统需要读者自行替换部分命令；你可能需要掌握基础`kubernetes` `docker` `linux shell` 知识，关于`ansible`建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 基本够用。
 
-请阅读[项目分支说明](docs/branch.md)，欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
+请阅读[项目TodoList](docs/mixes/TodoList.md)和[项目分支说明](docs/branch.md)，欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
 
 ## 组件版本
 
