@@ -30,14 +30,14 @@
     <tr>
         <td><a href="docs/00-集群规划和基础参数设定.md">00-规划集群和安装概览</a></td>
         <td><a href="docs/02-安装etcd集群.md">02-安装etcd集群</a></td>
-        <td><a href="docs/05-安装kube-master节点.md">04-安装master节点</a></td>
-        <td><a href="docs/07-安装calico网络组件.md">06-安装calico网络</a></td>
+        <td><a href="docs/04-安装kube-master节点.md">04-安装master节点</a></td>
+        <td><a href="docs/06-安装calico网络组件.md">06-安装calico网络</a></td>
     </tr>
     <tr>
         <td><a href="docs/01-创建CA证书和环境配置.md">01-创建证书和安装准备</a></td>
-        <td><a href="docs/04-安装docker服务.md">03-安装docker服务</a></td>
-        <td><a href="docs/06-安装kube-node节点.md">05-安装node节点</a></td>
-        <td><a href="docs/07-安装flannel网络组件.md">06-安装flannel网络</a></td>
+        <td><a href="docs/03-安装docker服务.md">03-安装docker服务</a></td>
+        <td><a href="docs/05-安装kube-node节点.md">05-安装node节点</a></td>
+        <td><a href="docs/06-安装flannel网络组件.md">06-安装flannel网络</a></td>
     </tr>
 </table>
 
@@ -89,4 +89,4 @@
 
 - [如何贡献](docs/mixes/HowToContribute.md)
 
-Copyright 2017 gjmzj (jmgaozz@163.com) Apache License 2.0，详情见 [LICENSE](LICENSE) 文件。
+Copyright 2017 gjmzj (jmgaozz@163.com) Apache License 2.0，详情见 [LICENSE](docs/mixes/LICENSE) 文件。
