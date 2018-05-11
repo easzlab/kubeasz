@@ -1,4 +1,4 @@
-## 07-安装flannel网络组件.md
+## 06-安装flannel网络组件.md
 
 ** 注意: ** 只需选择安装`calico` `flannel`其中之一，如果你已经安装了`calico`，请跳过此步骤。
 

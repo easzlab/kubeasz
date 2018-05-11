@@ -3,6 +3,7 @@
   with_items:
   - etcd
   - etcdctl
+  tags: upgrade_k8s
 
 - name: 创建etcd证书目录
   file: name=/etc/etcd/ssl state=directory
@@ -37,3 +38,4 @@
 
 - name: 开启etcd服务
   shell: systemctl daemon-reload && systemctl restart etcd
+  tags: upgrade_k8s

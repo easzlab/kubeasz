@@ -10,6 +10,7 @@
   - docker-containerd-ctr
   - dockerd
   - docker-proxy
+  tags: upgrade_k8s
 
 - name: docker命令自动补全
   copy: src=docker dest=/etc/bash_completion.d/docker mode=0644

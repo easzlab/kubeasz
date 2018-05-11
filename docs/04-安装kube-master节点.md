@@ -1,4 +1,4 @@
-## 05-安装kube-master节点.md
+## 04-安装kube-master节点.md
 
 部署master节点主要包含三个组件`apiserver` `scheduler` `controller-manager`，其中：
 
