@@ -1,18 +1,15 @@
 ## 升级注意事项
 
-### v1.8 >>> v1.9
+集群更新存在一定风险，请谨慎操作。 
 
-+ 1.下载最新项目代码 `cd /etc/ansible && git pull origin master`
-+ 2.下载新的二进制 `k8s.190.tar.gz` 解压并覆盖 `/etc/ansible/bin/` 目录下文件
-+ 3.更新集群 `cd /etc/ansible && ansible-playbook 90.setup.yml`
-+ 4.[可选]升级`calico-kube-controllers`相关，在任一node节点执行如下
+- 项目分支1.8安装的集群目前只能进行小版本1.8.x的升级
+- 项目分支1.9和master安装的集群可以任意小版本、大版本的升级，即1.9.x升级至1.10.x也可以
 
-``` bash
-cd /root/kube-system/calico
-kubectl delete deploy calico-kube-controllers -n kube-system
-kubectl create -f calico-kube-controllers.yaml
-```
+### 备份etcd数据 
 
-注1：升级过程会短暂中断集群中已经运行的应用；如果你想要零中断升级，可以在熟悉项目安装原理基础上自行尝试，或者关注后续项目[使用指南]中的文档更新
+### 升级步骤
 
-注2：k8s集群v1.8升级v1.9.0，目前测试不用修改任何服务参数，只要替换二进制文件；
++ 1.下载最新项目代码 `git pull origin master`
++ 2.下载新的二进制解压并覆盖 `/etc/ansible/bin/` 目录下文件
++ 3.更新集群 `ansible-playbook -t upgrade_k8s 22.upgrade.yml`  
+注：上述步骤升级过程中不会中断集群已有业务，如果同时需要升级docker版本，可以在每个node节点手工重启docker服务（docker服务重启会中断业务，可以结合`kubectl cordon`和`kubectl drain`命令实现零中断升级）
