@@ -81,7 +81,7 @@
     - name: 永久关闭 selinux
       lineinfile:
         dest: /etc/selinux/config
-        regexp: "^SELINUX"
+        regexp: "^SELINUX="
         line: "SELINUX=disabled"
   when: ansible_distribution == "CentOS"
 

@@ -38,6 +38,7 @@
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
+  tags: upgrade_k8s 
 
 - name: 开机启用kubelet 服务
   shell: systemctl enable kubelet
@@ -54,6 +55,7 @@
 - name: 创建kube-proxy 服务文件
   tags: reload-kube-proxy
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
+  tags: upgrade_k8s 
 
 - name: 开机启用kube-proxy 服务
   shell: systemctl enable kube-proxy
