@@ -53,9 +53,8 @@
   copy: src=/etc/kubernetes/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
 
 - name: 创建kube-proxy 服务文件
-  tags: reload-kube-proxy
+  tags: reload-kube-proxy, upgrade_k8s
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
-  tags: upgrade_k8s 
 
 - name: 开机启用kube-proxy 服务
   shell: systemctl enable kube-proxy
@@ -63,9 +62,7 @@
 
 - name: 开启kube-proxy 服务
   shell: systemctl daemon-reload && systemctl restart kube-proxy
-  tags:
-  - reload-kube-proxy
-  - upgrade_k8s
+  tags: reload-kube-proxy, upgrade_k8s
 
 # 批准 node 节点，首先轮询等待kubelet启动完成
 - name: 轮询等待kubelet启动
