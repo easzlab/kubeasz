@@ -14,6 +14,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --cert-dir={{ ca_dir }} \
+  --client-ca-file={{ ca_dir }}/ca.pem \
   --network-plugin=cni \
   --cni-conf-dir=/etc/cni/net.d \
   --cni-bin-dir={{ bin_dir }} \
@@ -21,6 +22,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
   --hairpin-mode hairpin-veth \
   --allow-privileged=true \
+  --anonymous-auth=false \
   --fail-swap-on=false \
   --logtostderr=true \
   --v=2
