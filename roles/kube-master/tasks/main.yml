@@ -32,15 +32,15 @@
 
 - name: 创建kube-apiserver的systemd unit文件
   template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
-  tags: upgrade_k8s
+  tags: upgrade_k8s, restart_master
 
 - name: 创建kube-controller-manager的systemd unit文件
   template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service
-  tags: upgrade_k8s
+  tags: upgrade_k8s, restart_master
 
 - name: 创建kube-scheduler的systemd unit文件
   template: src=kube-scheduler.service.j2 dest=/etc/systemd/system/kube-scheduler.service
-  tags: upgrade_k8s
+  tags: upgrade_k8s, restart_master
 
 - name: enable master 服务
   shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
@@ -49,7 +49,7 @@
 - name: 启动 master 服务
   shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
 	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
-  tags: upgrade_k8s
+  tags: upgrade_k8s, restart_master
 
 - name: 以轮询的方式等待master服务启动完成
   command: "{{ bin_dir }}/kubectl get node"
@@ -58,4 +58,4 @@
   retries:  5
   delay: 6
   run_once: True
-  tags: upgrade_k8s
+  tags: upgrade_k8s, restart_master
