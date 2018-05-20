@@ -41,9 +41,15 @@
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
+  tags: restart_node
+
+- name: 开机启用kubelet 服务
+  shell: systemctl enable kubelet
+  ignore_errors: true
 
 - name: 开启kubelet 服务
-  shell: systemctl daemon-reload && systemctl enable kubelet && systemctl restart kubelet
+  shell: systemctl daemon-reload && systemctl restart kubelet
+  tags: restart_node
 
 - name: approve-kubelet-csr
   shell: "sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve"
@@ -89,12 +95,16 @@
   file: name=/var/lib/kube-proxy state=directory
 
 - name: 创建kube-proxy 服务文件
-  tags: reload-kube-proxy
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
+  tags: restart_node
+
+- name: 开机启用kube-proxy 服务
+  shell: systemctl enable kube-proxy
+  ignore_errors: true
 
 - name: 开启kube-proxy 服务
-  tags: reload-kube-proxy
-  shell: systemctl daemon-reload && systemctl enable kube-proxy && systemctl restart kube-proxy
+  shell: systemctl daemon-reload && systemctl restart kube-proxy
+  tags: restart_node
 
 ##-------calico-kube-controllers部分----------------
 #
