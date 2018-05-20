@@ -84,7 +84,7 @@
   run_once: true
 
 - name: 轮询等待node达到Ready状态
-  shell: "{{ bin_dir }}/kubectl get node|grep {{ NODE_IP }}|awk '{print $2}'"
+  shell: "{{ bin_dir }}/kubectl get node {{ NODE_IP }}|awk 'NR>1{print $2}'"
   register: node_status
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
   retries: 8
