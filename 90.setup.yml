@@ -1,3 +1,8 @@
+# [可选]操作系统安全加固 https://github.com/dev-sec/ansible-os-hardening
+- hosts: all
+  roles:
+  - { role: os-harden, when: "OS_HARDEN is defined and OS_HARDEN == 'yes'" }
+
 # 在deploy节点生成CA相关证书，以供整个集群使用
 # 以及初始化kubedns.yaml配置文件
 - hosts: deploy

@@ -51,10 +51,11 @@ WorkingDirectory=/var/lib/kubelet
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ NODE_IP }} \
   --hostname-override={{ NODE_IP }} \
-  --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.0 \
+  --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1 \
   --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --cert-dir={{ ca_dir }} \
+  --client-ca-file={{ ca_dir }}/ca.pem \
   --network-plugin=cni \
   --cni-conf-dir=/etc/cni/net.d \
   --cni-bin-dir={{ bin_dir }} \
@@ -63,6 +64,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --hairpin-mode hairpin-veth \
   --allow-privileged=true \
   --fail-swap-on=false \
+  --anonymous-auth=false \
   --logtostderr=true \
   --v=2
 #kubelet cAdvisor 默认在所有接口监听 4194 端口的请求, 以下iptables限制内网访问
@@ -80,7 +82,8 @@ WantedBy=multi-user.target
 + --experimental-bootstrap-kubeconfig 指向 bootstrap kubeconfig 文件，kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求
 + --cluster-dns 指定 kubedns 的 Service IP(可以先分配，后续创建 kubedns 服务时指定该 IP)，--cluster-domain 指定域名后缀，这两个参数同时指定后才会生效；
 + --network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir={{ bin_dir }} 为使用cni 网络，并调用calico管理网络所需的配置
-+ --fail-swap-on=false K8S 1.8需显示禁用这个，否则服务不能启动
++ --fail-swap-on=false K8S 1.8+需显示禁用这个，否则服务不能启动
++ --client-ca-file={{ ca_dir }}/ca.pem 和 --anonymous-auth=false 关闭kubelet的匿名访问，详见[匿名访问漏洞说明](mixes/01.fix_kubelet_annoymous_access.md)
 
 ### 创建 kube-proxy kubeconfig 文件
 

@@ -38,7 +38,7 @@
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
-  tags: upgrade_k8s 
+  tags: upgrade_k8s, restart_node 
 
 - name: 开机启用kubelet 服务
   shell: systemctl enable kubelet
@@ -46,16 +46,15 @@
 
 - name: 开启kubelet 服务
   shell: systemctl daemon-reload && systemctl restart kubelet
-  tags: upgrade_k8s 
+  tags: upgrade_k8s, restart_node
 
 ##-------kube-proxy部分----------------
 - name: 安装kube-proxy.kubeconfig配置文件
   copy: src=/etc/kubernetes/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
 
 - name: 创建kube-proxy 服务文件
-  tags: reload-kube-proxy
+  tags: reload-kube-proxy, upgrade_k8s, restart_node
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
-  tags: upgrade_k8s 
 
 - name: 开机启用kube-proxy 服务
   shell: systemctl enable kube-proxy
@@ -63,9 +62,7 @@
 
 - name: 开启kube-proxy 服务
   shell: systemctl daemon-reload && systemctl restart kube-proxy
-  tags:
-  - reload-kube-proxy
-  - upgrade_k8s
+  tags: reload-kube-proxy, upgrade_k8s, restart_node
 
 # 批准 node 节点，首先轮询等待kubelet启动完成
 - name: 轮询等待kubelet启动
@@ -87,9 +84,9 @@
   run_once: true
 
 - name: 轮询等待node达到Ready状态
-  shell: "{{ bin_dir }}/kubectl get node|grep {{ NODE_IP }}|awk '{print $2}'"
+  shell: "{{ bin_dir }}/kubectl get node {{ NODE_IP }}|awk 'NR>1{print $2}'"
   register: node_status
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
   retries: 8
   delay: 5
-  tags: upgrade_k8s 
+  tags: upgrade_k8s, restart_node

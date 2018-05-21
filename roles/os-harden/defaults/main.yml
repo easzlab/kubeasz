@@ -53,7 +53,7 @@ ufw_ipt_modules: 'nf_conntrack_ftp nf_nat_ftp nf_conntrack_netbios_ns'
 
 sysctl_config:
   # Disable IPv4 traffic forwarding. | sysctl-01
-  net.ipv4.ip_forward: 0
+  net.ipv4.ip_forward: 1
 
   # Disable IPv6 traffic forwarding. | sysctl-19
   net.ipv6.conf.all.forwarding: 0
