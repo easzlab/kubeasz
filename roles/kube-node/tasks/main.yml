@@ -90,3 +90,7 @@
   retries: 8
   delay: 5
   tags: upgrade_k8s, restart_node
+
+- name: 设置node节点role
+  shell: "{{ bin_dir }}/kubectl label node {{ NODE_IP }} kubernetes.io/role=node --overwrite"
+  ignore_errors: true
