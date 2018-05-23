@@ -66,6 +66,10 @@
         - firewalld
         - python-firewall
         - firewalld-filesystem
+
+    - name: 添加EPEL仓库
+      yum: name=epel-release state=latest
+
     - name: 安装基础软件包
       yum: name={{ item }}  state=latest
       with_items:
