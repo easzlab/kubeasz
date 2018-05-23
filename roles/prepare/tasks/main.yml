@@ -69,6 +69,7 @@
     - name: 安装基础软件包
       yum: name={{ item }}  state=latest
       with_items:
+        - epel-release  # EPEL 仓库，安装jq需要
         - jq            # 轻量JSON处理程序，安装docker查询镜像需要
         - socat         # 用于port forwarding
         - psmisc        # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
