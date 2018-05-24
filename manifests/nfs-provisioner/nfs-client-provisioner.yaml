@@ -68,14 +68,13 @@ spec:
               # 此处供应者名字供storageclass调用
               value: nfs-prov-1
             - name: NFS_SERVER
-              value: 192.168.1.208
+              value: 10.1.241.230
             - name: NFS_PATH
-              value: /share
+              value: /home/share/k8s-pv
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 192.168.1.208
-            path: /share
+            server: 10.1.241.230
+            path: /home/share/k8s-pv
 
 ---
-
