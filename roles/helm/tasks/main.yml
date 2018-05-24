@@ -25,7 +25,7 @@
   template: src=helm-rbac.yaml.j2 dest=~/helm-rbac.yaml
 
 - name: 在k8s上创建rbac
-  shell: "{{ bin_dir }}/kubectl create -f ~/helm-rbac.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f ~/helm-rbac.yaml"
   ignore_errors: true
 
 - name: 安装tiller
@@ -46,10 +46,16 @@
           cp -f {{ ca_dir }}/{{ helm_cert_cn }}-key.pem ~/.helm/key.pem"
   ignore_errors: true
 
+- name: 添加 helm 命令自动补全
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'helm completion'
+    line: 'source <(helm completion bash)'
+
 - name: 配置helm命令别名
   lineinfile:
     dest: ~/.bashrc
     state: present
     regexp: "alias helm"
     line: "alias helm='helm --tls --tiller-namespace {{ helm_namespace }}'"
-
