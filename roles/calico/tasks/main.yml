@@ -28,7 +28,7 @@
   template: src=calico-rbac.yaml.j2 dest=/opt/kube/kube-system/calico/calico-rbac.yaml
 
 - name: 获取所有已经创建的POD信息
-  command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
+  command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
   register: pod_info
   run_once: true
 
@@ -36,7 +36,7 @@
 - name: 运行 calico网络
   shell: "{{ bin_dir }}/kubectl create -f /opt/kube/kube-system/calico/ && sleep 5"
   run_once: true
-  when: '"calico" not in pod_info.stdout'
+  when: '"calico-node" not in pod_info.stdout'
 
 # 删除原有cni配置
 - name: 删除默认cni配置

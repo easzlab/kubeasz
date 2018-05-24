@@ -1,7 +1,7 @@
 # Helm
 
 `Helm`致力于成为k8s集群的应用包管理工具，希望像linux 系统的`RPM` `DPKG`那样成功；确实在k8s上部署复杂一点的应用很麻烦，需要管理很多yaml文件（configmap,controller,service,rbac,pv,pvc等等），而helm能够整齐管理这些文档：版本控制，参数化安装，方便的打包与分享等。  
-- 建议适合有一定k8s经验以后再去使用helm；对于初学者来说手工去配置那些yaml文件对于快速学习k8s的设计理念和运行原理非常有帮助，而不是直接去使用helm，面对又一层封装与复杂度。
+- 建议积累一定k8s经验以后再去使用helm；对于初学者来说手工去配置那些yaml文件对于快速学习k8s的设计理念和运行原理非常有帮助，而不是直接去使用helm，面对又一层封装与复杂度。
 
 ## 安装（开发测试环境）
 
@@ -9,7 +9,7 @@
 - 客户端：从最新[release](https://github.com/kubernetes/helm/releases)，下载helm-v2.9.1-linux-amd64.tar.gz到本地，解压后把二进制直接放到环境PATH下即可
 - 服务端：不能翻墙的可以使用docker hub上的转存镜像，比如jmgao1983/tiller:v2.9.1  
 helm默认使用kubectl客户端相同的配置文件去访问k8s集群，因此只要在能使用kubectl的节点运行如下，即能进行安装。  
-`` bash
+``` bash
 $ helm init --tiller-image jmgao1983/tiller:v2.9.1
 ```
 - 验证  

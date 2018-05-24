@@ -17,7 +17,7 @@
   template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
 
 - name: 获取所有已经创建的POD信息
-  command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
+  command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
   register: pod_info
   run_once: true
 
