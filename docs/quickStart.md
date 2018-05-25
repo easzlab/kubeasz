@@ -43,7 +43,7 @@ ssh-keygen -t rsa -b 2048 回车 回车 回车
 ssh-copy-id $IP #$IP为本虚机地址，按照提示输入yes 和root密码
 ```
 
-在Ubuntu 16.04中，如果出现以下错误:
+在`Ubuntu 16.04`中，如果出现以下错误:
 
 ``` bash
 Traceback (most recent call last):
