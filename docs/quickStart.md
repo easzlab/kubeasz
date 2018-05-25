@@ -42,6 +42,30 @@ pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --t
 ssh-keygen -t rsa -b 2048 回车 回车 回车
 ssh-copy-id $IP #$IP为本虚机地址，按照提示输入yes 和root密码
 ```
+
+在Ubuntu 16.04中，如果出现以下错误:
+
+``` bash
+Traceback (most recent call last):
+  File "/usr/bin/pip", line 9, in <module>
+    from pip import main
+ImportError: cannot import name main
+```
+将`/usr/bin/python`做以下修改：
+
+``` bash
+#原代码
+from pip import main
+if __name__ == '__main__':
+    sys.exit(main())
+
+#修改后
+from pip import __main__
+if __name__ == '__main__':
+    sys.exit(__main__._main())
+```
+
+
 ### 4.安装kubernetes集群
 ``` bash
 git clone https://github.com/gjmzj/kubeasz.git
