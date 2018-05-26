@@ -47,6 +47,7 @@ $ ansible-playbook helm.yml
 - 6-配置helm客户端使用tls方式与tiller服务端通讯
 - 7-创建helm命令别名，方便使用，即alias helm='helm --tls --tiller-namespace {{ helm_namespace }}'
 
+注：helm别名生效请执行：`source ~/.bashrc`，或者退出后重新登陆shell
 ## 使用helm安装应用到k8s上
 
 
