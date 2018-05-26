@@ -61,7 +61,7 @@ Kibana is running at https://192.168.1.10:8443/api/v1/namespaces/kube-system/ser
 #### 配置 NFS
 
 + 准备一个nfs服务器，如果没有可以参考[nfs-server](nfs-server.md)创建。 
-+ 准备nfs服务器的共享目录，即修改`/etc/exports` 包含如下，修改后重启`systemctl restart nfs-server`。
++ 配置nfs服务器的共享目录，即修改`/etc/exports`（根据实际网段替换`192.168.1.*`），修改后重启`systemctl restart nfs-server`。
 
 ``` bash
 /share          192.168.1.*(rw,sync,insecure,no_subtree_check,no_root_squash)
@@ -121,22 +121,22 @@ es0  es1  es2
 ```
 
 ### 第三部分：日志持久化之动态PV
-`PV` 作为集群的存储资源，`StatefulSet` 依靠它实现 POD的状态数据持久化，但是当 `StatefulSet`动态伸缩时，它的 `PVC`请求也会变化，如果每次都需要管理员手动去创建对应的 `PV`资源，那就很不方面；因此 K8S还提供了 `provisioner`来动态创建 `PV`，不仅节省了管理员的时间，还可以根据不同的 `StorageClasses`封装不同类型的存储供 PVC 选用。
+`PV` 作为集群的存储资源，`StatefulSet` 依靠它实现 POD的状态数据持久化，但是当 `StatefulSet`动态伸缩时，它的 `PVC`请求也会变化，如果每次都需要管理员手动去创建对应的 `PV`资源，那就很不方便；因此 K8S还提供了 `provisioner`来动态创建 `PV`，不仅节省了管理员的时间，还可以根据不同的 `StorageClasses`封装不同类型的存储供 PVC 选用。
 
 + 此功能需要 `API-SERVER` 参数 `--admission-control`字符串设置中包含 `DefaultStorageClass`，本项目中已经开启。
 + `provisioner`指定 Volume 插件的类型，包括内置插件（如 kubernetes.io/glusterfs）和外部插件（如 external-storage 提供的 ceph.com/cephfs，nfs-client等），以下讲解使用 `nfs-client-provisioner`来动态创建 `PV`来持久化保存 `EFK`的日志数据。
 
 #### 配置 NFS（同上）
 
-确保 `/etc/exports` 配置如下共享目录，并确保 `/share`目录可读可写权限，否则可能因为权限问题无法动态生成 PV的对应目录。
+确保 `/etc/exports` 配置如下共享目录，并确保 `/share`目录可读可写权限，否则可能因为权限问题无法动态生成 PV的对应目录。（根据实际情况替换IP段`192.168.1.*`）
 ``` bash
 /share          192.168.1.*(rw,sync,insecure,no_subtree_check,no_root_squash)
 ```
 
 #### 使用动态 PV安装 EFK
 
-- 请按实际日志容量需求修改 `es-dynamic-pv/es-statefulset.yaml` 文件中 volumeClaimTemplates 设置的 storage: 4Gi 大小   
-- 请根据实际nfs服务器地址和共享目录修改 `es-dynamic-pv/nfs-client-provisioner.yaml` 文件中对应的设置
+- 首先根据[这里](nfs-client.md)创建nfs-client-provisioner
+- 然后按实际需求修改 `es-dynamic-pv/es-statefulset.yaml` 文件中 volumeClaimTemplates 设置的 storage: 4Gi 大小   
 
 ``` bash
 # 如果之前已经安装了默认的EFK或者静态PV EFK，请用以下命令先删除它

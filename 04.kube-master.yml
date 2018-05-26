@@ -9,3 +9,6 @@
     when: DEPLOY_MODE != "allinone"
     ignore_errors: true
 
+  - name: 设置master节点role
+    shell: "{{ bin_dir }}/kubectl label node {{ NODE_IP }} kubernetes.io/role=master --overwrite"
+    ignore_errors: true
