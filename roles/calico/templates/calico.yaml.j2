@@ -312,6 +312,11 @@ spec:
             # Choose which controllers to run.
             - name: ENABLED_CONTROLLERS
               value: policy,profile,workloadendpoint,node
+            # 多网卡服务器需要设置以下2个环境变量
+            - name: KUBERNETES_SERVICE_HOST
+              value: "{{ MASTER_IP }}"
+            - name: KUBERNETES_SERVICE_PORT
+              value: "{{ KUBE_APISERVER.split(':')[2] }}"
           volumeMounts:
             # Mount in the etcd TLS secrets.
             - mountPath: /calico-secrets
