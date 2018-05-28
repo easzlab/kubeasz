@@ -83,7 +83,8 @@ roles/calico/
 
 ### 安装calico 网络
 
-+ 安装前检查主机名不能有大写字母，只能由`小写字母` `-` `.` 组成 (name must consist of lower case alphanumeric characters, '-' or '.' (regex: [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*))
++ 安装前检查主机名不能有大写字母，只能由`小写字母` `-` `.` 组成 (name must consist of lower case alphanumeric characters, '-' or '.' (regex: [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*))(calico-node v3.0.6以上已经解决主机大写字母问题)
++ **安全前必须确保各节点主机名不重复** ，calico node name 由节点主机名决定，如果重复，那么重复节点在etcd中只存储一份，那么肯定出问题，BGP 邻居也不会建立
 + 安装之前必须确保`kube-master`和`kube-node`节点已经成功部署
 + 只需要在任意装有kubectl客户端的节点运行 `kubectl create `安装即可
 + 等待15s后(视网络拉取calico相关镜像速度)，calico 网络插件安装完成，删除之前kube-node安装时默认cni网络配置

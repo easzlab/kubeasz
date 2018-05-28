@@ -73,7 +73,7 @@
         <td><a href="docs/guide/harbor.md">harbor部署</a></td>
         <td><a href="docs/guide/ingress.md">ingress入口</a></td>
         <td><a href="docs/guide/helm.md">helm工具</a></td>
-        <td><a href=""></a></td>
+        <td><a href="docs/guide/jenkins.md">jenkins集成</a></td>
         <td><a href=""></a></td>
     </tr>
 </table>
