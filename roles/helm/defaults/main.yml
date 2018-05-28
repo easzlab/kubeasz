@@ -1,4 +1,4 @@
-helm_namespace: helm-app
+helm_namespace: kube-system 
 helm_cert_cn: helm001
 tiller_sa: tiller
 tiller_cert_cn: tiller001

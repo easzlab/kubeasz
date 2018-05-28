@@ -1,5 +1,5 @@
-# 限制helm应用只允许部署在指定namespace
-# 可以配合NetworkPolicy等实现namespace间网络完全隔离
+# 绑定helm sa到 cluster-admin，这样可以兼容现有需要集群特权的charts
+# 
 ---
 apiVersion: v1
 kind: Namespace
@@ -12,26 +12,15 @@ metadata:
   name: {{ tiller_sa }}
   namespace: {{ helm_namespace }}
 ---
-kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
 metadata:
-  name: tiller-manager
-  namespace: {{ helm_namespace }}
-rules:
-- apiGroups: ["", "extensions", "apps"]
-  resources: ["*"]
-  verbs: ["*"]
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: tiller-binding
-  namespace: {{ helm_namespace }}
-subjects:
-- kind: ServiceAccount
-  name: {{ tiller_sa }}
-  namespace: {{ helm_namespace }}
+  name: tiller-cb
 roleRef:
-  kind: Role
-  name: tiller-manager
   apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: {{ tiller_sa }}
+    namespace: {{ helm_namespace }}

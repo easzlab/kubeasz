@@ -53,9 +53,10 @@
     regexp: 'helm completion'
     line: 'source <(helm completion bash)'
 
+# 为方便与tiller进行安全通信，使用helms别名
 - name: 配置helm命令别名
   lineinfile:
     dest: ~/.bashrc
     state: present
-    regexp: "alias helm"
-    line: "alias helm='helm --tls --tiller-namespace {{ helm_namespace }}'"
+    regexp: "alias helms"
+    line: "alias helms='helm --tls --tiller-namespace {{ helm_namespace }}'"
