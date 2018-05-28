@@ -1,7 +1,4 @@
 ---
-- name: 缓存ansilbe setup信息
-  setup: gather_subset=all
-
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
   when: ansible_os_family == 'Debian'

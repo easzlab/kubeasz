@@ -33,10 +33,6 @@
   - ca.csr
   - ca-config.json
 
-# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续when 判断可能失败
-- name: 缓存ansilbe setup信息
-  setup: gather_subset=min
-
 # 删除默认安装
 - name: 删除ubuntu默认安装
   when: ansible_distribution == "Ubuntu"

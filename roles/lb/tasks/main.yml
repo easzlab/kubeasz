@@ -1,7 +1,3 @@
-# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续when 判断可能失败
-- name: 缓存ansilbe setup信息
-  setup: gather_subset=min
- 
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
