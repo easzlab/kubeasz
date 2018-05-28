@@ -13,7 +13,8 @@
 这里使用**NFS**演示，参考文档：[nfs-client](nfs-client.md)。如果k8s集群是部署在公有云，也可使用厂商的NAS等存储方案，具体参考相关厂商文档
 - Ingress Controller(nginx-ingress/traefik)  
 默认是通过Ingress访问Jenkins，因此需要安装一种`Ingress Controller`。参考文档：[ingress](ingress.md)
-- Gitlab 代码管理仓库。用于提交代码后自动触发CI, 目前项目中还没有相关内容，可[参考官网](https://about.gitlab.com/installation/)进行安装。
+- Gitlab 代码管理仓库  
+用于提交代码后自动触发CI, 目前项目中还没有相关内容，可[参考官网](https://about.gitlab.com/installation/)进行安装。
 
 ## 安装Jenkins
 执行以下命令快速安装：
@@ -124,20 +125,20 @@ Finished: SUCCESS
 
 ## 配置自动触发CI
 
-- 配置Gitlab项目
+- 配置Gitlab项目  
 在`Gitlab`中创建一个测试项目，将上面测试的脚本内容写入到一个`Jenkinsfile`文件中，然后上传到该测试项目根路径下。
 
-- 配置Jenkins项目
+- 配置Jenkins项目  
 点击项目`配置`——>`构建触发器`——>勾选`Build when a change is pushed to GitLab. GitLab webhook URL:http://jenkins.local.com/project/k8s-test`——>保存配置
 
-- 配置Webhook
+- 配置Webhook  
 进入Gitlab测试项目的`Settings——>Integrations`，一般只需要填写`URL`即可，其他的可根据需求环境配置
-默认Jenkins配置不允许匿名用户触发构建，因此还需要添加用户和token。
-URL的格式为：
+默认Jenkins配置不允许匿名用户触发构建，因此还需要添加用户和token。  
+URL的格式为：  
 `http://[UserID]:[API Token]@jenkins.local.com/project/[ProjectName]`
 
 Jenkins 用户ID Token查看：
-点击右上角的用户名——>设置——>API Token(点击Show API Token...)
+点击右上角的`用户名——>设置——>API Token(点击Show API Token...)`
 
 最终Webhook中的URL类似：
 http://admin:a910b1492e39e9dd1ea48ea7f7638aaf@jenkins.local.com/project/k8s-test
@@ -146,7 +147,7 @@ http://admin:a910b1492e39e9dd1ea48ea7f7638aaf@jenkins.local.com/project/k8s-test
 
 ## 项目应用
 这里我们以一个简单的Java项目为例，实战演示如何进行CI/CD。
-基本环境配置上面已经说过了，这里就不多介绍。
+基本环境配置上面已经说过了，这里就不多介绍。  
 示例项目：https://github.com/lusyoe/springboot-k8s-example
 
 结构说明：
@@ -162,5 +163,5 @@ http://admin:a910b1492e39e9dd1ea48ea7f7638aaf@jenkins.local.com/project/k8s-test
 - 使用`docker`容器，构建镜像，推送到镜像参考
 - 使用`kubectl`容器，部署`k8s-example`应用(这里后面也可以使用helm)
 
-访问：
+访问：  
 项目通过Ingress访问`k8s-example.com`，出现`hello, world`,就表示服务部署成功了。
