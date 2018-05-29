@@ -26,6 +26,7 @@
 
 - name: 创建docker的systemd unit文件
   template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
+  tags: upgrade_k8s
 
 - name: 开机启用docker 服务
   shell: systemctl enable docker
@@ -33,6 +34,7 @@
 
 - name: 开启docker 服务
   shell: systemctl daemon-reload && systemctl restart docker
+  tags: restart_dockerd
 
 ## 可选 ------安装docker查询镜像 tag的小工具----
 # 先要安装轻量JSON处理程序‘jq’，已在 prepare 节点安装
