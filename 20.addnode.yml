@@ -1,6 +1,5 @@
 - hosts: new-node
   roles:
-  - { role: os-harden, when: "OS_HARDEN is defined and OS_HARDEN == 'yes'" }
   - prepare
   - docker
   - kube-node

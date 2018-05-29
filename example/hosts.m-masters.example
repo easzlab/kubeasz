@@ -92,9 +92,6 @@ BASIC_AUTH_USER="admin"
 BASIC_AUTH_PASS="test1234"
 
 # ---------附加参数--------------------
-#是否对操作系统进行安全加固 "yes"/"no"
-OS_HARDEN="no"
-
 #默认二进制文件目录
 bin_dir="/opt/kube/bin"
 

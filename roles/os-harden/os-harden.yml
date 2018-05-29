@@ -1,0 +1,5 @@
+# [可选]操作系统安全加固 https://github.com/dev-sec/ansible-os-hardening
+- hosts: all
+  roles:
+  - { role: os-harden, when: "OS_HARDEN is defined and OS_HARDEN == 'yes'" }
+

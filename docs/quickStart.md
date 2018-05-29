@@ -92,6 +92,8 @@ ansible-playbook 06.network.yml
 ```
 如果执行成功，k8s集群就安装好了。详细分步讲解请查看项目目录 `/docs` 下相关文档
 
++ [可选]对节点进行操作系统层面的安全加固 `ansible-playbook roles/os-harden/os-harden.yml`，详情请参考[os-harden项目](https://github.com/dev-sec/ansible-os-hardening)
+
 ### 5.验证安装
 ``` bash
 # 如果提示kubectl: command not found，退出重新ssh登陆一下，环境变量生效即可
