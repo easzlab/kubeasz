@@ -52,13 +52,42 @@ kubectl logs kubernetes-dashboard-7c74685c48-9qdpn -n kube-system
 + 第二步通过dashboard自带的登陆流程，使用`Kubeconfig` `Token`等方式登陆
 
 #### 1. 临时访问：使用 `https://NodeIP:NodePort` 方式直接访问 dashboard，生产环境建议关闭该途径
-打开页面出现dashboard 新版本自带的登陆页面，我们选择“令牌(Token)”方式登陆，关于令牌的获取[参考](https://github.com/kubernetes/dashboard/wiki/Creating-sample-user)
+打开页面出现dashboard 新版本自带的登陆页面。Kubernetes仪表盘支持两种登录方式：Kubeconfig、令牌
+
+- 令牌登录
+选择“令牌(Token)”方式登陆，关于令牌的获取[参考](https://github.com/kubernetes/dashboard/wiki/Creating-sample-user)
 
 ``` bash
 # 创建Service Account 和 ClusterRoleBinding
 $ kubectl create -f /etc/ansible/manifests/dashboard/admin-user-sa-rbac.yaml
 # 获取 Bearer Token，找到输出中 ‘token:’ 开头那一行
 $ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+```
+
+- Kubeconfig登录
+Kubeconfig文件默认位置：`/root/.kube/config`，该文件中默认没有token字段，使用Kubeconfig方式登录，还需要将token追加到该文件中，完整的文件格式如下：
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdxxxxxxxxxxxxxx
+    server: https://192.168.1.2:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: admin
+  name: kubernetes
+current-context: kubernetes
+kind: Config
+preferences: {}
+users:
+- name: admin
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRxxxxxxxxxxx
+    client-key-data: LS0tLS1CRUdJTxxxxxxxxxxxxxx
+    token: eyJhbGcixxxxxxxxxxxxxxxx
+
 ```
 
 #### 2. 用户+密码访问：安全性比证书方式差点，务必保管好密码文件`basic-auth.csv`
