@@ -126,7 +126,7 @@ type: kubernetes.io/dockerconfigjson
 + 日志目录 `/var/log/harbor`
 + 数据目录 `/data` ，其中最主要是 `/data/database` 和 `/data/registry` 目录，如果你要彻底重新安装harbor，删除这两个目录即可
 
-先进入harbor安装目录 `cd /root/local/harbor`，常规操作如下：
+先进入harbor安装目录 `cd /opt/harbor`，常规操作如下：
 
 1. 暂停harbor `docker-compose stop` : docker容器stop，并不删除容器
 2. 恢复harbor `docker-compose start` : 恢复docker容器运行
@@ -151,7 +151,7 @@ type: kubernetes.io/dockerconfigjson
 
 ``` bash
 # 进入harbor解压缩后的目录，停止harbor
-cd /root/local/harbor
+cd /opt/harbor
 docker-compose down
 
 # 备份这个目录
@@ -159,7 +159,7 @@ cd ..
 mkdir -p /backup && mv harbor /backup/harbor
 
 # 下载更新的离线安装包，并解压
-tar zxvf harbor-offline-installer-v1.2.2.tgz  -C /root/local
+tar zxvf harbor-offline-installer-v1.2.2.tgz  -C /opt
 
 # 使用官方数据库迁移工具，备份数据库，修改数据库连接用户和密码，创建数据库备份目录
 # 迁移工具使用docker镜像，镜像tag由待升级到目标harbor版本决定，这里由 1.1.2升级到1.2.2，所以使用 tag 1.2
@@ -171,7 +171,7 @@ docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mys
 docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mysql vmware/harbor-db-migrator:1.2 up head
 
 # 修改新版本 harbor.cfg配置，需要保持与老版本相关配置项保持一致，然后执行安装即可
-cd /root/local/harbor
+cd /opt/harbor
 vi harbor.cfg
 ./install.sh
 

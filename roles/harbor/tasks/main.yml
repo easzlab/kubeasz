@@ -12,18 +12,18 @@
 - name: 解压harbor离线安装包
   unarchive: 
     src: "{{ base_dir }}/down/harbor-offline-installer-v1.2.2.tgz"
-    dest: /root/local
+    dest: /opt
     copy: yes
     keep_newer: yes
-  when: result|failed
+  when: result is failed
 
 - name: 导入harbor所需 docker images
-  shell: "{{ bin_dir }}/docker load -i /root/local/harbor/harbor.v1.2.2.tar.gz"
-  when: result|failed
+  shell: "{{ bin_dir }}/docker load -i /opt/harbor/harbor.v1.2.2.tar.gz"
+  when: result is failed
 
 - name: 创建harbor证书请求
   template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json
-  when: result|failed
+  when: result is failed
 
 - name: 创建harbor证书和私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
@@ -31,14 +31,14 @@
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes harbor-csr.json | {{ bin_dir }}/cfssljson -bare harbor"
-  when: result|failed
+  when: result is failed
 
 - name: 配置 harbor.cfg 文件
-  template: src=harbor.cfg.j2 dest=/root/local/harbor/harbor.cfg
-  when: result|failed
+  template: src=harbor.cfg.j2 dest=/opt/harbor/harbor.cfg
+  when: result is failed
 
 - name: 安装 harbor
-  shell: "cd /root/local/harbor && \
+  shell: "cd /opt/harbor && \
 	export PATH={{ bin_dir }}:$PATH && \
 	 ./install.sh"
-  when: result|failed
+  when: result is failed
