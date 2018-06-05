@@ -1,0 +1,17 @@
+alertmanager:
+  persistentVolume:
+    enabled: false
+  service:
+    type: NodePort
+    nodePort: 39001
+
+server:
+  persistentVolume:
+    enabled: false
+  service:
+    type: NodePort
+    nodePort: 39000
+
+pushgateway:
+  enabled: false
+

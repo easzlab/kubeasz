@@ -1,0 +1,21 @@
+serverFiles:
+  alerts:
+    groups:
+    - name: k8s_alert_rules
+      rules:
+      # ALERT when container memory usage exceed 90%
+      - alert: container_mem_over_90
+        expr: (sum(container_memory_working_set_bytes{image!="",name=~"^k8s_.*", pod_name!=""}) by (pod_name)) / (sum (container_spec_memory_limit_bytes{image!="",name=~"^k8s_.*", pod_name!=""}) by (pod_name)) > 0.9 and (sum(container_memory_working_set_bytes{image!="",name=~"^k8s_.*", pod_name!=""}) by (pod_name)) / (sum (container_spec_memory_limit_bytes{image!="",name=~"^k8s_.*", pod_name!=""}) by (pod_name)) < 2
+        for: 2m
+        annotations:
+          summary: "{{ $labels.pod_name }}'s memory usage alert"
+          description: "Memory Usage of Pod {{ $labels.pod_name }} on {{ $labels.kubernetes_io_hostname }} has exceeded 90% for more than 2 minutes."
+
+      # ALERT when node is down
+      - alert: node_down
+        expr: up == 0
+        for: 60s
+        annotations:
+          summary: "Node {{ $labels.kubernetes_io_hostname }} is down"
+          description: "Node {{ $labels.kubernetes_io_hostname }} is down"
+  

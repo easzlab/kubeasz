@@ -1,0 +1,15 @@
+appVersion: 5.1.2
+description: The leading tool for querying and visualizing time series and metrics.
+engine: gotpl
+home: https://grafana.net
+icon: https://raw.githubusercontent.com/grafana/grafana/master/public/img/logo_transparent_400x.png
+kubeVersion: ^1.8.0-0
+maintainers:
+- email: zanhsieh@gmail.com
+  name: Ming Hsieh
+- email: rluckie@cisco.com
+  name: rtluckie
+name: grafana
+sources:
+- https://github.com/grafana/grafana
+version: 1.10.0
