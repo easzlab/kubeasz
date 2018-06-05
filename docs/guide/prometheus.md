@@ -107,7 +107,7 @@ $ kubectl run nginx1 --image=nginx --port=80 --expose --limits='cpu=500m,memory=
 # 增加负载（可用Ctrl + C 停止）
 $ kubectl run --rm -it load-generator --image=busybox /bin/sh
 Hit enter for command prompt
-$ while true; do wget -q -O- http://nginx; done;
+$ while true; do wget -q -O- http://nginx1; done;
 
 # 等待约几分钟查看是否有告警
 ```
