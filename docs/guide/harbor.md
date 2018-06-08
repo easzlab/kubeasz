@@ -4,7 +4,7 @@ Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是�
 
 ### 安装步骤
 
-1. 在deploy节点下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录下，后续版本会一起打包进百度云盘`k8s.xxx.tar.gz`文件中，可以省略该步骤
+1. 在deploy节点下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录下，后续版本会一起打包进百度云盘`k8s.xxx.tar.gz`文件中，可以省略该步骤。注：k8s.1102.tar.gz已集成该工具
 
 ``` bash
 wget https://github.com/docker/compose/releases/download/1.18.0/docker-compose-Linux-x86_64
@@ -12,7 +12,9 @@ mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
 ```
 2. 在deploy节点下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `/etc/ansible/down` 目录下，也可以从分享的百度云盘下载
 
-3. 在deploy节点编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
+3. 由于ansible解压的一些问题，需要将官方的tgz包，重新打包为zip包
+
+4. 在deploy节点编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
 
 ``` bash
 # 如果启用harbor，请配置后面harbor相关参数
@@ -126,7 +128,7 @@ type: kubernetes.io/dockerconfigjson
 + 日志目录 `/var/log/harbor`
 + 数据目录 `/data` ，其中最主要是 `/data/database` 和 `/data/registry` 目录，如果你要彻底重新安装harbor，删除这两个目录即可
 
-先进入harbor安装目录 `cd /opt/harbor`，常规操作如下：
+先进入harbor安装目录 `cd /data/harbor`，常规操作如下：
 
 1. 暂停harbor `docker-compose stop` : docker容器stop，并不删除容器
 2. 恢复harbor `docker-compose start` : 恢复docker容器运行
@@ -151,7 +153,7 @@ type: kubernetes.io/dockerconfigjson
 
 ``` bash
 # 进入harbor解压缩后的目录，停止harbor
-cd /opt/harbor
+cd /data/harbor
 docker-compose down
 
 # 备份这个目录
@@ -159,7 +161,7 @@ cd ..
 mkdir -p /backup && mv harbor /backup/harbor
 
 # 下载更新的离线安装包，并解压
-tar zxvf harbor-offline-installer-v1.2.2.tgz  -C /opt
+tar zxvf harbor-offline-installer-v1.2.2.tgz  -C /data
 
 # 使用官方数据库迁移工具，备份数据库，修改数据库连接用户和密码，创建数据库备份目录
 # 迁移工具使用docker镜像，镜像tag由待升级到目标harbor版本决定，这里由 1.1.2升级到1.2.2，所以使用 tag 1.2
@@ -171,7 +173,7 @@ docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mys
 docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mysql vmware/harbor-db-migrator:1.2 up head
 
 # 修改新版本 harbor.cfg配置，需要保持与老版本相关配置项保持一致，然后执行安装即可
-cd /opt/harbor
+cd /data/harbor
 vi harbor.cfg
 ./install.sh
 
