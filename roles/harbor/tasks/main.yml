@@ -15,6 +15,12 @@
   register: result
   ignore_errors: True
 
+- name: 安装解压工具
+  yum: name={{ item }} state=latest
+  with_items:
+    - zip
+    - unzip
+
 - name: 解压harbor离线安装包
   unarchive: 
     src: "{{ base_dir }}/down/harbor-offline-installer-v1.5.1.zip"
