@@ -19,7 +19,7 @@ mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
 ``` bash
 # 如果启用harbor，请配置后面harbor相关参数
 [harbor]
-192.168.1.8 NODE_IP="192.168.1.8"
+192.168.1.8
 
 #私有仓库 harbor服务器 (域名或者IP)
 HARBOR_IP="192.168.1.8"
@@ -51,7 +51,7 @@ HARBOR_DOMAIN="harbor.test.com"
 ### 验证harbor
 
 1. 在harbor节点使用`docker ps -a` 查看harbor容器组件运行情况
-1. 浏览器访问harbor节点的IP地址 `https://{{ NODE_IP }}`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登陆系统
+1. 浏览器访问harbor节点的IP地址 `https://$NodeIP`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登陆系统
 
 ### 在k8s集群使用harbor
 

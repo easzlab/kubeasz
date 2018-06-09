@@ -2,23 +2,23 @@
 [deploy]
 192.168.1.1
 
-# etcd集群请提供如下NODE_NAME、NODE_IP变量,注意etcd集群必须是1,3,5,7...奇数个节点
+# etcd集群请提供如下NODE_NAME，注意etcd集群必须是1,3,5,7...奇数个节点
 [etcd]
-192.168.1.1 NODE_NAME=etcd1 NODE_IP="192.168.1.1"
+192.168.1.1 NODE_NAME=etcd1
 
 [kube-master]
-192.168.1.1 NODE_IP="192.168.1.1"
+192.168.1.1
 
 [kube-node]
-192.168.1.1 NODE_IP="192.168.1.1"
+192.168.1.1
 
 # 如果启用harbor，请配置后面harbor相关参数
 [harbor]
-#192.168.1.8 NODE_IP="192.168.1.8"
+#192.168.1.8
 
 # 预留组，后续添加node节点使用
 [new-node]
-#192.168.1.xx NODE_IP="192.168.1.xx"
+#192.168.1.xx
 
 [all:vars]
 # ---------集群主要参数---------------

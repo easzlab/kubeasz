@@ -3,7 +3,7 @@
   "hosts": [
     "127.0.0.1",
     "{{ MASTER_IP }}",
-    "{{ NODE_IP }}",
+    "{{ inventory_hostname }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
     "kubernetes",
     "kubernetes.default",

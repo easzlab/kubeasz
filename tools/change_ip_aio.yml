@@ -26,7 +26,7 @@
 - hosts: deploy
   tasks:
   - name: 删除老IP地址的node
-    shell: "{{ bin_dir }}/kubectl get node |grep -v '{{ NODE_IP }}'|awk '{print $1}' |xargs {{ bin_dir }}/kubectl delete node"
+    shell: "{{ bin_dir }}/kubectl get node |grep -v '{{ inventory_hostname }}'|awk '{print $1}' |xargs {{ bin_dir }}/kubectl delete node"
     ignore_errors: true
 
   - name: 删除原network插件部署

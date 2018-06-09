@@ -23,7 +23,7 @@ kuberntes 系统使用 etcd 存储所有数据，是最重要的组件之一，�
   "CN": "etcd",
   "hosts": [
     "127.0.0.1",
-    "{{ NODE_IP }}"
+    "{{ inventory_hostname }}"
   ],
   "key": {
     "algo": "rsa",
@@ -75,10 +75,10 @@ ExecStart={{ bin_dir }}/etcd \
   --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
   --trusted-ca-file={{ ca_dir }}/ca.pem \
   --peer-trusted-ca-file={{ ca_dir }}/ca.pem \
-  --initial-advertise-peer-urls=https://{{ NODE_IP }}:2380 \
-  --listen-peer-urls=https://{{ NODE_IP }}:2380 \
-  --listen-client-urls=https://{{ NODE_IP }}:2379,http://127.0.0.1:2379 \
-  --advertise-client-urls=https://{{ NODE_IP }}:2379 \
+  --initial-advertise-peer-urls=https://{{ inventory_hostname }}:2380 \
+  --listen-peer-urls=https://{{ inventory_hostname }}:2380 \
+  --listen-client-urls=https://{{ inventory_hostname }}:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls=https://{{ inventory_hostname }}:2379 \
   --initial-cluster-token=etcd-cluster-0 \
   --initial-cluster={{ ETCD_NODES }} \
   --initial-cluster-state=new \

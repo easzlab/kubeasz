@@ -27,7 +27,7 @@ master2="192.168.1.2:6443"
 master3="192.168.1.5:6443"		# 新增 master节点
 ...
 [new-master]
-192.168.1.5 NODE_IP="192.168.1.5"	# 新增 master节点
+192.168.1.5                 	# 新增 master节点
 
 ```
 - 修改roles/lb/templates/haproxy.cfg.j2 文件，增加新增的master节点，举例如下：

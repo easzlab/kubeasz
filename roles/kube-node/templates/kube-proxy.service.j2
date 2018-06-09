@@ -8,8 +8,8 @@ After=network.target
 # kube-proxy 会对访问 Service IP 的请求做 SNAT，这个特性与calico 实现 network policy冲突，因此禁用
 WorkingDirectory=/var/lib/kube-proxy
 ExecStart={{ bin_dir }}/kube-proxy \
-  --bind-address={{ NODE_IP }} \
-  --hostname-override={{ NODE_IP }} \
+  --bind-address={{ inventory_hostname }} \
+  --hostname-override={{ inventory_hostname }} \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
   --logtostderr=true \
   --v=2

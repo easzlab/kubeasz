@@ -38,7 +38,7 @@ roles/kube-master/
   "hosts": [
     "127.0.0.1",
     "{{ MASTER_IP }}",
-    "{{ NODE_IP }}",
+    "{{ inventory_hostname }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
     "kubernetes",
     "kubernetes.default",
@@ -89,7 +89,7 @@ After=network.target
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
   --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \
-  --bind-address={{ NODE_IP }} \
+  --bind-address={{ inventory_hostname }} \
   --insecure-bind-address=127.0.0.1 \
   --authorization-mode=Node,RBAC \
   --runtime-config=rbac.authorization.k8s.io/v1 \
@@ -207,7 +207,7 @@ WantedBy=multi-user.target
   # 禁止业务 pod调度到 master节点
   tasks:
   - name: 禁止业务 pod调度到 master节点
-    shell: "{{ bin_dir }}/kubectl cordon {{ NODE_IP }} "
+    shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
     when: DEPLOY_MODE != "allinone"
     ignore_errors: true
 ```
