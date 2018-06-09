@@ -1,9 +1,9 @@
-# Calico Version v3.0.6
-# https://docs.projectcalico.org/v3.0/releases#v3.0.6
+# Calico Version {{ calico_node_ver }}
+# https://docs.projectcalico.org/v3.0/releases#{{ calico_node_ver }}
 # This manifest includes the following component versions:
-#   calico/node:v3.0.6
-#   calico/cni:v2.0.5
-#   calico/kube-controllers:v2.0.4
+#   calico/node:{{ calico_node_ver }}
+#   calico/cni:{{ calico_cni_ver }}
+#   calico/kube-controllers:{{ calico_kube_controller_ver }}
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -102,8 +102,8 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          #image: quay.io/calico/node:v3.0.6
-          image: calico/node:v3.0.6
+          #image: quay.io/calico/node:{{ calico_node_ver }}
+          image: calico/node:{{ calico_node_ver }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -141,7 +141,7 @@ spec:
               value: "false"
             # Set Felix logging to "warning"
             - name: FELIX_LOGSEVERITYSCREEN
-              value: "warning"
+              value: {{ FELIX_LOG_LVL }}
             # Set MTU for tunnel device used if ipip is enabled
             - name: FELIX_IPINIPMTU
               value: "1440"
@@ -199,8 +199,8 @@ spec:
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          #image: quay.io/calico/cni:v2.0.5
-          image: calico/cni:v2.0.5
+          #image: quay.io/calico/cni:{{ calico_cni_ver }}
+          image: calico/cni:{{ calico_cni_ver }}
           command: ["/install-cni.sh"]
           env:
             # Name of the CNI config file to create.
@@ -282,8 +282,8 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          #image: quay.io/calico/kube-controllers:v2.0.4
-          image: calico/kube-controllers:v2.0.4
+          #image: quay.io/calico/kube-controllers:{{ calico_kube_controller_ver }}
+          image: calico/kube-controllers:{{ calico_kube_controller_ver }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
