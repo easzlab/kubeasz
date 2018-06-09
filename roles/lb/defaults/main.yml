@@ -1,4 +1,4 @@
 # 区分多个instance的VRRP组播，同网段不能重复，取值在0-255之间
 # 可以直接指定数字，如ROUTER_ID=59
 # 本项目取100~200间的随机数
-ROUTER_ID: {{ 200 | random(100,1) }}
+ROUTER_ID: "{{ 200 | random(100,1) }}"
