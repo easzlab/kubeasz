@@ -16,13 +16,13 @@
 ...
 # 预留组，后续添加node节点使用
 [new-node]
-192.168.1.6 NODE_ID=node6
+192.168.1.6      #新增node节点
 ...
 ```
 - 执行安装脚本
 
 ``` bash
-$ cd /etc/ansible && ansible-playbook 20.addnode.yml
+$ ansible-playbook /etc/ansible/20.addnode.yml
 ```
 
 ### 验证

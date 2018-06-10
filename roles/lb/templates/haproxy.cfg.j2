@@ -20,9 +20,9 @@ listen kube-master
         mode tcp
         option tcplog
         balance source
-    {% for host in groups['kube-master'] %}
-        server {{host.inventory_hostname}} {{host.inventory_hostname}}:6443 check inter 2000 fall 2 rise 2 weight 1
-    {% endfor %}
-    {% for host in groups['new-master'] %}
-        server {{host.inventory_hostname}} {{host.inventory_hostname}}:6443 check inter 2000 fall 2 rise 2 weight 1
-    {% endfor %}
+{% for host in groups['kube-master'] %}
+        server {{ host }} {{ host }}:6443 check inter 2000 fall 2 rise 2 weight 1
+{% endfor %}
+{% for host in groups['new-master'] %}
+        server {{ host }} {{ host }}:6443 check inter 2000 fall 2 rise 2 weight 1
+{% endfor %}

@@ -13,40 +13,21 @@
 
 ### 操作步骤
 
-按照本项目说明，首先确保deploy节点能够ssh免密码登陆新增节点，然后在**deploy**节点执行三步：
+按照本项目说明，首先确保deploy节点能够ssh免密码登陆新增节点，然后在**deploy**节点执行两步：
 
-- 修改ansible hosts 文件，在 [new-master] 组添加新增的节点；在[lb] 组添加新增master 节点，举例如下：
+- 修改ansible hosts 文件，在 [new-master] 组添加新增的节点，举例如下：
 
 ``` bash
-[lb]
-192.168.1.1 LB_IF="ens3" LB_ROLE=backup
-192.168.1.2 LB_IF="ens3" LB_ROLE=master
-[lb:vars]
-master1="192.168.1.1:6443"
-master2="192.168.1.2:6443"
-master3="192.168.1.5:6443"		# 新增 master节点
 ...
 [new-master]
 192.168.1.5                 	# 新增 master节点
 
 ```
-- 修改roles/lb/templates/haproxy.cfg.j2 文件，增加新增的master节点，举例如下：
-
-``` bash
-listen kube-master
-        bind 0.0.0.0:{{ KUBE_APISERVER.split(':')[2] }}
-        mode tcp
-        option tcplog
-        balance source
-        server s1 {{ master1 }}  check inter 10000 fall 2 rise 2 weight 1
-        server s2 {{ master2 }}  check inter 10000 fall 2 rise 2 weight 1
-        server s3 {{ master3 }}  check inter 10000 fall 2 rise 2 weight 1 # 新增 master节点
-```
 
 - 执行安装脚本
 
 ``` bash
-$ cd /etc/ansible && ansible-playbook 21.addmaster.yml
+$ ansible-playbook /etc/ansible/21.addmaster.yml
 ```
 
 ### 验证
