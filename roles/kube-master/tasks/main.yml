@@ -34,6 +34,12 @@
   template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
   tags: upgrade_k8s, restart_master
 
+# 为兼容之前的模式，需特别对v1.8版本重新配置kube-apiserver的systemd unit文件
+- name: 创建kube-apiserver v1.8的systemd unit文件
+  template: src=kube-apiserver-{{ K8S_VER }}.service.j2 dest=/etc/systemd/system/kube-apiserver.service
+  tags: upgrade_k8s, restart_master
+  when: "K8S_VER is defined and K8S_VER == 'v1.8'"
+
 - name: 创建kube-controller-manager的systemd unit文件
   template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service
   tags: upgrade_k8s, restart_master

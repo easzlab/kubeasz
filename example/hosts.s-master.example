@@ -28,6 +28,9 @@
 #集群部署模式：allinone, single-master, multi-master
 DEPLOY_MODE=single-master
 
+#集群主版本号，目前支持: v1.8, v1.9, v1.10
+K8S_VER="v1.10"
+
 #集群 MASTER IP
 MASTER_IP="192.168.1.1"
 KUBE_APISERVER="https://{{ MASTER_IP }}:6443"
