@@ -18,7 +18,6 @@
 192.168.1.2 LB_IF="eth0" LB_ROLE=master
 
 [kube-node]
-192.168.1.2
 192.168.1.3
 192.168.1.4
 
@@ -49,10 +48,10 @@ BOOTSTRAP_TOKEN="c30302226d4b810e08731702d3890f50"
 # 集群网络插件，目前支持calico和flannel
 CLUSTER_NETWORK="flannel"
 
-# 服务网段 (Service CIDR），部署前路由不可达，部署后集群内使用 IP:Port 可达
+# 服务网段 (Service CIDR），注意不要与内网已有网段冲突
 SERVICE_CIDR="10.68.0.0/16"
 
-# POD 网段 (Cluster CIDR），部署前路由不可达，**部署后**路由可达
+# POD 网段 (Cluster CIDR），注意不要与内网已有网段冲突
 CLUSTER_CIDR="172.20.0.0/16"
 
 # 服务端口范围 (NodePort Range)
@@ -67,11 +66,13 @@ CLUSTER_DNS_SVC_IP="10.68.0.2"
 # 集群 DNS 域名
 CLUSTER_DNS_DOMAIN="cluster.local."
 
-# etcd 集群间通信的IP和端口, **根据实际 etcd 集群成员设置**
-ETCD_NODES="etcd1=https://192.168.1.1:2380,etcd2=https://192.168.1.2:2380,etcd3=https://192.168.1.3:2380"
+# etcd 集群间通信的IP和端口, 根据etcd组成员自动生成
+TMP_NODES="{% for h in groups['etcd'] %}{{ hostvars[h]['NODE_NAME'] }}=https://{{ h }}:2380,{% endfor %}"
+ETCD_NODES="{{ TMP_NODES.rstrip(',') }}"
 
-# etcd 集群服务地址列表, **根据实际 etcd 集群成员设置**
-ETCD_ENDPOINTS="https://192.168.1.1:2379,https://192.168.1.2:2379,https://192.168.1.3:2379"
+# etcd 集群服务地址列表, 根据etcd组成员自动生成
+TMP_ENDPOINTS="{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+ETCD_ENDPOINTS="{{ TMP_ENDPOINTS.rstrip(',') }}"
 
 # 集群basic auth 使用的用户名和密码
 BASIC_AUTH_USER="admin"
