@@ -6,19 +6,19 @@
 
 **集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
 
-项目基于`Ubuntu 16.04/CentOS 7`，其他系统需要读者自行替换部分命令；你可能需要掌握基础`kubernetes` `docker` `linux shell` 知识，关于`ansible`建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 基本够用。
+项目基于`Ubuntu 16.04/CentOS 7`，需要了解基础`kubernetes` `docker` `linux` 知识，关于`ansible`建议阅读 [ansible超快入门](http://weiweidefeng.blog.51cto.com/1957995/1895261) 。
 
 请阅读[项目TodoList](docs/mixes/TodoList.md)和[项目分支说明](docs/branch.md)，欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
 
-## 组件版本
+|组件|更新|支持|
+|:-|:-|:-|
+|OS|&nbsp;|Ubuntu 16.04+, CentOS 7|
+|k8s|v1.10.4|v1.8, v1.9, v1.10|
+|etcd|v3.3.6|v3.1, v3.2, v3.3|
+|docker|18.03.0-ce|17.*.*-ce, 18.*.*-ce|
+|network|&nbsp;|calico v3.0, flannel v0.10, kube-router(todo)|
 
-- kubernetes	v1.10.2
-- etcd		v3.3.4
-- docker	18.03.0-ce
-- calico	v3.0.6
-- flannel	v0.10.0  
-**注1：** 集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
-**注2：** 为提高集群网络插件安装的灵活性，使用`DaemonSet Pod`方式运行网络插件，目前支持`Calico` `flannel`可选
+-注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
 
 ## 快速指南
 
