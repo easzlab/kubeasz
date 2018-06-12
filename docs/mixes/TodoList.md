@@ -7,51 +7,48 @@
 
 <table border="0">
     <tr>
-        <th>序号</th>
         <th>类型</th>
         <th>描述</th>
         <th>备注</th>
     </tr>
     <tr>
-        <td>1</td>
         <td>集群部署</td>
         <td>集群内时间同步-Chrony</td>
         <td>暂取消</td>
     </tr>
     <tr>
-        <td>2</td>
         <td>集群部署</td>
         <td>服务器基础安全加固与参数优化</td>
         <td>已完成</td>
     </tr>
     <tr>
-        <td>3</td>
         <td>基础服务</td>
         <td>集群监控告警-prometheus</td>
+        <td>已完成基础，待优化</td>
+    </tr>
+    <tr>
+        <td>应用服务</td>
+        <td>CI/CD 集成</td>
+        <td>更新jenkins</td>
+    </tr>
+    <tr>
+        <td>集群部署</td>
+        <td>kube-router网络插件</td>
         <td>进行中</td>
     </tr>
     <tr>
-        <td>4</td>
         <td>基础服务</td>
         <td>metrics server</td>
-        <td></td>
+        <td>进行中</td>
     </tr>
     <tr>
-        <td>5</td>
-        <td>应用服务</td>
-        <td>CI/CD 集成</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>6</td>
         <td>集群部署</td>
         <td>ipvs代理模式跟进</td>
-        <td></td>
+        <td>进行中</td>
     </tr>
     <tr>
-        <td>7</td>
         <td>应用服务</td>
-        <td>服务治理-Lstio跟进</td>
+        <td>服务治理-istio跟进</td>
         <td></td>
     </tr>
 </table>
