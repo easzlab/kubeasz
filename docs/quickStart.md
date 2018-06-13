@@ -51,7 +51,7 @@ Traceback (most recent call last):
     from pip import main
 ImportError: cannot import name main
 ```
-将`/usr/bin/python`做以下修改：
+将`/usr/bin/pip`做以下修改：
 
 ``` bash
 #原代码
