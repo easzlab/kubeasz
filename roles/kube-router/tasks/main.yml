@@ -12,8 +12,25 @@
   - loopback
   - portmap
 
-- name: 准备 kube-router DaemonSet yaml文件
+# kube-router 不带service proxy
+- name: 准备配置 kube-router DaemonSet (without IPVS)
   template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
+  when: 'SERVICE_PROXY == "kube-proxy"'
+
+- name: 停止 kube-proxy 服务
+  shell: "systemctl stop kube-proxy.service && systemctl disable kube-proxy.service"
+  when: 'SERVICE_PROXY == "IPVS"'
+  ignore_errors: true
+
+- name: 清理 kube-proxy产生的iptables规则
+  shell: "{{ bin_dir }}/kube-proxy --cleanup"
+  when: 'SERVICE_PROXY == "IPVS"'
+  ignore_errors: true
+
+# kube-router 带service proxy (IPVS/LVS)
+- name: 准备配置 kube-router DaemonSet (with IPVS)
+  template: src=kuberouter-all.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
+  when: 'SERVICE_PROXY == "IPVS"'
 
 - name: 获取所有已经创建的POD信息
   command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
@@ -21,7 +38,7 @@
   run_once: true
 
 # 只需单节点执行一次
-- name: 运行 kube-router daemonset
+- name: 运行 kube-router DaemonSet
   shell: "{{ bin_dir }}/kubectl create -f /opt/kube/kube-system/kube-router/ && sleep 5"
   run_once: true
   when: '"kube-router" not in pod_info.stdout'

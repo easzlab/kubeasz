@@ -7,6 +7,5 @@ ROUTER_ENABLE: "true"
 FIREWALL_ENABLE: "true"
 
 # service-proxy 支持开关
-SVC_PROXY_ENABLE: "false"
-
+# 在/etc/ansible/hosts文件的变量'SERVICE_PROXY'定义
 

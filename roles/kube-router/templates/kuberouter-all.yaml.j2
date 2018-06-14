@@ -62,7 +62,7 @@ spec:
         imagePullPolicy: Always
         args:
         - "--run-router=true"
-        - "--run-firewall=true"
+        - "--run-firewall={{ FIREWALL_ENABLE }}"
         - "--run-service-proxy=true"
         - "--kubeconfig=/var/lib/kube-router/kubeconfig"
         env:

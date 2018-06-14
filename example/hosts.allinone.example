@@ -38,6 +38,9 @@ BOOTSTRAP_TOKEN="d18f94b5fa585c7123f56803d925d2e7"
 # 集群网络插件，目前支持calico, flannel, kube-router
 CLUSTER_NETWORK="flannel"
 
+# 默认使用kube-proxy, 可选SERVICE_PROXY="IPVS" (前提是网络选择kube-router)
+SERVICE_PROXY="kube-proxy"
+
 # 服务网段 (Service CIDR），注意不要与内网已有网段冲突
 SERVICE_CIDR="10.68.0.0/16"
 

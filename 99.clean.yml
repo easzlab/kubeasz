@@ -71,10 +71,12 @@
     - "/var/run/calico/"
     - "/var/log/calico/"
     - "/var/lib/docker/"
+    - "/var/lib/kube-router/"
     - "/var/run/docker/"
     - "/etc/systemd/system/calico-node.service"
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
+    - "/opt/kube/kube-system/"
 
   - name: 清理 iptables
     shell: "iptables -F && iptables -X \

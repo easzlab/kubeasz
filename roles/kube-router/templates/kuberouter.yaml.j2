@@ -42,9 +42,9 @@ spec:
         image: cloudnativelabs/kube-router
         imagePullPolicy: Always
         args:
-        - "--run-router={{ ROUTER_ENABLE }}"
+        - "--run-router=true"
         - "--run-firewall={{ FIREWALL_ENABLE }}"
-        - "--run-service-proxy={{ SVC_PROXY_ENABLE }}"
+        - "--run-service-proxy=false"
         env:
         - name: NODE_NAME
           valueFrom:
