@@ -1,0 +1,32 @@
+- name: 创建cni 和kube-router 相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - /etc/cni/net.d
+  - /opt/kube/kube-system/kube-router
+
+- name: 下载cni plugins
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - bridge
+  - host-local
+  - loopback
+  - portmap
+
+- name: 准备 kube-router DaemonSet yaml文件
+  template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
+
+- name: 获取所有已经创建的POD信息
+  command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
+  register: pod_info
+  run_once: true
+
+# 只需单节点执行一次
+- name: 运行 kube-router daemonset
+  shell: "{{ bin_dir }}/kubectl create -f /opt/kube/kube-system/kube-router/ && sleep 5"
+  run_once: true
+  when: '"kube-router" not in pod_info.stdout'
+
+# 删除原有cni配置
+- name: 删除默认cni配置 
+  file: path=/etc/cni/net.d/10-default.conf state=absent
+

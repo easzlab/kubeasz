@@ -1,0 +1,12 @@
+# 更多设置，参考https://github.com/cloudnativelabs/kube-router/blob/master/docs/user-guide.md 
+
+# Router 支持开关
+ROUTER_ENABLE: "true"
+
+# NetworkPolicy 支持开关
+FIREWALL_ENABLE: "true"
+
+# service-proxy 支持开关
+SVC_PROXY_ENABLE: "false"
+
+
