@@ -49,6 +49,11 @@
   - kube-node
   - new-node
   tasks:
+  - name: 清理kube-router相关
+    shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
+    ignore_errors: true
+    when: "CLUSTER_NETWORK == 'kube-router'"
+
   - name: stop docker service
     shell: "systemctl stop docker"
     ignore_errors: true
@@ -90,6 +95,8 @@
 	ip link del flannel.1; \
 	ip link del cni0; \
         ip link del mynet0; \
+	ip link del kube-bridge; \
+        ip link del dummy0; \
 	systemctl restart networking; \
 	systemctl restart network"
     ignore_errors: true

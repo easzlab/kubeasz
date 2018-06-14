@@ -1,4 +1,10 @@
 ## ---------docker daemon配置部分-----------
+- name: 准备docker相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - "{{ bin_dir }}"
+  - /etc/docker
+
 - name: 下载 docker 二进制文件
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:

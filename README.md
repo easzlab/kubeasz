@@ -16,7 +16,7 @@
 |k8s|v1.10.4|v1.8, v1.9, v1.10|
 |etcd|v3.3.6|v3.1, v3.2, v3.3|
 |docker|18.03.0-ce|17.*.*-ce, 18.*.*-ce|
-|network|&nbsp;|calico v3.0, flannel v0.10, kube-router(todo)|
+|network|&nbsp;|calico v3.0, flannel v0.10, kube-router|
 
 -注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
 
@@ -31,13 +31,13 @@
         <td><a href="docs/00-集群规划和基础参数设定.md">00-规划集群和安装概览</a></td>
         <td><a href="docs/02-安装etcd集群.md">02-安装etcd集群</a></td>
         <td><a href="docs/04-安装kube-master节点.md">04-安装master节点</a></td>
-        <td><a href="docs/06-安装calico网络组件.md">06-安装calico网络</a></td>
+        <td><a href="docs/06-安装网络组件.md">06-安装集群网络</a></td>
     </tr>
     <tr>
         <td><a href="docs/01-创建CA证书和环境配置.md">01-创建证书和安装准备</a></td>
         <td><a href="docs/03-安装docker服务.md">03-安装docker服务</a></td>
         <td><a href="docs/05-安装kube-node节点.md">05-安装node节点</a></td>
-        <td><a href="docs/06-安装flannel网络组件.md">06-安装flannel网络</a></td>
+        <td></td>
     </tr>
 </table>
 
