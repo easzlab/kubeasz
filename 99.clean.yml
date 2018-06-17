@@ -75,6 +75,7 @@
     - "/etc/calico/"
     - "/var/run/calico/"
     - "/var/log/calico/"
+    - "/var/lib/cni/"
     - "/var/lib/docker/"
     - "/var/lib/kube-router/"
     - "/var/run/docker/"
