@@ -18,7 +18,7 @@
   when: 'SERVICE_PROXY == "kube-proxy"'
 
 - name: 停止 kube-proxy 服务
-  shell: "systemctl stop kube-proxy.service && systemctl disable kube-proxy.service"
+  shell: "systemctl stop kube-proxy.service; systemctl disable kube-proxy.service"
   when: 'SERVICE_PROXY == "IPVS"'
   ignore_errors: true
 
@@ -46,4 +46,12 @@
 # 删除原有cni配置
 - name: 删除默认cni配置 
   file: path=/etc/cni/net.d/10-default.conf state=absent
+
+# 等待网络插件部署成功，视下载镜像速度而定
+- name: 轮询等待kube-router 运行，视下载镜像速度而定
+  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'kube-router'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+  register: pod_status
+  until: pod_status.stdout == "Running"
+  retries: 12
+  delay: 8
 

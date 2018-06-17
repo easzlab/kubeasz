@@ -11,18 +11,18 @@
   register: pod_info
 
 - name: 创建 {{ dns_backend }}部署
-  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/{{ dns_backend }}"
+  shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/{{ dns_backend }}"
   when: 'dns_backend not in pod_info.stdout and dns_install == "yes"'
 
 - name: 创建 metrics-server部署
-  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
+  shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
   when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
 
 - name: 创建 dashboard部署
-  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
+  shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
 
 - name: 创建 heapster部署
-  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster"
+  shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster"
   when: '"heapster" not in pod_info.stdout and heapster_install == "yes"'
 
