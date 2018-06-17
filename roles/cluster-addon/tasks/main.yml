@@ -1,0 +1,28 @@
+# kubedns.yaml文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+- name: 准备 kubedns的部署文件 kubedns.yaml
+  template: src=kubedns.yaml.j2 dest={{ base_dir }}/manifests/kubedns/kubedns.yaml
+
+# coredns.yaml文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+- name: 准备 coredns的部署文件 coredns.yaml
+  template: src=coredns.yaml.j2 dest={{ base_dir }}/manifests/coredns/coredns.yaml
+
+- name: 获取所有已经创建的POD信息
+  command: "{{ bin_dir }}/kubectl get pod -n kube-system"
+  register: pod_info
+
+- name: 创建 {{ dns_backend }}部署
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/{{ dns_backend }}"
+  when: 'dns_backend not in pod_info.stdout and dns_install == "yes"'
+
+- name: 创建 metrics-server部署
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
+  when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
+
+- name: 创建 dashboard部署
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
+  when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
+
+- name: 创建 heapster部署
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster"
+  when: '"heapster" not in pod_info.stdout and heapster_install == "yes"'
+
