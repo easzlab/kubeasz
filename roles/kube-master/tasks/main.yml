@@ -24,6 +24,19 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
 
+# 创建aggregator proxy相关证书
+- name: 创建 aggregator proxy证书签名请求
+  template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
+  when: p.stat.isreg is not defined
+
+- name: 创建 aggregator-proxy证书和私钥
+  when: p.stat.isreg is not defined
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
+
 - name: 创建 token.csv
   template: src=token.csv.j2 dest={{ ca_dir }}/token.csv
 
