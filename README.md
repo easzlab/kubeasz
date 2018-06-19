@@ -37,7 +37,7 @@
         <td><a href="docs/01-创建CA证书和环境配置.md">01-创建证书和安装准备</a></td>
         <td><a href="docs/03-安装docker服务.md">03-安装docker服务</a></td>
         <td><a href="docs/05-安装kube-node节点.md">05-安装node节点</a></td>
-        <td></td>
+        <td><a href="docs/07-安装集群插件.md">07-安装集群插件</a></td>
     </tr>
 </table>
 

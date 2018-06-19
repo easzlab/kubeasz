@@ -87,10 +87,11 @@ ansible-playbook 03.docker.yml
 ansible-playbook 04.kube-master.yml
 ansible-playbook 05.kube-node.yml
 ansible-playbook 06.network.yml
+ansible-playbook 07.cluster-addon.yml 
 # 一步安装
 #ansible-playbook 90.setup.yml
 ```
-如果执行成功，k8s集群就安装好了。详细分步讲解请查看项目目录 `/docs` 下相关文档
+如果执行成功，k8s集群就安装好了。详细分步讲解请查看项目目录 `docs` 下相关文档
 
 + [可选]对节点进行操作系统层面的安全加固 `ansible-playbook roles/os-harden/os-harden.yml`，详情请参考[os-harden项目](https://github.com/dev-sec/ansible-os-hardening)
 
@@ -101,17 +102,15 @@ kubectl version
 kubectl get componentstatus # 可以看到scheduler/controller-manager/etcd等组件 Healthy
 kubectl cluster-info # 可以看到kubernetes master(apiserver)组件 running
 kubectl get node # 可以看到单 node Ready状态
-kubectl get pod --all-namespaces # 可以查看所有集群pod状态
+kubectl get pod --all-namespaces # 可以查看所有集群pod状态，默认已安装网络插件、coredns、metrics-server等
 kubectl get svc --all-namespaces # 可以查看所有集群服务状态
 ```
 ### 6.安装主要组件
 ``` bash
-# 安装kubedns
-kubectl create -f /etc/ansible/manifests/kubedns
-# 安装heapster
-kubectl create -f /etc/ansible/manifests/heapster
-# 安装dashboard
-kubectl create -f /etc/ansible/manifests/dashboard
+# 安装kubedns，默认已集成安装
+#kubectl create -f /etc/ansible/manifests/kubedns
+# 安装dashboard，默认已集成安装
+#kubectl create -f /etc/ansible/manifests/dashboard
 ```
 + 登陆 `dashboard`可以查看和管理集群，更多内容请查阅[dashboard文档](guide/dashboard.md)
 

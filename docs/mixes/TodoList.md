@@ -39,7 +39,7 @@
     <tr>
         <td>基础服务</td>
         <td>metrics server</td>
-        <td>进行中</td>
+        <td>已完成</td>
     </tr>
     <tr>
         <td>集群部署</td>

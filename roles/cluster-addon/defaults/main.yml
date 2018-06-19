@@ -9,14 +9,14 @@ metricsserver_install: "yes"
 dashboard_install: "yes"
 
 # ingress 自动安装
-ingress_install: "no"
-ingress_backend: "traefik"
+#ingress_install: "no"
+#ingress_backend: "traefik"
 
 # heapster 自动安装
 heapster_install: "no"
 
 # efk 自动安装
-efk_install: "no"
+#efk_install: "no"
 
 # prometheus 自动安装
-prometheus_install: "no"
+#prometheus_install: "no"
