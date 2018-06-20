@@ -15,3 +15,6 @@ server:
 pushgateway:
   enabled: false
 
+kubeStateMetrics:
+  image:
+    repository: mirrorgooglecontainers/kube-state-metrics
