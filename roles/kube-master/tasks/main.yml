@@ -6,18 +6,10 @@
   - kube-scheduler
   tags: upgrade_k8s
 
-# 注册变量p，根据p的stat信息判断是否已经生成过kubernetes证书，如果没有，下一步生成证书
-# 如果已经有证书，为了保证整个安装的幂等性，跳过证书生成的步骤
-- name: 读取kubernetes证书stat信息
-  stat: path="/etc/kubernetes/ssl/kubernetes.pem"
-  register: p
-
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
-  when: p.stat.isreg is not defined
 
 - name: 创建 kubernetes 证书和私钥
-  when: p.stat.isreg is not defined
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \
@@ -27,15 +19,15 @@
 # 创建aggregator proxy相关证书
 - name: 创建 aggregator proxy证书签名请求
   template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
-  when: p.stat.isreg is not defined
+  tags: upgrade_k8s
 
 - name: 创建 aggregator-proxy证书和私钥
-  when: p.stat.isreg is not defined
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
+  tags: upgrade_k8s
 
 - name: 创建 token.csv
   template: src=token.csv.j2 dest={{ ca_dir }}/token.csv
