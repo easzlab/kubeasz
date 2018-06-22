@@ -6,6 +6,7 @@ spec:
   containers:
   - name: test-pod
     image: busybox
+    imagePullPolicy: IfNotPresent
     command:
       - "/bin/sh"
     args:

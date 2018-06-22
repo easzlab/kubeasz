@@ -9,3 +9,7 @@ FIREWALL_ENABLE: "true"
 # service-proxy 支持开关
 # 在/etc/ansible/hosts文件的变量'SERVICE_PROXY'定义
 
+# kube-router 镜像版本
+IMAGE: "cloudnativelabs/kube-router"
+PullPolicy: "IfNotPresent"
+

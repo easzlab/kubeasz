@@ -19,6 +19,7 @@ spec:
   containers:
   - name: test
     image: busybox
+    imagePullPolicy: IfNotPresent
     command:
       - "/bin/sh"
     args:
