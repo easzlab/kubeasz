@@ -39,8 +39,8 @@ spec:
       serviceAccountName: kube-router
       containers:
       - name: kube-router
-        image: cloudnativelabs/kube-router
-        imagePullPolicy: Always
+        image: {{ IMAGE }} 
+        imagePullPolicy: {{ PullPolicy }}
         args:
         - "--run-router=true"
         - "--run-firewall={{ FIREWALL_ENABLE }}"
@@ -71,7 +71,7 @@ spec:
       initContainers:
       - name: install-cni
         image: busybox
-        imagePullPolicy: Always
+        imagePullPolicy: {{ PullPolicy }} 
         command:
         - /bin/sh
         - -c

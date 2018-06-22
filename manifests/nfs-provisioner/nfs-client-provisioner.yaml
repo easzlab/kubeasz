@@ -60,6 +60,7 @@ spec:
         - name: nfs-client-provisioner
           #image: quay.io/external_storage/nfs-client-provisioner:latest
           image: jmgao1983/nfs-client-provisioner:latest
+          imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
