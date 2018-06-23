@@ -18,7 +18,7 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
 
 ### 升级步骤
 
-- 1.下载最新项目代码 `git pull origin master`
+- 1.下载最新项目代码 `git pull origin master`（注意手动更新现有hosts的配置项与example中的实例一致）
 - 2.下载新的二进制解压并替换 `/etc/ansible/bin/` 目录下文件
 - 3a.如果可以接受短暂业务中断，执行 `ansible-playbook -t upgrade_k8s,restart_dockerd 22.upgrade.yml` 即可
 - 3b.如果要求零中断升级集群
