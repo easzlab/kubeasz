@@ -80,4 +80,3 @@ Address 2: 180.97.33.107
 / #
 ```
 
-[前一篇](index.md) -- [目录](index.md) -- [后一篇](dashboard.md)

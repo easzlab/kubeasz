@@ -89,4 +89,3 @@ monitoring-influxdb    NodePort    10.68.195.193   <none>        8086:3382/TCP,8
 ![influxdb](../../pics/influxdb.png)
 
 
-[前一篇](dashboard.md) -- [目录](index.md) -- [后一篇](ingress.md)

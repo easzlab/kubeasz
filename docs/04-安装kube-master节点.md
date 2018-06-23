@@ -239,4 +239,4 @@ etcd-2               Healthy   {"health": "true"}
 etcd-1               Healthy   {"health": "true"} 
 ```
 
-[前一篇](04-安装docker服务.md) -- [后一篇](06-安装kube-node节点.md)
+[前一篇](03-安装docker服务.md) -- [后一篇](05-安装kube-node节点.md)

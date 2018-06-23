@@ -128,4 +128,4 @@ https://192.168.1.3:2379 is healthy: successfully committed proposal: took = 3.2
 三台 etcd 的输出均为 healthy 时表示集群服务正常。
 
 
-[前一篇](01-创建CA证书和环境配置.md) -- [后一篇](04-安装docker服务.md)
+[前一篇](01-创建CA证书和环境配置.md) -- [后一篇](03-安装docker服务.md)

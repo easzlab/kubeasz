@@ -165,4 +165,3 @@ kubectl create -f /etc/ansible/manifests/heapster/influxdb-with-pv/influxdb.yaml
 ```
 
 
-[前一篇](dashboard.md) -- [目录](index.md) -- [后一篇](ingress.md)
