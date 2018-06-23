@@ -46,11 +46,11 @@
 <table border="0">
     <tr>
         <td><strong>常用插件</strong></td>
-        <td><a href="docs/guide/kubedns.md">DNS服务</a></td>
-        <td><a href="docs/guide/dashboard.md">dashboard界面</a></td>
-        <td><a href="docs/guide/heapster.md">heapster监控</a></td>
-        <td><a href="docs/guide/efk.md">efk日志</a></td>
-        <td><a href="docs/guide/prometheus.md">prometheus监控</a></td>
+        <td><a href="docs/guide/kubedns.md">kube-dns</a></td>
+        <td><a href="docs/guide/dashboard.md">dashboard</a></td>
+        <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
+        <td><a href="docs/guide/prometheus.md">prometheus</a></td>
+        <td><a href="docs/guide/index.md">更多...</a></td>
     </tr>
     <tr>
         <td><strong>集群运维</strong></td>
