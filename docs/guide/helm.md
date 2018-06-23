@@ -54,4 +54,4 @@ $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 
 ## 使用helm安装应用到k8s上
 
-
+请阅读本项目文档[helm安装prometheus监控](prometheus.md)

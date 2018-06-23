@@ -145,4 +145,4 @@ NAME           STATUS    ROLES     AGE       VERSION
 ```
 
 
-[前一篇](05-安装kube-master节点.md) -- [后一篇](07-安装calico网络组件.md)
+[前一篇](04-安装kube-master节点.md) -- [后一篇](06-安装网络组件.md)

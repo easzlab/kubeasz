@@ -25,6 +25,11 @@
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
   ignore_errors: true
 
+- name: 创建 traefik-ingress部署
+  shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik-ingress.yaml"
+  when: '"traefik-ingress-controller" not in pod_info.stdout and ingress_install == "yes"'
+  ignore_errors: true
+
 - name: 创建 heapster部署
   shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster"
   when: '"heapster" not in pod_info.stdout and heapster_install == "yes"'

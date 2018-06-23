@@ -152,4 +152,4 @@ iptables-save|grep FORWARD
 -A FORWARD -j ACCEPT
 ```
 
-[前一篇](02-安装etcd集群.md) -- [后一篇](05-安装kube-master节点.md)
+[前一篇](02-安装etcd集群.md) -- [后一篇](04-安装kube-master节点.md)

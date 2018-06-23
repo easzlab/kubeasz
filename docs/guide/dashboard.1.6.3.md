@@ -131,4 +131,3 @@ subjects:
 + 由于还未部署 Heapster 插件，当前 dashboard 不能展示 Pod、Nodes 的 CPU、内存等 metric 图形，后续部署 heapster后自然能够看到
 + 本文中的权限设置仅供演示用，生产环境请在此基础上修改成适合你安全需求的方式
 
-[前一篇](kubedns.md) -- [目录](index.md) -- [后一篇](heapster.md)

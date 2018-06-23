@@ -158,4 +158,3 @@ listen kube-node
 打开浏览器输入域名 `http://hello.test.com` 和 `http://traefik-ui.test.com`可以正常访问。
 
 
-[前一篇](heapster.md) -- [目录](index.md) -- [后一篇](efk.md)

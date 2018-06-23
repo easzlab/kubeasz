@@ -176,5 +176,4 @@ docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mys
 cd /data/harbor
 vi harbor.cfg
 ./install.sh
-
-[前一篇]() -- [目录](index.md) -- [后一篇]()
+```

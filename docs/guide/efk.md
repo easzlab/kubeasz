@@ -193,4 +193,3 @@ kube-system-elasticsearch-logging-elasticsearch-logging-1-pvc-5b105ee6-358b-11e8
 1. [storage-classes](https://kubernetes.io/docs/concepts/storage/storage-classes/)
 
 
-[前一篇](ingress.md) -- [目录](index.md) -- [后一篇](harbor.md)
