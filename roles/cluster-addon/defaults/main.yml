@@ -2,7 +2,7 @@
 dns_install: "yes"
 dns_backend: "coredns"
 kubedns_offline: "kubedns_1.14.10.tar"
-coredns_offline: "coredns_1.0.6.tar"
+coredns_offline: "coredns_1.1.3.tar"
 
 # metric server 自动安装
 metricsserver_install: "yes"
