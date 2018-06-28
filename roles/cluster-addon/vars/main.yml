@@ -1,0 +1,6 @@
+dns_offline: "{%- if dns_backend == 'coredns' -%} \
+                {{ coredns_offline }} \
+              {%- else -%} \
+                {{ kubedns_offline }} \
+              {%- endif -%}"
+
