@@ -19,6 +19,7 @@ traefik_offline: "traefik_v1.6.tar"
 
 # heapster 自动安装
 heapster_install: "no"
+heapster_offline: "heapster_v1.5.1.tar"
 
 # efk 自动安装
 #efk_install: "no"

@@ -36,4 +36,13 @@ mirrorgooglecontainers/fluentd-elasticsearch:v2.0.2
 jmgao1983/kibana:5.6.4
 # nfs 动态PV
 jmgao1983/nfs-client-provisioner:latest
+# prometheus
+busybox:latest
+grafana/grafana:5.1.2
+mirrorgooglecontainers/kube-state-metrics:v1.3.1
+appropriate/curl:latest
+prom/prometheus:v2.2.1
+prom/alertmanager:v0.14.0
+prom/node-exporter:v0.15.2
+jimmidyson/configmap-reload:v0.1
 
