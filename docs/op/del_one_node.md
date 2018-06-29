@@ -25,6 +25,7 @@ $ ansible-playbook /etc/ansible/tools/clean_one_node.yml
 ## Debug
 
 如果出现清理失败，类似报错：`... Device or resource busy: '/var/run/docker/netns/xxxxxxxxxx'`，需要手动umount该目录后重新清理  
+
 ``` bash
 $ umount /var/run/docker/netns/xxxxxxxxxx
 $ ansible-playbook /etc/ansible/tools/clean_one_node.yml

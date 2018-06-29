@@ -65,7 +65,8 @@ if __name__ == '__main__':
 
 ### 4.安装kubernetes集群
 
-- 4.1 下载项目源码  
+- 4.1 下载项目源码
+
 ``` bash
 # 方式一：使用git clone
 git clone https://github.com/gjmzj/kubeasz.git
@@ -74,17 +75,20 @@ mv kubeasz/* /etc/ansible
 # 方式二：从发布页面 https://github.com/gjmzj/kubeasz/releases 下载源码解压到同样目录
 ```
 - 4.2a 下载二进制文件  
-请从分享的百度云链接下载 https://pan.baidu.com/s/1c4RFaA，解压到/etc/ansible/bin目录，如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包  
+请从分享的[百度云链接](https://pan.baidu.com/s/1c4RFaA)，下载解压到/etc/ansible/bin目录，如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包
+
 ``` bash
 tar zxvf k8s.1-9-8.tar.gz	# 以安装k8s v1.9.8为例
 mv bin/* /etc/ansible/bin
 ```
 - 4.2b [可选]下载离线docker镜像  
-服务器使用内部yum源/apt源，但是无法访问公网情况下，请下载离线docker镜像完成集群安装；从百度云盘把`basic_images_kubeasz_x.y.tar.gz` 下载解压到`/etc/ansible/down` 目录  
+服务器使用内部yum源/apt源，但是无法访问公网情况下，请下载离线docker镜像完成集群安装；从百度云盘把`basic_images_kubeasz_x.y.tar.gz` 下载解压到`/etc/ansible/down` 目录
+
 ``` bash
 tar zxvf basic_images_kubeasz_0.2.tar.gz -C /etc/ansible/down
 ```
-- 4.3 配置集群参数  
+- 4.3 配置集群参数
+
 ``` bash
 cd /etc/ansible
 cp example/hosts.allinone.example hosts
@@ -92,8 +96,9 @@ vim hosts			# 根据实际情况修改此hosts文件，所有节点改成本机I
 # 验证ansible安装，正常能看到每个节点返回 SUCCESS
 ansible all -m ping
 ```
-- 4.4 开始安装  
-如果你对集群安装流程不熟悉，请阅读项目首页 **安装步骤** 讲解后分步安装，并对 **每步都进行验证**  
+- 4.4 开始安装
+如果你对集群安装流程不熟悉，请阅读项目首页 **安装步骤** 讲解后分步安装，并对 **每步都进行验证**
+
 ``` bash
 # 分步安装
 ansible-playbook 01.prepare.yml
@@ -110,7 +115,8 @@ ansible-playbook 07.cluster-addon.yml
 + [可选]对集群节点进行操作系统层面的安全加固 `ansible-playbook roles/os-harden/os-harden.yml`，详情请参考[os-harden项目](https://github.com/dev-sec/ansible-os-hardening)
 
 ### 5.验证安装
-如果提示kubectl: command not found，退出重新ssh登陆一下，环境变量生效即可  
+如果提示kubectl: command not found，退出重新ssh登陆一下，环境变量生效即可
+
 ``` bash
 kubectl version
 kubectl get componentstatus # 可以看到scheduler/controller-manager/etcd等组件 Healthy
@@ -120,6 +126,7 @@ kubectl get pod --all-namespaces # 可以查看所有集群pod状态，默认已
 kubectl get svc --all-namespaces # 可以查看所有集群服务状态
 ```
 ### 6.安装主要组件
+
 ``` bash
 # 安装kubedns，默认已集成安装
 #kubectl create -f /etc/ansible/manifests/kubedns
@@ -132,4 +139,13 @@ kubectl get svc --all-namespaces # 可以查看所有集群服务状态
 
 以上步骤创建的K8S开发测试环境请尽情折腾，碰到错误尽量通过查看日志、上网搜索、提交`issues`等方式解决；当然如果是彻底奔溃了，可以清理集群后重新创建。
 
-一步清理：`ansible-playbook 99.clean.yml`
+``` bash
+ansible-playbook 99.clean.yml
+```
+
+如果出现清理失败，类似报错：`... Device or resource busy: '/var/run/docker/netns/xxxxxxxxxx'`，需要手动umount该目录后重新清理
+
+``` bash
+$ umount /var/run/docker/netns/xxxxxxxxxx
+$ ansible-playbook /etc/ansible/tools/clean_one_node.yml
+```
