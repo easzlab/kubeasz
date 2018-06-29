@@ -61,7 +61,9 @@
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
 
 # 集群插件安装
-- hosts: deploy
+- hosts:
+  - deploy
+  - kube-node
   roles:
   - cluster-addon 
 

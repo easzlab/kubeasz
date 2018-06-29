@@ -1,0 +1,48 @@
+###---[basic_images ]
+# dns-addon 插件
+coredns/coredns:1.1.3
+mirrorgooglecontainers/k8s-dns-kube-dns-amd64:1.14.10
+mirrorgooglecontainers/k8s-dns-dnsmasq-nanny-amd64:1.14.10
+mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.10
+# metrics-server 插件
+mirrorgooglecontainers/metrics-server-amd64:v0.2.1
+# calico 网络插件
+calico/node:v3.0.6
+calico/cni:v2.0.5
+calico/kube-controllers:v2.0.4
+# flannel 网络插件
+jmgao1983/flannel:v0.10.0-amd64
+# kube-router 网络插件
+cloudnativelabs/kube-router
+busybox
+# dashboard 插件
+mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.8.3
+# pause 基础容器镜像
+mirrorgooglecontainers/pause-amd64:3.1
+# traefik ingress 镜像
+traefik:v1.6
+# heapster 插件
+mirrorgooglecontainers/heapster-grafana-amd64:v4.4.3
+mirrorgooglecontainers/heapster-amd64:v1.5.1
+mirrorgooglecontainers/heapster-influxdb-amd64:v1.3.3
+
+###---[extra-images]
+# helm 服务端
+jmgao1983/tiller:v2.9.1
+# efk 插件
+mirrorgooglecontainers/elasticsearch:v5.6.4
+alpine:3.6
+mirrorgooglecontainers/fluentd-elasticsearch:v2.0.2
+jmgao1983/kibana:5.6.4
+# nfs 动态PV
+jmgao1983/nfs-client-provisioner:latest
+# prometheus
+busybox:latest
+grafana/grafana:5.1.2
+mirrorgooglecontainers/kube-state-metrics:v1.3.1
+appropriate/curl:latest
+prom/prometheus:v2.2.1
+prom/alertmanager:v0.14.0
+prom/node-exporter:v0.15.2
+jimmidyson/configmap-reload:v0.1
+
