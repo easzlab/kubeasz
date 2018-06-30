@@ -1,5 +1,6 @@
 down/*
 !down/download.sh
+!down/offline_images
 bin/*
 hosts
 *.crt

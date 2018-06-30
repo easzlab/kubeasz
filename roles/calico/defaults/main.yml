@@ -10,8 +10,10 @@ FELIX_LOG_LVL: "warning"
 #IP_AUTODETECTION_METHOD: "interface=eth0"
 IP_AUTODETECTION_METHOD: "can-reach={{ MASTER_IP }}"
 
+# 镜像版本
 calico_node_ver: "v3.0.6"
-
 calico_cni_ver: "v2.0.5"
-
 calico_kube_controller_ver: "v2.0.4"
+
+# 离线镜像tar包
+calico_offline: "calico_{{ calico_node_ver }}.tar"
