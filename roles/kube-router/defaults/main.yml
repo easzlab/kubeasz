@@ -13,3 +13,5 @@ FIREWALL_ENABLE: "true"
 IMAGE: "cloudnativelabs/kube-router"
 PullPolicy: "IfNotPresent"
 
+# kube-router 离线镜像tar包
+kuberouter_offline: "kube-router_v0.2.0-beta.7.tar"
