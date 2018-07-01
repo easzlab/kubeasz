@@ -1,0 +1,78 @@
+- hosts:
+  - kube-master
+  - new-master
+  - kube-node
+  - new-node
+  tasks:
+  - name: 获取所有已经创建的POD信息
+    command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
+    register: pod_info
+    run_once: true
+
+  - name: 删除原network插件calico部署
+    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/calico/ || \
+            {{ bin_dir }}/kubectl delete -f /root/local/kube-system/calico/"
+    ignore_errors: true
+    run_once: true
+    when: '"calico" in pod_info.stdout'
+
+  - name: 删除原network插件flannel部署
+    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/flannel/ || \
+            {{ bin_dir }}/kubectl delete -f /root/local/kube-system/flannel/"
+    ignore_errors: true
+    run_once: true
+    when: '"flannel" in pod_info.stdout'
+
+  - name: 删除原network插件kube-router部署
+    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/kube-router/ || \
+            {{ bin_dir }}/kubectl delete -f /root/local/kube-system/kube-router/"
+    ignore_errors: true
+    run_once: true
+    when: '"kube-router" in pod_info.stdout'
+
+  - name: 清理kube-router相关
+    shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
+    ignore_errors: true
+    when: '"kube-router" in pod_info.stdout'
+  
+  # 如果使用了kube-router的service-proxy，删除kube-router后还需开启kube-proxy
+  - name: 恢复默认的kube-proxy服务
+    shell: "systemctl start kube-proxy.service; systemctl enable kube-proxy.service"
+    ignore_errors: true
+    when: "'kube-router' in pod_info.stdout and SERVICE_PROXY == 'IPVS'"
+    
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/cni/"
+    - "/run/flannel/"
+    - "/etc/calico/"
+    - "/var/run/calico/"
+    - "/var/log/calico/"
+    - "/var/lib/cni/"
+    - "/var/lib/kube-router/"
+    - "/opt/kube/kube-system/"
+
+  - name: 清理网络
+    shell: "ip link del tunl0; \
+        ip link del flannel.1; \
+        ip link del cni0; \
+        ip link del mynet0; \
+        ip link del kube-bridge; \
+        ip link del dummy0; \
+        systemctl restart networking; \
+        systemctl restart network"
+    ignore_errors: true
+
+  - name: 清理calico残留路由
+    shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
+    when: '"calico" in pod_info.stdout'
+    ignore_errors: true
+
+  # 删除所有运行pod，由controller自动重建
+  - name: 重启所有pod
+    shell: "for NS in $({{ bin_dir }}/kubectl get ns|awk 'NR>1{print $1}'); \
+		do {{ bin_dir }}/kubectl delete pod --all -n $NS; done;"
+    ignore_errors: true
+    run_once: true
+    tags: reload_pods
