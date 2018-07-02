@@ -154,13 +154,11 @@
     lineinfile:
       dest: ~/.bashrc
       state: absent
-      regexp: 'kubeasz'
-
-  - name: 清理 kubectl 命令自动补全 
-    lineinfile:
-      dest: ~/.bashrc
-      state: absent
-      regexp: 'kubectl completion'
+      regexp: '{{ item }}'
+    with_items:
+    - 'kubeasz'
+    - 'helm'
+    - 'kubectl completion'
 
 # 执行kubectl delete(节点可能是kube-node节点)
 - hosts: deploy
