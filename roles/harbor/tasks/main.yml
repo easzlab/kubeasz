@@ -52,5 +52,5 @@
 - name: 安装 harbor
   shell: "cd /data/harbor && \
 	export PATH={{ bin_dir }}:$PATH && \
-	 ./install.sh"
+	 ./install.sh  --with-clair"
   when: result is failed
