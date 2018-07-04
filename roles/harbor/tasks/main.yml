@@ -16,7 +16,7 @@
   ignore_errors: True
 
 - name: 安装解压工具
-  yum: name={{ item }} state=latest
+  package: name={{ item }} state=present
   with_items:
     - zip
     - unzip
@@ -52,5 +52,5 @@
 - name: 安装 harbor
   shell: "cd /data/harbor && \
 	export PATH={{ bin_dir }}:$PATH && \
-	 ./install.sh"
+	 ./install.sh  --with-clair"
   when: result is failed

@@ -83,6 +83,7 @@
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
     - "/opt/kube/kube-system/"
+    ignore_errors: true
 
   - name: 清理 iptables
     shell: "iptables -F && iptables -X \
@@ -152,11 +153,8 @@
     lineinfile:
       dest: ~/.bashrc
       state: absent
-      regexp: 'kubeasz'
-
-  - name: 清理 kubectl 命令自动补全 
-    lineinfile:
-      dest: ~/.bashrc
-      state: absent
-      regexp: 'kubectl completion'
-
+      regexp: '{{ item }}'
+    with_items:
+    - 'kubeasz'
+    - 'helm'
+    - 'kubectl completion'
