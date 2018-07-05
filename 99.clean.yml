@@ -8,8 +8,11 @@
   - kube-node
   - new-node
   tasks:
-  - name: stop kube-node service
-    shell: "systemctl stop kubelet kube-proxy"
+  - name: stop and disable kube-node service
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - kubelet
+    - kube-proxy
     ignore_errors: true
 
   - name: umount kubelet 挂载的目录
@@ -30,8 +33,12 @@
   - kube-master
   - new-master
   tasks:
-  - name: stop kube-master service
-    shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler"
+  - name: stop and disable kube-master service
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
     ignore_errors: true
 
   - name: 清理目录和文件
@@ -54,8 +61,11 @@
     ignore_errors: true
     when: "CLUSTER_NETWORK == 'kube-router'"
 
-  - name: stop docker service
-    shell: "systemctl stop docker"
+  - name: stop and disable docker service
+    service: 
+      name: docker
+      state: stopped
+      enabled: no
     ignore_errors: true
 
   # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
@@ -83,6 +93,7 @@
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
     - "/opt/kube/kube-system/"
+    - "/etc/bash_completion.d/docker"
     ignore_errors: true
 
   - name: 清理 iptables
@@ -111,8 +122,11 @@
 # 清理etcd 集群相关
 - hosts: etcd
   tasks:
-  - name: stop etcd service
-    shell: systemctl stop etcd
+  - name: stop and disable etcd service
+    service:
+      name: etcd
+      state: stopped
+      enabled: no
     ignore_errors: true
 
   - name: 清理目录和文件
