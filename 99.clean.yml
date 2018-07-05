@@ -54,8 +54,11 @@
     ignore_errors: true
     when: "CLUSTER_NETWORK == 'kube-router'"
 
-  - name: stop docker service
-    shell: "systemctl stop docker"
+  - name: stop and disable docker service
+    service: 
+      name: docker
+      state: stopped
+      enabled: no
     ignore_errors: true
 
   # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
@@ -83,6 +86,7 @@
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
     - "/opt/kube/kube-system/"
+    - "/etc/bash_completion.d/docker"
     ignore_errors: true
 
   - name: 清理 iptables
