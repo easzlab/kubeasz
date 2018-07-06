@@ -27,7 +27,7 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --etcd-keyfile={{ ca_dir }}/kubernetes-key.pem \
   --etcd-servers={{ ETCD_ENDPOINTS }} \
   --enable-swagger-ui=true \
-  --apiserver-count=3 \
+  --apiserver-count={% if DEPLOY_MODE == "multi-master" %}{{ groups['kube-master']|length + groups['new-master']|length }}{% else %}1{% endif %} \
   --allow-privileged=true \
   --audit-log-maxage=30 \
   --audit-log-maxbackup=3 \
