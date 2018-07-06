@@ -27,7 +27,7 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --etcd-keyfile={{ ca_dir }}/kubernetes-key.pem \
   --etcd-servers={{ ETCD_ENDPOINTS }} \
   --enable-swagger-ui=true \
-  --apiserver-count=3 \
+  --apiserver-count={% if DEPLOY_MODE == "multi-master" %}{{ groups['kube-master']|length + groups['new-master']|length }}{% else %}1{% endif %} \
   --allow-privileged=true \
   --audit-log-maxage=30 \
   --audit-log-maxbackup=3 \
@@ -35,7 +35,7 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --audit-log-path=/var/lib/audit.log \
   --event-ttl=1h \
   --requestheader-client-ca-file={{ ca_dir }}/ca.pem \
-  --requestheader-allowed-names='' \
+  --requestheader-allowed-names= \
   --requestheader-extra-headers-prefix=X-Remote-Extra- \
   --requestheader-group-headers=X-Remote-Group \
   --requestheader-username-headers=X-Remote-User \
