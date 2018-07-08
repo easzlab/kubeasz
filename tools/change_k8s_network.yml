@@ -34,13 +34,23 @@
     shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
     ignore_errors: true
     when: '"kube-router" in pod_info.stdout'
-  
-  # 如果使用了kube-router的service-proxy，删除kube-router后还需开启kube-proxy
-  - name: 恢复默认的kube-proxy服务
-    shell: "systemctl start kube-proxy.service; systemctl enable kube-proxy.service"
+
+  - name: 停止 kube-node 相关服务
+    service: name={{ item }} state=stopped
+    with_items:
+    - kubelet
+    - kube-proxy
     ignore_errors: true
-    when: "'kube-router' in pod_info.stdout and SERVICE_PROXY == 'IPVS'"
-    
+
+  - name: 清理calico残留路由
+    shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
+    when: '"calico" in pod_info.stdout'
+    ignore_errors: true
+
+  - name: 清理 kube-proxy产生的iptables规则
+    shell: "{{ bin_dir }}/kube-proxy --cleanup"
+    ignore_errors: true
+
   - name: 清理目录和文件
     file: name={{ item }} state=absent
     with_items:
@@ -64,15 +74,30 @@
         systemctl restart network"
     ignore_errors: true
 
-  - name: 清理calico残留路由
-    shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
-    when: '"calico" in pod_info.stdout'
+  - name: 开启 kube-node 相关服务
+    service: name={{ item }} state=started enabled=yes
+    with_items:
+    - kubelet
+    - kube-proxy
     ignore_errors: true
+  
+- hosts:
+  - kube-master
+  - new-master
+  - kube-node
+  - new-node
+  # 安装新的网络插件
+  roles:
+  - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
+  - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
+  - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
 
+- hosts: deploy
+  tasks:
   # 删除所有运行pod，由controller自动重建
   - name: 重启所有pod
     shell: "for NS in $({{ bin_dir }}/kubectl get ns|awk 'NR>1{print $1}'); \
-		do {{ bin_dir }}/kubectl delete pod --all -n $NS; done;"
+                do {{ bin_dir }}/kubectl delete pod --all -n $NS; done;"
     ignore_errors: true
     run_once: true
-    tags: reload_pods
+
