@@ -48,6 +48,9 @@
     - "/etc/systemd/system/kube-apiserver.service"
     - "/etc/systemd/system/kube-controller-manager.service"
     - "/etc/systemd/system/kube-scheduler.service"
+    - "/etc/systemd/system/multi-user.target.wants/kube-apiserver.service"
+    - "/etc/systemd/system/multi-user.target.wants/kube-controller-manager.service"
+    - "/etc/systemd/system/multi-user.target.wants/kube-scheduler.service"
 
 # 清理集群docker服务、网络相关
 - hosts:
@@ -93,6 +96,9 @@
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
     - "/opt/kube/kube-system/"
+    - "/etc/systemd/system/multi-user.target.wants/docker.service"
+    - "/etc/systemd/system/multi-user.target.wants/kubelet.service"
+    - "/etc/systemd/system/multi-user.target.wants/kube-proxy.service"
     - "/etc/bash_completion.d/docker"
     ignore_errors: true
 
@@ -135,6 +141,7 @@
     - "/var/lib/etcd"
     - "/etc/etcd/"
     - "/etc/systemd/system/etcd.service"
+    - "/etc/systemd/system/multi-user.target.wants/etcd.service"
 
 # 清理负载均衡相关
 - hosts: lb
@@ -159,7 +166,7 @@
     file: name={{ item }} state=absent
     with_items:
     - "/etc/kubernetes/"
-    - "{{ ca_dir }}" 
+    - "{{ ca_dir }}"
     - "/root/.kube/"
     - "/etc/docker/"
 
