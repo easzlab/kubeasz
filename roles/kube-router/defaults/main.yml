@@ -6,8 +6,8 @@ ROUTER_ENABLE: "true"
 # NetworkPolicy 支持开关
 FIREWALL_ENABLE: "true"
 
-# service-proxy 支持开关
-# 在/etc/ansible/hosts文件的变量'SERVICE_PROXY'定义
+# service-proxy 支持开关，如选择 'false' 即使用k8s集群默认的kube-proxy
+SERVICE_PROXY: "false"
 
 # kube-router 镜像版本
 IMAGE: "cloudnativelabs/kube-router"

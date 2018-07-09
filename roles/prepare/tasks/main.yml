@@ -97,8 +97,15 @@
 - name: 设置系统参数
   copy: src=95-k8s-sysctl.conf dest=/etc/sysctl.d/95-k8s-sysctl.conf
 
-- name: 加载br_netfilter模块
-  modprobe: name=br_netfilter state=present
+- name: 加载内核模块
+  modprobe: name={{ item }} state=present
+  with_items:
+    - br_netfilter
+    - ip_vs
+    - ip_vs_rr
+    - ip_vs_wrr
+    - ip_vs_sh
+    - nf_conntrack_ipv4
   ignore_errors: true
   
 - name: 生效系统参数
