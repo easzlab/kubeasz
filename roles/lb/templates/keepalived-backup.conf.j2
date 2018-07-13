@@ -5,6 +5,11 @@ global_defs {
 vrrp_instance VI-kube-master {
     state BACKUP
     priority 110
+    unicast_src_ip {{ inventory_hostname }}
+    unicast_peer {
+        {% for h in groups['lb'] %}{% if h != inventory_hostname %}{{ h }}{% endif %}{% endfor %}
+
+    }
     dont_track_primary
     interface {{ LB_IF }}
     virtual_router_id {{ ROUTER_ID }} 
