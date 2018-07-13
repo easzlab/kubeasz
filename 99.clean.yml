@@ -110,6 +110,7 @@
         ip link del mynet0; \
 	ip link del kube-bridge; \
         ip link del dummy0; \
+        ip link del kube-ipvs0; \
 	systemctl restart networking; \
 	systemctl restart network"
     ignore_errors: true
