@@ -19,7 +19,7 @@ listen kube-master
         bind 0.0.0.0:{{ KUBE_APISERVER.split(':')[2] }}
         mode tcp
         option tcplog
-        balance source
+        balance {{ BALANCE_ALG }} 
 {% for host in groups['kube-master'] %}
         server {{ host }} {{ host }}:6443 check inter 2000 fall 2 rise 2 weight 1
 {% endfor %}
