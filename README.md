@@ -13,9 +13,9 @@
 |组件|更新|支持|
 |:-|:-|:-|
 |OS|&nbsp;|Ubuntu 16.04+, CentOS 7|
-|k8s|v1.10.4|v1.8, v1.9, v1.10|
-|etcd|v3.3.6|v3.1, v3.2, v3.3|
-|docker|18.03.0-ce|17.*.*-ce, 18.*.*-ce|
+|k8s|v1.11.0|v1.8,v1.9,v1.10,v1.11|
+|etcd|v3.3.8|v3.1,v3.2,v3.3|
+|docker|18.03.1-ce|17.*.*-ce, 18.*.*-ce|
 |network|&nbsp;|calico v3.0, flannel v0.10, kube-router|
 
 -注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  

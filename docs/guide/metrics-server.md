@@ -8,7 +8,7 @@
 - 1.metric-server是扩展的apiserver，依赖于[kube-aggregator](https://github.com/kubernetes/kube-aggregator)，因此需要在apiserver中开启相关参数。
 - 2.需要在集群中运行deployment处理请求
 
-从kubeasz 0.1.1 开始，metrics-server已经默认集成在集群安装脚本中，请查看`roles/cluster-addon/defaults/main.yml`中的设置
+从kubeasz 0.1.0 开始，metrics-server已经默认集成在集群安装脚本中，请查看`roles/cluster-addon/defaults/main.yml`中的设置
 
 ## 安装
 
@@ -50,3 +50,11 @@ $ kubectl top pod --all-namespaces 	# 输出略
 ```
 
 - 验证基于metrics-server实现的基础hpa自动缩放，请参考[hpa.md](hpa.md)
+
+## 补充
+
+目前dashboard插件如果想在界面上显示资源使用率，它还依赖于`heapster`；另外，测试发现k8s 1.8版本的`kubectl top`也依赖`heapster`，因此建议补充安装`heapster`，无需安装`influxdb`和`grafana`。
+
+``` bash
+$ kubectl apply -f /etc/ansible/manifests/heapster/heapster.yaml
+```
