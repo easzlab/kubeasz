@@ -33,23 +33,24 @@ The following tables list the configurable parameters of the Jenkins chart and t
 | `Master.Name`                     | Jenkins master name                  | `jenkins-master`                                                             |
 | `Master.Image`                    | Master image name                    | `jenkinsci/jenkins`                                                          |
 | `Master.ImageTag`                 | Master image tag                     | `lts`                                                                     |
-| `Master.ImagePullPolicy`          | Master image pull policy             | `IfNotPresent`                                                                     |
+| `Master.ImagePullPolicy`          | Master image pull policy             | `Always`                                                                     |
 | `Master.ImagePullSecret`          | Master image pull secret             | Not set                                                                      |
 | `Master.Component`                | k8s selector key                     | `jenkins-master`                                                             |
 | `Master.UseSecurity`              | Use basic security                   | `true`                                                                       |
 | `Master.AdminUser`                | Admin username (and password) created as a secret if useSecurity is true | `admin`                                  |
-| `Master.Cpu`                      | Master requested cpu                 | `200m`                                                                       |
-| `Master.Memory`                   | Master requested memory              | `512Mi`                                                                      |
+| `Master.resources`                | Resources allocation (Requests and Limits) | `{requests: {cpu: 50m, memory: 256Mi}, limits: {cpu: 2000m, memory: 2048Mi}}`|
 | `Master.InitContainerEnv`         | Environment variables for Init Container                                 | Not set                                  |
 | `Master.ContainerEnv`             | Environment variables for Jenkins Container                              | Not set                                  |
+| `Master.UsePodSecurityContext`    | Enable pod security context (must be `true` if `RunAsUser` or `FsGroup` are set) | `true`                           |
 | `Master.RunAsUser`                | uid that jenkins runs with           | `0`                                                                          |
 | `Master.FsGroup`                  | uid that will be used for persistent volume | `0`                                                                   |
 | `Master.ServiceAnnotations`       | Service annotations                  | `{}`                                                                         |
-| `Master.ServiceType`              | k8s service type                     | `ClusterIP`                                                               |
+| `Master.ServiceType`              | k8s service type                     | `LoadBalancer`                                                               |
 | `Master.ServicePort`              | k8s service port                     | `8080`                                                                       |
 | `Master.NodePort`                 | k8s node port                        | Not set                                                                      |
 | `Master.HealthProbes`             | Enable k8s liveness and readiness probes | `true`                                                                   |
-| `Master.HealthProbesTimeout`      | Set the timeout for the liveness and readiness probes | `120`                                                       |
+| `Master.HealthProbesLivenessTimeout`      | Set the timeout for the liveness probe | `120`                                                       |
+| `Master.HealthProbesReadinessTimeout` | Set the timeout for the readiness probe | `60`                                                       |
 | `Master.HealthProbeLivenessFailureThreshold` | Set the failure threshold for the liveness probe | `12`                                                       |
 | `Master.ContainerPort`            | Master listening port                | `8080`                                                                       |
 | `Master.SlaveListenerPort`        | Listening port for agents            | `50000`                                                                      |
@@ -72,10 +73,11 @@ The following tables list the configurable parameters of the Jenkins chart and t
 | `Master.NodeSelector`             | Node labels for pod assignment       | `{}`                                                                         |
 | `Master.Affinity`                 | Affinity settings                    | `{}`                                                                         |
 | `Master.Tolerations`              | Toleration labels for pod assignment | `{}`                                                                         |
+| `Master.PodAnnotations`           | Annotations for master pod           | `{}`                                                                         |
 | `NetworkPolicy.Enabled`           | Enable creation of NetworkPolicy resources. | `false`                                                               |
 | `NetworkPolicy.ApiVersion`        | NetworkPolicy ApiVersion             | `extensions/v1beta1`                                                         |
-| `rbac.install`                    | Create service account and ClusterRoleBinding for Kubernetes plugin | `true`                                       |
-| `rbac.apiVersion`                 | RBAC API version                     | `v1`                                                                    |
+| `rbac.install`                    | Create service account and ClusterRoleBinding for Kubernetes plugin | `false`                                       |
+| `rbac.apiVersion`                 | RBAC API version                     | `v1beta1`                                                                    |
 | `rbac.roleRef`                    | Cluster role name to bind to         | `cluster-admin`                                                              |
 
 ### Jenkins Agent
@@ -84,12 +86,11 @@ The following tables list the configurable parameters of the Jenkins chart and t
 | ----------------------- | ----------------------------------------------- | ---------------------- |
 | `Agent.AlwaysPullImage` | Always pull agent container image before build  | `false`                |
 | `Agent.Enabled`         | Enable Kubernetes plugin jnlp-agent podTemplate | `true`                 |
-| `Agent.Image`           | Agent image name                                | `jenkins/jnlp-slave` |
+| `Agent.Image`           | Agent image name                                | `jenkinsci/jnlp-slave` |
 | `Agent.ImagePullSecret` | Agent image pull secret                         | Not set                |
-| `Agent.ImageTag`        | Agent image tag                                 | `latest`                 |
+| `Agent.ImageTag`        | Agent image tag                                 | `2.62`                 |
 | `Agent.Privileged`      | Agent privileged container                      | `false`                |
-| `Agent.Cpu`             | Agent requested cpu                             | `200m`                 |
-| `Agent.Memory`          | Agent requested memory                          | `256Mi`                |
+| `Agent.resources`       | Resources allocation (Requests and Limits)      | `{requests: {cpu: 200m, memory: 256Mi}, limits: {cpu: 200m, memory: 256Mi}}`|
 | `Agent.volumes`         | Additional volumes                              | `nil`                  |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
@@ -149,7 +150,7 @@ It is possible to mount several volumes using `Persistence.volumes` and `Persist
 | `Persistence.Size`          | The size of the PVC             | `8Gi`           |
 | `Persistence.volumes`       | Additional volumes              | `nil`           |
 | `Persistence.mounts`        | Additional mounts               | `nil`           |
-| `Persistence.StorageClass`  | The PV Provisioner            | `nfs-dynamic-class`|
+| `Persistence.StorageClass`  | The PV Provisioner              | `nfs-dynamic-class`|
 
 #### Existing PersistentVolumeClaim
 
