@@ -18,8 +18,13 @@ Master:
   UseSecurity: true
   AdminUser: admin
   AdminPassword: admin
-  Cpu: "200m"
-  Memory: "512Mi"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+    limits:
+      cpu: "2000m"
+      memory: "2048Mi"
   # Environment variables that get added to the init container (useful for e.g. http_proxy)
   # InitContainerEnv:
   #   - name: http_proxy
@@ -31,6 +36,10 @@ Master:
   # JavaOpts: "-Xms512m -Xmx512m"
   # JenkinsOpts: ""
   # JenkinsUriPrefix: "/jenkins"
+
+  # Enable pod security context (must be `true` if RunAsUser or FsGroup are set)
+  # UsePodSecurityContext: true
+
   # Set RunAsUser to 1000 to let Jenkins run as non-root user 'jenkins' which exists in 'jenkins/jenkins' docker image.
   # When setting RunAsUser to a different value than 0 also set FsGroup to the same value:
   # RunAsUser: <defaults to 0>
@@ -47,9 +56,10 @@ Master:
   # NodePort: <to set explicitly, choose port between 30000-32767
   ContainerPort: 8080
   # Enable Kubernetes Liveness and Readiness Probes
+  # ~ 2 minutes to allow Jenkins to restart when upgrading plugins. Set ReadinessTimeout to be shorter than LivenessTimeout.
   HealthProbes: true
-  HealthProbesTimeout: 60
-  # ~2 minutes to allow Jenkins to restart when upgrading plugins
+  HealthProbesLivenessTimeout: 90
+  HealthProbesReadinessTimeout: 60
   HealthProbeLivenessFailureThreshold: 12
   SlaveListenerPort: 50000
   DisabledAgentProtocols:
@@ -84,12 +94,12 @@ Master:
 
   # List of plugins to be install during Jenkins master start
   InstallPlugins:
-    - kubernetes:1.6.3
+    - kubernetes:1.10.0
     - workflow-aggregator:2.5
     - workflow-job:2.21
     - credentials-binding:1.16
-    - git:3.9.0
-    - gitlab:1.5.6
+    - git:3.9.1
+    - gitlab:1.5.8
   # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
   # ScriptApproval:
   #   - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
@@ -115,6 +125,7 @@ Master:
   NodeSelector: {}
 
   Tolerations: {}
+  PodAnnotations: {}
 
   Ingress:
     ApiVersion: extensions/v1beta1
@@ -129,13 +140,18 @@ Master:
 
 Agent:
   Enabled: true
-  Image: jenkins/jnlp-slave
+  Image: jenkinsci/jnlp-slave
   ImageTag: alpine
 # ImagePullSecret: jenkins
   Component: "jenkins-slave"
   Privileged: false
-  Cpu: "200m"
-  Memory: "256Mi"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
   # You may want to change this to true while testing a new image
   AlwaysPullImage: false
   # You can define the volumes that you want to mount for this container
