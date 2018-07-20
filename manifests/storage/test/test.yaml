@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name: test
 spec:
-  storageClassName: nfs-dynamic-class
+  storageClassName: alicloud-nas
   accessModes:
     - ReadWriteMany
   resources:

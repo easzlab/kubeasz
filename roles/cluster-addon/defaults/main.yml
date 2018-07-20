@@ -26,3 +26,7 @@ heapster_offline: "heapster_v1.5.1.tar"
 
 # prometheus 自动安装
 #prometheus_install: "no"
+
+# nfs 动态存储自动安装
+nfsclient_install: "no"
+storage_install: "no"
