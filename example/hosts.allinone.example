@@ -81,3 +81,8 @@ base_dir="/etc/ansible"
 #私有仓库 harbor服务器 (域名或者IP)
 #HARBOR_IP="192.168.1.8"
 #HARBOR_DOMAIN="harbor.yourdomain.com"
+
+#部署动态存储
+#STORAGE_SERVER="192.168.1.1"
+#STORAGE_PATH="/data/nfs"
+#STORAGE_CLASS_NAME="nfs-dynamic-class"
