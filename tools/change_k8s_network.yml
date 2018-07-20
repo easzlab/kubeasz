@@ -80,6 +80,12 @@
     - kubelet
     - kube-proxy
     ignore_errors: true
+
+- hosts:
+  - lb
+  tasks:
+  - name: 重启lb的keepalived服务
+    service: name=keepalived state=restarted
   
 - hosts:
   - kube-master
