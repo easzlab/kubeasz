@@ -7,3 +7,4 @@
 - [修改AIO部署的系统IP](change_ip_allinone.md)
 - [集群删除单个节点](del_one_node.md)
 - [替换集群使用的网络插件](change_k8s_network.md)
+- [集群备份与恢复](cluster_restore.md)
