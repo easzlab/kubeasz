@@ -82,4 +82,31 @@ $ ansible-playbook /etc/ansible/tools/change_k8s_network.yml
 
 - 参考：https://github.com/coreos/etcd/blob/master/Documentation/op-guide/recovery.md
 
+## 备份恢复自动脚本操作指南
 
+- 一.集群备份
+
+``` bash
+$ ansible-playbook /etc/ansible/23.backup.yml
+```
+
+执行完毕可以在目录 `/etc/ansible/roles/cluster-backup/files`下检查备份情况
+
+- 二.模拟集群故障
+
+``` bash
+$ ansible-playbook /etc/ansible/99.clean.yml
+```
+
+因为步骤一中已经备份了，为了模拟集群彻底崩溃，这里清理整个集群；实际操作中，在有备份前提下，也建议彻底清理集群后再尝试去恢复
+
+- 三.集群恢复
+
+可以在 `roles/cluster-restore/defaults/main.yml` 文件中配置需要恢复的 etcd备份版本，默认使用最近一次备份
+
+``` bash
+$ ansible-playbook /etc/ansible/24.restore.yml
+$ ansible-playbook /etc/ansible/tools/change_k8s_network.yml
+```
+
+执行完成可以验证整个集群是否恢复如初！
