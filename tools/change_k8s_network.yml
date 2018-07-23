@@ -1,3 +1,4 @@
+# 重置k8s pod网络脚本，使用请仔细阅读 docs/op/change_k8s_network.md
 - hosts:
   - kube-master
   - new-master

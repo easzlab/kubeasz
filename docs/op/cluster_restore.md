@@ -17,7 +17,7 @@ k8s 集群可能因为软硬件故障或者误操作出现了不可自愈的问�
 
 首先用kubeasz 搭建一个测试集群，部署几个测试deployment，验证集群各项正常后，进行一次备份：
 
-- 1.在一个etcd节点上执行数据备份，把生产的备份文件`snapshot.db`复制到所有etcd集群节点
+- 1.在一个etcd节点上执行数据备份，把产生的备份文件`snapshot.db`复制到所有etcd集群节点
 
 ``` bash
 $ mkdir -p /backup/k8s/ && cd /backup/k8s
@@ -90,7 +90,24 @@ $ ansible-playbook /etc/ansible/tools/change_k8s_network.yml
 $ ansible-playbook /etc/ansible/23.backup.yml
 ```
 
-执行完毕可以在目录 `/etc/ansible/roles/cluster-backup/files`下检查备份情况
+执行完毕可以在目录 `/etc/ansible/roles/cluster-backup/files`下检查备份情况，示例如下：
+
+``` bash
+roles/cluster-backup/files/
+├── ca			# 集群CA 相关备份
+│   ├── ca-config.json
+│   ├── ca.csr
+│   ├── ca-csr.json
+│   ├── ca-key.pem
+│   └── ca.pem
+├── hosts		# ansible hosts备份
+│   ├── hosts		# 最近的备份
+│   └── hosts-201807231642
+├── readme.md
+└── snapshot		# etcd 数据备份
+    ├── snapshot-201807231642.db
+    └── snapshot.db	# 最近的备份
+```
 
 - 二.模拟集群故障
 
@@ -98,7 +115,7 @@ $ ansible-playbook /etc/ansible/23.backup.yml
 $ ansible-playbook /etc/ansible/99.clean.yml
 ```
 
-因为步骤一中已经备份了，为了模拟集群彻底崩溃，这里清理整个集群；实际操作中，在有备份前提下，也建议彻底清理集群后再尝试去恢复
+**注意** 为了模拟集群彻底崩溃，这里清理整个集群；实际操作中，在有备份前提下，也建议彻底清理集群后再尝试去恢复
 
 - 三.集群恢复
 
