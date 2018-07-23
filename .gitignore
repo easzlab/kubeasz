@@ -18,5 +18,5 @@ roles/cluster-backup/files/*
 !roles/cluster-backup/files/readme.md
 
 # roles/xxx/vars, exclude roles/os-harden/vars/
-vars/*
+/roles/*/vars/*
 !/roles/os-harden/vars/
