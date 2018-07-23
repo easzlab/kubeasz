@@ -1,0 +1,76 @@
+# 集群从备份恢复的脚本，使用请参阅文档 docs/op/cluster_restore.md
+
+# 在deploy节点恢复CA相关证书
+- hosts: deploy
+  tasks: 
+  - name: 恢复CA 文件夹
+    file: name=/etc/kubernetes/ssl/ state=directory
+
+  - name: 恢复CA 相关文件
+    copy: 
+      src: "{{ base_dir }}/roles/cluster-backup/files/ca/{{ item }}"
+      dest: "{{ ca_dir }}/{{ item }}"
+    with_items:
+    - ca.pem
+    - ca-key.pem
+    - ca.csr
+    - ca-csr.json
+    - ca-config.json
+
+- hosts: deploy
+  roles:
+  - deploy
+
+# 集群节点的公共配置任务
+- hosts: all
+  roles:
+  - prepare
+
+# [可选]多master部署时的负载均衡配置
+- hosts: lb
+  roles:
+  - lb
+
+# 创建etcd集群
+- hosts: etcd
+  roles:
+  - etcd
+
+# docker服务安装
+- hosts:
+  - kube-master
+  - kube-node
+  - new-master
+  - new-node
+  roles:
+  - docker
+
+- hosts:
+  - kube-master
+  - new-master
+  roles:
+  - kube-master
+  - kube-node
+  # 禁止业务 pod调度到 master节点
+  tasks:
+  - name: 禁止业务 pod调度到 master节点
+    shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
+    when: DEPLOY_MODE != "allinone"
+    ignore_errors: true
+
+  - name: 设置master节点role
+    shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
+    ignore_errors: true
+
+# node 节点部署
+- hosts:
+  - kube-node
+  - new-node
+  roles:
+  - kube-node
+
+# etcd 集群进行数据恢复
+- hosts: etcd
+  roles:
+  - cluster-restore
+

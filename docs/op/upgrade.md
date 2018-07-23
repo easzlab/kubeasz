@@ -14,7 +14,7 @@ $ ETCDCTL_API=3 etcdctl snapshot save backup.db
 # 查看备份
 $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
 ```
-- 从备份恢复可以参考[官方说明](https://github.com/coreos/etcd/blob/master/Documentation/op-guide/recovery.md)
+- 从备份恢复可以参考：[备份恢复](cluster_restore.md)
 
 ### 升级步骤
 

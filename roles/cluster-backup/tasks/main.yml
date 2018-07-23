@@ -1,0 +1,14 @@
+- name: 准备备份目录
+  file: name=/backup/k8s state=directory
+
+- name: 执行etcd 数据备份
+  shell: "cd /backup/k8s && \
+	ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot.db"
+
+- name: 获取etcd 数据备份
+  fetch:
+    src: /backup/k8s/snapshot.db
+    dest: /etc/ansible/roles/cluster-backup/files/
+    flat: yes
+  run_once: true
+   

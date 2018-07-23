@@ -1,0 +1,30 @@
+- name: 停止ectd 服务
+  service: name=etcd state=stopped
+
+- name: 清除etcd 数据目录
+  file: name=/var/lib/etcd/member state=absent
+
+- name: 生成备份目录
+  file: name=/backup/k8s state=directory
+
+- name: 准备指定的备份etcd 数据
+  copy: 
+    src: "{{ base_dir }}/roles/cluster-backup/files/snapshot/{{ db_to_restore }}"
+    dest: "/backup/k8s/snapshot.db"
+
+- name: 清理原备份出来数据
+  file: name=/backup/k8s/{{ NODE_NAME }}.etcd state=absent
+
+- name: etcd 数据恢复
+  shell: "cd /backup/k8s && \
+	ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot restore snapshot.db \
+	--name {{ NODE_NAME }} \
+	--initial-cluster {{ ETCD_NODES }} \
+	--initial-cluster-token etcd-cluster-0 \
+	--initial-advertise-peer-urls https://{{ inventory_hostname }}:2380"
+
+- name: 恢复数据至etcd 数据目录
+  shell: "cp -rf /backup/k8s/{{ NODE_NAME }}.etcd/member /var/lib/etcd/"
+
+- name: 重启etcd 服务
+  service: name=etcd state=restarted

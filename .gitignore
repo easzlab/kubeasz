@@ -6,5 +6,5 @@ bin/*
 manifests/kubedns/kubedns.yaml
 manifests/coredns/coredns.yaml
 hosts
-*.crt
-*.pem
+roles/cluster-backup/files/*
+!roles/cluster-backup/files/readme.md

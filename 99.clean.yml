@@ -135,6 +135,7 @@
     with_items:
     - "/var/lib/etcd"
     - "/etc/etcd/"
+    - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"
 
 # 清理负载均衡相关
