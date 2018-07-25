@@ -69,11 +69,11 @@ spec:
               # 此处供应者名字供storageclass调用
               value: prov
             - name: NFS_SERVER
-              value: {{ STORAGE_SERVER }}
+              value: {{ storage_server }}
             - name: NFS_PATH
-              value: {{ STORAGE_PATH }}
+              value: {{ storage_path }}
       volumes:
         - name: nfs-client-root
           nfs:
-            server: {{ STORAGE_SERVER  }}
-            path: {{ STORAGE_PATH }}
+            server: {{ storage_server  }}
+            path: {{ storage_path }}
