@@ -1,4 +1,4 @@
-hosts: deploy
+- hosts: deploy
   roles:
   - cluster-storage
   vars:
