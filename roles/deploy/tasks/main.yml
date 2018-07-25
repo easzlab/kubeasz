@@ -1,3 +1,29 @@
+- name: close centos7 Firewalld
+  shell: systemctl stop firewalld && systemctl disable firewalld
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+- name: close centos7 Selinux
+  lineinfile:
+    path: /etc/selinux/config
+    regexp: '^SELINUX='
+    line: 'SELINUX=disabled'
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+- name: close swap system
+  shell: swapoff -a && sysctl -w vm.swappiness=0
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+- name: delete swap configuration
+  lineinfile:
+    path: /etc/fstab
+    regexp: 'swap'
+    state: absent
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
 - name: prepare some dirs
   file: name={{ item }} state=directory
   with_items:
