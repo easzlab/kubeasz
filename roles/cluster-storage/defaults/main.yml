@@ -1,0 +1,5 @@
+# 动态存储类型, 目前支持nfs和alicloud-nas
+storage_type: nfs
+storage_server: 172.16.3.86
+storage_path: /data/nfs
+storage_class_name: nfs-dynamic-class
