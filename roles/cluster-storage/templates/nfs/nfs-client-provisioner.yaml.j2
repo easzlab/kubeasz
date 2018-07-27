@@ -67,15 +67,13 @@ spec:
           env:
             - name: PROVISIONER_NAME
               # 此处供应者名字供storageclass调用
-              value: nfs-prov-1
+              value: prov
             - name: NFS_SERVER
-              value: 10.1.241.230
+              value: {{ storage_server }}
             - name: NFS_PATH
-              value: /home/share/k8s-pv
+              value: {{ storage_path }}
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.1.241.230
-            path: /home/share/k8s-pv
-
----
+            server: {{ storage_server  }}
+            path: {{ storage_path }}

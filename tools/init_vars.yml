@@ -1,0 +1,32 @@
+# [可选]初始化集群设置脚本，使用请参考docs/op/config_guide.md
+# 如果创建集群时需要修改项目roles中默认配置，请执行本脚本后，编辑roles/xxx/vars/main.yml修改
+
+- hosts: deploy
+  tasks:
+  - name: 创建变量配置目录 roles/xxx/vars
+    file: name={{ base_dir }}/roles/{{ item }}/vars state=directory
+    with_items:
+    - calico
+    - cluster-addon
+    - cluster-restore
+    - flannel
+    - helm
+    - kube-node
+    - kube-router
+    - lb
+
+  - name: 复制默认配置以备修改
+    copy:
+      src: "{{ base_dir }}/roles/{{ item }}/defaults/main.yml"
+      dest: "{{ base_dir }}/roles/{{ item }}/vars/main.yml"
+      force: "no"
+    with_items:
+    - calico
+    - cluster-addon
+    - cluster-restore
+    - flannel
+    - helm
+    - kube-node
+    - kube-router
+    - lb
+
