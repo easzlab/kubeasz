@@ -13,6 +13,10 @@ manifests/coredns/coredns.yaml
 # ansible hosts
 hosts
 
+# k8s storage manifests 
+manifests/storage/*
+!manifests/storage/test.yaml
+
 # k8s backup directory
 roles/cluster-backup/files/*
 !roles/cluster-backup/files/readme.md

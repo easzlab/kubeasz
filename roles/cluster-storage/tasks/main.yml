@@ -1,11 +1,13 @@
 - block:
+    - name: 准备nfs-client 配置目录
+      file: name={{ base_dir }}/manifests/storage/nfs/{{ nfs_provisioner_name }} state=directory
     - name: 准备部署nfs-client动态存储
       template:
         src: nfs/nfs-client-provisioner.yaml.j2
-        dest: "{{ base_dir }}/manifests/storage/nfs/nfs-client-provisioner.yaml"
+        dest: "{{ base_dir }}/manifests/storage/nfs/{{ nfs_provisioner_name }}/nfs-client-provisioner.yaml"
     - name: 开始部署nfs-client动态存储
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/nfs-client-provisioner.yaml"
-  when: 'storage_type == "nfs"'
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ nfs_provisioner_name }}"
+  when: 'storage_nfs_enabled == "yes"' 
  
 - block:
     - name: 准备部署alicloud-nas动态存储
@@ -16,7 +18,7 @@
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/alicloud-nas/alicloud-disk.yaml"
     - name: 开始部署alicloud-nas动态存储
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/alicloud-nas/alicloud-nas.yaml"
-  when: 'storage_type == "alicloud-nas"'
+  when: 'storage_aliyun_nas_enabled == "yes"' 
  
 - block:
     - name: 准备部署动态存储类
@@ -25,3 +27,4 @@
         dest: "{{ base_dir }}/manifests/storage/dynamic-storageclass.yaml"
     - name: 开始部署动态存储类
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/dynamic-storageclass.yaml"
+  when: 'storage_aliyun_nas_enabled == "yes"' 

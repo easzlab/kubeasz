@@ -1,17 +1,30 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-claim
+spec:
+  storageClassName: nfs-dynamic-class-01
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Mi
+
+---
 kind: Pod
 apiVersion: v1
 metadata:
-  name: test-pod
+  name: test
 spec:
   containers:
-  - name: test-pod
+  - name: test
     image: busybox
     imagePullPolicy: IfNotPresent
     command:
       - "/bin/sh"
     args:
       - "-c"
-      - "touch /mnt/SUCCESS && exit 0 || exit 1"
+      - "echo 'hello k8s' > /mnt/SUCCESS && sleep 36000 || exit 1"
     volumeMounts:
       - name: nfs-pvc
         mountPath: "/mnt"

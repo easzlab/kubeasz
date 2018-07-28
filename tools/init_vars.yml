@@ -9,6 +9,7 @@
     - calico
     - cluster-addon
     - cluster-restore
+    - cluster-storage
     - flannel
     - helm
     - kube-node
@@ -24,6 +25,7 @@
     - calico
     - cluster-addon
     - cluster-restore
+    - cluster-storage
     - flannel
     - helm
     - kube-node
