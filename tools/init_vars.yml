@@ -20,7 +20,7 @@
     copy:
       src: "{{ base_dir }}/roles/{{ item }}/defaults/main.yml"
       dest: "{{ base_dir }}/roles/{{ item }}/vars/main.yml"
-      force: "no"
+      force: "yes"
     with_items:
     - calico
     - cluster-addon
