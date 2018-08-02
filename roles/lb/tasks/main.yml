@@ -1,10 +1,10 @@
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
 
 - name: apt安装 haproxy
   apt: name=haproxy state=latest
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
 
 - name: yum安装 haproxy
   yum: name=haproxy state=latest
@@ -22,7 +22,7 @@
 
 - name: apt安装 keepalived
   apt: name=keepalived state=latest
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version == "16"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
 
 - name: yum安装 keepalived
   yum: name=keepalived state=latest
