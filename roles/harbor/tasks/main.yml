@@ -27,6 +27,7 @@
     dest: /data
     copy: yes
     keep_newer: yes
+    mode: 0755
   when: result is failed
 
 - name: 导入harbor所需 docker images
