@@ -1,0 +1,2 @@
+# 指定需要恢复的 etcd 数据备份，默认使用最近的一次备份
+db_to_restore: "snapshot.db"

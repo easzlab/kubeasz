@@ -1,10 +1,27 @@
 down/*
 !down/download.sh
 !down/offline_images
+
+# k8s binaries directory
 bin/*
 !bin/readme.md
+
+# kube-dns controller
 manifests/kubedns/kubedns.yaml
 manifests/coredns/coredns.yaml
+
+# ansible hosts
 hosts
-*.crt
-*.pem
+
+# k8s storage manifests 
+manifests/storage/*
+!manifests/storage/test.yaml
+!manifests/storage/alicloud-nas/alicloud-disk.yaml
+
+# k8s backup directory
+roles/cluster-backup/files/*
+!roles/cluster-backup/files/readme.md
+
+# roles/xxx/vars, exclude roles/os-harden/vars/
+/roles/*/vars/*
+!/roles/os-harden/vars/

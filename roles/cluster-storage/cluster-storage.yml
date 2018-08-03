@@ -1,0 +1,3 @@
+- hosts: deploy
+  roles:
+  - cluster-storage

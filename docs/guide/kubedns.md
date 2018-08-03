@@ -57,13 +57,13 @@ nameserver 10.68.0.2
 search default.svc.cluster.local. svc.cluster.local. cluster.local.
 options ndots:5
 # 测试集群内部服务解析
-/ # nslookup nginx
+/ # nslookup nginx.default.svc.cluster.local
 Server:    10.68.0.2
 Address 1: 10.68.0.2 kube-dns.kube-system.svc.cluster.local
 
 Name:      nginx
 Address 1: 10.68.33.167 nginx.default.svc.cluster.local
-/ # nslookup kubernetes
+/ # nslookup kubernetes.default.svc.cluster.local
 Server:    10.68.0.2
 Address 1: 10.68.0.2 kube-dns.kube-system.svc.cluster.local
 
@@ -79,4 +79,6 @@ Address 1: 180.97.33.108
 Address 2: 180.97.33.107
 / #
 ```
+
+- NOTE：pod中直接使用nslookup的话需要使用完整域名，不能解析类似 `nginx | nginx.default | nginx.default.svc`等短域名；当然在应用调用时候是支持短域名的。详见 https://github.com/kubernetes/dns/issues/109
 

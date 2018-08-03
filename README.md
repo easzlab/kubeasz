@@ -56,8 +56,8 @@
         <td><strong>集群运维</strong></td>
         <td><a href="docs/op/AddNode.md">增加node</a></td>
         <td><a href="docs/op/AddMaster.md">增加master</a></td>
-        <td><a href="docs/op/ChangeVIP.md">修改VIP</a></td>
-        <td><a href="docs/op/upgrade.md">升级k8s</a></td>
+        <td><a href="docs/op/upgrade.md">升级集群</a></td>
+        <td><a href="docs/op/cluster_restore.md">备份恢复</a></td>
         <td><a href="docs/op/op-index.md">更多...</a></td>
     </tr>
     <tr>

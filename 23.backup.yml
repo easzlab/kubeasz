@@ -1,0 +1,50 @@
+# 集群备份脚本，请详细参阅文档 docs/op/cluster_restore.md 
+
+- hosts:
+  - etcd
+  roles:
+  - cluster-backup
+
+- hosts:
+  - deploy
+  tasks:
+  - name: 准备备份目录
+    file: name={{ item }} state=directory
+    with_items:
+    - "{{ base_dir }}/roles/cluster-backup/files/ca"    
+    - "{{ base_dir }}/roles/cluster-backup/files/hosts"   
+    - "{{ base_dir }}/roles/cluster-backup/files/snapshot"   
+
+  - name: 备份 CA 相关文件
+    copy:
+      src: "{{ ca_dir }}/{{ item }}"
+      dest: "{{ base_dir }}/roles/cluster-backup/files/ca/{{ item }}"
+    with_items:
+    - ca.pem
+    - ca-key.pem
+    - ca.csr
+    - ca-csr.json
+    - ca-config.json
+
+  - name: 备份 ansible hosts 1
+    copy:
+      src: "{{ base_dir }}/hosts"
+      dest: "{{ base_dir }}/roles/cluster-backup/files/hosts/hosts"
+    register: p
+
+  - name: 备份 ansible hosts 2
+    shell: "cd {{ base_dir }}/roles/cluster-backup/files/hosts && \
+	cp -fp hosts hosts-$(date +'%Y%m%d%H%M')"
+    when: p | changed
+
+  - name: 备份 etcd snapshot 1
+    copy:
+      src: "{{ base_dir }}/roles/cluster-backup/files/snapshot.db"
+      dest: "{{ base_dir }}/roles/cluster-backup/files/snapshot/snapshot.db"
+    register: q
+
+  - name: 备份 etcd snapshot 2
+    shell: "cd {{ base_dir }}/roles/cluster-backup/files/ && \
+	mv -f snapshot.db snapshot/snapshot-$(date +'%Y%m%d%H%M').db"
+    when: q | changed
+

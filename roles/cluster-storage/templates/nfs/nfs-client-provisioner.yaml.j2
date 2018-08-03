@@ -41,7 +41,7 @@ roleRef:
 kind: Deployment
 apiVersion: apps/v1beta1
 metadata:
-  name: nfs-client-provisioner
+  name: {{ nfs_provisioner_name }}
   namespace: kube-system
 spec:
   replicas: 1
@@ -49,11 +49,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: nfs-client-provisioner
+      app: {{ nfs_provisioner_name }}
   template:
     metadata:
       labels:
-        app: nfs-client-provisioner
+        app: {{ nfs_provisioner_name }}
     spec:
       serviceAccountName: nfs-client-provisioner
       containers:
@@ -67,15 +67,21 @@ spec:
           env:
             - name: PROVISIONER_NAME
               # 此处供应者名字供storageclass调用
-              value: nfs-prov-1
+              value: {{ nfs_provisioner_name }}
             - name: NFS_SERVER
-              value: 10.1.241.230
+              value: {{ nfs_server }}
             - name: NFS_PATH
-              value: /home/share/k8s-pv
+              value: {{ nfs_server_path }}
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.1.241.230
-            path: /home/share/k8s-pv
+            server: {{ nfs_server }}
+            path: {{ nfs_server_path }}
 
 ---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ nfs_storage_class }}
+provisioner: {{ nfs_provisioner_name }}
+

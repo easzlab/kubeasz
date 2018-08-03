@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 此脚本为批量部署服务器ssh key使用
+
 #set -x
 
 # check args count
