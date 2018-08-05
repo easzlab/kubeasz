@@ -1,34 +1,6 @@
-- block:
-    - name: 准备nfs-client 配置目录
-      file: name={{ base_dir }}/manifests/storage/nfs state=directory
-
-    - name: 生成nfs-client动态存储配置
-      template:
-        src: nfs/nfs-client-provisioner.yaml.j2
-        dest: "{{ base_dir }}/manifests/storage/nfs/{{ nfs_provisioner_name }}.yaml"
-
-    - name: 开始部署nfs-client动态存储
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ nfs_provisioner_name }}.yaml"
+- include: nfs-client.yml
   when: 'storage_nfs_enabled == "yes"' 
- 
-- block:
-    - name: 准备alicloud-nas配置目录
-      file: name={{ base_dir }}/manifests/storage/alicloud-nas state=directory
 
-    - name: 生成alicloud-nas动态存储配置
-      template:
-        src: alicloud-nas/alicloud-nas.yaml.j2
-        dest: "{{ base_dir }}/manifests/storage/alicloud-nas/{{ aliyun_nas_controller_name }}.yaml"
-
-    - name: 复制alicloud-disk配置
-      copy:
-        src: alicloud-disk.yaml
-        dest: "{{ base_dir }}/manifests/storage/alicloud-nas/alicloud-disk.yaml"
-
-    - name: 开始部署alicloud-disk存储
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/alicloud-nas/alicloud-disk.yaml"
-
-    - name: 开始部署alicloud-nas动态存储
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/alicloud-nas/{{ aliyun_nas_controller_name }}.yaml"
+- include: alicloud-nas.yml
   when: 'storage_aliyun_nas_enabled == "yes"' 
  
