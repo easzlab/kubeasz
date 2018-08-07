@@ -44,7 +44,7 @@
       when: "hostvars[inventory_hostname]['group_names'].count('kube-node') == 1"
     - name: 准备metrics-server
       copy: src=metrics-server dest={{ base_dir }}/manifests/
-      when: "hostvars[inventory_hostname]['group_names'].count('kube-node') == 1"
+      when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
     - name: 创建 metrics-server部署
       shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
       when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
