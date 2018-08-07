@@ -79,7 +79,7 @@
 
 - name: 安装kubeconfig配置文件
   synchronize: src=/root/.kube/config dest=/root/.kube/config
-  delegate_to: "{{ hostvars[inventory_hostname].groups.deploy[0] }}"
+  delegate_to: "{{ groups.deploy[0] }}"
 
 - name: 分发CA 证书
   synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
@@ -88,7 +88,7 @@
   - ca-key.pem
   - ca.csr
   - ca-config.json
-  delegate_to: "{{ hostvars[inventory_hostname].groups.deploy[0] }}"
+  delegate_to: "{{ groups.deploy[0] }}"
 
 - name: 添加 kubectl 命令自动补全
   lineinfile:

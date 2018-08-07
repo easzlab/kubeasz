@@ -1,0 +1,19 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: influxdb-claim
+  namespace: kube-system
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: slow
+  #selector:
+  #  matchLabels:
+  #    release: "stable"
+  #  matchExpressions:
+  #    - {key: environment, operator: In, values: [dev]}
