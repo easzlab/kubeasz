@@ -117,3 +117,6 @@
 - name: 移动 kube-proxy.kubeconfig
   shell: "mv /root/kube-proxy.kubeconfig /etc/kubernetes/"
 
+# 兼容ansible执行节点与deploy节点分离情况
+- name: 复制 manifests至 deploy节点
+  copy: src={{ base_dir }}/manifests dest={{ base_dir }}/manifests

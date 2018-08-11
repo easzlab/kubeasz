@@ -7,7 +7,7 @@
   - /opt/kube/images 
 
 - name: 复制CA 证书到calico 证书目录
-  copy: src={{ ca_dir }}/ca.pem dest=/etc/calico/ssl/ca.pem
+  shell: "cp {{ ca_dir }}/ca.pem /etc/calico/ssl/ca.pem"
 
 - name: 创建calico 证书请求
   template: src=calico-csr.json.j2 dest=/etc/calico/ssl/calico-csr.json

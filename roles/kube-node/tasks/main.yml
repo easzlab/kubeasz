@@ -32,7 +32,7 @@
 
 - name: 安装bootstrap.kubeconfig配置文件
   synchronize: src=/etc/kubernetes/bootstrap.kubeconfig dest=/etc/kubernetes/bootstrap.kubeconfig
-  delegate_to: "{{ hostvars[inventory_hostname].groups.deploy[0] }}"
+  delegate_to: "{{ groups.deploy[0] }}"
 
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
@@ -52,7 +52,7 @@
 ##-------kube-proxy部分----------------
 - name: 安装kube-proxy.kubeconfig配置文件
   synchronize: src=/etc/kubernetes/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
-  delegate_to: "{{ hostvars[inventory_hostname].groups.deploy[0] }}"
+  delegate_to: "{{ groups.deploy[0] }}"
 
 - name: 创建kube-proxy 服务文件
   tags: reload-kube-proxy, upgrade_k8s, restart_node
