@@ -119,4 +119,5 @@
 
 # 兼容ansible执行节点与deploy节点分离情况
 - name: 复制 manifests至 deploy节点
-  copy: src={{ base_dir }}/manifests dest={{ base_dir }}/manifests
+  copy: src={{ base_dir }}/manifests dest={{ base_dir }}
+  when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
