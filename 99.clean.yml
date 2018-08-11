@@ -115,6 +115,8 @@
 	ip link del kube-bridge; \
         ip link del dummy0; \
         ip link del kube-ipvs0; \
+        ip link del cilium_net; \
+        ip link del cilium_vxlan; \
 	systemctl restart networking; \
 	systemctl restart network"
     ignore_errors: true
