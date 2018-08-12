@@ -11,6 +11,7 @@
     - cluster-addon
     - cluster-restore
     - cluster-storage
+    - docker 
     - flannel
     - helm
     - kube-node
@@ -28,6 +29,7 @@
     - cluster-addon
     - cluster-restore
     - cluster-storage
+    - docker 
     - flannel
     - helm
     - kube-node
