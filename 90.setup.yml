@@ -63,7 +63,6 @@
 
 # 集群插件安装
 - hosts:
-  - deploy
   - kube-node
   roles:
   - cluster-addon 

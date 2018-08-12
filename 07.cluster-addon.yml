@@ -1,5 +1,4 @@
 - hosts:
-  - deploy 
   - kube-node 
   roles:
   - cluster-addon
