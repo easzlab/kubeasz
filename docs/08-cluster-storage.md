@@ -51,11 +51,13 @@ $ ansible-playbook /etc/ansible/tools/init_vars.yml
 
 ``` bash
 # 比如创建nfs provisioner
-storage_nfs_enabled: "yes"
-nfs_server: "192.168.1.8"
-nfs_server_path: "/data/nfs"
-nfs_storage_class: "class-nfs-01"
-nfs_provisioner_name: "nfs-provisioner-01"
+storage:
+  nfs:
+    enabled: "yes"
+    server: "192.168.1.8"
+    server_path: "/data/nfs"
+    storage_class: "class-nfs-01"
+    provisioner_name: "nfs-provisioner-01"
 ```
 - 3.创建 nfs provisioner
 
