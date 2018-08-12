@@ -84,6 +84,7 @@
     - "/run/flannel/"
     - "/etc/calico/"
     - "/var/run/calico/"
+    - "/var/lib/calico/"
     - "/var/log/calico/"
     - "/etc/cilium/"
     - "/var/run/cilium/"

@@ -1,5 +1,5 @@
-# Calico Version {{ calico_node_ver }}
-# https://docs.projectcalico.org/v3.0/releases#{{ calico_node_ver }}
+# Calico Version {{ calico_node_ver }} 
+# https://docs.projectcalico.org/v3.1/releases#{{ calico_node_ver }}
 # This manifest includes the following component versions:
 #   calico/node:{{ calico_node_ver }}
 #   calico/cni:{{ calico_cni_ver }}
@@ -13,7 +13,7 @@ metadata:
   namespace: kube-system
 data:
   # Configure this with the location of your etcd cluster.
-  etcd_endpoints: "{{ ETCD_ENDPOINTS }}" 
+  etcd_endpoints: "{{ ETCD_ENDPOINTS }}"
 
   # Configure the Calico backend to use.
   calico_backend: "bird"
@@ -25,22 +25,22 @@ data:
       "cniVersion": "0.3.0",
       "plugins": [
         {
-            "type": "calico",
-            "etcd_endpoints": "{{ ETCD_ENDPOINTS }}",
-            "etcd_key_file": "/etc/calico/ssl/calico-key.pem",
-            "etcd_cert_file": "/etc/calico/ssl/calico.pem",
-            "etcd_ca_cert_file": "/etc/calico/ssl/ca.pem",
-            "log_level": "warning",
-            "mtu": 1500,
-            "ipam": {
-                "type": "calico-ipam"
-            },
-            "policy": {
-                "type": "k8s"
-            },
-            "kubernetes": {
-                "kubeconfig": "/root/.kube/config" 
-            }
+          "type": "calico",
+          "etcd_endpoints": "{{ ETCD_ENDPOINTS }}",
+          "etcd_key_file": "/etc/calico/ssl/calico-key.pem",
+          "etcd_cert_file": "/etc/calico/ssl/calico.pem",
+          "etcd_ca_cert_file": "/etc/kubernetes/ssl/ca.pem",
+          "log_level": "warning",
+          "mtu": 1500,
+          "ipam": {
+              "type": "calico-ipam"
+          },
+          "policy": {
+              "type": "k8s"
+          },
+          "kubernetes": {
+              "kubeconfig": "/root/.kube/config"
+          }
         },
         {
           "type": "portmap",
@@ -52,9 +52,14 @@ data:
 
   # If you're using TLS enabled etcd uncomment the following.
   # You must also populate the Secret below with these files.
-  etcd_ca: "/calico-secrets/etcd-ca" 
+  etcd_ca: "/calico-secrets/etcd-ca"
   etcd_cert: "/calico-secrets/etcd-cert"
   etcd_key: "/calico-secrets/etcd-key"
+
+---
+
+# We use cmd-line-way( kubectl create) to create secrets 'calico-etcd-secrets',
+# refer to 'roles/calico/tasks/main.yml' for details.
 
 ---
 
@@ -102,7 +107,6 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          #image: quay.io/calico/node:{{ calico_node_ver }}
           image: calico/node:{{ calico_node_ver }}
           env:
             # The location of the Calico etcd cluster.
@@ -131,7 +135,9 @@ spec:
             # Set Felix endpoint to host default action to ACCEPT.
             - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
               value: "ACCEPT"
-            # Configure the IP Pool from which Pod IPs will be chosen.
+            # The default IPv4 pool to create on startup if none exists. Pod IPs will be
+            # chosen from this range. Changing this value after installation will have
+            # no effect. This should fall within `--cluster-cidr`.
             - name: CALICO_IPV4POOL_CIDR
               value: "{{ CLUSTER_CIDR }}"
             - name: CALICO_IPV4POOL_IPIP
@@ -139,9 +145,9 @@ spec:
             # Disable IPv6 on Kubernetes.
             - name: FELIX_IPV6SUPPORT
               value: "false"
-            # Set Felix logging to "warning"
+            # Set Felix logging 
             - name: FELIX_LOGSEVERITYSCREEN
-              value: {{ FELIX_LOG_LVL }}
+              value: "{{ FELIX_LOG_LVL }}"
             # Set MTU for tunnel device used if ipip is enabled
             - name: FELIX_IPINIPMTU
               value: "1440"
@@ -194,12 +200,14 @@ spec:
             - mountPath: /var/run/calico
               name: var-run-calico
               readOnly: false
+            - mountPath: /var/lib/calico
+              name: var-lib-calico
+              readOnly: false
             - mountPath: /calico-secrets
               name: etcd-certs
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          #image: quay.io/calico/cni:{{ calico_cni_ver }}
           image: calico/cni:{{ calico_cni_ver }}
           command: ["/install-cni.sh"]
           env:
@@ -233,6 +241,9 @@ spec:
         - name: var-run-calico
           hostPath:
             path: /var/run/calico
+        - name: var-lib-calico
+          hostPath:
+            path: /var/lib/calico
         # Used to install CNI.
         - name: cni-bin-dir
           hostPath:
@@ -240,10 +251,12 @@ spec:
         - name: cni-net-dir
           hostPath:
             path: /etc/cni/net.d
-        # Mount in the etcd TLS secrets.
+        # Mount in the etcd TLS secrets with mode 400.
+        # See https://kubernetes.io/docs/concepts/configuration/secret/
         - name: etcd-certs
-          hostPath:
-            path: /etc/calico/ssl
+          secret:
+            secretName: calico-etcd-secrets
+            defaultMode: 0400
 
 ---
 
@@ -258,9 +271,6 @@ metadata:
     k8s-app: calico-kube-controllers
   annotations:
     scheduler.alpha.kubernetes.io/critical-pod: ''
-    scheduler.alpha.kubernetes.io/tolerations: |
-      [{"key": "dedicated", "value": "master", "effect": "NoSchedule" },
-       {"key":"CriticalAddonsOnly", "operator":"Exists"}]
 spec:
   # The controllers can only have a single active instance.
   replicas: 1
@@ -279,10 +289,15 @@ spec:
       # The controllers must run in the host network namespace so that
       # it isn't governed by policy that would prevent it from working.
       hostNetwork: true
+      tolerations:
+        # Mark the pod as a critical add-on for rescheduling.
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          #image: quay.io/calico/kube-controllers:{{ calico_kube_controller_ver }}
           image: calico/kube-controllers:{{ calico_kube_controller_ver }}
           env:
             # The location of the Calico etcd cluster.
@@ -312,7 +327,7 @@ spec:
             # Choose which controllers to run.
             - name: ENABLED_CONTROLLERS
               value: policy,profile,workloadendpoint,node
-            # 多网卡服务器需要设置以下2个环境变量
+            # if hosts have multiple net interfaces, set following two ENVs
             - name: KUBERNETES_SERVICE_HOST
               value: "{{ MASTER_IP }}"
             - name: KUBERNETES_SERVICE_PORT
@@ -322,10 +337,12 @@ spec:
             - mountPath: /calico-secrets
               name: etcd-certs
       volumes:
-        # Mount in the etcd TLS secrets.
+        # Mount in the etcd TLS secrets with mode 400.
+        # See https://kubernetes.io/docs/concepts/configuration/secret/
         - name: etcd-certs
-          hostPath:
-            path: /etc/calico/ssl
+          secret:
+            secretName: calico-etcd-secrets
+            defaultMode: 0400
 
 ---
 

@@ -1,6 +1,6 @@
 # 部分calico相关配置，更全配置可以去roles/calico/templates/calico.yaml.j2自定义
 
-# 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 05.安装calico网络组件.md
+# 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/06.calico.md
 CALICO_IPV4POOL_IPIP: "always"
 
 # 设置 Felix 日志级别
@@ -11,9 +11,9 @@ FELIX_LOG_LVL: "warning"
 IP_AUTODETECTION_METHOD: "can-reach={{ MASTER_IP }}"
 
 # 镜像版本
-calico_node_ver: "v3.0.6"
-calico_cni_ver: "v2.0.5"
-calico_kube_controller_ver: "v2.0.4"
+calico_node_ver: "v3.1.3"
+calico_cni_ver: "v3.1.3"
+calico_kube_controller_ver: "v3.1.3"
 
 # 离线镜像tar包
 calico_offline: "calico_{{ calico_node_ver }}.tar"
