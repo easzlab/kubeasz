@@ -4,7 +4,7 @@
 - name: 生成nfs-client动态存储配置
   template:
     src: nfs/nfs-client-provisioner.yaml.j2
-    dest: "{{ base_dir }}/manifests/storage/nfs/{{ nfs_provisioner_name }}.yaml"
+    dest: "{{ base_dir }}/manifests/storage/nfs/{{ storage.nfs.provisioner_name }}.yaml"
 
 - name: 开始部署nfs-client动态存储
-  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ nfs_provisioner_name }}.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ storage.nfs.provisioner_name }}.yaml"
