@@ -7,14 +7,14 @@ mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.10
 # metrics-server 插件
 mirrorgooglecontainers/metrics-server-amd64:v0.2.1
 # calico 网络插件
-calico/node:v3.0.6
-calico/cni:v2.0.5
-calico/kube-controllers:v2.0.4
+calico/node:v3.1.3
+calico/cni:v3.1.3
+calico/kube-controllers:v3.1.3
 # flannel 网络插件
 jmgao1983/flannel:v0.10.0-amd64
 # kube-router 网络插件
-cloudnativelabs/kube-router
-busybox
+cloudnativelabs/kube-router:v0.2.0-beta.9
+busybox:1.28.4
 # dashboard 插件
 mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.8.3
 # pause 基础容器镜像

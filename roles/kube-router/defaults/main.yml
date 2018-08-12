@@ -10,8 +10,10 @@ FIREWALL_ENABLE: "true"
 SERVICE_PROXY: "false"
 
 # kube-router 镜像版本
-IMAGE: "cloudnativelabs/kube-router"
+kube_router_ver: "v0.2.0-beta.9"
+busybox_ver: "1.28.4"
 PullPolicy: "IfNotPresent"
 
 # kube-router 离线镜像tar包
-kuberouter_offline: "kube-router_v0.2.0-beta.7.tar"
+kuberouter_offline: "kube-router_{{ kube_router_ver }}.tar"
+busybox_offline: "busybox_{{ busybox_ver }}.tar"

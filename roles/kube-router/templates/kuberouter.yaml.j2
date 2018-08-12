@@ -39,7 +39,7 @@ spec:
       serviceAccountName: kube-router
       containers:
       - name: kube-router
-        image: {{ IMAGE }} 
+        image: cloudnativelabs/kube-router:{{ kube_router_ver }} 
         imagePullPolicy: {{ PullPolicy }}
         args:
         - "--run-router=true"
@@ -70,7 +70,7 @@ spec:
           mountPath: /etc/cni/net.d
       initContainers:
       - name: install-cni
-        image: busybox
+        image: busybox:{{ busybox_ver }}
         imagePullPolicy: {{ PullPolicy }} 
         command:
         - /bin/sh
