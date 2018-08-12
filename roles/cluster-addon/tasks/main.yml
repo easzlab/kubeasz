@@ -42,9 +42,6 @@
     - name: 导入 metrics-server的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metricsserver_offline }}"
       when: "hostvars[inventory_hostname]['group_names'].count('kube-node') == 1"
-    - name: 准备metrics-server
-      copy: src=metrics-server dest={{ base_dir }}/manifests/
-      when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
     - name: 创建 metrics-server部署
       shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
       when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
@@ -58,9 +55,6 @@
     - name: 导入 dashboard的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dashboard_offline }}"
       when: "hostvars[inventory_hostname]['group_names'].count('kube-node') == 1"
-    - name: 准备dashboard
-      copy: src=dashboard dest={{ base_dir }}/manifests/
-      when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
     - name: 创建 dashboard部署
       shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
       when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
@@ -74,9 +68,6 @@
     - name: 导入 traefik的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ traefik_offline }}"
       when: "hostvars[inventory_hostname]['group_names'].count('kube-node') == 1"
-    - name: 准备traefik
-      copy: src=ingress dest={{ base_dir }}/manifests/
-      when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
     - name: 创建 traefik部署
       shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik-ingress.yaml"
       when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
@@ -90,9 +81,6 @@
     - name: 导入 heapster的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ heapster_offline }}"
       when: "hostvars[inventory_hostname]['group_names'].count('kube-node') == 1"
-    - name: 准备heapster
-      copy: src=heapster dest={{ base_dir }}/manifests/
-      when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
     - name: 创建 heapster部署
       shell: "sleep 5; {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster"
       when: "hostvars[inventory_hostname]['group_names'].count('deploy') == 1"
