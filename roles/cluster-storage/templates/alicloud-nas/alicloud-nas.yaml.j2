@@ -1,7 +1,7 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: {{ aliyun_nas_storage_class }}
+  name: {{ storage.aliyun_nas.storage_class }}
 provisioner: alicloud/nas
 ---
 apiVersion: v1
@@ -26,7 +26,7 @@ roleRef:
 kind: Deployment
 apiVersion: apps/v1beta1
 metadata:
-  name: {{ aliyun_nas_controller_name }}
+  name: {{ storage.aliyun_nas.controller_name }}
   namespace: kube-system
 spec:
   replicas: 1
@@ -35,7 +35,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ aliyun_nas_controller_name }}
+        app: {{ storage.aliyun_nas.controller_name }}
     spec:
       serviceAccount: alicloud-nas-controller
       containers:
@@ -48,11 +48,11 @@ spec:
             - name: PROVISIONER_NAME
               value: alicloud/nas
             - name: NFS_SERVER
-              value: {{ aliyun_nas_server }}
+              value: {{ storage.aliyun_nas.server }}
             - name: NFS_PATH
-              value: {{ aliyun_nas_server_path }}
+              value: {{ storage.aliyun_nas.server_path }}
       volumes:
         - name: nfs-client-root
           nfs:
-            server: {{ aliyun_nas_server }}
-            path: {{ aliyun_nas_server_path }}
+            server: {{ storage.aliyun_nas.server }}
+            path: {{ storage.aliyun_nas.server_path }}
