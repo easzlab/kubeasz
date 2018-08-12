@@ -10,15 +10,17 @@ mirrorgooglecontainers/metrics-server-amd64:v0.2.1
 calico/node:v3.1.3
 calico/cni:v3.1.3
 calico/kube-controllers:v3.1.3
+# cilium 网络插件
+cilium/cilium:v1.1.2
 # flannel 网络插件
 jmgao1983/flannel:v0.10.0-amd64
 # kube-router 网络插件
 cloudnativelabs/kube-router:v0.2.0-beta.9
-busybox:1.28.4
 # dashboard 插件
 mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.8.3
 # pause 基础容器镜像
 mirrorgooglecontainers/pause-amd64:3.1
+busybox:1.28.4
 # traefik ingress 镜像
 traefik:v1.6
 # heapster 插件

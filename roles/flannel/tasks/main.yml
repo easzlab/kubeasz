@@ -31,14 +31,11 @@
 
 # 如果目录下有离线镜像，就把它导入到node节点上
 - name: 导入 flannel的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ flannel_offline }}"
-  when: 'flannel_offline in image_info.stdout'
-  ignore_errors: true
-
-# 如果目录下有离线镜像，就把它导入到node节点上
-- name: 导入 pause的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/pause_3.1.tar"
-  when: '"pause_3" in image_info.stdout'
+  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
+  when: 'item in image_info.stdout'
+  with_items:
+  - "pause_3.1.tar"
+  - "{{ flannel_offline }}"
   ignore_errors: true
 
 # 只需单节点执行一次

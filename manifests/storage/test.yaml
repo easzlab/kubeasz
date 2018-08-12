@@ -18,7 +18,7 @@ metadata:
 spec:
   containers:
   - name: test
-    image: busybox
+    image: busybox:1.28.4
     imagePullPolicy: IfNotPresent
     command:
       - "/bin/sh"
