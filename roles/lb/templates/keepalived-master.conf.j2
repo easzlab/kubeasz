@@ -13,8 +13,9 @@ vrrp_instance VI-kube-master {
     priority 120
     unicast_src_ip {{ inventory_hostname }}
     unicast_peer {
-        {% for h in groups['lb'] %}{% if h != inventory_hostname %}{{ h }}{% endif %}{% endfor %}
-
+{% for h in groups['lb'] %}{% if h != inventory_hostname %}
+        {{ h }}
+{% endif %}{% endfor %}
     }
     dont_track_primary
     interface {{ LB_IF }}
