@@ -4,7 +4,7 @@ global_defs {
 
 vrrp_instance VI-kube-master {
     state BACKUP
-    priority 110
+    priority {{ 110 | random(1, 1) }}
     unicast_src_ip {{ inventory_hostname }}
     unicast_peer {
 {% for h in groups['lb'] %}{% if h != inventory_hostname %}
