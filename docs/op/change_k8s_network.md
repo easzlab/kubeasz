@@ -4,6 +4,7 @@
 - WARNNING：重新安装k8s网络插件会短暂中断已有运行在k8s上的服务
   - 请在熟悉kubeasz的安装流程和k8s网络插件安装流程的基础上谨慎操作
   - 如果k8s集群已经运行庞大业务pod，重装网络插件时会引起所有pod的删除、重建，短时间内将给apiserver带来压力，可能引起master节点夯住
+  - 确保没有裸pod 运行(因为最后需要删除所有pod 重建，裸pod 不会重建)，即所有pod 都是由 deploy/daemonset/statefulset 等创建；
 
 ## 替换流程
 

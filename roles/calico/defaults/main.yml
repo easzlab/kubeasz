@@ -8,7 +8,7 @@ FELIX_LOG_LVL: "warning"
 
 # 设置 calico-node使用的host IP，bgp邻居通过该地址建立，可手工指定也可以自动发现
 #IP_AUTODETECTION_METHOD: "interface=eth0"
-IP_AUTODETECTION_METHOD: "can-reach={{ MASTER_IP }}"
+IP_AUTODETECTION_METHOD: "can-reach={{ groups.deploy[0] }}"
 
 # 镜像版本
 calico_node_ver: "v3.1.3"
