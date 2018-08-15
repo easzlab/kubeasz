@@ -12,7 +12,7 @@
 192.168.1.1
 192.168.1.2
 
-# 负载均衡有且仅有两个节点，安装 haproxy+keepalived
+# 负载均衡(目前已支持多于2节点，一般2节点就够了) 安装 haproxy+keepalived
 [lb]
 192.168.1.1 LB_IF="eth0" LB_ROLE=backup  # 注意根据实际使用网卡设置 LB_IF变量
 192.168.1.2 LB_IF="eth0" LB_ROLE=master
