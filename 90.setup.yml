@@ -1,5 +1,9 @@
+# 集群内时间同步
+- hosts: all
+  roles:
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+
 # 在deploy节点生成CA相关证书，以供整个集群使用
-# 以及初始化kubedns.yaml配置文件
 - hosts: deploy
   roles:
   - deploy

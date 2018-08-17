@@ -1,5 +1,6 @@
 - hosts: new-node
   roles:
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" } 
   - prepare
   - docker
   - kube-node

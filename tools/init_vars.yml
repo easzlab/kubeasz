@@ -7,6 +7,7 @@
     file: name={{ base_dir }}/roles/{{ item }}/vars state=directory
     with_items:
     - calico
+    - chrony
     - cilium
     - cluster-addon
     - cluster-restore
@@ -25,6 +26,7 @@
       force: "yes"
     with_items:
     - calico
+    - chrony
     - cilium
     - cluster-addon
     - cluster-restore
