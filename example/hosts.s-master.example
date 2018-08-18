@@ -1,4 +1,5 @@
-# 部署节点：运行ansible 脚本的节点
+# 集群部署节点：一般为运行ansible 脚本的节点
+# 变量 NTP_ENABLED (=yes/no) 设置集群是否安装 chrony 时间同步
 [deploy]
 192.168.1.1 NTP_ENABLED=no
 
