@@ -11,7 +11,7 @@ Legacy_Host_Policy: "true"
 
 # 镜像版本
 busybox_ver: "1.28.4"
-cilium_ver: "v1.1.2"
+cilium_ver: "v1.1.4"
 
 # 离线镜像tar包
 cilium_offline: "cilium_{{ cilium_ver }}.tar"
