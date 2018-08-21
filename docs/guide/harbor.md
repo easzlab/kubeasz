@@ -103,7 +103,7 @@ spec:
     image: harbor.test.com/xxx/busybox:latest
     imagePullPolicy: Always
   imagePullSecrets:
-  - name: harborKey1
+  - name: harborkey1
 ```
 其中 `harborKey1`可以用以下两种方式生成：
 
