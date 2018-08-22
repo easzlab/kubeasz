@@ -1,5 +1,9 @@
 # 部分calico相关配置，更全配置可以去roles/calico/templates/calico.yaml.j2自定义
 
+# etcd 集群服务地址列表, 根据etcd组成员自动生成
+TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
+
 # 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/06.calico.md
 CALICO_IPV4POOL_IPIP: "always"
 

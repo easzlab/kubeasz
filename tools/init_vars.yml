@@ -13,8 +13,10 @@
     - cluster-restore
     - cluster-storage
     - docker 
+    - etcd 
     - flannel
     - helm
+    - kube-master
     - kube-node
     - kube-router
     - lb
@@ -32,8 +34,10 @@
     - cluster-restore
     - cluster-storage
     - docker 
+    - etcd 
     - flannel
     - helm
+    - kube-master
     - kube-node
     - kube-router
     - lb
