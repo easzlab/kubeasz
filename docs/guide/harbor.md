@@ -19,11 +19,7 @@ mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
 ``` bash
 # 如果启用harbor，请配置后面harbor相关参数
 [harbor]
-192.168.1.8
-
-#私有仓库 harbor服务器 (域名或者IP)
-HARBOR_IP="192.168.1.8"
-HARBOR_DOMAIN="harbor.test.com"
+192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com"
 ```
 
 4. 在deploy节点执行 `cd /etc/ansible && ansible-playbook 11.harbor.yml`，完成harbor安装
