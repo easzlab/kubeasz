@@ -67,6 +67,8 @@
         - psmisc        # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
         - nfs-utils     # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
         - net-tools
+        - ipset
+        - ipvsadm
     - name: 临时关闭 selinux
       shell: "setenforce 0" 
       failed_when: false
