@@ -15,6 +15,7 @@
     - docker 
     - etcd 
     - flannel
+    - harbor
     - helm
     - kube-master
     - kube-node
@@ -36,6 +37,7 @@
     - docker 
     - etcd 
     - flannel
+    - harbor
     - helm
     - kube-master
     - kube-node
