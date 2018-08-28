@@ -6,9 +6,6 @@
   - /opt/kube/kube-system/calico
   - /opt/kube/images 
 
-- name: 复制CA 证书到calico 证书目录
-  copy: src={{ ca_dir }}/ca.pem dest=/etc/calico/ssl/ca.pem
-
 - name: 创建calico 证书请求
   template: src=calico-csr.json.j2 dest=/etc/calico/ssl/calico-csr.json
 
@@ -19,9 +16,20 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes calico-csr.json | {{ bin_dir }}/cfssljson -bare calico"
 
-# 因官方calico.yaml文件中使用特定的证书名，所以要重命名
-- name: 重命名相关证书
-  shell: "cd /etc/calico/ssl && cp ca.pem etcd-ca && cp calico.pem etcd-cert && cp calico-key.pem etcd-key"
+- name: get calico-etcd-secrets info
+  shell: "{{ bin_dir }}/kubectl get secrets -n kube-system"
+  register: secrets_info
+  run_once: true
+
+- name: 创建 calico-etcd-secrets
+  shell: "cd /etc/calico/ssl && \
+        {{ bin_dir }}/kubectl create secret generic -n kube-system calico-etcd-secrets \
+        --from-file=etcd-ca={{ ca_dir }}/ca.pem \
+        --from-file=etcd-key=calico-key.pem \
+        --from-file=etcd-cert=calico.pem"
+  when: '"calico-etcd-secrets" not in secrets_info.stdout'
+  ignore_errors: true
+  run_once: true
 
 - name: 准备 calico DaemonSet yaml文件
   template: src=calico.yaml.j2 dest=/opt/kube/kube-system/calico/calico.yaml
@@ -43,14 +51,11 @@
 
 # 如果目录下有离线镜像，就把它导入到node节点上
 - name: 导入 calico的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ calico_offline }}"
-  when: 'calico_offline in image_info.stdout'
-  ignore_errors: true
-
-# 如果目录下有离线镜像，就把它导入到node节点上
-- name: 导入 pause的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/pause_3.1.tar"
-  when: '"pause_3" in image_info.stdout'
+  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
+  when: 'item in image_info.stdout'
+  with_items:
+  - "pause_3.1.tar"
+  - "{{ calico_offline }}"
   ignore_errors: true
 
 # 只需单节点执行一次

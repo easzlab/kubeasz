@@ -1,0 +1,11 @@
+# 国内镜像加速
+
+REG_MIRROR_1: "https://registry.docker-cn.com"
+REG_MIRROR_2: "https://docker.mirrors.ustc.edu.cn"
+
+# docker日志相关
+
+LOG_DRIVER: "json-file"
+LOG_LEVEL: "warn"
+LOG_MAX_SIZE: "10m"
+LOG_MAX_FILE: 3

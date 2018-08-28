@@ -6,12 +6,12 @@ down/*
 bin/*
 !bin/readme.md
 
-# kube-dns controller
-manifests/kubedns/kubedns.yaml
-manifests/coredns/coredns.yaml
-
 # ansible hosts
 hosts
+
+# k8s storage manifests 
+manifests/storage/*
+!manifests/storage/test.yaml
 
 # k8s backup directory
 roles/cluster-backup/files/*

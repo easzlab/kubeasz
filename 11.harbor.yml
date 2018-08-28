@@ -1,25 +1,34 @@
 - hosts: harbor
   roles:
-  - prepare
-  - docker
-  - harbor
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes' and NEW_INSTALL == 'yes'" }
+  - { role: prepare, when: "NEW_INSTALL == 'yes'" }
+  - { role: docker, when: "NEW_INSTALL == 'yes'" }
+  - { role: harbor, when: "NEW_INSTALL == 'yes'" }
+  tasks:
+  - name: 获取harbor服务器证书
+    fetch:
+      src: "{{ ca_dir }}/ca.pem"
+      dest: "{{ base_dir }}/down/"
+      flat: yes
 
 - hosts: 
   - kube-master
   - new-master
   - kube-node
   - new-node
+  vars:
+    harbor_domain: "{{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}"
   tasks:
   - name: harbor证书目录创建
-    file: name=/etc/docker/certs.d/{{ HARBOR_DOMAIN }} state=directory
-
-  - name: harbor服务器证书安装
-    copy: src={{ ca_dir }}/ca.pem dest=/etc/docker/certs.d/{{ HARBOR_DOMAIN }}/ca.crt
+    file: name=/etc/docker/certs.d/{{ harbor_domain }} state=directory
+  
+  - name: 推送harbor服务器证书
+    copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_domain }}/ca.crt
 
   # 如果你的环境中有dns服务器，可以跳过hosts文件设置
   - name: 增加harbor的hosts解析
     lineinfile:
       dest: /etc/hosts
       state: present
-      regexp: '{{ HARBOR_DOMAIN }}'
-      line: '{{ HARBOR_IP }} {{ HARBOR_DOMAIN }}'
+      regexp: '{{ harbor_domain }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_domain }}"

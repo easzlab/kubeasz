@@ -4,7 +4,7 @@ Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是�
 
 ### 安装步骤
 
-1. 在deploy节点下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录下，后续版本会一起打包进百度云盘`k8s.xxx.tar.gz`文件中，可以省略该步骤。注：k8s.1102.tar.gz已集成该工具
+1. 在deploy节点下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录下（百度云的二进制文件中已包含）
 
 ``` bash
 wget https://github.com/docker/compose/releases/download/1.18.0/docker-compose-Linux-x86_64
@@ -17,16 +17,13 @@ mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
 4. 在deploy节点编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
 
 ``` bash
-# 如果启用harbor，请配置后面harbor相关参数
+# 参数 NEW_INSTALL=(yes/no)：yes表示新建 harbor，并配置k8s节点的docker可以使用harbor仓库
+# no 表示仅配置k8s节点的docker使用已有的harbor仓库
 [harbor]
-192.168.1.8
-
-#私有仓库 harbor服务器 (域名或者IP)
-HARBOR_IP="192.168.1.8"
-HARBOR_DOMAIN="harbor.test.com"
+#192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 ```
 
-4. 在deploy节点执行 `cd /etc/ansible && ansible-playbook 11.harbor.yml`，完成harbor安装
+5. 在deploy节点执行 `ansible-playbook /etc/ansible/11.harbor.yml`，完成harbor安装和docker 客户端配置
 
 ### 安装讲解
 
@@ -103,7 +100,7 @@ spec:
     image: harbor.test.com/xxx/busybox:latest
     imagePullPolicy: Always
   imagePullSecrets:
-  - name: harborKey1
+  - name: harborkey1
 ```
 其中 `harborKey1`可以用以下两种方式生成：
 

@@ -22,7 +22,7 @@
   copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
 
 - name: docker国内镜像加速
-  copy: src=daemon.json dest=/etc/docker/daemon.json
+  template: src=daemon.json.j2 dest=/etc/docker/daemon.json
 
 - name: flush-iptables
   shell: "iptables -F && iptables -X \

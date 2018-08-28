@@ -6,8 +6,6 @@
   - kube-master
   - kube-node
   - deploy
-  - etcd
-  - lb
   roles:
   - prepare
 
@@ -19,17 +17,23 @@
 # docker更新，为保证不中断业务，不自动重启docker服务
 - hosts:
   - kube-master
+  - new-master
   - kube-node
+  - new-node
   roles:
   - docker
 
 # 更新master节点
-- hosts: kube-master
+- hosts: 
+  - kube-master
+  - new-master
   roles:
   - kube-master
   - kube-node
 
 # 更新node节点
-- hosts: kube-node
+- hosts: 
+  - kube-node
+  - new-node
   roles:
   - { role: kube-node, when: "DEPLOY_MODE != 'allinone'" }

@@ -18,6 +18,7 @@
   template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
   when: 'SERVICE_PROXY != "true"'
 
+# kube-router 带service proxy (IPVS/LVS)
 - name: 停止 kube-proxy 服务
   service: name=kube-proxy state=stopped enabled=no 
   when: 'SERVICE_PROXY == "true"'
@@ -28,7 +29,6 @@
   when: 'SERVICE_PROXY == "true"'
   ignore_errors: true
 
-# kube-router 带service proxy (IPVS/LVS)
 - name: 准备配置 kube-router DaemonSet (with IPVS)
   template: src=kuberouter-all.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
   when: 'SERVICE_PROXY == "true"'
@@ -39,6 +39,7 @@
   with_items:
   - "pause_3.1.tar"
   - "{{ kuberouter_offline }}"
+  - "{{ busybox_offline }}"
   ignore_errors: true
 
 - name: 获取目录下离线镜像信息
@@ -47,14 +48,12 @@
 
 # 如果目录下有离线镜像，就把它导入到node节点上
 - name: 导入 kube-router的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ kuberouter_offline }}"
-  when: 'kuberouter_offline in image_info.stdout'
-  ignore_errors: true
-
-# 如果目录下有离线镜像，就把它导入到node节点上
-- name: 导入 pause的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/pause_3.1.tar"
-  when: '"pause_3" in image_info.stdout'
+  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
+  when: 'item in image_info.stdout'
+  with_items:
+  - "pause_3.1.tar"
+  - "{{ kuberouter_offline }}"
+  - "{{ busybox_offline }}"
   ignore_errors: true
 
 # 只需单节点执行一次

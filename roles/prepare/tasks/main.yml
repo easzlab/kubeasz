@@ -4,7 +4,6 @@
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
   - /root/.kube
-  - /etc/docker
 
 - name: 写入环境变量$PATH 
   lineinfile:
@@ -22,17 +21,6 @@
   - kubectl
   tags: upgrade_k8s
 
-- name: 安装kubeconfig配置文件
-  copy: src=/root/.kube/config dest=/root/.kube/config
-
-- name: 分发CA 证书
-  copy: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
-  with_items:
-  - ca.pem
-  - ca-key.pem
-  - ca.csr
-  - ca-config.json
-
 # 删除默认安装
 - name: 删除ubuntu默认安装
   when: ansible_distribution == "Ubuntu"
@@ -49,11 +37,8 @@
   when: ansible_distribution == "Ubuntu"
   apt: name={{ item }} state=latest
   with_items:
-  - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
-  - socat               # 用于port forwarding
   - nfs-common          # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
   - conntrack           # network connection cleanup 用到
-  - bash-completion
 
 - block:
     - name: 删除centos默认安装
@@ -69,12 +54,8 @@
     - name: 安装基础软件包
       yum: name={{ item }}  state=latest
       with_items:
-        - jq            # 轻量JSON处理程序，安装docker查询镜像需要
-        - socat         # 用于port forwarding
         - psmisc        # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
         - nfs-utils     # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
-        - net-tools
-        - bash-completion
     - name: 临时关闭 selinux
       shell: "setenforce 0" 
       failed_when: false
@@ -85,12 +66,48 @@
         line: "SELINUX=disabled"
   when: ansible_distribution == "CentOS"
 
+# 安装通用软件包
+- name: 安装系统通用软件
+  package: name={{ item }} state=latest
+  with_items:
+  - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
+  - socat               # 用于port forwarding
+  - bash-completion     # bash命令补全工具，需要重新登录服务器生效
+  - rsync               # 文件同步工具，分发证书等配置文件需要
+  - ipset
+  - ipvsadm
+
+- name: 安装kubeconfig配置文件
+  synchronize: src=/root/.kube/config dest=/root/.kube/config
+  delegate_to: "{{ groups.deploy[0] }}"
+
+- name: 分发CA 证书
+  synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
+  with_items:
+  - ca.pem
+  - ca-key.pem
+  - ca.csr
+  - ca-config.json
+  delegate_to: "{{ groups.deploy[0] }}"
+
 - name: 添加 kubectl 命令自动补全
   lineinfile:
     dest: ~/.bashrc
     state: present
     regexp: 'kubectl completion'
     line: 'source <(kubectl completion bash)'
+
+# 禁用系统swap
+- name: 禁用系统 swap
+  shell: "swapoff -a && sysctl -w vm.swappiness=0"
+  ignore_errors: true
+
+- name: 删除fstab swap 相关配置 
+  lineinfile:
+    path: /etc/fstab
+    regexp: 'swap'
+    state: absent
+    backup: 'yes'
 
 # 设置系统参数for k8s
 # 消除docker info 警告WARNING: bridge-nf-call-ip[6]tables is disabled

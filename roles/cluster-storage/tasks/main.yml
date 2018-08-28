@@ -1,0 +1,6 @@
+- include: nfs-client.yml
+  when: 'storage.nfs.enabled == "yes"'
+
+- include: alicloud-nas.yml
+  when: 'storage.aliyun_nas.enabled == "yes"'
+ 

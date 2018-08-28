@@ -216,7 +216,7 @@ WantedBy=multi-user.target
 
 ### master 集群的验证
 
-运行 `ansible-playbook 06.kube-master.yml` 成功后，验证 master节点的主要组件：
+运行 `ansible-playbook 04.kube-master.yml` 成功后，验证 master节点的主要组件：
 
 ``` bash
 # 查看进程状态

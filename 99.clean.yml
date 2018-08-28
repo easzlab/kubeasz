@@ -84,7 +84,11 @@
     - "/run/flannel/"
     - "/etc/calico/"
     - "/var/run/calico/"
+    - "/var/lib/calico/"
     - "/var/log/calico/"
+    - "/etc/cilium/"
+    - "/var/run/cilium/"
+    - "/sys/fs/bpf/tc/"
     - "/var/lib/cni/"
     - "/var/lib/docker/"
     - "/var/lib/kube-router/"
@@ -111,6 +115,8 @@
 	ip link del kube-bridge; \
         ip link del dummy0; \
         ip link del kube-ipvs0; \
+        ip link del cilium_net; \
+        ip link del cilium_vxlan; \
 	systemctl restart networking; \
 	systemctl restart network"
     ignore_errors: true
@@ -157,6 +163,14 @@
 
 - hosts: all
   tasks:
+  - name: stop and disable chrony
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - chrony
+    - chronyd
+    ignore_errors: true
+    tags: rm_ntp 
+
   - name: 清理证书目录和文件
     file: name={{ item }} state=absent
     with_items:

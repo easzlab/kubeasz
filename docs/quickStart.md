@@ -88,14 +88,10 @@ mv bin/* /etc/ansible/bin
 tar zxvf basic_images_kubeasz_0.2.tar.gz -C /etc/ansible/down
 ```
 - 4.3 配置集群参数
+  - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.allinone.example hosts`, 然后实际情况修改此hosts文件
+  - 4.3.2 可选配置，初次使用可以不做修改，详见[配置指南](config_guide.md)
+  - 4.3.3 验证ansible 安装：`ansible all -m ping` 正常能看到节点返回 SUCCESS
 
-``` bash
-cd /etc/ansible
-cp example/hosts.allinone.example hosts
-vim hosts			# 根据实际情况修改此hosts文件，所有节点改成本机IP
-# 验证ansible安装，正常能看到每个节点返回 SUCCESS
-ansible all -m ping
-```
 - 4.4 开始安装
 如果你对集群安装流程不熟悉，请阅读项目首页 **安装步骤** 讲解后分步安装，并对 **每步都进行验证**
 
