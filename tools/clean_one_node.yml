@@ -36,8 +36,12 @@
 # 清理 kube-master 相关
 - hosts: NODE_TO_DEL
   tasks:
-  - name: stop kube-master service
-    shell: "systemctl stop kube-apiserver kube-controller-manager kube-scheduler"
+  - name: stop and disable kube-master service
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
     ignore_errors: true
 
   - name: 清理目录和文件
@@ -56,8 +60,11 @@
     ignore_errors: true
     when: "CLUSTER_NETWORK == 'kube-router'"
 
-  - name: stop docker service
-    shell: "systemctl stop docker"
+  - name: stop and disable docker service
+    service:
+      name: docker
+      state: stopped
+      enabled: no
     ignore_errors: true
 
   # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
@@ -76,7 +83,11 @@
     - "/run/flannel/"
     - "/etc/calico/"
     - "/var/run/calico/"
+    - "/var/lib/calico/"
     - "/var/log/calico/"
+    - "/etc/cilium/"
+    - "/var/run/cilium/"
+    - "/sys/fs/bpf/tc/"
     - "/var/lib/cni/"
     - "/var/lib/docker/"
     - "/var/lib/kube-router/"
@@ -85,6 +96,8 @@
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
     - "/opt/kube/kube-system/"
+    - "/etc/bash_completion.d/docker"
+    ignore_errors: true
 
   - name: 清理 iptables
     shell: "iptables -F && iptables -X \
@@ -95,12 +108,15 @@
   - name: 清理网络
     shell: "ip link del docker0; \
 	ip link del tunl0; \
-	ip link del flannel.1; \
-	ip link del cni0; \
+        ip link del flannel.1; \
+        ip link del cni0; \
         ip link del mynet0; \
-	ip link del kube-bridge; \
+        ip link del kube-bridge; \
         ip link del dummy0; \
-	systemctl restart networking; \
+        ip link del kube-ipvs0; \
+        ip link del cilium_net; \
+        ip link del cilium_vxlan; \
+        systemctl restart networking; \
 	systemctl restart network"
     ignore_errors: true
 
@@ -112,8 +128,11 @@
 # 清理etcd 集群相关
 - hosts: NODE_TO_DEL
   tasks:
-  - name: stop etcd service
-    shell: systemctl stop etcd
+  - name: stop and disable etcd service
+    service:
+      name: etcd
+      state: stopped
+      enabled: no
     ignore_errors: true
 
   - name: 清理目录和文件
@@ -121,6 +140,7 @@
     with_items:
     - "/var/lib/etcd"
     - "/etc/etcd/"
+    - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"
 
 # 清理负载均衡相关
@@ -143,6 +163,14 @@
 # 清理其他
 - hosts: NODE_TO_DEL
   tasks:
+  - name: stop and disable chrony
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - chrony
+    - chronyd
+    ignore_errors: true
+    tags: rm_ntp
+
   - name: 清理证书目录和文件
     file: name={{ item }} state=absent
     with_items:
