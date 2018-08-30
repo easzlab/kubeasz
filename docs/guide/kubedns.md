@@ -80,5 +80,4 @@ Address 2: 180.97.33.107
 / #
 ```
 
-- NOTE：pod中直接使用nslookup的话需要使用完整域名，不能解析类似 `nginx | nginx.default | nginx.default.svc`等短域名；当然在应用调用时候是支持短域名的。详见 https://github.com/kubernetes/dns/issues/109
-
+- Note: 使用``` kubectl run b1 -it --rm --image=alpine /bin/sh``` 进行```nslookup <svc>; nslookup <svc>.<namespace>```解析, busybox内的nslookup程序有bug, 详见 https://github.com/kubernetes/dns/issues/109
