@@ -150,7 +150,7 @@ spec:
           #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
         - name: KUBERNETES_SERVICE_PORT
           value: "{{ KUBE_APISERVER.split(':')[2] }}"
-{% end if %}
+{% endif %}
         volumeMounts:
         - name: run
           mountPath: /run
