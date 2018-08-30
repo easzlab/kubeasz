@@ -1,5 +1,8 @@
 # 部分flannel配置，详见roles/flannel/templates/kube-flannel.yaml.j2
 
+# 如果 node 节点有多块网卡，请设置 true
+NODE_WITH_MULTIPLE_NETWORKS: "false"
+ 
 # 设置flannel 后端
 #FLANNEL_BACKEND: "host-gw"
 FLANNEL_BACKEND: "vxlan"
