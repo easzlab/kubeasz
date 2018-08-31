@@ -143,8 +143,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        # if hosts have multiple net interfaces, set following two ENVs
 {% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
+        # if hosts have multiple net interfaces, set following two ENVs
         - name: KUBERNETES_SERVICE_HOST
           value: "{{ MASTER_IP }}"
           #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"

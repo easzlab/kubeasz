@@ -327,8 +327,8 @@ spec:
             # Choose which controllers to run.
             - name: ENABLED_CONTROLLERS
               value: policy,profile,workloadendpoint,node
-            # if hosts have multiple net interfaces, set following two ENVs
 {% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
+            # if hosts have multiple net interfaces, set following two ENVs
             - name: KUBERNETES_SERVICE_HOST
               value: "{{ MASTER_IP }}"
             - name: KUBERNETES_SERVICE_PORT
