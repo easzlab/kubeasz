@@ -31,13 +31,4 @@
     line: "SELINUX=disabled"
 
 - name: 设置 Centos ulimits
-  lineinfile:
-    dest: /etc/security/limits.conf
-    regexp: "{{ item }}"
-    line: "{{ item }} 65535"
-  with_items:
-    - "* soft nofile"
-    - "* hard nofile"
-    - "* soft nproc"
-    - "* hard nproc"
-
+  template: src=30-kubeasz.conf.j2 dest=/etc/security/limits.d/30-kubeasz.conf
