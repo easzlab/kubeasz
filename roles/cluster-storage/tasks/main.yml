@@ -1,6 +1,6 @@
-- include: nfs-client.yml
+- import_tasks: nfs-client.yml
   when: 'storage.nfs.enabled == "yes"'
 
-- include: alicloud-nas.yml
+- import_tasks: alicloud-nas.yml
   when: 'storage.aliyun_nas.enabled == "yes"'
  
