@@ -16,9 +16,11 @@
 - name: 修改centos的haproxy.service
   template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  tags: restart_lb
 
 - name: 配置 haproxy
   template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+  tags: restart_lb
 
 - name: apt安装 keepalived
   apt: name=keepalived state=latest
@@ -34,13 +36,16 @@
 - name: 配置 keepalived 主节点
   template: src=keepalived-master.conf.j2 dest=/etc/keepalived/keepalived.conf
   when: LB_ROLE == "master"
+  tags: restart_lb
 
 - name: 配置 keepalived 备节点
   template: src=keepalived-backup.conf.j2 dest=/etc/keepalived/keepalived.conf
   when: LB_ROLE == "backup"
+  tags: restart_lb
 
 - name: daemon-reload for haproxy.service
   shell: systemctl daemon-reload
+  tags: restart_lb
 
 - name: 开机启用haproxy服务
   shell: systemctl enable haproxy
@@ -48,6 +53,7 @@
 
 - name: 重启haproxy服务
   shell: systemctl restart haproxy
+  tags: restart_lb
 
 - name: 开机启用keepalived服务
   shell: systemctl enable keepalived
@@ -55,3 +61,4 @@
 
 - name: 重启keepalived服务
   shell: systemctl restart keepalived
+  tags: restart_lb

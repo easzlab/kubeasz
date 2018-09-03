@@ -22,7 +22,7 @@ Traefik 提供了一个简单好用 `Ingress controller`，下文基于它讲解
 kubectl create -f /etc/ansible/manifests/ingress/traefik-ingress.yaml
 ```
 + 注意需要配置 `RBAC`授权
-+ 注意trafik `Service`中 `80`端口为 traefik ingress-controller的服务端口，`8080`端口为 traefik 的管理WEB界面；为后续配置方便指定`80` 端口暴露`NodePort`端口为 `23456`(对应于在hosts配置中`NODE_PORT_RANGE`范围内可用端口)
++ 注意`trafik pod`中 `80`端口为 traefik ingress-controller的服务端口，`8080`端口为 traefik 的管理WEB界面；为后续配置方便指定`80` 端口暴露`NodePort`端口为 `23456`(对应于在hosts配置中`NODE_PORT_RANGE`范围内可用端口)
 
 #### 验证 traefik ingress-controller
 
@@ -71,7 +71,7 @@ spec:
 ```
 + 集群内部尝试访问: `curl -H Host:hello.test.com 10.68.69.170(traefik-ingress-service的服务地址)` 能够看到欢迎页面 `Welcome to nginx!`；在集群外部尝试访问(假定集群一个NodeIP为 192.168.1.1): `curl -H Host:hello.test.com 192.168.1.1:23456`，也能够看到欢迎页面 `Welcome to nginx!`，说明ingress测试成功
 
-+ 最后我们可以为traefik WEB管理页面也创建一个ingress, `kubectl create -f /etc/ansible/manifests/ingress/traefik-ui.ing.yaml`
++ 下面我们为traefik WEB管理页面也创建一个ingress, `kubectl create -f /etc/ansible/manifests/ingress/traefik-ui.ing.yaml`
 
 ``` bash
 # traefik-ui.ing.yaml内容
@@ -93,9 +93,7 @@ spec:
 ```
 这样在集群外部可以使用 `curl -H Host:traefik-ui.test.com 192.168.1.1:23456` 尝试访问WEB管理页面，返回 `<a href="/dashboard/">Found</a>.`说明 traefik-ui的ingress配置生效了。
 
-### [可选] 部署`ingress-service`的代理
-
-在客户端主机上可以通过修改本机 `hosts` 文件，如上例子，增加两条记录：
+在客户端主机也可以通过修改本机 `hosts` 文件，如上例子，增加两条记录：
 
 ``` text
 192.168.1.1	hello.test.com
@@ -103,11 +101,16 @@ spec:
 ```
 打开浏览器输入域名 `http://hello.test.com:23456` 和 `http://traefik-ui.test.com:23456` 就可以访问k8s的应用服务了。
 
-当然如果你的环境中有类似 nginx/haproxy 等代理，可以做代理转发以去掉 `23456`这个端口，这里以 haproxy演示下。
+- 如果你的环境中有类似 nginx/haproxy 等集群，可以做代理转发以去掉 `23456`这个端口，如下步骤。
 
-如果你的集群根据本项目部署了高可用方案，那么可以利用`LB` 节点haproxy 来做，当然如果生产环境K8S应用已经部署非常多，建议还是使用独立的 `nginx/haproxy`集群
+### 部署`ingress-service`的负载均衡
 
-在 LB 主备节点，修改 `/etc/haproxy/haproxy.cfg`类似如下：
+如果你的集群根据本项目部署了高可用方案，那么可以利用`LB` 节点haproxy 来做，当然如果生产环境K8S应用已经部署非常多，建议还是使用独立的 `nginx/haproxy`集群。
+
+- 1. 修改 `roles/lb/vars/main.yml` 文件，设置 `INGRESS_NODEPORT_LB: "yes"`
+- 2. 运行 `ansible-playbook /etc/ansible/01.prepare.yml -t restart_lb`
+
+修改后在 LB 主备节点，查看文件 `/etc/haproxy/haproxy.cfg`类似如下：
 
 ``` bash
 global
@@ -132,24 +135,20 @@ listen kube-master
         mode tcp
         option tcplog
         balance source
-        # 根据实际kube-master 节点数量增减如下endpoints
-        server s1 192.168.1.1:6443  check inter 10000 fall 2 rise 2 weight 1
-        server s2 192.168.1.2:6443  check inter 10000 fall 2 rise 2 weight 1
+        server 192.168.1.1 192.168.1.1:6443  check inter 10000 fall 2 rise 2 weight 1
+        server 192.168.1.2 192.168.1.2:6443  check inter 10000 fall 2 rise 2 weight 1
 
-listen kube-node
+listen ingress-node
 	# 先确认 LB节点80端口可用
         bind 0.0.0.0:80		
         mode tcp
         option tcplog
         balance source
-        # 根据实际kube-node 节点数量增减如下endpoints
-        server s1 192.168.1.1:23456  check inter 10000 fall 2 rise 2 weight 1
-        server s2 192.168.1.2:23456  check inter 10000 fall 2 rise 2 weight 1
-        server s3 192.168.1.3:23456  check inter 10000 fall 2 rise 2 weight 1
+        server 192.168.1.3 192.168.1.3:23456  check inter 10000 fall 2 rise 2 weight 1
+        server 192.168.1.4 192.168.1.4:23456  check inter 10000 fall 2 rise 2 weight 1
 ```
-修改保存后，重启haproxy服务；
 
-这样我们就可以访问集群`master-VIP`的`80`端口，由haproxy代理转发到实际的node节点和nodePort端口上了。这时可以修改客户端本机 `hosts`文件如下：(假定 master-VIP=192.168.1.10)
+如上配置访问集群`MASTER_IP`的`80`端口时，由haproxy代理转发到实际的node节点暴露的nodePort端口上了。这时可以修改客户端本机 `hosts`文件如下：(假定 MASTER_IP=192.168.1.10)
 
 ``` text
 192.168.1.10     hello.test.com
