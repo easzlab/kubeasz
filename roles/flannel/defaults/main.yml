@@ -1,5 +1,9 @@
 # 部分flannel配置，详见roles/flannel/templates/kube-flannel.yaml.j2
 
+# 如果 node 节点有多块网卡，请设置 true
+# 另外发现设置为 true 时能够解决v1.10使用ipvs偶尔出现pod内‘dial tcp 10.68.0.1:443: i/o timeout’的 bug
+NODE_WITH_MULTIPLE_NETWORKS: "true"
+ 
 # 设置flannel 后端
 #FLANNEL_BACKEND: "host-gw"
 FLANNEL_BACKEND: "vxlan"

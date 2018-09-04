@@ -1,9 +1,15 @@
 - hosts: harbor
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
-  - prepare
-  - docker
-  - harbor
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes' and NEW_INSTALL == 'yes'" }
+  - { role: prepare, when: "NEW_INSTALL == 'yes'" }
+  - { role: docker, when: "NEW_INSTALL == 'yes'" }
+  - { role: harbor, when: "NEW_INSTALL == 'yes'" }
+  tasks:
+  - name: 获取harbor服务器证书
+    fetch:
+      src: "{{ ca_dir }}/ca.pem"
+      dest: "{{ base_dir }}/down/"
+      flat: yes
 
 - hosts: 
   - kube-master
@@ -15,9 +21,9 @@
   tasks:
   - name: harbor证书目录创建
     file: name=/etc/docker/certs.d/{{ harbor_domain }} state=directory
-
-  - name: harbor服务器证书安装
-    copy: src={{ ca_dir }}/ca.pem dest=/etc/docker/certs.d/{{ harbor_domain }}/ca.crt
+  
+  - name: 推送harbor服务器证书
+    copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_domain }}/ca.crt
 
   # 如果你的环境中有dns服务器，可以跳过hosts文件设置
   - name: 增加harbor的hosts解析

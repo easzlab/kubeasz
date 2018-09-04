@@ -25,6 +25,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --fail-swap-on=false \
   --anonymous-auth=false \
   --logtostderr=true \
+  --root-dir={{ KUBELET_ROOT_DIR }} \
   --v=2
 #kubelet cAdvisor 默认在所有接口监听 4194 端口的请求, 以下iptables限制内网访问
 ExecStartPost=/sbin/iptables -A INPUT -s 10.0.0.0/8 -p tcp --dport 4194 -j ACCEPT

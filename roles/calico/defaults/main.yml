@@ -1,5 +1,8 @@
 # 部分calico相关配置，更全配置可以去roles/calico/templates/calico.yaml.j2自定义
 
+# 如果 node 节点有多块网卡，请设置 true
+NODE_WITH_MULTIPLE_NETWORKS: "true"
+
 # etcd 集群服务地址列表, 根据etcd组成员自动生成
 TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"

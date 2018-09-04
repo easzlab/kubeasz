@@ -16,12 +16,24 @@
   register: pod_info
   run_once: true
 
+- name: 获取已下载离线镜像信息
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+
 - block:
     - name: 尝试推送离线{{ dns_backend }}镜像（若执行失败，可忽略）
       copy: src={{ base_dir }}/down/{{ dns_offline }} dest=/opt/kube/images/{{ dns_offline }}
-    
+      when: 'dns_offline in download_info.stdout'
+
+    - name: 获取{{ dns_backend }}离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info     
+ 
     - name: 导入{{ dns_backend }}的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dns_offline }}"
+      when: 'dns_offline in image_info.stdout'
     
     - name: 创建{{ dns_backend }}部署
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}"
@@ -35,9 +47,15 @@
 - block:
     - name: 尝试推送离线 metrics-server镜像（若执行失败，可忽略）
       copy: src={{ base_dir }}/down/{{ metricsserver_offline }} dest=/opt/kube/images/{{ metricsserver_offline }}
+      when: 'metricsserver_offline in download_info.stdout'
     
+    - name: 获取metrics-server离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info     
+ 
     - name: 导入 metrics-server的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metricsserver_offline }}"
+      when: 'metricsserver_offline in image_info.stdout'
     
     - name: 创建 metrics-server部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
@@ -49,9 +67,15 @@
 - block:
     - name: 尝试推送离线 dashboard镜像（若执行失败，可忽略）
       copy: src={{ base_dir }}/down/{{ dashboard_offline }} dest=/opt/kube/images/{{ dashboard_offline }}
+      when: 'dashboard_offline in download_info.stdout'
+    
+    - name: 获取dashboard离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info     
       
     - name: 导入 dashboard的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dashboard_offline }}"
+      when: 'dashboard_offline in image_info.stdout'
       
     - name: 创建 dashboard部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
@@ -63,9 +87,15 @@
 - block:
     - name: 尝试推送离线 traefik镜像（若执行失败，可忽略）
       copy: src={{ base_dir }}/down/{{ traefik_offline }} dest=/opt/kube/images/{{ traefik_offline }}
+      when: 'traefik_offline in download_info.stdout'
+    
+    - name: 获取traefik离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info     
       
     - name: 导入 traefik的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ traefik_offline }}"
+      when: 'traefik_offline in image_info.stdout'
       
     - name: 创建 traefik部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik-ingress.yaml"
@@ -77,9 +107,15 @@
 - block:
     - name: 尝试推送离线 heapster镜像（若执行失败，可忽略）
       copy: src={{ base_dir }}/down/{{ heapster_offline }} dest=/opt/kube/images/{{ heapster_offline }}
+      when: 'heapster_offline in download_info.stdout'
+    
+    - name: 获取heapster离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info     
       
     - name: 导入 heapster的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ heapster_offline }}"
+      when: 'heapster_offline in image_info.stdout'
       
     - name: 创建 heapster部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster.yaml"
