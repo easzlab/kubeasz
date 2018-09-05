@@ -11,7 +11,7 @@
 Master:
   Name: jenkins-master
   Image: "jenkins/jenkins"
-  ImageTag: "lts"
+  ImageTag: "2.121.3-alpine"
   ImagePullPolicy: "IfNotPresent"
 # ImagePullSecret: jenkins
   Component: "jenkins-master"
@@ -94,12 +94,13 @@ Master:
 
   # List of plugins to be install during Jenkins master start
   InstallPlugins:
-    - kubernetes:1.10.0
+    - kubernetes:1.12.4
     - workflow-aggregator:2.5
-    - workflow-job:2.21
+    - workflow-job:2.24
     - credentials-binding:1.16
     - git:3.9.1
-    - gitlab:1.5.8
+    - gitlab:1.5.9
+    - script-security:1.44
   # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
   # ScriptApproval:
   #   - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
