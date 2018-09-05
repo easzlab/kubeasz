@@ -26,3 +26,17 @@ listen kube-master
 {% for host in groups['new-master'] %}
         server {{ host }} {{ host }}:6443 check inter 2000 fall 2 rise 2 weight 1
 {% endfor %}
+{% if INGRESS_NODEPORT_LB == "yes" %}
+
+listen ingress-node
+	bind 0.0.0.0:80
+	mode tcp
+        option tcplog
+        balance {{ BALANCE_ALG }}
+{% for host in groups['kube-node'] %}
+        server {{ host }} {{ host }}:23456 check inter 2000 fall 2 rise 2 weight 1
+{% endfor %}
+{% for host in groups['new-node'] %}
+        server {{ host }} {{ host }}:23456 check inter 2000 fall 2 rise 2 weight 1
+{% endfor %}
+{% endif %}
