@@ -29,9 +29,6 @@
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
   tags: upgrade_k8s
 
-- name: 创建 token.csv
-  template: src=token.csv.j2 dest={{ ca_dir }}/token.csv
-
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
 

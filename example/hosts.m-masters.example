@@ -47,9 +47,6 @@ K8S_VER="v1.10"
 MASTER_IP="192.168.1.10"
 KUBE_APISERVER="https://{{ MASTER_IP }}:8443"
 
-#TLS Bootstrapping 使用的 Token，使用 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
-BOOTSTRAP_TOKEN="c30302226d4b810e08731702d3890f50"
-
 # 集群网络插件，目前支持calico, flannel, kube-router, cilium
 CLUSTER_NETWORK="flannel"
 
