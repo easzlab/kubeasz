@@ -2,7 +2,7 @@
 #主要组件版本如下
 export K8S_VER=v1.10.2
 export ETCD_VER=v3.3.8
-export DOCKER_VER=18.03.1-ce
+export DOCKER_VER=17.03.2-ce
 export CNI_VER=v0.7.0
 export DOCKER_COMPOSE=1.18.0
 export HARBOR=v1.2.2

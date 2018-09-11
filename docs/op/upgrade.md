@@ -25,12 +25,11 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
 - 3a.如果不需要升级 docker版本：执行 `ansible-playbook -t upgrade_k8s 22.upgrade.yml` 即可完成k8s 升级，不会中断业务应用
   - 注：确实不需要频繁去升级 docker
 
-- 3b.如果可以接受短暂业务中断，执行 `ansible-playbook -t upgrade_k8s,restart_dockerd 22.upgrade.yml` 即可升级 k8s和 docker(如果有新的docker二进制)
+- 3b.如果可以接受短暂业务中断，执行 `ansible-playbook -t upgrade_k8s,upgrade_docker 22.upgrade.yml` 即可升级 k8s和 docker(如果有新的docker二进制)
 
 - 3c.如果要求零中断升级 k8s和 docker
-  - i 执行 `ansible-playbook -t upgrade_k8s 22.upgrade.yml` (该步骤不会影响k8s上的业务应用)
+  - i 执行 `ansible-playbook -t upgrade_k8s,download_docker 22.upgrade.yml` (该步骤不会影响k8s上的业务应用)
   - ii 逐个升级重启每个node节点的dockerd服务
     - 待重启节点，先应用`kubectl cordon`和`kubectl drain`命令迁移业务pod
     - 待重启节点执行 `systemctl restart docker`
     - 恢复节点可调度 `kubectl uncordon`
-
