@@ -22,9 +22,11 @@
   tasks:
   - name: 禁止业务 pod调度到 master节点
     shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
+    delegate_to: "{{ groups.deploy[0] }}"
     when: DEPLOY_MODE != "allinone"
     ignore_errors: true
 
   - name: 设置master节点role
     shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
     ignore_errors: true
+    delegate_to: "{{ groups.deploy[0] }}"
