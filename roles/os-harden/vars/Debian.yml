@@ -5,6 +5,7 @@ passwdqc_path: '/usr/share/pam-configs/passwdqc'
 tally2_path: '/usr/share/pam-configs/tally2'
 os_nologin_shell_path: '/usr/sbin/nologin'
 
+auditd_package: 'auditd'
 modprobe_package: 'kmod'
 
 # Different distros use different standards for /etc/shadow perms, e.g.

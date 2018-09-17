@@ -4,9 +4,19 @@
     name: '{{modprobe_package}}'
     state: 'present'
 
+- name: check if efi is installed
+  stat:
+    path: "/sys/firmware/efi"
+  register: efi_installed
+
+- name: remove vfat from fs-list if efi is used
+  set_fact:
+    os_unused_filesystems: "{{ os_unused_filesystems | difference('vfat') }}"
+  when: efi_installed.stat.isdir is defined and efi_installed.stat.isdir
+
 - name: disable unused filesystems | os-10
   template:
-    src: 'modprobe.j2'
+    src: 'etc/modprobe.d/modprobe.j2'
     dest: '/etc/modprobe.d/dev-sec.conf'
     owner: 'root'
     group: 'root'

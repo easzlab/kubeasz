@@ -1,7 +1,7 @@
 ---
 - name: create securetty
   template:
-    src: 'securetty.j2'
+    src: 'etc/securetty.j2'
     dest: '/etc/securetty'
     owner: 'root'
     group: 'root'
