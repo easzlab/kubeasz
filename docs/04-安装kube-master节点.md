@@ -66,14 +66,6 @@ roles/kube-master/
   - `kubectl get svc` 将看到集群中由api-server 创建的默认服务 `kubernetes`，因此也要把 `kubernetes` 服务名和各个服务域名也添加进去
 - 注意所有{{ }}变量与ansible hosts中设置的对应关系
 
-### 创建 token 认证配置
-
-因为手动为每个node节点配置TLS认证比较麻烦，后续apiserver会开启 experimental-bootstrap-token-auth 特性，利用 kubelet启动时的 token信息与此处token认证匹配认证，然后自动为 node颁发证书
-
-``` bash
-{{ BOOTSTRAP_TOKEN }},kubelet-bootstrap,10001,"system:kubelet-bootstrap"
-```
-
 ### 创建基础用户名/密码认证配置
 
 可选，为后续使用基础认证的场景做准备，如实现dashboard 用不同用户名登陆绑定不同的权限，后续更新dashboard的实践文档。
@@ -98,8 +90,6 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --kubelet-client-key={{ ca_dir }}/kubernetes-key.pem \
   --anonymous-auth=false \
   --basic-auth-file={{ ca_dir }}/basic-auth.csv \
-  --enable-bootstrap-token-auth \
-  --token-auth-file={{ ca_dir }}/token.csv \
   --service-cluster-ip-range={{ SERVICE_CIDR }} \
   --service-node-port-range={{ NODE_PORT_RANGE }} \
   --tls-cert-file={{ ca_dir }}/kubernetes.pem \
