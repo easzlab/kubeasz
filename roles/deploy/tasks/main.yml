@@ -95,7 +95,14 @@
 - name: 移动 kube-proxy.kubeconfig
   shell: "mv /root/kube-proxy.kubeconfig /etc/kubernetes/"
 
-# 兼容ansible执行节点与deploy节点分离情况
+# --- 以下为兼容ansible执行节点与deploy节点分离情况-------
 - name: 复制 manifests至 deploy节点
   copy: src={{ base_dir }}/manifests dest={{ base_dir }}
   when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
+
+- name: 推送 ssh 密钥对至 deploy节点
+  copy: src=~/.ssh/{{ item }} dest=~/.ssh/{{ item }}
+  with_items:
+  - id_rsa
+  - id_rsa.pub
+ 
