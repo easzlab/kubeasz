@@ -1,10 +1,7 @@
 # 重新配置启动 haproxy
 - hosts: lb
-  tasks:
-  - name: 配置 haproxy
-    template: src={{ base_dir }}/roles/lb/templates/haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
-  - name: 重启haproxy服务
-    shell: systemctl restart haproxy
+  roles:
+  - lb
 
 - hosts: new-master 
   roles:
