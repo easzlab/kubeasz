@@ -3,6 +3,7 @@
   with_items:
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
+  - "{{ base_dir }}/down"
   - "/etc/kubernetes"
 
 - name: 下载证书工具 CFSSL和 kubectl
@@ -101,8 +102,9 @@
   when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
 
 - name: 推送 ssh 密钥对至 deploy节点
-  copy: src=~/.ssh/{{ item }} dest=~/.ssh/{{ item }}
+  copy: src=~/.ssh/{{ item }} dest=~/.ssh/{{ item }} mode=0600
   with_items:
   - id_rsa
   - id_rsa.pub
- 
+  - known_hosts
+  when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
