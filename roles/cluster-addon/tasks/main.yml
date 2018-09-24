@@ -1,24 +1,24 @@
-- name: 创建相关目录
-  file: path={{ item }} state=directory
-  with_items:
-  - /opt/kube/kube-system/kubedns
-  - /opt/kube/kube-system/coredns
-
-# DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
-- name: 准备 DNS的部署文件
-  template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}/{{ item }}.yaml
-  with_items:
-  - kubedns
-  - coredns
-
-- name: 获取所有已经创建的POD信息
-  command: "{{ bin_dir }}/kubectl get pod -n kube-system"
-  register: pod_info
-  run_once: true
-
-- name: 获取已下载离线镜像信息
-  command: "ls {{ base_dir }}/down"
-  register: download_info
+- block:
+    - name: 在deploy 节点创建相关目录
+      file: path={{ item }} state=directory
+      with_items:
+      - /opt/kube/kube-system/kubedns
+      - /opt/kube/kube-system/coredns
+    
+    # DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+    - name: 准备 DNS的部署文件
+      template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}/{{ item }}.yaml
+      with_items:
+      - kubedns
+      - coredns
+    
+    - name: 获取所有已经创建的POD信息
+      command: "{{ bin_dir }}/kubectl get pod -n kube-system"
+      register: pod_info
+    
+    - name: 获取已下载离线镜像信息
+      command: "ls {{ base_dir }}/down"
+      register: download_info
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
 
@@ -38,6 +38,7 @@
     - name: 创建{{ dns_backend }}部署
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}"
       run_once: true
+      delegate_to: "{{ groups.deploy[0] }}"
   when: 
   - '"kube-dns" not in pod_info.stdout'
   - '"coredns" not in pod_info.stdout'

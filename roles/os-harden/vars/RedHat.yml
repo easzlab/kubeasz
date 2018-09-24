@@ -1,6 +1,7 @@
 ---
 
 modprobe_package: 'module-init-tools'
+auditd_package: 'audit'
 
 os_packages_pam_ccreds: 'pam_ccreds'
 os_packages_pam_passwdqc: 'pam_passwdqc'

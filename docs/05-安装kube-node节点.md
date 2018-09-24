@@ -19,17 +19,6 @@ roles/kube-node
 
 请在另外窗口打开[roles/kube-node/tasks/main.yml](../roles/kube-node/tasks/main.yml) 文件，对照看以下讲解内容。
 
-### 创建角色绑定
-
-kubelet 启动时向 kube-apiserver 发送 TLS bootstrapping 请求，需要先将 bootstrap token 文件中的 kubelet-bootstrap 用户赋予 system:node-bootstrapper 角色，然后 kubelet 才有权限创建认证请求，增加判断是否已经角色绑定。
-
-### 创建 bootstrapping kubeconfig 文件
-
-该步骤已经在 deploy节点完成，[roles/deploy/tasks/main.yml](../roles/deploy/tasks/main.yml)
-
-+ 注意 kubelet bootstrapping认证时是靠 token的，后续由 `master`为其生成证书和私钥
-+ 以上生成的bootstrap.kubeconfig配置文件需要移动到/etc/kubernetes/目录下，后续在kubelet启动参数中指定该目录下的 bootstrap.kubeconfig
-
 ### 创建cni 基础网络插件配置文件
 
 因为后续需要用 `DaemonSet Pod`方式运行k8s网络插件，所以kubelet.server服务必须开启cni相关参数，并且提供cni网络配置文件
@@ -50,22 +39,24 @@ WorkingDirectory=/var/lib/kubelet
 #--pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
-  --hostname-override={{ inventory_hostname }} \
-  --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1 \
-  --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
-  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  --cert-dir={{ ca_dir }} \
+  --allow-privileged=true \
+  --anonymous-auth=false \
   --client-ca-file={{ ca_dir }}/ca.pem \
-  --network-plugin=cni \
-  --cni-conf-dir=/etc/cni/net.d \
-  --cni-bin-dir={{ bin_dir }} \
   --cluster-dns={{ CLUSTER_DNS_SVC_IP }} \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
-  --hairpin-mode hairpin-veth \
-  --allow-privileged=true \
+  --cni-bin-dir={{ bin_dir }} \
+  --cni-conf-dir=/etc/cni/net.d \
   --fail-swap-on=false \
-  --anonymous-auth=false \
-  --logtostderr=true \
+  --hairpin-mode hairpin-veth \
+  --hostname-override={{ inventory_hostname }} \
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
+  --max-pods={{ MAX_PODS }} \
+  --network-plugin=cni \
+  --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1 \
+  --register-node=true \
+  --root-dir={{ KUBELET_ROOT_DIR }} \
+  --tls-cert-file={{ ca_dir }}/kubelet.pem \
+  --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
   --v=2
 #kubelet cAdvisor 默认在所有接口监听 4194 端口的请求, 以下iptables限制内网访问
 ExecStartPost=/sbin/iptables -A INPUT -s 10.0.0.0/8 -p tcp --dport 4194 -j ACCEPT
@@ -79,7 +70,6 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 + --pod-infra-container-image 指定`基础容器`（负责创建Pod 内部共享的网络、文件系统等）镜像，**K8S每一个运行的 POD里面必然包含这个基础容器**，如果它没有运行起来那么你的POD 肯定创建不了，kubelet日志里面会看到类似 ` FailedCreatePodSandBox` 错误，可用`docker images` 查看节点是否已经下载到该镜像
-+ --experimental-bootstrap-kubeconfig 指向 bootstrap kubeconfig 文件，kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求
 + --cluster-dns 指定 kubedns 的 Service IP(可以先分配，后续创建 kubedns 服务时指定该 IP)，--cluster-domain 指定域名后缀，这两个参数同时指定后才会生效；
 + --network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir={{ bin_dir }} 为使用cni 网络，并调用calico管理网络所需的配置
 + --fail-swap-on=false K8S 1.8+需显示禁用这个，否则服务不能启动

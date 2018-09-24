@@ -10,15 +10,6 @@
     state: absent
     backup: 'yes'
 
-# 设置系统参数for k8s
-# 消除docker info 警告WARNING: bridge-nf-call-ip[6]tables is disabled
-- name: 设置系统参数
-  template: src=95-k8s-sysctl.conf.j2 dest=/etc/sysctl.d/95-k8s-sysctl.conf
-
-- name: 生效系统参数
-  shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
-  ignore_errors: true
-
 - name: 加载内核模块
   modprobe: name={{ item }} state=present
   with_items:
@@ -30,3 +21,11 @@
     - nf_conntrack_ipv4
   ignore_errors: true
 
+# 设置系统参数for k8s
+# 消除docker info 警告WARNING: bridge-nf-call-ip[6]tables is disabled
+- name: 设置系统参数
+  template: src=95-k8s-sysctl.conf.j2 dest=/etc/sysctl.d/95-k8s-sysctl.conf
+
+- name: 生效系统参数
+  shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
+  ignore_errors: true

@@ -1,10 +1,9 @@
 ---
 # Using a two-pass approach for checking directories in order to support symlinks.
-- name: find directories for minimizing access
-  stat:
-    path: '{{ item }}'
-  register: minimize_access_directories
-  with_items:
+- include_tasks: find_files.yml
+  loop_control:
+    loop_var: outer_item
+  loop:
     - '/usr/local/sbin'
     - '/usr/local/bin'
     - '/usr/sbin'
@@ -12,14 +11,6 @@
     - '/sbin'
     - '/bin'
     - '{{ os_env_extra_user_paths }}'
-
-- name: minimize access
-  file:
-    path: '{{ item.stat.path }}'
-    mode: 'go-w'
-    recurse: 'yes'
-  when: item.stat.isdir
-  with_items: '{{ minimize_access_directories.results }}'
 
 - name: change shadow ownership to root and mode to 0600 | os-02
   file:

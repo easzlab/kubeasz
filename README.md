@@ -1,8 +1,6 @@
-# 使用ansible-playbook部署kubernetes集群
+# kubeasz
 
-![docker](./pics/docker.jpg) ![kube](./pics/kube.jpg) ![ansible](./pics/ansible.jpg)
-
-本项目致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项；二进制方式部署有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题。
+`kubeasz`致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项；二进制方式部署有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题。
 
 **集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
 
@@ -13,9 +11,9 @@
 |组件|更新|支持|
 |:-|:-|:-|
 |OS|&nbsp;|Ubuntu 16.04+, CentOS 7|
-|k8s|v1.11.2|v1.8, v1.9, v1.10, v1.11|
+|k8s|v1.11.3|v1.8, v1.9, v1.10, v1.11|
 |etcd|v3.3.8|v3.1, v3.2, v3.3|
-|docker|18.03.1-ce|17.*.*-ce, 18.*.*-ce|
+|docker|17.03.1-ce|17.*.*-ce, 18.*.*-ce|
 |network|&nbsp;|calico, cilium, flannel, kube-router|
 
 -注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  

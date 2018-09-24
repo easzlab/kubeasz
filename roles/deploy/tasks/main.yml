@@ -3,6 +3,7 @@
   with_items:
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
+  - "{{ base_dir }}/down"
   - "/etc/kubernetes"
 
 - name: 下载证书工具 CFSSL和 kubectl
@@ -61,28 +62,6 @@
 - name: 选择默认上下文
   shell: "{{ bin_dir }}/kubectl config use-context kubernetes"
 
-#-------------创建bootstrap.kubeconfig配置文件: /root/bootstrap.kubeconfig
-- name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
-        --embed-certs=true \
-        --server={{ KUBE_APISERVER }} \
-        --kubeconfig=bootstrap.kubeconfig"
-- name: 设置客户端认证参数
-  shell: "{{ bin_dir }}/kubectl config set-credentials kubelet-bootstrap \
-        --token={{ BOOTSTRAP_TOKEN }} \
-        --kubeconfig=bootstrap.kubeconfig"
-- name: 设置上下文参数
-  shell: "{{ bin_dir }}/kubectl config set-context default \
-        --cluster=kubernetes \
-        --user=kubelet-bootstrap \
-        --kubeconfig=bootstrap.kubeconfig"
-- name: 选择默认上下文
-  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig=bootstrap.kubeconfig"
-
-- name: 移动 bootstrap.kubeconfig
-  shell: "mv /root/bootstrap.kubeconfig /etc/kubernetes/"
-
 #------------创建kube-proxy.kubeconfig配置文件: /root/kube-proxy.kubeconfig
 - name: 准备kube-proxy 证书签名请求
   template: src=kube-proxy-csr.json.j2 dest={{ ca_dir }}/kube-proxy-csr.json
@@ -117,7 +96,15 @@
 - name: 移动 kube-proxy.kubeconfig
   shell: "mv /root/kube-proxy.kubeconfig /etc/kubernetes/"
 
-# 兼容ansible执行节点与deploy节点分离情况
+# --- 以下为兼容ansible执行节点与deploy节点分离情况-------
 - name: 复制 manifests至 deploy节点
   copy: src={{ base_dir }}/manifests dest={{ base_dir }}
+  when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
+
+- name: 推送 ssh 密钥对至 deploy节点
+  copy: src=~/.ssh/{{ item }} dest=~/.ssh/{{ item }} mode=0600
+  with_items:
+  - id_rsa
+  - id_rsa.pub
+  - known_hosts
   when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
