@@ -17,6 +17,6 @@ manifests/storage/*
 roles/cluster-backup/files/*
 !roles/cluster-backup/files/readme.md
 
-# roles/xxx/vars, exclude roles/os-harden/vars/
+# role based variable settings, exclude roles/os-harden/vars/
 /roles/*/vars/*
 !/roles/os-harden/vars/

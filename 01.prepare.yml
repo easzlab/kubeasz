@@ -1,14 +1,14 @@
-# 集群内时间同步
+# [optional] to synchronize time of nodes with 'chrony' 
 - hosts: all
   roles:
   - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
 
-# 在deploy节点生成CA相关证书
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
 - hosts: deploy
   roles:
   - deploy
 
-# 集群节点的公共配置任务
+# prepare tasks for all nodes
 - hosts:
   - kube-master
   - kube-node
@@ -18,7 +18,7 @@
   roles:
   - prepare
 
-# [可选]多master部署时的负载均衡配置
+#  [optional] to install loadbalance service, only needed by multi-master cluster 
 - hosts: lb
   roles:
   - lb

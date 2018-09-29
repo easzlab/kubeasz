@@ -14,7 +14,7 @@
 - name: 创建tiller 服务端证书请求
   template: src=tiller-csr.json.j2 dest={{ ca_dir }}/{{ tiller_cert_cn }}-csr.json
 
-- name: 创建 calico证书和私钥
+- name: 创建tiller 服务端证书和私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \

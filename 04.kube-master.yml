@@ -1,16 +1,16 @@
+# to set up 'kube-master' nodes
 - hosts: kube-master
   roles:
   - kube-master
   - kube-node
-  # 禁止业务 pod调度到 master节点
   tasks:
-  - name: 禁止业务 pod调度到 master节点
+  - name: Making master nodes SchedulingDisabled
     shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
     delegate_to: "{{ groups.deploy[0] }}"
     when: DEPLOY_MODE != "allinone"
     ignore_errors: true
 
-  - name: 设置master节点role
+  - name: Setting master role name 
     shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
     ignore_errors: true
     delegate_to: "{{ groups.deploy[0] }}"

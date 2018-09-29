@@ -1,3 +1,3 @@
-# 项目二进制目录
+# Binaries for installing k8s 
 
-集群用到的所有二进制文件已打包好供下载 https://pan.baidu.com/s/1c4RFaA
+Binaries can be downloaded at https://pan.baidu.com/s/1c4RFaA, alternatively they can be downloaded from official github repos separately.
