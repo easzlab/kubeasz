@@ -35,9 +35,7 @@ spec:
         command:
         - /metrics-server
         - --metric-resolution=30s
-        - --kubelet-port=10255
-        - --deprecated-kubelet-completely-insecure=true
+        - --kubelet-insecure-tls
         volumeMounts:
         - name: tmp-dir
           mountPath: /tmp
-

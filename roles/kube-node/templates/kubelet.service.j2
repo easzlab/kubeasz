@@ -11,6 +11,8 @@ ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
   --allow-privileged=true \
   --anonymous-auth=false \
+  --authentication-token-webhook \
+  --authorization-mode=Webhook \
   --client-ca-file={{ ca_dir }}/ca.pem \
   --cluster-dns={{ CLUSTER_DNS_SVC_IP }} \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \

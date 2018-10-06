@@ -25,9 +25,11 @@
   synchronize: src=/root/.kube/config dest=/root/.kube/config
   delegate_to: "{{ groups.deploy[0] }}"
 
-- name: 分发 CA 证书
+- name: 分发证书相关
   synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
   with_items:
+  - admin.pem
+  - admin-key.pem
   - ca.pem
   - ca-key.pem
   - ca.csr
