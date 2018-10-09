@@ -1,24 +1,26 @@
 - name: 删除centos默认安装
-  yum: name={{ item }} state=absent
-  with_items:
-    - firewalld
-    - python-firewall
-    - firewalld-filesystem
+  yum: 
+    name: 
+      - firewalld
+      - python-firewall
+      - firewalld-filesystem
+    state: absent
 
 - name: 添加EPEL仓库
   yum: name=epel-release state=latest
 
 - name: 安装基础软件包
-  yum: name={{ item }}  state=latest
-  with_items:
-  - psmisc        # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
-  - nfs-utils     # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
-  - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
-  - socat               # 用于port forwarding
-  - bash-completion     # bash命令补全工具，需要重新登录服务器生效
-  - rsync               # 文件同步工具，分发证书等配置文件需要
-  - ipset
-  - ipvsadm
+  yum: 
+    name: 
+      - psmisc        # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
+      - nfs-utils     # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
+      - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
+      - socat               # 用于port forwarding
+      - bash-completion     # bash命令补全工具，需要重新登录服务器生效
+      - rsync               # 文件同步工具，分发证书等配置文件需要
+      - ipset
+      - ipvsadm
+    state: latest
 
 - name: 临时关闭 selinux
   shell: "setenforce 0"
