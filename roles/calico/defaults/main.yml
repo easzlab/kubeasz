@@ -8,7 +8,7 @@ NODE_WITH_MULTIPLE_NETWORKS: "true"
 TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
 
-# 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/06.calico.md
+# 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
 CALICO_IPV4POOL_IPIP: "always"
 
 # 设置 Felix 日志级别

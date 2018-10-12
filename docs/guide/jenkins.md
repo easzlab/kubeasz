@@ -10,7 +10,7 @@
 - helm  
 为了简化部署，通过helm来安装Jenkins，可参考文档：[helm](helm.md)
 - 持久化存储  
-这里使用**NFS**演示，参考文档：[cluster-storage](../08-cluster-storage.md)。
+这里使用**NFS**演示，参考文档：[cluster-storage](../setup/08-cluster-storage.md)。
 如果k8s集群是部署在公有云，也可使用厂商的NAS等存储方案，项目中已集成支持阿里云NAS，其他的方案参考相关厂商文档
 
 - Ingress Controller(nginx-ingress/traefik)  

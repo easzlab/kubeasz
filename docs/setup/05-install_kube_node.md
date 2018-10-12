@@ -1,4 +1,4 @@
-## 05-安装kube-node节点.md
+## 05-安装kube-node节点
 
 `kube-node` 是集群中承载应用的节点，前置条件需要先部署好`kube-master`节点(因为需要操作`用户角色绑定`、`批准kubelet TLS 证书请求`等)，它需要部署如下组件：
 
@@ -135,4 +135,4 @@ NAME           STATUS    ROLES     AGE       VERSION
 ```
 
 
-[前一篇](04-安装kube-master节点.md) -- [后一篇](06-安装网络组件.md)
+[后一篇](06-install_network_plugin.md)

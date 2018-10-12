@@ -1,4 +1,4 @@
-## 04-安装kube-master节点.md
+## 04-安装kube-master节点
 
 部署master节点主要包含三个组件`apiserver` `scheduler` `controller-manager`，其中：
 
@@ -229,4 +229,4 @@ etcd-2               Healthy   {"health": "true"}
 etcd-1               Healthy   {"health": "true"} 
 ```
 
-[前一篇](03-安装docker服务.md) -- [后一篇](05-安装kube-node节点.md)
+[后一篇](05-install_kube_node.md)

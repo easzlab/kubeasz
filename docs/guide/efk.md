@@ -135,7 +135,7 @@ es0  es1  es2
 
 #### 使用动态 PV安装 EFK
 
-- 首先根据[集群存储](../08-cluster-storage.md)创建nfs-client-provisioner
+- 首先根据[集群存储](../setup/08-cluster-storage.md)创建nfs-client-provisioner
 - 然后按实际需求修改 `es-dynamic-pv/es-statefulset.yaml` 文件中 volumeClaimTemplates 设置的 storage: 4Gi 大小   
 
 ``` bash

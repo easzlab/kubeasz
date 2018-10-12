@@ -1,4 +1,4 @@
-## 06-安装网络组件.md
+## 06-安装网络组件
 
 首先回顾下K8S网络设计原则，在配置集群网络插件或者实践K8S 应用/服务部署请时刻想到这些原则：
 
@@ -29,14 +29,14 @@ Kubernetes Pod的网络是这样创建的：
 
 ### 安装讲解
 
-- [安装calico](06.calico.md)
-- [安装cilium](06.cilium.md)
-- [安装flannel](06.flannel.md)
-- [安装kube-router](06.kube-router.md)
+- [安装calico](network-plugin/calico.md)
+- [安装cilium](network-plugin/cilium.md)
+- [安装flannel](network-plugin/flannel.md)
+- [安装kube-router](network-plugin/kube-router.md)
 
 ### 参考
 - [kubernetes.io networking docs](https://kubernetes.io/docs/concepts/cluster-administration/networking/) 
 - [feiskyer-kubernetes指南网络章节](https://github.com/feiskyer/kubernetes-handbook/blob/master/zh/network/network.md)
 
 
-[前一篇](05-安装kube-node节点.md) -- [后一篇](07-安装集群插件.md)
+[后一篇](07-install_cluster_addon.md)
