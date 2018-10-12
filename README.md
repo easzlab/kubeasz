@@ -1,28 +1,26 @@
 # kubeasz
 
-`kubeasz`致力于提供快速部署高可用`k8s`集群的工具，并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：既提供一键安装脚本，也可以分步执行安装各个组件，同时讲解每一步主要参数配置和注意事项；二进制方式部署有助于理解系统各组件的交互原理和熟悉组件启动参数，有助于快速排查解决实际问题。
+`kubeasz`致力于提供快速部署高可用`k8s`集群的工具, 并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：即提供一键安装脚本, 也可以分步执行安装各个组件, 同时讲解每一步主要参数配置和注意事项。
 
-**集群特性：`TLS` 双向认证、`RBAC` 授权、多`Master`高可用、支持`Network Policy`**
+**集群特性：`TLS`双向认证、`RBAC`授权、多`Master`高可用、支持`Network Policy`、备份恢复**
 
-项目基于`Ubuntu 16.04/CentOS 7`，需要了解基础`kubernetes` `docker` `linux` `ansible`等知识。
-
-请阅读[项目TodoList](docs/mixes/TodoList.md)和[项目分支说明](docs/mixes/branch.md)，欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
-
-|组件|更新|支持|
-|:-|:-|:-|
-|OS|&nbsp;|Ubuntu 16.04+, CentOS 7|
-|k8s|v1.11.3|v1.8, v1.9, v1.10, v1.11|
-|etcd|v3.3.8|v3.1, v3.2, v3.3|
-|docker|17.03.1-ce|17.*.*-ce, 18.*.*-ce|
-|network|&nbsp;|calico, cilium, flannel, kube-router|
+|组件|支持|
+|:-|:-|
+|OS|Ubuntu 16.04+, CentOS 7|
+|k8s|v1.8, v1.9, v1.10, v1.11, v1.12|
+|etcd|v3.1, v3.2, v3.3|
+|docker|17.03.2-ce, 18.06.1-ce|
+|network|calico, cilium, flannel, kube-router|
 
 -注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
+
+请阅读[项目TodoList](docs/mixes/TodoList.md)和[项目分支说明](docs/mixes/branch.md), 欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
 
 ## 快速指南
 
 单机快速体验k8s集群的测试、开发环境--[AllinOne部署](docs/setup/quickStart.md)
 
-## 安装步骤
+## 安装指南
 
 <table border="0">
     <tr>
@@ -44,14 +42,14 @@
 <table border="0">
     <tr>
         <td><strong>常用插件</strong></td>
-        <td><a href="docs/guide/kubedns.md">kube-dns</a></td>
+        <td><a href="docs/guide/kubedns.md">DNS</a></td>
         <td><a href="docs/guide/dashboard.md">dashboard</a></td>
         <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
         <td><a href="docs/guide/prometheus.md">prometheus</a></td>
         <td><a href="docs/guide/index.md">更多...</a></td>
     </tr>
     <tr>
-        <td><strong>集群运维</strong></td>
+        <td><strong>集群管理</strong></td>
         <td><a href="docs/op/AddNode.md">增加node</a></td>
         <td><a href="docs/op/AddMaster.md">增加master</a></td>
         <td><a href="docs/op/upgrade.md">升级集群</a></td>
@@ -67,24 +65,32 @@
         <td><a href=""></a></td>
     </tr>
     <tr>
-        <td><strong>其他</strong></td>
-        <td><a href="docs/guide/harbor.md">harbor部署</a></td>
-        <td><a href="docs/guide/ingress.md">ingress入口</a></td>
-        <td><a href="docs/guide/helm.md">helm工具</a></td>
-        <td><a href="docs/guide/jenkins.md">jenkins集成</a></td>
+        <td><strong>周边生态</strong></td>
+        <td><a href="docs/guide/harbor.md">harbor</a></td>
+        <td><a href="docs/guide/helm.md">helm</a></td>
+        <td><a href="docs/guide/jenkins.md">jenkins</a></td>
+        <td><a href=""></a></td>
+        <td><a href=""></a></td>
+    </tr>
+    <tr>
+        <td><strong>应用实践</strong></td>
+        <td><a href="docs/practice/java_war_app.md">java应用部署</a></td>
+        <td><a href="docs/practice/es_cluster.md">elasticsearch部署</a></td>
+        <td><a href=""></a></td>
+        <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
 </table>
 
 ## 沟通交流
 
-- 微信群：k8s&kubeasz实践，搜索微信号`badtobone`，请备注（城市-github用户名），验证通过会加入群聊。
+- 微信群：k8s&kubeasz实践, 搜索微信号`badtobone`, 请备注（城市-github用户名）, 验证通过会加入群聊。
 - 推荐阅读：[rootsongjc-Kubernetes指南](https://github.com/rootsongjc/kubernetes-handbook) [feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/zh/SUMMARY.md) [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster)
 
 ## 贡献&致谢
 
 感谢所有为项目提交 `Issues`和`PRs` 的贡献者！
 
-- [如何贡献](docs/mixes/HowToContribute.md)
+- [如何 PR](docs/mixes/HowToContribute.md)
 
-Copyright 2017 gjmzj (jmgaozz@163.com) Apache License 2.0，详情见 [LICENSE](docs/mixes/LICENSE) 文件。
+Copyright 2017 gjmzj (jmgaozz@163.com) Apache License 2.0, 详情见 [LICENSE](docs/mixes/LICENSE) 文件。
