@@ -2,6 +2,9 @@
   apt: update_cache=yes cache_valid_time=72000
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
 
+- name: 确保已卸载ntp
+  package: name=ntp state=absent
+
 - name: 安装 chrony
   package: name=chrony state=latest
 
