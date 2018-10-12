@@ -17,6 +17,8 @@
 
   - name: umount kubelet filesystems
     shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount"
+    args:
+      warn: false
     ignore_errors: true
 
   - name: remove files and dirs of 'kube-node' nodes
@@ -170,13 +172,17 @@
   - etcd
   - lb
   tasks:
-  - name: stop and disable chrony
-    service: name={{ item }} state=stopped enabled=no
-    with_items:
-    - chrony
-    - chronyd
+  - name: stop and disable chrony in Ubuntu
+    service: name=chrony state=stopped enabled=no
     ignore_errors: true
     tags: rm_ntp 
+    when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+  - name: stop and disable chronyd in CentOS
+    service: name=chronyd state=stopped enabled=no
+    ignore_errors: true
+    tags: rm_ntp 
+    when: ansible_distribution == "CentOS" 
 
   - name: clean certs and keys
     file: name={{ item }} state=absent

@@ -6,7 +6,7 @@
 
 项目基于`Ubuntu 16.04/CentOS 7`，需要了解基础`kubernetes` `docker` `linux` `ansible`等知识。
 
-请阅读[项目TodoList](docs/mixes/TodoList.md)和[项目分支说明](docs/branch.md)，欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
+请阅读[项目TodoList](docs/mixes/TodoList.md)和[项目分支说明](docs/mixes/branch.md)，欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
 
 |组件|更新|支持|
 |:-|:-|:-|
@@ -20,22 +20,22 @@
 
 ## 快速指南
 
-单机快速体验k8s集群的测试、开发环境--[AllinOne部署](docs/quickStart.md)
+单机快速体验k8s集群的测试、开发环境--[AllinOne部署](docs/setup/quickStart.md)
 
 ## 安装步骤
 
 <table border="0">
     <tr>
-        <td><a href="docs/00-集群规划和基础参数设定.md">00-规划集群和安装概览</a></td>
-        <td><a href="docs/02-安装etcd集群.md">02-安装etcd集群</a></td>
-        <td><a href="docs/04-安装kube-master节点.md">04-安装master节点</a></td>
-        <td><a href="docs/06-安装网络组件.md">06-安装集群网络</a></td>
+        <td><a href="docs/setup/00-planning_and_overall_intro.md">00-规划集群和安装概览</a></td>
+        <td><a href="docs/setup/02-install_etcd.md">02-安装etcd集群</a></td>
+        <td><a href="docs/setup/04-install_kube_master.md">04-安装master节点</a></td>
+        <td><a href="docs/setup/06-install_network_plugin.md">06-安装集群网络</a></td>
     </tr>
     <tr>
-        <td><a href="docs/01-创建CA证书和环境配置.md">01-创建证书和安装准备</a></td>
-        <td><a href="docs/03-安装docker服务.md">03-安装docker服务</a></td>
-        <td><a href="docs/05-安装kube-node节点.md">05-安装node节点</a></td>
-        <td><a href="docs/07-安装集群插件.md">07-安装集群插件</a></td>
+        <td><a href="docs/setup/01-CA_and_prerequisite.md">01-创建证书和安装准备</a></td>
+        <td><a href="docs/setup/03-install_docker.md">03-安装docker服务</a></td>
+        <td><a href="docs/setup/05-install_kube_node.md">05-安装node节点</a></td>
+        <td><a href="docs/setup/07-install_cluster_addon.md">07-安装集群插件</a></td>
     </tr>
 </table>
 

@@ -9,8 +9,8 @@ CHANGELOG:
   - 集成其他插件（可选）使用离线docker镜像安装
   - 增加切换集群网络插件的脚本
 - 文档更新：
-  - [快速指南](https://github.com/gjmzj/kubeasz/blob/master/docs/quickStart.md)
-  - [安装规划](https://github.com/gjmzj/kubeasz/blob/master/docs/00-%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92%E5%92%8C%E5%9F%BA%E7%A1%80%E5%8F%82%E6%95%B0%E8%AE%BE%E5%AE%9A.md)
+  - [快速指南](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/quickStart.md)
+  - [安装规划](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md)
   - [切换网络](https://github.com/gjmzj/kubeasz/blob/master/docs/op/clean_k8s_network.md)
 - 其他：
   - Bug fix: 清理集群时可能出现`Device or resource busy: '/var/run/docker/netns/xxxxxxx'`的错误，可手动umount后重新清理集群

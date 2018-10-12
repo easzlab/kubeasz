@@ -1,4 +1,4 @@
-## 02-安装etcd集群.md
+## 02-安装etcd集群
 
 kuberntes 系统使用 etcd 存储所有数据，是最重要的组件之一，注意 etcd集群只能有奇数个节点(1,3,5...)，本文档使用3个节点做集群。
 
@@ -83,7 +83,7 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 ```
 + 完整参数列表请使用 `etcd --help` 查询
-+ 注意etcd 即需要服务器证书也需要客户端证书，这里为方便使用一个peer 证书代替两个证书，更多证书相关请阅读 [01-创建CA证书和环境配置.md](01-创建CA证书和环境配置.md)
++ 注意etcd 即需要服务器证书也需要客户端证书，这里为方便使用一个peer 证书代替两个证书，更多证书相关请阅读 [01-创建CA证书和环境配置](01-CA_and_prerequisite.md)
 + 注意{{ }} 中的参数与ansible hosts文件中设置对应
 + `--initial-cluster-state` 值为 `new` 时，`--name` 的参数值必须位于 `--initial-cluster` 列表中；
 
@@ -119,5 +119,4 @@ https://192.168.1.3:2379 is healthy: successfully committed proposal: took = 3.2
 ```
 三台 etcd 的输出均为 healthy 时表示集群服务正常。
 
-
-[前一篇](01-创建CA证书和环境配置.md) -- [后一篇](03-安装docker服务.md)
+[后一篇](03-install_docker.md)

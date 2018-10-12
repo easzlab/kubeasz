@@ -1,4 +1,4 @@
-## 00-集群规划和基础参数设定.md
+## 00-集群规划和基础参数设定
 
 多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加LB 负载均衡部署步骤。
 
@@ -139,4 +139,4 @@ ansible-playbook 07.cluster-addon.yml
 + [可选]对集群所有节点进行操作系统层面的安全加固 `ansible-playbook roles/os-harden/os-harden.yml`，详情请参考[os-harden项目](https://github.com/dev-sec/ansible-os-hardening)
 
 
-[前一篇](quickStart.md) -- [后一篇](01-创建CA证书和环境配置.md)
+[后一篇](01-CA_and_prerequisite.md)
