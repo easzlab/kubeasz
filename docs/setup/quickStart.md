@@ -139,9 +139,9 @@ kubectl get svc --all-namespaces # 可以查看所有集群服务状态
 ansible-playbook 99.clean.yml
 ```
 
-如果出现清理失败，类似报错：`... Device or resource busy: '/var/run/docker/netns/xxxxxxxxxx'`，需要手动umount该目录后重新清理
+如果出现清理失败，类似报错：`... Device or resource busy: '/var/run/docker/netns/xxxxxxxxxx'`，需要手动umount该目录后清理
 
 ``` bash
 $ umount /var/run/docker/netns/xxxxxxxxxx
-$ ansible-playbook /etc/ansible/tools/clean_one_node.yml
+$ rm -rf /var/run/docker/netns/xxxxxxxxxx
 ```

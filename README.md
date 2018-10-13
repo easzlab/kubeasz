@@ -12,7 +12,7 @@
 |docker|17.03.2-ce, 18.06.1-ce|
 |network|calico, cilium, flannel, kube-router|
 
--注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
+- 注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
 
 请阅读[项目TodoList](docs/mixes/TodoList.md)和[项目分支说明](docs/mixes/branch.md), 欢迎提[Issues](https://github.com/gjmzj/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目。
 

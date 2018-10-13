@@ -2,7 +2,8 @@
 
 `Elasticsearch`是目前全文搜索引擎的首选，它可以快速地储存、搜索和分析海量数据；也可以看成是真正分布式的高效数据库集群；`Elastic`的底层是开源库`Lucene`；封装并提供了`REST API`的操作接口。
 
-## 单节点 docker 测试安装  
+## 单节点 docker 测试安装 
+ 
 ``` bash
 cat > es-start.sh << EOF
 #!/bin/bash
@@ -24,17 +25,21 @@ EOF
 执行`sh es-start.sh`后，就在本地运行了。
 
 - 验证 docker 镜像运行情况  
+
 ``` bash
 root@docker-ts:~# docker ps -a
 CONTAINER ID        IMAGE                           COMMAND                  CREATED             STATUS              PORTS                                            NAMES
 171f3fecb596        jmgao1983/elasticsearch:6.4.0   "/usr/local/bin/do..."   2 hours ago         Up 2 hours          0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp   es01
 ```
+
 - 验证 es 健康检查  
+
 ``` bash
 root@docker-ts:~# curl http://127.0.0.1:9200/_cat/health
 epoch      timestamp cluster       status node.total node.data shards pri relo init unassign pending_tasks max_task_wait_time active_shards_percent
 1535523956 06:25:56  docker-es     green           1         1      0   0    0    0        0             0                  -                100.0%
 ```
+
 ## 在 k8s 上部署 Elasticsearch 集群
 
 在生产环境下，Elasticsearch 集群由不同的角色节点组成：
@@ -48,6 +53,7 @@ epoch      timestamp cluster       status node.total node.data shards pri relo i
 - 1.安装 helm: 以本项目[安全安装helm](../guide/helm.md)为例
 - 2.准备 PV: 以本项目[K8S 集群存储](../setup/08-cluster-storage.md)创建`nfs`动态 PV 为例
   - 编辑配置文件：roles/cluster-storage/defaults/main.yml  
+
 ``` bash
 storage:
   nfs:
@@ -57,20 +63,26 @@ storage:
     storage_class: "nfs-es"
     provisioner_name: "nfs-provisioner-01"
 ```
+
   - 创建 nfs provisioner  
+
 ``` bash
 $ ansible-playbook /etc/ansible/roles/cluster-storage/cluster-storage.yml
 # 执行成功后验证
 $ kubectl get pod --all-namespaces |grep nfs-prov
 kube-system   nfs-provisioner-01-6b7fbbf9d4-bh8lh        1/1       Running   0          1d
 ```
+
 - 3.安装 elasticsearch chart  
+
 ``` bash
 $ cd /etc/ansible/manifests/es-cluster
 # 如果你的helm安装没有启用tls证书，请使用helm命令替换以下的helms命令
 $ helms install --name es-cluster --namespace elastic -f es-values.yaml elasticsearch
 ```
+
 - 4.验证 es 集群  
+
 ``` bash
 # 验证k8s上 es集群状态
 $ kubectl get pod,svc -n elastic 
@@ -102,11 +114,13 @@ root@k8s401:/etc/ansible# curl 10.100.97.41:29200/_cat/nodes?
 172.31.1.6 18 97 4 0.39 0.29 0.27 mi - es-cluster-elasticsearch-master-2
 172.31.3.6 20 97 4 0.11 0.17 0.18 mi * es-cluster-elasticsearch-master-1
 ```
+
 ### es 性能压测
 
 如上已使用 chart 在 k8s上部署了 **7** 节点的 elasticsearch 集群；各位应该十分好奇性能怎么样；官方提供了压测工具[esrally](https://github.com/elastic/rally)可以方便的进行性能压测，这里省略安装和测试过程；压测机上执行：  
 `esrally --track=http_logs --target-hosts="$NODE_IP:29200" --pipeline=benchmark-only --report-file=report.md`  
 压测过程需要1-2个小时，部分压测结果如下：  
+
 ``` bash
 ------------------------------------------------------
     _______             __   _____
@@ -149,11 +163,13 @@ root@k8s401:/etc/ansible# curl 10.100.97.41:29200/_cat/nodes?
 |   All |                           error rate |      default |           0 |       % |
 ...
 ```  
+
 从测试结果看：集群的吞吐可以（k8s es-client pod还可以扩展）；延迟略高一些（因为使用了nfs共享存储）；整体效果不错。
 
 ### 中文分词安装
 
 安装 ik 插件即可，可以自定义已安装ik插件的es docker镜像：创建如下 Dockerfile  
+
 ``` bash
 FROM jmgao1983/elasticsearch:6.4.0
 
