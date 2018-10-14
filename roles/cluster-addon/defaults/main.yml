@@ -20,7 +20,7 @@ dashboard_offline: "dashboard_v1.10.0.tar"
 # traefik-ingress 自动安装
 ingress_install: "no"
 ingress_backend: "traefik"
-traefik_offline: "traefik_v1.6.tar"
+traefik_offline: "traefik_v1.7.2.tar"
 
 # heapster 自动安装
 heapster_install: "no"
