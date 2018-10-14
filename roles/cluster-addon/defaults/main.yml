@@ -1,7 +1,7 @@
 # dns 自动安装，可选"coredns"和“kubedns”
 dns_install: "yes"
 dns_backend: "coredns"
-kubedns_offline: "kubedns_1.14.10.tar"
+kubedns_offline: "kubedns_1.14.13.tar"
 coredns_offline: "coredns_1.2.2.tar"
 dns_offline: "{%- if dns_backend == 'coredns' -%} \
                 {{ coredns_offline }} \
@@ -24,7 +24,7 @@ traefik_offline: "traefik_v1.6.tar"
 
 # heapster 自动安装
 heapster_install: "no"
-heapster_offline: "heapster_v1.5.1.tar"
+heapster_offline: "heapster_v1.5.4.tar"
 
 # efk 自动安装
 #efk_install: "no"
