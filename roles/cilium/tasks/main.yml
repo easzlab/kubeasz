@@ -30,11 +30,13 @@
     - name: 配置 cilium DaemonSet yaml文件
       template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium/cilium.yaml
       tags: reconf  
-    
-    - name: 检查是否已下载离线cilium镜像
-      command: "ls {{ base_dir }}/down"
-      register: download_info
   delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+    
+- name: 检查是否已下载离线cilium镜像
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
   run_once: true
 
 - name: node 节点创建cilium 相关目录

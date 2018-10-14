@@ -9,11 +9,13 @@
     - name: 准备配置 kube-router DaemonSet (with IPVS)
       template: src=kuberouter-all.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
       when: 'SERVICE_PROXY == "true"'
-    
-    - name: 检查是否已下载离线kube-router镜像
-      command: "ls {{ base_dir }}/down"
-      register: download_info
   delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+    
+- name: 检查是否已下载离线kube-router镜像
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
   run_once: true
 
 - name: 创建cni 和kube-router 相关目录

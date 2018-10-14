@@ -15,11 +15,13 @@
     - name: 获取所有已经创建的POD信息
       command: "{{ bin_dir }}/kubectl get pod -n kube-system"
       register: pod_info
-    
-    - name: 获取已下载离线镜像信息
-      command: "ls {{ base_dir }}/down"
-      register: download_info
   delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+
+- name: 获取已下载离线镜像信息
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
   run_once: true
 
 - block:
