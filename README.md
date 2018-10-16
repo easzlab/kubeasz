@@ -37,6 +37,8 @@
     </tr>
 </table>
 
+- 公有云部署请阅读 [使用kubeasz在公有云上创建k8s集群](docs/setup/kubeasz_on_public_cloud.md)
+
 ## 使用指南
 
 <table border="0">
