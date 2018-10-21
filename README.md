@@ -87,7 +87,7 @@
 ## 沟通交流
 
 - 微信群：k8s&kubeasz实践, 搜索微信号`badtobone`, 请备注（城市-github用户名）, 验证通过会加入群聊。
-- 推荐阅读：[rootsongjc-Kubernetes指南](https://github.com/rootsongjc/kubernetes-handbook) [feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/zh/SUMMARY.md) [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster)
+- 推荐阅读：[feisky-Kubernetes指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md) [rootsongjc-Kubernetes指南](https://github.com/rootsongjc/kubernetes-handbook) [opsnull-安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster)
 
 ## 贡献&致谢
 
