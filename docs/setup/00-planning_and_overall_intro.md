@@ -14,14 +14,14 @@
 
 项目预定义了4个例子，请修改后完成适合你的集群规划，生产环境建议一个节点只是一个角色。
 
-+ [单节点](../example/hosts.allinone.example)
-+ [单主多节点](../example/hosts.s-master.example)
-+ [多主多节点](../example/hosts.m-masters.example)
-+ [在公有云上部署](../example/hosts.cloud.example)
++ [单节点](../../example/hosts.allinone.example)
++ [单主多节点](../../example/hosts.s-master.example)
++ [多主多节点](../../example/hosts.m-masters.example)
++ [在公有云上部署](../../example/hosts.cloud.example)
 
 ## 部署步骤
 
-按照[多主多节点](../example/hosts.m-masters.example)示例的节点配置，准备4台虚机，搭建一个多主高可用集群。
+按照[多主多节点](../../example/hosts.m-masters.example)示例的节点配置，准备4台虚机，搭建一个多主高可用集群。
 
 ### 1.基础系统配置
 
