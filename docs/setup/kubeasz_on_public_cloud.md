@@ -10,9 +10,13 @@
 
 4. 部分云厂商负载均衡使用四层负载模式时不支持添加进后端云服务器池的 ECS 既作为 Real Server，又作为客户端向所在的 SLB 实例发送请求；因此注意不要在 master节点执行 kubectl，会出现时通时不通的情况；
 
-其他在公有云上的安装步骤与自有环境没有差异，节点规划可以参考 [example/hosts.cloud.example](../../example/hosts.cloud.example)，如下：（避免deploy节点同时作为master节点）
+## 在公有云上部署多主多节点集群
 
-+ 节点规划（不需要lb节点）
+- 单节点和单主多节点集群的节点规划与自有环境没有差异
+
+- 多主多节点集群节点规划不需要lb节点
+
+其他在公有云上的安装步骤与自有环境没有差异，节点规划可以参考 [example/hosts.cloud.example](../../example/hosts.cloud.example)，如下：（避免deploy节点同时作为master节点）
 
 ``` bash
 # 集群部署节点：一般为运行ansible 脚本的节点
