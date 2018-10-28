@@ -4,5 +4,5 @@
 
 支付宝码(左)和微信钱包码(右)
 
-![支付宝](../../pics/alipay.png) ![微信钱包](../../pics/wxpay.png)
+![支付宝](../../pics/alipay.gif) ![微信钱包](../../pics/wxpay.gif)
 

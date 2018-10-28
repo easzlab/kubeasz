@@ -91,8 +91,8 @@
 
 ## 贡献&致谢
 
-感谢所有为项目提交 `Issues`和`PRs` 的贡献者！
+感谢所有为项目提交 `Issues`和`PRs` 的贡献者！感谢[捐赠](docs/mixes/donate.md)鼓励！
 
-- [如何 PR](docs/mixes/HowToContribute.md)  [捐赠](docs/mixes/donate.md)
+- [如何 PR](docs/mixes/HowToContribute.md)
 
 Copyright 2017 gjmzj (jmgaozz@163.com) Apache License 2.0, 详情见 [LICENSE](docs/mixes/LICENSE) 文件。
