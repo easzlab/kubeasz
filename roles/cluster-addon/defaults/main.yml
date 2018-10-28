@@ -31,3 +31,10 @@ heapster_offline: "heapster_v1.5.4.tar"
 
 # prometheus 自动安装
 #prometheus_install: "no"
+
+# metallb 自动安装
+metallb_install: "no"
+# 模式选择: 二层 "layer2" 或者三层 "bgp"
+metallb_protocol: "layer2"
+metallb_offline: "metallb_v0.7.3.tar"
+metallb_vip_pool: "192.168.1.240/29"
