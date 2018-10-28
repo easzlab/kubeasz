@@ -183,7 +183,7 @@ spec:
       app: web
   ingress:
   - from: []
-    port:
+    ports:
     - protocol: TCP
       port: 80
 ```
