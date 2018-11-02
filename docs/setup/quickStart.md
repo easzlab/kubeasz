@@ -129,7 +129,7 @@ kubectl get svc --all-namespaces # 可以查看所有集群服务状态
 # 安装dashboard，默认已集成安装
 #kubectl create -f /etc/ansible/manifests/dashboard
 ```
-+ 登陆 `dashboard`可以查看和管理集群，更多内容请查阅[dashboard文档](guide/dashboard.md)
++ 登陆 `dashboard`可以查看和管理集群，更多内容请查阅[dashboard文档](../guide/dashboard.md)
 
 ### 7.清理集群
 
