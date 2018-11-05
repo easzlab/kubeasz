@@ -10,7 +10,7 @@ ingress就是从kubernetes集群外访问集群的入口，将用户的URL请求
 
 集群外部 -> Ingress -> K8S Service
 
-+ 注意：ingress 本身也需要部署`Ingress controller`时暴露`NodePort`让外部访问
++ 注意：ingress 本身也需要部署`Ingress controller`时暴露`NodePort`让外部访问；如果你集群支持，可以方便地使用LoadBalancer地址暴露ingress服务
 
 ### 部署 Traefik
 
@@ -101,10 +101,28 @@ spec:
 ```
 打开浏览器输入域名 `http://hello.test.com:23456` 和 `http://traefik-ui.test.com:23456` 就可以访问k8s的应用服务了。
 
-- 如果你的环境中有类似 nginx/haproxy 等集群，可以做代理转发以去掉 `23456`这个端口，如下步骤。
+### 可选1: 使用`LoadBalancer`服务类型来暴露ingress，自有环境（非公有云）可以参考[metallb文档](metallb.md)
 
-### 部署`ingress-service`的负载均衡
+``` bash
+# 修改traefik-ingress 使用 LoadBalancer服务
+$ sed -i 's/NodePort$/LoadBalancer/g' /etc/ansible/manifests/ingress/traefik-ingress.yaml
+# 创建traefik-ingress
+$ kubectl apply -f /etc/ansible/manifests/ingress/traefik-ingress.yaml
+# 验证
+$ kubectl get svc --all-namespaces |grep traefik
+kube-system   traefik-ingress-service   LoadBalancer   10.68.163.243   192.168.1.241   80:23456/TCP,8080:37088/TCP   1m
+```
+这时可以修改客户端本机 `hosts`文件：(如上例192.168.1.241)
 
+``` text
+192.168.1.241     hello.test.com
+192.168.1.241     traefik-ui.test.com
+```
+打开浏览器输入域名 `http://hello.test.com` 和 `http://traefik-ui.test.com`可以正常访问。
+
+### 可选2: 部署`ingress-service`的负载均衡
+
+- 利用 nginx/haproxy 等集群，可以做代理转发以去掉 `23456`这个端口，如下步骤。
 如果你的集群根据本项目部署了高可用方案，那么可以利用`LB` 节点haproxy 来做，当然如果生产环境K8S应用已经部署非常多，建议还是使用独立的 `nginx/haproxy`集群。
 
 - 1. 修改 `roles/lb/vars/main.yml` 文件，设置 `INGRESS_NODEPORT_LB: "yes"`

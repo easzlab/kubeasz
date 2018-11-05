@@ -3,7 +3,7 @@
   with_items:
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
-  - "{{ base_dir }}/down"
+  - "{{ base_dir }}"
   - "/etc/kubernetes"
 
 - name: 下载证书工具 CFSSL和 kubectl
@@ -98,7 +98,8 @@
 
 # --- 以下为兼容ansible执行节点与deploy节点分离情况-------
 - name: 复制 manifests至 deploy节点
-  copy: src={{ base_dir }}/manifests dest={{ base_dir }}
+  #copy: src={{ base_dir }}/manifests dest={{ base_dir }}
+  synchronize: src={{ base_dir }}/manifests dest={{ base_dir }}
   when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
 
 - name: 推送 ssh 密钥对至 deploy节点

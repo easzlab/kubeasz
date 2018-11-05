@@ -12,6 +12,7 @@
 - name: 安装基础软件包
   yum: 
     name: 
+      - conntrack-tools     # ipvs 模式需要
       - psmisc        # 安装psmisc 才能使用命令killall，它在keepalive的监测脚本中使用到
       - nfs-utils     # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
       - jq                  # 轻量JSON处理程序，安装docker查询镜像需要

@@ -4,11 +4,13 @@
 
     - name: 配置 flannel DaemonSet yaml文件
       template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
-    
-    - name: 检查是否已下载离线flannel镜像
-      command: "ls {{ base_dir }}/down"
-      register: download_info
   delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+    
+- name: 检查是否已下载离线flannel镜像
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
   run_once: true
     
 - name: 创建flannel cni 相关目录

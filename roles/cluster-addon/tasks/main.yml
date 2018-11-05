@@ -13,13 +13,15 @@
       - coredns
     
     - name: 获取所有已经创建的POD信息
-      command: "{{ bin_dir }}/kubectl get pod -n kube-system"
+      command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
       register: pod_info
-    
-    - name: 获取已下载离线镜像信息
-      command: "ls {{ base_dir }}/down"
-      register: download_info
   delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+
+- name: 获取已下载离线镜像信息
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
   run_once: true
 
 - block:
@@ -123,5 +125,38 @@
       delegate_to: "{{ groups.deploy[0] }}"
       run_once: true
   when: '"heapster" not in pod_info.stdout and heapster_install == "yes"'
+  ignore_errors: true
+
+- block:
+    - name: 尝试推送离线 metallb镜像（若执行失败，可忽略）
+      copy: src={{ base_dir }}/down/{{ metallb_offline }} dest=/opt/kube/images/{{ metallb_offline }}
+      when: 'metallb_offline in download_info.stdout'
+    
+    - name: 获取metallb离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info     
+      
+    - name: 导入 metallb的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metallb_offline }}"
+      when: 'metallb_offline in image_info.stdout'
+
+    - name: 生成 metallb 相关 manifests
+      template: src=metallb/{{ item }}.j2 dest=/opt/kube/kube-system/{{ item }}
+      with_items:
+      - "metallb.yaml"
+      - "{{ metallb_protocol }}.yaml"
+      delegate_to: "{{ groups.deploy[0] }}"
+      run_once: true
+
+    - name: 创建 metallb controller 部署
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/metallb.yaml"
+      delegate_to: "{{ groups.deploy[0] }}"
+      run_once: true
+
+    - name: 创建 metallb configmap
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ metallb_protocol }}.yaml"
+      delegate_to: "{{ groups.deploy[0] }}"
+      run_once: true
+  when: '"metallb" not in pod_info.stdout and metallb_install == "yes"'
   ignore_errors: true
 

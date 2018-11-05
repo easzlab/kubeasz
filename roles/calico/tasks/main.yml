@@ -32,11 +32,13 @@
     
     - name: 配置 calico rbac
       template: src=calico-rbac.yaml.j2 dest=/opt/kube/kube-system/calico/calico-rbac.yaml
-    
-    - name: 检查是否已下载离线calico镜像
-      command: "ls {{ base_dir }}/down"
-      register: download_info
   delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+    
+- name: 检查是否已下载离线calico镜像
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
   run_once: true
 
 - name: node 节点创建calico 相关目录

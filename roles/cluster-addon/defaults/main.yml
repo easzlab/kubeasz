@@ -1,7 +1,7 @@
 # dns 自动安装，可选"coredns"和“kubedns”
 dns_install: "yes"
 dns_backend: "coredns"
-kubedns_offline: "kubedns_1.14.10.tar"
+kubedns_offline: "kubedns_1.14.13.tar"
 coredns_offline: "coredns_1.2.2.tar"
 dns_offline: "{%- if dns_backend == 'coredns' -%} \
                 {{ coredns_offline }} \
@@ -20,14 +20,21 @@ dashboard_offline: "dashboard_v1.10.0.tar"
 # traefik-ingress 自动安装
 ingress_install: "no"
 ingress_backend: "traefik"
-traefik_offline: "traefik_v1.6.tar"
+traefik_offline: "traefik_v1.7.2.tar"
 
 # heapster 自动安装
 heapster_install: "no"
-heapster_offline: "heapster_v1.5.1.tar"
+heapster_offline: "heapster_v1.5.4.tar"
 
 # efk 自动安装
 #efk_install: "no"
 
 # prometheus 自动安装
 #prometheus_install: "no"
+
+# metallb 自动安装
+metallb_install: "no"
+# 模式选择: 二层 "layer2" 或者三层 "bgp"
+metallb_protocol: "layer2"
+metallb_offline: "metallb_v0.7.3.tar"
+metallb_vip_pool: "192.168.1.240/29"

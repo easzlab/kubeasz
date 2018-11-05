@@ -80,6 +80,9 @@ job_push_beta:
 FROM tomcat:8.5.33-jre8-alpine
 
 COPY . /usr/local/tomcat/webapps/
+
+# 设置tomcat日志使用的时区
+RUN sed -i 's/^JAVA_OPTS=.*webresources\"$/JAVA_OPTS=\"$JAVA_OPTS -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Duser.timezone=GMT+08\"/g' /usr/local/tomcat/bin/catalina.sh
 ```
 
 ### k8s deployment 配置举例

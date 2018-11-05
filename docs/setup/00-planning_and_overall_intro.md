@@ -2,7 +2,8 @@
 
 多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加LB 负载均衡部署步骤。
 
-**注意：请确保各节点时区设置一致、时间同步。** 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](guide/chrony.md)。
+**注意1：请确保各节点时区设置一致、时间同步。** 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](../guide/chrony.md)。
+**注意2：如果需要在公有云上创建多主多节点集群，请结合阅读[在公有云上部署 kubeasz](kubeasz_on_public_cloud.md)**
 
 ## 高可用集群所需节点配置如下：
 + 部署节点------x1 : 运行这份 ansible 脚本的节点
@@ -11,15 +12,16 @@
 + lb节点--------x2 : 负载均衡节点两个，安装 haproxy+keepalived
 + node节点------x3 : 真正应用负载的节点，根据需要提升机器配置和增加节点数
 
-生产环境使用建议一个节点只是一个角色，这里演示环境将节点绑定多个角色。项目预定义了3个例子，请修改后完成适合你的集群规划。
+项目预定义了4个例子，请修改后完成适合你的集群规划，生产环境建议一个节点只是一个角色。
 
-+ [单节点](../example/hosts.allinone.example)
-+ [单主多节点](../example/hosts.s-master.example)
-+ [多主多节点](../example/hosts.m-masters.example)
++ [单节点](../../example/hosts.allinone.example)
++ [单主多节点](../../example/hosts.s-master.example)
++ [多主多节点](../../example/hosts.m-masters.example)
++ [在公有云上部署](../../example/hosts.cloud.example)
 
 ## 部署步骤
 
-按照[多主多节点](../example/hosts.m-masters.example)示例的节点配置，准备4台虚机，测试搭建一个多主高可用集群。
+按照[多主多节点](../../example/hosts.m-masters.example)示例的节点配置，准备4台虚机，搭建一个多主高可用集群。
 
 ### 1.基础系统配置
 
