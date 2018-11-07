@@ -97,6 +97,7 @@
     - "/etc/systemd/system/calico-node.service"
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
+    - "/etc/systemd/system/docker.service.d/"
     - "/opt/kube/kube-system/"
     - "/etc/bash_completion.d/docker"
     ignore_errors: true
