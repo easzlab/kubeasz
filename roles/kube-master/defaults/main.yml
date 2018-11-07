@@ -2,3 +2,9 @@
 TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
 
+# k8s 集群 master 节点证书配置，可以添加多个ip和域名（比如增加公网ip和域名）
+MASTER_CERT_HOSTS:
+  - "10.1.1.1"
+  - "k8s.test.io"
+  #- "61.182.11.41"
+  #- "www.test.com"
