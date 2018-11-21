@@ -9,7 +9,7 @@ TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
 
 # 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
-CALICO_IPV4POOL_IPIP: "always"
+CALICO_IPV4POOL_IPIP: "Always"
 
 # 设置 Felix 日志级别
 FELIX_LOG_LVL: "warning"
@@ -19,9 +19,9 @@ FELIX_LOG_LVL: "warning"
 IP_AUTODETECTION_METHOD: "can-reach={{ groups.deploy[0] }}"
 
 # 镜像版本
-calico_node_ver: "v3.1.3"
-calico_cni_ver: "v3.1.3"
-calico_kube_controller_ver: "v3.1.3"
+calico_node_ver: "v3.2.4"
+calico_cni_ver: "v3.2.4"
+calico_kube_controller_ver: "v3.2.4"
 
 # 离线镜像tar包
 calico_offline: "calico_{{ calico_node_ver }}.tar"
