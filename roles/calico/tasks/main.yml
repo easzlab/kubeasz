@@ -106,4 +106,4 @@
   until: pod_status.stdout == "Running"
   delegate_to: "{{ groups.deploy[0] }}"
   retries: 15
-  delay: 8
+  delay: 15
