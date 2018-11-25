@@ -46,11 +46,11 @@ $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 - 4-创建tiller专用的RBAC配置，只允许helm在指定的namespace查看和安装应用
 - 5-安全安装tiller到集群，tiller服务启用tls验证
 - 6-配置helm客户端使用tls方式与tiller服务端通讯
-- 7-创建helms命令别名，方便使用，即alias helms='helm --tls --tiller-namespace {{ helm_namespace }}'
 
-注：helms别名生效请执行：`source ~/.bashrc`，或者退出后重新登陆shell  
-- 使用`helms`执行与tiller服务有关的命令，比如 `helms ls` `helms version` `helms install`等
-- 使用`helm`执行其他命令，比如`helm search` `helm fetch` `helm home`等
+### 注意因使用了TLS认证，所以helm命令执行分以下两种情况 
+
+- 执行与tiller服务有关的命令，比如 `helm ls` `helm version` `helm install`等需要加`--tls`参数
+- 执行其他命令，比如`helm search` `helm fetch` `helm home`等不需要加`--tls`
 
 ## 使用helm安装应用到k8s上
 

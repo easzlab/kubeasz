@@ -54,7 +54,7 @@
     regexp: 'helm completion'
     line: 'source <(helm completion bash)'
 
-# 为方便与tiller进行安全通信，使用helms别名
+# (DEPRECATED) 为方便与tiller进行安全通信，使用helms别名；helm v2.11.0 无法使用这个别名方式
 #- name: 配置helm命令别名
 #  lineinfile:
 #    dest: ~/.bashrc

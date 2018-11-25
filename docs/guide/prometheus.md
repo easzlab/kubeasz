@@ -32,8 +32,8 @@ drwx------  3 root root  4096 Jun  2 21:39 prometheus/
 ``` bash
 $ source ~/.bashrc
 $ cd /etc/ansible/manifests/prometheus
-# 安装 prometheus chart，如果你的helm安装没有启用tls证书，请使用helm命令替换以下的helms命令
-$ helms install \
+# 安装 prometheus chart，如果你的helm安装没有启用tls证书，请忽略--tls参数
+$ helm install --tls \
         --name monitor \
         --namespace monitoring \
         -f prom-settings.yaml \
@@ -41,7 +41,7 @@ $ helms install \
         -f prom-alertrules.yaml \
         prometheus
 # 安装 grafana chart
-$ helms install \
+$ helm install --tls \
 	--name grafana \
 	--namespace monitoring \
 	-f grafana-settings.yaml \
@@ -81,23 +81,23 @@ monitor-prometheus-server               NodePort    10.68.248.94   <none>       
 - 升级（修改配置）：修改配置请在`prom-settings.yaml` `prom-alertsmanager.yaml` 等文件中进行，保存后执行：  
 ``` bash
 # 修改prometheus
-$ helms upgrade monitor -f prom-settings.yaml -f prom-alertsmanager.yaml -f prom-alertrules.yaml prometheus
+$ helm upgrade --tls monitor -f prom-settings.yaml -f prom-alertsmanager.yaml -f prom-alertrules.yaml prometheus
 # 修改grafana
-$ helms upgrade grafana -f grafana-settings.yaml -f grafana-dashboards.yaml grafana
+$ helm upgrade --tls grafana -f grafana-settings.yaml -f grafana-dashboards.yaml grafana
 ```
 - 回退：具体可以参考`helm help rollback`文档
 ``` bash
-$ helms rollback monitor [REVISION]
+$ helm rollback --tls monitor [REVISION]
 ```
 - 删除 
 ``` bash
-$ helms del monitor --purge
-$ helms del grafana --purge
+$ helm del --tls monitor --purge
+$ helm del --tls grafana --purge
 ```
 
 ## 验证告警
 
-- 修改`prom-alertsmanager.yaml`文件中邮件告警为有效的配置内容，并使用 helms upgrade更新安装
+- 修改`prom-alertsmanager.yaml`文件中邮件告警为有效的配置内容，并使用 helm upgrade更新安装
 - 查看`prom-alertrules.yaml`文件，确认文件中设置了内存使用超过90%的告警规则
 - 部署测试应用，并压力测试使其内存超过90%，看是否触发告警并发送告警邮件  
 ``` bash
