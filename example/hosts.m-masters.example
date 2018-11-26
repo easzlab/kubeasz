@@ -16,8 +16,8 @@
 
 # 'loadbalance' node, with 'haproxy+keepalived' installed
 [lb]
-192.168.1.1 LB_IF="eth0" LB_ROLE=backup  # replace 'etho' with node's network interface
-192.168.1.2 LB_IF="eth0" LB_ROLE=master
+192.168.1.1 LB_ROLE=backup
+192.168.1.2 LB_ROLE=master
 
 [kube-node]
 192.168.1.3
