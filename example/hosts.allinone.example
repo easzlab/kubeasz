@@ -1,10 +1,9 @@
-# 'deploy' node, which the ansible-playbooks usually run on
-# variable 'NTP_ENABLED(=yes/no)' enables/disables the NTP server 'chrony'
+# 集群部署节点：一般为运行ansible 脚本的节点
+# 变量 NTP_ENABLED (=yes/no) 设置集群是否安装 chrony 时间同步
 [deploy]
 192.168.1.1 NTP_ENABLED=no
 
-# 'etcd' cluster must have odd member(s) (1,3,5,...)
-# variable 'NODE_NAME' is the distinct name of a member in 'etcd' cluster
+# etcd集群请提供如下NODE_NAME，注意etcd集群必须是1,3,5,7...奇数个节点
 [etcd]
 192.168.1.1 NODE_NAME=etcd1
 
@@ -14,57 +13,57 @@
 [kube-node]
 192.168.1.1
 
-# variable NEW_INSTALL: 'yes' to setup a new harbor server; 'no' to integrate with existed one 
+# 参数 NEW_INSTALL：yes表示新建，no表示使用已有harbor服务器
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 
-# group reserved, add new 'kube-node' in it
+# 预留组，后续添加node节点使用
 [new-node]
 #192.168.1.xx
 
 [all:vars]
-# --------- Main Variables ---------------
-# Cluster Deployment Mode: allinone, single-master, multi-master
+# ---------集群主要参数---------------
+#集群部署模式：allinone, single-master, multi-master
 DEPLOY_MODE=allinone
 
-# Versions supported: v1.8, v1.9, v1.10, v1.11, v1.12
+#集群主版本号，目前支持: v1.8, v1.9, v1.10，v1.11, v1.12
 K8S_VER="v1.10"
 
-# Cluster's Master IP, auto generated
+#集群 MASTER IP，自动生成
 MASTER_IP="{{ groups['kube-master'][0] }}"
 KUBE_APISERVER="https://{{ MASTER_IP }}:6443"
 
-# Network plugins supported: calico, flannel, kube-router, cilium
+# 集群网络插件，目前支持calico, flannel, kube-router, cilium
 CLUSTER_NETWORK="flannel"
 
-# K8S Service CIDR, not overlap with node(host) networking
+# 服务网段 (Service CIDR），注意不要与内网已有网段冲突
 SERVICE_CIDR="10.68.0.0/16"
 
-# Cluster CIDR (Pod CIDR), not overlap with node(host) networking
+# POD 网段 (Cluster CIDR），注意不要与内网已有网段冲突
 CLUSTER_CIDR="172.20.0.0/16"
 
-# NodePort Range
+# 服务端口范围 (NodePort Range)
 NODE_PORT_RANGE="20000-40000"
 
-# Kubernetes SVC IP (usually assigned with the first available IP of 'SERVICE_CIDR')
+# kubernetes 服务 IP (预分配，一般是 SERVICE_CIDR 中第一个IP)
 CLUSTER_KUBERNETES_SVC_IP="10.68.0.1"
 
-# Cluster DNS Server's IP (assigned with an available IP of 'SERVICE_CIDR')
+# 集群 DNS 服务 IP (从 SERVICE_CIDR 中预分配)
 CLUSTER_DNS_SVC_IP="10.68.0.2"
 
-# Cluster DNS Domain
+# 集群 DNS 域名
 CLUSTER_DNS_DOMAIN="cluster.local."
 
-# Basic auth for apiserver
+# 集群basic auth 使用的用户名和密码
 BASIC_AUTH_USER="admin"
 BASIC_AUTH_PASS="test1234"
 
-# -------- Additional Variables --------------------
-# Binaries Directory
+# ---------附加参数--------------------
+#默认二进制文件目录
 bin_dir="/opt/kube/bin"
 
-# CA and other components cert/key Directory
+#证书目录
 ca_dir="/etc/kubernetes/ssl"
 
-# Deploy Directory (kubeasz workspace), don't change the default value right now
+#部署目录，即 ansible 工作目录
 base_dir="/etc/ansible"
