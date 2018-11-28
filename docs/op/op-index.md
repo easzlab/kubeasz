@@ -9,3 +9,4 @@
 - [替换集群使用的网络插件](change_k8s_network.md)
 - [集群备份与恢复](cluster_restore.md)
 - [设置只读权限 kubeconfig](readonly_kubectl.md)
+- [修改 APISERVER 证书](ch_apiserver_cert.md)
