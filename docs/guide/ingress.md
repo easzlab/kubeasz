@@ -125,47 +125,6 @@ kube-system   traefik-ingress-service   LoadBalancer   10.68.163.243   192.168.1
 - 利用 nginx/haproxy 等集群，可以做代理转发以去掉 `23456`这个端口，如下步骤。
 如果你的集群根据本项目部署了高可用方案，那么可以利用`LB` 节点haproxy 来做，当然如果生产环境K8S应用已经部署非常多，建议还是使用独立的 `nginx/haproxy`集群。
 
-- 1. 修改 `roles/lb/vars/main.yml` 文件，设置 `INGRESS_NODEPORT_LB: "yes"`
-- 2. 运行 `ansible-playbook /etc/ansible/01.prepare.yml -t restart_lb`
-
-修改后在 LB 主备节点，查看文件 `/etc/haproxy/haproxy.cfg`类似如下：
-
-``` bash
-global
-        log /dev/log    local0
-        log /dev/log    local1 notice
-        chroot /var/lib/haproxy
-        stats socket /run/haproxy/admin.sock mode 660 level admin
-        stats timeout 30s
-        user haproxy
-        group haproxy
-        daemon
-        nbproc 1
-
-defaults
-        log     global
-        timeout connect 5000
-        timeout client  50000
-        timeout server  50000
-
-listen kube-master
-        bind 0.0.0.0:8443
-        mode tcp
-        option tcplog
-        balance source
-        server 192.168.1.1 192.168.1.1:6443  check inter 10000 fall 2 rise 2 weight 1
-        server 192.168.1.2 192.168.1.2:6443  check inter 10000 fall 2 rise 2 weight 1
-
-listen ingress-node
-	# 先确认 LB节点80端口可用
-        bind 0.0.0.0:80		
-        mode tcp
-        option tcplog
-        balance source
-        server 192.168.1.3 192.168.1.3:23456  check inter 10000 fall 2 rise 2 weight 1
-        server 192.168.1.4 192.168.1.4:23456  check inter 10000 fall 2 rise 2 weight 1
-```
-
 具体参考[配置转发 ingress nodePort](../op/loadballance_ingress_nodeport.md)，如上配置访问集群`MASTER_IP`的`80`端口时，由haproxy代理转发到实际的node节点暴露的nodePort端口上了。这时可以修改客户端本机 `hosts`文件如下：(假定 MASTER_IP=192.168.1.10)
 
 ``` text

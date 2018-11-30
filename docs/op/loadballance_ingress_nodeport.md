@@ -31,24 +31,24 @@ listen kube-master
         mode tcp
         option tcplog
         balance roundrobin
-        server 192.168.1.41 192.168.1.41:6443 check inter 2000 fall 2 rise 2 weight 1
-        server 192.168.1.42 192.168.1.42:6443 check inter 2000 fall 2 rise 2 weight 1
+        server 192.168.1.1 192.168.1.1:6443 check inter 2000 fall 2 rise 2 weight 1
+        server 192.168.1.2 192.168.1.2:6443 check inter 2000 fall 2 rise 2 weight 1
 
 listen ingress-node
         bind 0.0.0.0:80
         mode tcp
         option tcplog
         balance roundrobin
-        server 192.168.1.43 192.168.1.43:23456 check inter 2000 fall 2 rise 2 weight 1
-        server 192.168.1.44 192.168.1.44:23456 check inter 2000 fall 2 rise 2 weight 1
+        server 192.168.1.3 192.168.1.3:23456 check inter 2000 fall 2 rise 2 weight 1
+        server 192.168.1.4 192.168.1.4:23456 check inter 2000 fall 2 rise 2 weight 1
 
 listen ingress-node-tls
         bind 0.0.0.0:443
         mode tcp
         option tcplog
         balance roundrobin
-        server 192.168.1.43 192.168.1.43:23457 check inter 2000 fall 2 rise 2 weight 1
-        server 192.168.1.44 192.168.1.44:23457 check inter 2000 fall 2 rise 2 weight 1
+        server 192.168.1.3 192.168.1.3:23457 check inter 2000 fall 2 rise 2 weight 1
+        server 192.168.1.4 192.168.1.4:23457 check inter 2000 fall 2 rise 2 weight 1
 ```
 
 验证成功后，我们可以方便的去做[配置ingress](../guide/ingress.md)和[配置https ingress](../guide/ingress-tls.md)实验了。
