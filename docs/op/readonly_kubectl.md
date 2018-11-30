@@ -59,6 +59,11 @@ kubeconfig 为与apiserver交互使用的认证配置文件，如脚本步骤需
 
 创建完成后生成默认配置文件为 `~/.kube/config`
 
+## 恢复 admin 权限
+
+- 可以恢复之前备份的`~/.kubeadmin`文件：`mv ~/.kube ~/.kuberead && mv ~/.kubeadmin ~/.kube`
+- 或者直接执行 `ansible-playbook /etc/ansible/roles/deploy/create-admin-kubeconfig.yml`
+
 ## 参考
 
 - [Using RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
