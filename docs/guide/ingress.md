@@ -166,7 +166,7 @@ listen ingress-node
         server 192.168.1.4 192.168.1.4:23456  check inter 10000 fall 2 rise 2 weight 1
 ```
 
-如上配置访问集群`MASTER_IP`的`80`端口时，由haproxy代理转发到实际的node节点暴露的nodePort端口上了。这时可以修改客户端本机 `hosts`文件如下：(假定 MASTER_IP=192.168.1.10)
+具体参考[配置转发 ingress nodePort](../op/loadballance_ingress_nodeport.md)，如上配置访问集群`MASTER_IP`的`80`端口时，由haproxy代理转发到实际的node节点暴露的nodePort端口上了。这时可以修改客户端本机 `hosts`文件如下：(假定 MASTER_IP=192.168.1.10)
 
 ``` text
 192.168.1.10     hello.test.com
@@ -174,4 +174,4 @@ listen ingress-node
 ```
 打开浏览器输入域名 `http://hello.test.com` 和 `http://traefik-ui.test.com`可以正常访问。
 
-
+## 下一步[配置https ingress](ingress-tls.md)
