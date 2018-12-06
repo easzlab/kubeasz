@@ -22,7 +22,7 @@ mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.0
 mirrorgooglecontainers/pause-amd64:3.1
 busybox:1.28.4
 # traefik ingress 
-traefik:v1.7.2
+traefik:v1.7.4
 # heapster 
 mirrorgooglecontainers/heapster-grafana-amd64:v4.4.3
 mirrorgooglecontainers/heapster-amd64:v1.5.4
