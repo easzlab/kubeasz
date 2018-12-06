@@ -4,24 +4,12 @@
 # update kubectl binary
 - hosts:
   - kube-master
-  - kube-node
-  - deploy
-  roles:
-  - prepare
-
-# update etcd 
-- hosts: etcd
-  roles:
-  - etcd
-
-# update docker binary
-- hosts:
-  - kube-master
   - new-master
   - kube-node
   - new-node
+  - deploy
   roles:
-  - docker
+  - prepare
 
 # update masters
 - hosts: 
