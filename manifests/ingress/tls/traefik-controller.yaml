@@ -5,6 +5,8 @@ metadata:
   namespace: kube-system
 data:
   traefik.toml: |
+    # 设置insecureSkipVerify = true，可以配置backend为443(比如dashboard)的ingress规则
+    insecureSkipVerify = true
     defaultEntryPoints = ["http", "https"]
     [entryPoints]
       [entryPoints.http]
