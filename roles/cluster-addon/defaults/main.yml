@@ -2,7 +2,7 @@
 dns_install: "yes"
 dns_backend: "coredns"
 kubedns_offline: "kubedns_1.14.13.tar"
-coredns_offline: "coredns_1.2.2.tar"
+coredns_offline: "coredns_1.2.6.tar"
 dns_offline: "{%- if dns_backend == 'coredns' -%} \
                 {{ coredns_offline }} \
               {%- else -%} \

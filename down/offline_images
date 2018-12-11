@@ -1,6 +1,6 @@
 ###---[basic_images ]
 # dns-addon 
-coredns/coredns:1.2.2
+coredns/coredns:1.2.6
 mirrorgooglecontainers/k8s-dns-kube-dns-amd64:1.14.13
 mirrorgooglecontainers/k8s-dns-dnsmasq-nanny-amd64:1.14.13
 mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.13
