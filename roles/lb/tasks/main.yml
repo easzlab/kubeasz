@@ -1,6 +1,6 @@
 # 自动设置LB节点变量'LB_IF'
 - name: 注册变量 LB_IF_TMP
-  shell: "ip a|grep '{{ inventory_hostname }}/'|awk '{print $7}'"
+  shell: "ip a|grep '{{ inventory_hostname }}/'|awk '{print $NF}'"
   register: LB_IF_TMP
 
 - name: 设置变量 LB_IF
