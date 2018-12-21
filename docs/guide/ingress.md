@@ -14,12 +14,12 @@ ingress就是从kubernetes集群外访问集群的入口，将用户的URL请求
 
 ### 部署 Traefik
 
-Traefik 提供了一个简单好用 `Ingress controller`，下文基于它讲解一个简单的 ingress部署和测试例子。请查看yaml配置 [traefik-ingress.yaml](../../manifests/ingress/traefik-ingress.yaml)，参考[traefik 官方k8s例子](https://github.com/containous/traefik/tree/master/examples/k8s)
+Traefik 提供了一个简单好用 `Ingress controller`，下文基于它讲解一个简单的 ingress部署和测试例子。请查看yaml配置 [traefik-ingress.yaml](../../manifests/ingress/traefik/traefik-ingress.yaml)，参考[traefik 官方k8s例子](https://github.com/containous/traefik/tree/master/examples/k8s)
 
 #### 安装 traefik ingress-controller
 
 ``` bash
-kubectl create -f /etc/ansible/manifests/ingress/traefik-ingress.yaml
+kubectl create -f /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
 ```
 + 注意需要配置 `RBAC`授权
 + 注意`trafik pod`中 `80`端口为 traefik ingress-controller的服务端口，`8080`端口为 traefik 的管理WEB界面；为后续配置方便指定`80` 端口暴露`NodePort`端口为 `23456`(对应于在hosts配置中`NODE_PORT_RANGE`范围内可用端口)
@@ -71,7 +71,7 @@ spec:
 ```
 + 集群内部尝试访问: `curl -H Host:hello.test.com 10.68.69.170(traefik-ingress-service的服务地址)` 能够看到欢迎页面 `Welcome to nginx!`；在集群外部尝试访问(假定集群一个NodeIP为 192.168.1.1): `curl -H Host:hello.test.com 192.168.1.1:23456`，也能够看到欢迎页面 `Welcome to nginx!`，说明ingress测试成功
 
-+ 下面我们为traefik WEB管理页面也创建一个ingress, `kubectl create -f /etc/ansible/manifests/ingress/traefik-ui.ing.yaml`
++ 下面我们为traefik WEB管理页面也创建一个ingress, `kubectl create -f /etc/ansible/manifests/ingress/traefik/traefik-ui.ing.yaml`
 
 ``` bash
 # traefik-ui.ing.yaml内容
@@ -105,9 +105,9 @@ spec:
 
 ``` bash
 # 修改traefik-ingress 使用 LoadBalancer服务
-$ sed -i 's/NodePort$/LoadBalancer/g' /etc/ansible/manifests/ingress/traefik-ingress.yaml
+$ sed -i 's/NodePort$/LoadBalancer/g' /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
 # 创建traefik-ingress
-$ kubectl apply -f /etc/ansible/manifests/ingress/traefik-ingress.yaml
+$ kubectl apply -f /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
 # 验证
 $ kubectl get svc --all-namespaces |grep traefik
 kube-system   traefik-ingress-service   LoadBalancer   10.68.163.243   192.168.1.241   80:23456/TCP,8080:37088/TCP   1m
