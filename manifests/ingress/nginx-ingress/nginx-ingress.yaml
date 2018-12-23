@@ -240,6 +240,14 @@ spec:
               containerPort: 80
             - name: https
               containerPort: 443
+            # hostPort可以直接使用node节点的网络端口暴露服务
+            #- name: mysql
+            #  containerPort: 3306
+            #  hostPort: 3306
+            #- name: dns
+            #  containerPort: 53
+            #  hostPort: 53
+            #  protocol: UDP
           livenessProbe:
             failureThreshold: 3
             httpGet:
