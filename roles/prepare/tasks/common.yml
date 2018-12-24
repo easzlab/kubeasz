@@ -21,6 +21,11 @@
     - nf_conntrack_ipv4
   ignore_errors: true
 
+- name: 加载nf_conntrack for kernel 4.19
+  modprobe: name=nf_conntrack state=present
+  ignore_errors: true
+  when: '"4.19" in ansible_kernel'
+
 # 设置系统参数for k8s
 # 消除docker info 警告WARNING: bridge-nf-call-ip[6]tables is disabled
 - name: 设置系统参数

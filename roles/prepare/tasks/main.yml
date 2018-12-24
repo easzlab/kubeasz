@@ -12,22 +12,26 @@
   - "{{ ca_dir }}"
   - /root/.kube
 
-- name: 下载证书工具 CFSSL和 kubectl
+- name: 分发证书工具 CFSSL
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
   - cfssl
   - cfssl-certinfo
   - cfssljson
-  - kubectl
+
+- name: 分发 kubectl
+  copy: src={{ base_dir }}/bin/kubectl dest={{ bin_dir }}/kubectl mode=0755
   tags: upgrade_k8s
 
 - name: 分发 kubeconfig配置文件
   synchronize: src=/root/.kube/config dest=/root/.kube/config
   delegate_to: "{{ groups.deploy[0] }}"
 
-- name: 分发 CA 证书
+- name: 分发证书相关
   synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
   with_items:
+  - admin.pem
+  - admin-key.pem
   - ca.pem
   - ca-key.pem
   - ca.csr

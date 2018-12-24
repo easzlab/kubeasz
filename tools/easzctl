@@ -1,0 +1,123 @@
+#!/bin/bash
+# 
+# This script can be used to manage multiple k8s clusters. (unfinished)
+
+set -o nounset
+set -o errexit
+#set -o xtrace
+
+function process_cmd {
+    echo "$ACTION : $CMD"
+    $CMD
+    if [[ $? -ne 0 ]]; then
+        echo "Command failed $CMD"
+        exit 1
+    fi
+}
+
+function usage {
+    cat <<EOF
+Usage: $0 COMMAND [args]
+Commands:
+    backup		To backup the current cluster (data and config)
+    checkout <name>	To checkout and to use the chosen cluster context
+    create <name>	To create a new cluster and to checkout the new cluster
+    delete		To delete the current cluster (keeping backups)
+    destroy		To delete the current cluster and its backups
+    help		To display usage
+    list		To list the existing cluster names
+    rename <oldname> <newname>	To rename an existing cluster's name
+    restore		To restore the current cluster from backups
+    test		To do some smoke tests on the current cluster
+    untest		To remove smoke tests on the current cluster
+    upgrade             Upgrades the current kubernetes cluster
+EOF
+}
+
+function cp_role_conf {
+    ROLESPATH=$BASEPATH/../roles
+    for ROLE in $(ls $ROLESPATH);
+    do
+        if [ -d "$ROLESPATH/$ROLE/defaults" ]; then
+            mkdir -p $BASEPATH/../.cluster/$CLUSTERNAME/$ROLE/defaults/
+            cp -rp $ROLESPATH/$ROLE/defaults/* $BASEPATH/../.cluster/$CLUSTERNAME/$ROLE/defaults/
+        fi
+    done;
+}
+
+function init {
+    if [ ! -d "$BASEPATH/../.cluster" ]; then
+        mkdir -p $BASEPATH/../.cluster
+        CLUSTERNAME=default
+        cp_role_conf
+    fi
+}
+
+###############################################################
+
+BASEPATH=$(cd `dirname $0`; pwd)
+
+init
+
+[ "$#" -gt 0 ] || { usage >&2; exit 2; }
+
+case "$1" in
+
+(backup)
+        ACTION="action backup"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=precheck"
+        ;;
+(checkout)
+        ACTION="action checkout"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(create)
+        ACTION="action create"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=deploy -e common_run=true"
+        PLAYBOOK="${BASEDIR}/ansible/mariadb_recovery.yml"
+	;;
+(delete)
+        ACTION="action delete"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(destroy)
+        ACTION="action destroy"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(help)
+        usage
+        ;;
+(list)
+        ACTION="action list"
+        CMD="ls $BASEPATH/../.cluster"
+        process_cmd
+        ;;
+(rename)
+        ACTION="action rename"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(restore)
+        ACTION="action restore"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(test)
+        ACTION="action test"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(untest)
+        ACTION="action untest"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(upgrade)
+        ACTION="action upgrade"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+        ;;
+(*)
+        usage
+        exit 0
+        ;;
+esac
+
+#CMD="echo $BASEPATH $ACTION"
+#process_cmd
+

@@ -1,0 +1,44 @@
+image:
+  repository: "jmgao1983/elasticsearch"
+
+cluster:
+  name: "es-on-k8s"
+  env:
+    MINIMUM_MASTER_NODES: "2"
+
+client:
+  serviceType: NodePort
+
+master:
+  name: master
+  replicas: 3
+  heapSize: "512m"
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    name: data
+    size: "4Gi"
+    storageClass: "nfs-es"
+
+data:
+  name: data
+  replicas: 2
+  heapSize: "1536m"
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    name: data
+    size: "40Gi"
+    storageClass: "nfs-es"
+  terminationGracePeriodSeconds: 3600
+  resources:
+    limits:
+      cpu: "1"
+      # memory: "2048Mi"
+    requests:
+      cpu: "25m"
+      memory: "1536Mi"
+  podDisruptionBudget:
+    enabled: false
+    # minAvailable: 1
+    maxUnavailable: 1

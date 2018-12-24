@@ -10,7 +10,7 @@
 - helm  
 为了简化部署，通过helm来安装Jenkins，可参考文档：[helm](helm.md)
 - 持久化存储  
-这里使用**NFS**演示，参考文档：[cluster-storage](../08-cluster-storage.md)。
+这里使用**NFS**演示，参考文档：[cluster-storage](../setup/08-cluster-storage.md)。
 如果k8s集群是部署在公有云，也可使用厂商的NAS等存储方案，项目中已集成支持阿里云NAS，其他的方案参考相关厂商文档
 
 - Ingress Controller(nginx-ingress/traefik)  
@@ -31,7 +31,7 @@ Error: transport is closing
 ```
 请执行以下命令快速安装进行修复：
 ```
-helms install manifests/jenkins/ --name jenkins
+helm install --tls manifests/jenkins/ --name jenkins
 ```
 
 由于初始化过程中，默认安装指定的插件，所以启动较慢，大概5-10分钟左右就可以启动完成了。  

@@ -1,29 +1,17 @@
-# 集群更新存在一定风险，请谨慎操作
-# 使用命令：ansible-playbook -t upgrade_k8s 22.upgrade.yml
+# WARNING: Upgrade the k8s cluster can be risky. Make sure you know what you are doing.
+# Read the guide: 'op/upgrade.md' .
 
-# 更新kubectl二进制
-- hosts:
-  - kube-master
-  - kube-node
-  - deploy
-  roles:
-  - prepare
-
-# 更新etcd集群
-- hosts: etcd
-  roles:
-  - etcd
-
-# docker更新，为保证不中断业务，不自动重启docker服务
+# update kubectl binary
 - hosts:
   - kube-master
   - new-master
   - kube-node
   - new-node
+  - deploy
   roles:
-  - docker
+  - prepare
 
-# 更新master节点
+# update masters
 - hosts: 
   - kube-master
   - new-master
@@ -31,7 +19,7 @@
   - kube-master
   - kube-node
 
-# 更新node节点
+# update nodes
 - hosts: 
   - kube-node
   - new-node

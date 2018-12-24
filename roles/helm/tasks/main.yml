@@ -14,7 +14,7 @@
 - name: 创建tiller 服务端证书请求
   template: src=tiller-csr.json.j2 dest={{ ca_dir }}/{{ tiller_cert_cn }}-csr.json
 
-- name: 创建 calico证书和私钥
+- name: 创建tiller 服务端证书和私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \
@@ -54,10 +54,10 @@
     regexp: 'helm completion'
     line: 'source <(helm completion bash)'
 
-# 为方便与tiller进行安全通信，使用helms别名
-- name: 配置helm命令别名
+# 为方便与tiller进行安全通信，启用helm tls环境变量；仅支持helm v2.11.0及以上版本
+- name: 配置helm tls环境变量
   lineinfile:
     dest: ~/.bashrc
     state: present
-    regexp: "alias helms"
-    line: "alias helms='helm --tls --tiller-namespace {{ helm_namespace }}'"
+    regexp: "helm tls environment"
+    line: "export HELM_TLS_ENABLE=true"

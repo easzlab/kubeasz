@@ -8,7 +8,7 @@
 
 ## 替换流程
 
-kubeasz使用标准cni方式安装k8s集群的网络插件；cni负载创建容器网卡和IP分配（IPAM），不同的网络插件（calico,flannel等）创建容器网卡和IP分配方式不一样，所以在替换网络插件时候需要现有pod全部删除，然后自动按照新网络插件的方式重建pod网络；请参考[k8s网络插件章节](../06-安装网络组件.md)。
+kubeasz使用标准cni方式安装k8s集群的网络插件；cni负载创建容器网卡和IP分配（IPAM），不同的网络插件（calico,flannel等）创建容器网卡和IP分配方式不一样，所以在替换网络插件时候需要现有pod全部删除，然后自动按照新网络插件的方式重建pod网络；请参考[k8s网络插件章节](../setup/06-install_network_plugin.md)。
 
 ### 替换操作
 
@@ -27,5 +27,5 @@ g.删除所有运行pod，然后等待自动重建
 
 ## 验证新网络插件
 
-参照[calico](../06.calico.md) [flannel](../06.flannel.md) [kube-router](../06.kube-router.md)
+参照[calico](../setup/calico.md) [cilium](../setup/cilium.md) [flannel](../setup/flannel.md) [kube-router](../setup/kube-router.md)
 

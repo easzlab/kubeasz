@@ -1,42 +1,42 @@
 ###---[basic_images ]
-# dns-addon 插件
-coredns/coredns:1.1.3
-mirrorgooglecontainers/k8s-dns-kube-dns-amd64:1.14.10
-mirrorgooglecontainers/k8s-dns-dnsmasq-nanny-amd64:1.14.10
-mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.10
-# metrics-server 插件
-mirrorgooglecontainers/metrics-server-amd64:v0.2.1
-# calico 网络插件
-calico/node:v3.1.3
-calico/cni:v3.1.3
-calico/kube-controllers:v3.1.3
-# cilium 网络插件
-cilium/cilium:v1.1.2
-# flannel 网络插件
+# dns-addon 
+coredns/coredns:1.2.6
+mirrorgooglecontainers/k8s-dns-kube-dns-amd64:1.14.13
+mirrorgooglecontainers/k8s-dns-dnsmasq-nanny-amd64:1.14.13
+mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.13
+# metrics-server 
+mirrorgooglecontainers/metrics-server-amd64:v0.3.1
+# calico 
+calico/node:v3.2.4
+calico/cni:v3.2.4
+calico/kube-controllers:v3.2.4
+# cilium 
+cilium/cilium:v1.1.4
+# flannel 
 jmgao1983/flannel:v0.10.0-amd64
-# kube-router 网络插件
-cloudnativelabs/kube-router:v0.2.0-beta.9
-# dashboard 插件
-mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.8.3
-# pause 基础容器镜像
+# kube-router 
+cloudnativelabs/kube-router:v0.2.0
+# dashboard 
+mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.0
+# pause 
 mirrorgooglecontainers/pause-amd64:3.1
 busybox:1.28.4
-# traefik ingress 镜像
-traefik:v1.6
-# heapster 插件
+# traefik ingress 
+traefik:v1.7.4
+# heapster 
 mirrorgooglecontainers/heapster-grafana-amd64:v4.4.3
-mirrorgooglecontainers/heapster-amd64:v1.5.1
+mirrorgooglecontainers/heapster-amd64:v1.5.4
 mirrorgooglecontainers/heapster-influxdb-amd64:v1.3.3
 
 ###---[extra-images]
-# helm 服务端
-jmgao1983/tiller:v2.9.1
-# efk 插件
+# helm tiller server 
+jmgao1983/tiller:v2.11.0
+# efk 
 mirrorgooglecontainers/elasticsearch:v5.6.4
 alpine:3.6
 mirrorgooglecontainers/fluentd-elasticsearch:v2.0.2
 jmgao1983/kibana:5.6.4
-# nfs 动态PV
+# nfs dynamic PV provisioner
 jmgao1983/nfs-client-provisioner:latest
 # prometheus
 busybox:latest

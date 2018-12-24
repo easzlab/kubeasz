@@ -15,7 +15,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/var/lib/kube-proxy
-ExecStart=/opt/kube/bin/kube-proxy \
+ExecStart={{ bin_dir }}/kube-proxy \
   --bind-address={{ NODE_IP }} \
   --hostname-override={{ NODE_IP }} \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \

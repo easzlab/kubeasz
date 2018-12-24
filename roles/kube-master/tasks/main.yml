@@ -8,6 +8,7 @@
 
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
+  tags: change_cert
 
 - name: 创建 kubernetes 证书和私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
@@ -15,6 +16,7 @@
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
+  tags: change_cert
 
 # 创建aggregator proxy相关证书
 - name: 创建 aggregator proxy证书签名请求
@@ -28,9 +30,6 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
   tags: upgrade_k8s
-
-- name: 创建 token.csv
-  template: src=token.csv.j2 dest={{ ca_dir }}/token.csv
 
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
@@ -68,5 +67,6 @@
   until:    result.rc == 0
   retries:  5
   delay: 6
+  delegate_to: "{{ groups.deploy[0] }}"
   run_once: True
   tags: upgrade_k8s, restart_master

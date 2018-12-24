@@ -1,4 +1,4 @@
-# 集群网络插件部署，只能选择一种安装
+# to install network plugin, only one can be choosen 
 - hosts:
   - kube-master
   - kube-node

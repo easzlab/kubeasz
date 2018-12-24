@@ -1,0 +1,59 @@
+---
+- name: Set OS family dependent variables
+  include_vars: '{{ ansible_os_family }}.yml'
+  tags: always
+
+- name: Set OS dependent variables
+  include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+      - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'
+      - '{{ ansible_distribution }}.yml'
+      - '{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml'
+      skip: true
+  tags: always
+
+- import_tasks: auditd.yml
+  tags: auditd
+
+- import_tasks: limits.yml
+  tags: limits
+
+- import_tasks: login_defs.yml
+  tags: login_defs
+
+- import_tasks: minimize_access.yml
+  tags: minimize_access
+
+- import_tasks: pam.yml
+  tags: pam
+
+- import_tasks: modprobe.yml
+  tags: modprobe
+
+- import_tasks: profile.yml
+  tags: profile
+
+- import_tasks: securetty.yml
+  tags: securetty
+
+- import_tasks: suid_sgid.yml
+  when: os_security_suid_sgid_enforce
+  tags: suid_sgid
+
+- import_tasks: sysctl.yml
+  tags: sysctl
+
+- import_tasks: user_accounts.yml
+  tags: user_accounts
+
+- import_tasks: rhosts.yml
+  tags: rhosts
+
+- import_tasks: yum.yml
+  when: ansible_os_family == 'RedHat'
+  tags: yum
+
+- import_tasks: apt.yml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  tags: apt

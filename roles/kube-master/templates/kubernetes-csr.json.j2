@@ -5,6 +5,9 @@
     "{{ MASTER_IP }}",
     "{{ inventory_hostname }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
+{% for HOST in MASTER_CERT_HOSTS %}
+    "{{ HOST }}",
+{% endfor %}
     "kubernetes",
     "kubernetes.default",
     "kubernetes.default.svc",

@@ -1,12 +1,13 @@
-# 集群从备份恢复的脚本，使用请参阅文档 docs/op/cluster_restore.md
+# cluster-restore playbook
+# read the guide: 'op/cluster_restore.md'
 
-# 在deploy节点恢复CA相关证书
+# to restore CA sth on 'deploy' node
 - hosts: deploy
   tasks: 
-  - name: 恢复CA 文件夹
+  - name: Restoring dirs of CA sth
     file: name=/etc/kubernetes/ssl/ state=directory
 
-  - name: 恢复CA 相关文件
+  - name: Restoring CA sth
     copy: 
       src: "{{ base_dir }}/roles/cluster-backup/files/ca/{{ item }}"
       dest: "{{ ca_dir }}/{{ item }}"
@@ -21,22 +22,22 @@
   roles:
   - deploy
 
-# 集群节点的公共配置任务
+# pre-tasks on all nodes
 - hosts: all
   roles:
   - prepare
 
-# [可选]多master部署时的负载均衡配置
+# [optional] only needed by multi-master cluster
 - hosts: lb
   roles:
   - lb
 
-# 创建etcd集群
+# to install etcd cluster
 - hosts: etcd
   roles:
   - etcd
 
-# docker服务安装
+# to install docker
 - hosts:
   - kube-master
   - kube-node
@@ -45,31 +46,32 @@
   roles:
   - docker
 
+# to set up 'kube-master' nodes
 - hosts:
   - kube-master
   - new-master
   roles:
   - kube-master
   - kube-node
-  # 禁止业务 pod调度到 master节点
+  # 
   tasks:
-  - name: 禁止业务 pod调度到 master节点
+  - name: Making master nodes SchedulingDisabled
     shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
     when: DEPLOY_MODE != "allinone"
     ignore_errors: true
 
-  - name: 设置master节点role
+  - name: Setting master role name
     shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
     ignore_errors: true
 
-# node 节点部署
+# to set up 'kube-node' nodes
 - hosts:
   - kube-node
   - new-node
   roles:
   - kube-node
 
-# etcd 集群进行数据恢复
+# to restore data of etcd cluster
 - hosts: etcd
   roles:
   - cluster-restore

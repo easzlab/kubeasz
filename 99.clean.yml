@@ -1,7 +1,7 @@
-# 警告：此脚本将清理整个K8S集群，包括所有POD、ETCD数据等
-# 请三思后运行此脚本 ansible-playbook 99.clean.yml
+# WARNING: This playbook will erase the entire k8s-cluster, include PODs, ETCD data etc.
+# Make sure you know what you are doing.
 
-# 清理 kube-node 相关服务
+# to clean 'kube-node' nodes
 - hosts:
   - kube-master
   - new-master
@@ -15,11 +15,13 @@
     - kube-proxy
     ignore_errors: true
 
-  - name: umount kubelet 挂载的目录
+  - name: umount kubelet filesystems
     shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount"
+    args:
+      warn: false
     ignore_errors: true
 
-  - name: 清理目录和文件
+  - name: remove files and dirs of 'kube-node' nodes
     file: name={{ item }} state=absent
     with_items:
     - "/var/lib/kubelet/"
@@ -28,7 +30,7 @@
     - "/etc/systemd/system/kube-proxy.service"
     - "/opt/kube/kube-system/"
 
-# 清理 kube-master 相关
+# to clean 'kube-master' nodes
 - hosts:
   - kube-master
   - new-master
@@ -41,7 +43,7 @@
     - kube-scheduler
     ignore_errors: true
 
-  - name: 清理目录和文件
+  - name: remove files and dirs of 'kube-master' nodes
     file: name={{ item }} state=absent
     with_items:
     - "/var/run/kubernetes"
@@ -49,14 +51,14 @@
     - "/etc/systemd/system/kube-controller-manager.service"
     - "/etc/systemd/system/kube-scheduler.service"
 
-# 清理集群docker服务、网络相关
+# to clean docker service and networking
 - hosts:
   - kube-master
   - new-master
   - kube-node
   - new-node
   tasks:
-  - name: 清理kube-router相关
+  - name: clean 'kube-router' stuff
     shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
     ignore_errors: true
     when: "CLUSTER_NETWORK == 'kube-router'"
@@ -68,15 +70,14 @@
       enabled: no
     ignore_errors: true
 
-  # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
-  # 卸载 /var/run/docker/netns/default
-  - name: 卸载docker 相关fs1
+  # as k8s-network-plugins use host-network, '/var/run/docker/netns/default' must be umounted
+  - name: unmount docker filesystem-1
     mount: path=/var/run/docker/netns/default state=unmounted
 
-  - name: 卸载docker 相关fs2
+  - name: unmount docker filesystem-2
     mount: path=/var/lib/docker/overlay state=unmounted
 
-  - name: 清理目录和文件
+  - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
     - "/etc/cni/"
@@ -96,17 +97,18 @@
     - "/etc/systemd/system/calico-node.service"
     - "/etc/systemd/system/docker.service"
     - "/etc/systemd/system/docker.service.requires/"
+    - "/etc/systemd/system/docker.service.d/"
     - "/opt/kube/kube-system/"
     - "/etc/bash_completion.d/docker"
     ignore_errors: true
 
-  - name: 清理 iptables
+  - name: cleanup iptables
     shell: "iptables -F && iptables -X \
 	&& iptables -F -t nat && iptables -X -t nat \
 	&& iptables -F -t raw && iptables -X -t raw \
 	&& iptables -F -t mangle && iptables -X -t mangle"
 
-  - name: 清理网络
+  - name: cleanup networks
     shell: "ip link del docker0; \
 	ip link del tunl0; \
 	ip link del flannel.1; \
@@ -121,12 +123,12 @@
 	systemctl restart network"
     ignore_errors: true
 
-  - name: 清理calico残留路由
+  - name: cleanup 'calico' routes
     shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
     when: "CLUSTER_NETWORK == 'calico'"
     ignore_errors: true
 
-# 清理etcd 集群相关
+# to clean 'etcd' nodes
 - hosts: etcd
   tasks:
   - name: stop and disable etcd service
@@ -136,7 +138,7 @@
       enabled: no
     ignore_errors: true
 
-  - name: 清理目录和文件
+  - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
     - "/var/lib/etcd"
@@ -144,7 +146,7 @@
     - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"
 
-# 清理负载均衡相关
+# to clean 'lb' nodes
 - hosts: lb
   tasks:
   - name: stop keepalived service
@@ -155,12 +157,13 @@
     shell: systemctl disable haproxy && systemctl stop haproxy
     ignore_errors: true
 
-  - name: 清理LB 配置文件目录
+  - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
     - "/etc/haproxy"
     - "/etc/keepalived"
 
+# to clean ntp, certs and keys, env path
 - hosts:
   - kube-master
   - new-master
@@ -170,15 +173,19 @@
   - etcd
   - lb
   tasks:
-  - name: stop and disable chrony
-    service: name={{ item }} state=stopped enabled=no
-    with_items:
-    - chrony
-    - chronyd
+  - name: stop and disable chrony in Ubuntu
+    service: name=chrony state=stopped enabled=no
     ignore_errors: true
     tags: rm_ntp 
+    when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
 
-  - name: 清理证书目录和文件
+  - name: stop and disable chronyd in CentOS
+    service: name=chronyd state=stopped enabled=no
+    ignore_errors: true
+    tags: rm_ntp 
+    when: ansible_distribution == "CentOS" 
+
+  - name: clean certs and keys
     file: name={{ item }} state=absent
     with_items:
     - "/etc/kubernetes/"
@@ -186,7 +193,7 @@
     - "/root/.kube/"
     - "/etc/docker/"
 
-  - name: 清理自动生成的PATH
+  - name: clean 'ENV PATH'
     lineinfile:
       dest: ~/.bashrc
       state: absent

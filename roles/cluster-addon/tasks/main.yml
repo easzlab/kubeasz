@@ -1,25 +1,27 @@
-- name: 创建相关目录
-  file: path={{ item }} state=directory
-  with_items:
-  - /opt/kube/kube-system/kubedns
-  - /opt/kube/kube-system/coredns
-
-# DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
-- name: 准备 DNS的部署文件
-  template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}/{{ item }}.yaml
-  with_items:
-  - kubedns
-  - coredns
-
-- name: 获取所有已经创建的POD信息
-  command: "{{ bin_dir }}/kubectl get pod -n kube-system"
-  register: pod_info
+- block:
+    - name: 在deploy 节点创建相关目录
+      file: path={{ item }} state=directory
+      with_items:
+      - /opt/kube/kube-system/kubedns
+      - /opt/kube/kube-system/coredns
+    
+    # DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+    - name: 准备 DNS的部署文件
+      template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}/{{ item }}.yaml
+      with_items:
+      - kubedns
+      - coredns
+    
+    - name: 获取所有已经创建的POD信息
+      command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
+      register: pod_info
+  delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
 
 - name: 获取已下载离线镜像信息
   command: "ls {{ base_dir }}/down"
   register: download_info
-  delegate_to: "{{ groups.deploy[0] }}"
+  connection: local
   run_once: true
 
 - block:
@@ -38,6 +40,7 @@
     - name: 创建{{ dns_backend }}部署
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}"
       run_once: true
+      delegate_to: "{{ groups.deploy[0] }}"
   when: 
   - '"kube-dns" not in pod_info.stdout'
   - '"coredns" not in pod_info.stdout'
@@ -84,25 +87,8 @@
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
   ignore_errors: true
 
-- block:
-    - name: 尝试推送离线 traefik镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ traefik_offline }} dest=/opt/kube/images/{{ traefik_offline }}
-      when: 'traefik_offline in download_info.stdout'
-    
-    - name: 获取traefik离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info     
-      
-    - name: 导入 traefik的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ traefik_offline }}"
-      when: 'traefik_offline in image_info.stdout'
-      
-    - name: 创建 traefik部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik-ingress.yaml"
-      delegate_to: "{{ groups.deploy[0] }}"
-      run_once: true
-  when: '"traefik-ingress-controller" not in pod_info.stdout and ingress_install == "yes"'
-  ignore_errors: true
+- import_tasks: ingress.yml
+  when: '"ingress-controller" not in pod_info.stdout and ingress_install == "yes"'
 
 - block:
     - name: 尝试推送离线 heapster镜像（若执行失败，可忽略）
@@ -122,5 +108,38 @@
       delegate_to: "{{ groups.deploy[0] }}"
       run_once: true
   when: '"heapster" not in pod_info.stdout and heapster_install == "yes"'
+  ignore_errors: true
+
+- block:
+    - name: 尝试推送离线 metallb镜像（若执行失败，可忽略）
+      copy: src={{ base_dir }}/down/{{ metallb_offline }} dest=/opt/kube/images/{{ metallb_offline }}
+      when: 'metallb_offline in download_info.stdout'
+    
+    - name: 获取metallb离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info     
+      
+    - name: 导入 metallb的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metallb_offline }}"
+      when: 'metallb_offline in image_info.stdout'
+
+    - name: 生成 metallb 相关 manifests
+      template: src=metallb/{{ item }}.j2 dest=/opt/kube/kube-system/{{ item }}
+      with_items:
+      - "metallb.yaml"
+      - "{{ metallb_protocol }}.yaml"
+      delegate_to: "{{ groups.deploy[0] }}"
+      run_once: true
+
+    - name: 创建 metallb controller 部署
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/metallb.yaml"
+      delegate_to: "{{ groups.deploy[0] }}"
+      run_once: true
+
+    - name: 创建 metallb configmap
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ metallb_protocol }}.yaml"
+      delegate_to: "{{ groups.deploy[0] }}"
+      run_once: true
+  when: '"metallb" not in pod_info.stdout and metallb_install == "yes"'
   ignore_errors: true
 

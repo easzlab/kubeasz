@@ -8,35 +8,20 @@
   - name: 获取所有已经创建的POD信息
     command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
     register: pod_info
+    delegate_to: "{{ groups.deploy[0] }}"
     run_once: true
 
-  - name: 删除原network插件calico部署
-    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/calico/ || \
-            {{ bin_dir }}/kubectl delete -f /root/local/kube-system/calico/"
-    ignore_errors: true
+  - name: 删除原network插件部署
+    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/{{ item }}/"
+    with_items:
+    - calico
+    - cilium
+    - flannel
+    - kube-router
+    when: 'item in pod_info.stdout'
+    delegate_to: "{{ groups.deploy[0] }}"
     run_once: true
-    when: '"calico" in pod_info.stdout'
-
-  - name: 删除原network插件cilium部署
-    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/cilium/ || \
-            {{ bin_dir }}/kubectl delete -f /root/local/kube-system/cilium/"
     ignore_errors: true
-    run_once: true
-    when: '"cilium" in pod_info.stdout'
-
-  - name: 删除原network插件flannel部署
-    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/flannel/ || \
-            {{ bin_dir }}/kubectl delete -f /root/local/kube-system/flannel/"
-    ignore_errors: true
-    run_once: true
-    when: '"flannel" in pod_info.stdout'
-
-  - name: 删除原network插件kube-router部署
-    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/kube-router/ || \
-            {{ bin_dir }}/kubectl delete -f /root/local/kube-system/kube-router/"
-    ignore_errors: true
-    run_once: true
-    when: '"kube-router" in pod_info.stdout'
 
   - name: 清理kube-router相关
     shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"

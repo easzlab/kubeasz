@@ -11,6 +11,7 @@
 - 安装 [helm](helm.md)
 - 安装 [efk](efk.md)
 - 安装 [harbor](harbor.md)
+- 安装 [metallb](metallb.md)
 
 ### 基础特性演示
 

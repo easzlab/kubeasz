@@ -1,8 +1,22 @@
+- block:
+    - name: 在deploy 节点创建相关目录
+      file: name=/opt/kube/kube-system/flannel state=directory
+
+    - name: 配置 flannel DaemonSet yaml文件
+      template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+    
+- name: 检查是否已下载离线flannel镜像
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
+  run_once: true
+    
 - name: 创建flannel cni 相关目录
   file: name={{ item }} state=directory
   with_items:
   - /etc/cni/net.d
-  - /opt/kube/kube-system/flannel
   - /opt/kube/images
 
 - name: 下载flannel cni plugins
@@ -13,15 +27,6 @@
   - host-local
   - loopback
   - portmap
-
-- name: 配置 flannel DaemonSet yaml文件
-  template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
-
-- name: 检查是否已下载离线flannel镜像
-  command: "ls {{ base_dir }}/down"
-  register: download_info
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
 
 # 【可选】推送离线docker 镜像，可以忽略执行错误
 - name: 尝试推送离线docker 镜像（若执行失败，可忽略）
@@ -48,6 +53,7 @@
 # 只需单节点执行一次
 - name: 运行 flannel网络
   shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel/ && sleep 5"
+  delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
 
 # 删除原有cni配置
@@ -59,6 +65,7 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
+  delegate_to: "{{ groups.deploy[0] }}"
   retries: 15
   delay: 8
 
