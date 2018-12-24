@@ -7,6 +7,7 @@ Requires=docker.service
 [Service]
 WorkingDirectory=/var/lib/kubelet
 #--pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest
+#--pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
   --allow-privileged=true \
@@ -24,7 +25,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --max-pods={{ MAX_PODS }} \
   --network-plugin=cni \
-  --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1 \
+  --pod-infra-container-image={{ pod_image }} \
   --register-node=true \
   --root-dir={{ KUBELET_ROOT_DIR }} \
   --tls-cert-file={{ ca_dir }}/kubelet.pem \

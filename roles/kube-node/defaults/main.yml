@@ -6,3 +6,14 @@ KUBELET_ROOT_DIR: "/var/lib/kubelet"
 
 # node节点最大pod 数
 MAX_PODS: 110
+
+
+# 识别操作系统，加载对应的Pause容器
+OS_VER: "{{ ansible_distribution }}"
+for_redhat_pod: "registry.access.redhat.com/rhel7/pod-infrastructure:latest"
+for_other_pod: "mirrorgooglecontainers/pause-amd64:3.1"
+pod_image: "{%- if OS_VER == 'RedHat' -%} \
+                {{ for_redhat_pod }} \
+            {%- else -%} \
+                {{ for_other_pod }} \
+            {%- endif -%}"

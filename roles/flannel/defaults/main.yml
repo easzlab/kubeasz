@@ -16,3 +16,13 @@ flanneld_image: "jmgao1983/flannel:v0.10.0-amd64"
 
 # 离线镜像tar包
 flannel_offline: "flannel_v0.10.0-amd64.tar"
+
+# 识别操作系统，加载对应的Pause容器离线镜像tar包
+OS_VER: "{{ ansible_distribution }}"
+for_redhat_pod: "rhel7-pod-infrastructure.tar"
+for_other_pod: "pause_3.1.tar"
+pause_offline: "{%- if OS_VER == 'RedHat' -%} \
+                {{ for_redhat_pod }} \
+              {%- else -%} \
+                {{ for_other_pod }} \
+              {%- endif -%}"

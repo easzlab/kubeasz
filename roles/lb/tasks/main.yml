@@ -16,14 +16,14 @@
 
 - name: yum安装 haproxy
   yum: name=haproxy state=latest
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
 
 - name: 创建haproxy配置目录
   file: name=/etc/haproxy state=directory
 
 - name: 修改centos的haproxy.service
   template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
   tags: restart_lb
 
 - name: 配置 haproxy
@@ -36,7 +36,7 @@
 
 - name: yum安装 keepalived
   yum: name=keepalived state=latest
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
 
 - name: 创建keepalived配置目录
   file: name=/etc/keepalived state=directory

@@ -20,6 +20,7 @@ cloudnativelabs/kube-router:v0.2.0
 mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.0
 # pause 
 mirrorgooglecontainers/pause-amd64:3.1
+registry.access.redhat.com/rhel7/pod-infrastructure:latest
 busybox:1.28.4
 # traefik ingress 
 traefik:v1.7.4

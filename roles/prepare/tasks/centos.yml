@@ -1,4 +1,4 @@
-- name: 删除centos默认安装
+- name: 删除centos/redhat默认安装
   yum: 
     name: 
       - firewalld

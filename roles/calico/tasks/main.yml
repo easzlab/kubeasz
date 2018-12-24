@@ -53,7 +53,7 @@
   copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
   when: 'item in download_info.stdout'
   with_items:
-  - "pause_3.1.tar"
+  - "{{ pause_offline }}"
   - "{{ calico_offline }}"
   ignore_errors: true
 
@@ -66,7 +66,7 @@
   shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
   when: 'item in image_info.stdout'
   with_items:
-  - "pause_3.1.tar"
+  - "{{ pause_offline }}"
   - "{{ calico_offline }}"
   ignore_errors: true
 

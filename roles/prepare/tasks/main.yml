@@ -3,7 +3,7 @@
   when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
 
 - import_tasks: centos.yml
-  when: ansible_distribution == "CentOS"
+  when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat")
 
 - name: prepare some dirs
   file: name={{ item }} state=directory

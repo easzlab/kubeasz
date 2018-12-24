@@ -21,3 +21,13 @@ PullPolicy: "IfNotPresent"
 # kube-router 离线镜像tar包
 kuberouter_offline: "kube-router_{{ kube_router_ver }}.tar"
 busybox_offline: "busybox_{{ busybox_ver }}.tar"
+
+# 识别操作系统，加载对应的Pause容器离线镜像tar包
+OS_VER: "{{ ansible_distribution }}"
+for_redhat_pod: "rhel7-pod-infrastructure.tar"
+for_other_pod: "pause_3.1.tar"
+pause_offline: "{%- if OS_VER == 'RedHat' -%} \
+                {{ for_redhat_pod }} \
+              {%- else -%} \
+                {{ for_other_pod }} \
+              {%- endif -%}"
