@@ -12,7 +12,7 @@ roles/docker/
     └── docker.service.j2
 ```
 
-请在另外窗口打开[roles/docker/tasks/main.yml](../roles/docker/tasks/main.yml) 文件，对照看以下讲解内容。
+请在另外窗口打开[roles/docker/tasks/main.yml](../../roles/docker/tasks/main.yml) 文件，对照看以下讲解内容。
 
 ### 创建docker的systemd unit文件 
 
@@ -81,7 +81,11 @@ iptables -F && iptables -X \
 ```
 + calico 网络支持 `network-policy`，使用的`calico-kube-controllers` 会使用到`iptables` 所有的四个表 `filter` `nat` `raw` `mangle`，所以一并清理
 
-### 启动 docker 略
+### 启动 docker
+
+``` bash
+systemctl daemon-reload && systemctl enable docker && systemctl start docker
+```
 
 ### 可选-安装docker查询镜像 tag的小工具
 
