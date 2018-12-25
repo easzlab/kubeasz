@@ -26,7 +26,7 @@ roles/kube-master/
     └── token.csv.j2
 ```
 
-请在另外窗口打开[roles/kube-master/tasks/main.yml](../roles/kube-master/tasks/main.yml) 文件，对照看以下讲解内容。
+请在另外窗口打开[roles/kube-master/tasks/main.yml](../../roles/kube-master/tasks/main.yml) 文件，对照看以下讲解内容。
 
 ### 创建 kubernetes 证书签名请求
 
@@ -80,14 +80,13 @@ After=network.target
 
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
-  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction \
+  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook \
   --bind-address={{ inventory_hostname }} \
   --insecure-bind-address=127.0.0.1 \
   --authorization-mode=Node,RBAC \
-  --runtime-config=rbac.authorization.k8s.io/v1 \
   --kubelet-https=true \
-  --kubelet-client-certificate={{ ca_dir }}/kubernetes.pem \
-  --kubelet-client-key={{ ca_dir }}/kubernetes-key.pem \
+  --kubelet-client-certificate={{ ca_dir }}/admin.pem \
+  --kubelet-client-key={{ ca_dir }}/admin-key.pem \
   --anonymous-auth=false \
   --basic-auth-file={{ ca_dir }}/basic-auth.csv \
   --service-cluster-ip-range={{ SERVICE_CIDR }} \
@@ -101,12 +100,22 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --etcd-keyfile={{ ca_dir }}/kubernetes-key.pem \
   --etcd-servers={{ ETCD_ENDPOINTS }} \
   --enable-swagger-ui=true \
+  --endpoint-reconciler-type=lease \
   --allow-privileged=true \
   --audit-log-maxage=30 \
   --audit-log-maxbackup=3 \
   --audit-log-maxsize=100 \
   --audit-log-path=/var/lib/audit.log \
   --event-ttl=1h \
+  --requestheader-client-ca-file={{ ca_dir }}/ca.pem \
+  --requestheader-allowed-names= \
+  --requestheader-extra-headers-prefix=X-Remote-Extra- \
+  --requestheader-group-headers=X-Remote-Group \
+  --requestheader-username-headers=X-Remote-User \
+  --proxy-client-cert-file={{ ca_dir }}/aggregator-proxy.pem \
+  --proxy-client-key-file={{ ca_dir }}/aggregator-proxy-key.pem \
+  --enable-aggregator-routing=true \
+  --runtime-config=batch/v2alpha1=true \
   --v=2
 Restart=on-failure
 RestartSec=5
@@ -142,6 +151,7 @@ ExecStart={{ bin_dir }}/kube-controller-manager \
   --cluster-signing-key-file={{ ca_dir }}/ca-key.pem \
   --service-account-private-key-file={{ ca_dir }}/ca-key.pem \
   --root-ca-file={{ ca_dir }}/ca.pem \
+  --horizontal-pod-autoscaler-use-rest-clients=true \
   --leader-elect=true \
   --v=2
 Restart=on-failure
