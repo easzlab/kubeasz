@@ -1,9 +1,9 @@
-# Calico Version {{ calico_node_ver }} 
-# https://docs.projectcalico.org/v3.2/releases#{{ calico_node_ver }}
+# Calico Version {{ calico_ver }} 
+# https://docs.projectcalico.org/v3.3/releases#{{ calico_ver }}
 # This manifest includes the following component versions:
-#   calico/node:{{ calico_node_ver }}
-#   calico/cni:{{ calico_cni_ver }}
-#   calico/kube-controllers:{{ calico_kube_controller_ver }}
+#   calico/node:{{ calico_ver }}
+#   calico/cni:{{ calico_ver }}
+#   calico/kube-controllers:{{ calico_ver }}
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -115,7 +115,7 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          image: calico/node:{{ calico_node_ver }}
+          image: calico/node:{{ calico_ver }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -216,6 +216,9 @@ spec:
             - mountPath: /lib/modules
               name: lib-modules
               readOnly: true
+            - mountPath: /run/xtables.lock
+              name: xtables-lock
+              readOnly: false
             - mountPath: /var/run/calico
               name: var-run-calico
               readOnly: false
@@ -227,7 +230,7 @@ spec:
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          image: calico/cni:{{ calico_cni_ver }}
+          image: calico/cni:{{ calico_ver }}
           command: ["/install-cni.sh"]
           env:
             # Name of the CNI config file to create.
@@ -269,6 +272,10 @@ spec:
         - name: var-lib-calico
           hostPath:
             path: /var/lib/calico
+        - name: xtables-lock
+          hostPath:
+            path: /run/xtables.lock
+            type: FileOrCreate
         # Used to install CNI.
         - name: cni-bin-dir
           hostPath:
@@ -332,7 +339,7 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          image: calico/kube-controllers:{{ calico_kube_controller_ver }}
+          image: calico/kube-controllers:{{ calico_ver }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -360,7 +367,7 @@ spec:
                   key: etcd_cert
             # Choose which controllers to run.
             - name: ENABLED_CONTROLLERS
-              value: policy,profile,workloadendpoint,node
+              value: policy,namespace,serviceaccount,workloadendpoint,node
 {% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
             # if hosts have multiple net interfaces, set following two ENVs
             - name: KUBERNETES_SERVICE_HOST

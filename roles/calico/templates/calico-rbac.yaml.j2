@@ -1,6 +1,3 @@
-# Calico Version v3.2.4
-# https://docs.projectcalico.org/v3.2/releases#v3.2.4
-
 ---
 
 kind: ClusterRole
@@ -52,6 +49,7 @@ rules:
     resources:
       - pods
       - nodes
+      - namespaces
     verbs:
       - get
 

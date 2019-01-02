@@ -28,7 +28,7 @@
       when: '"calico-etcd-secrets" not in secrets_info.stdout'
     
     - name: 配置 calico DaemonSet yaml文件
-      template: src=calico.yaml.j2 dest=/opt/kube/kube-system/calico/calico.yaml
+      template: src=calico-{{ calico_ver }}.yaml.j2 dest=/opt/kube/kube-system/calico/calico.yaml
     
     - name: 配置 calico rbac
       template: src=calico-rbac.yaml.j2 dest=/opt/kube/kube-system/calico/calico-rbac.yaml

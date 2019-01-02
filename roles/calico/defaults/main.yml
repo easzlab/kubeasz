@@ -19,9 +19,8 @@ FELIX_LOG_LVL: "warning"
 IP_AUTODETECTION_METHOD: "can-reach={{ groups.deploy[0] }}"
 
 # 镜像版本
-calico_node_ver: "v3.2.4"
-calico_cni_ver: "v3.2.4"
-calico_kube_controller_ver: "v3.2.4"
+# 更新支持calico 版本: [v3.2.4]和[v3.3.2]
+calico_ver: "v3.3.2"
 
 # 离线镜像tar包
-calico_offline: "calico_{{ calico_node_ver }}.tar"
+calico_offline: "calico_{{ calico_ver }}.tar"
