@@ -14,10 +14,11 @@ roles/kube-node
 └── templates
     ├── cni-default.conf.j2
     ├── kubelet.service.j2
+    ├── kubelet-csr.json.j2
     └── kube-proxy.service.j2
 ```
 
-请在另外窗口打开[roles/kube-node/tasks/main.yml](../roles/kube-node/tasks/main.yml) 文件，对照看以下讲解内容。
+请在另外窗口打开[roles/kube-node/tasks/main.yml](../../roles/kube-node/tasks/main.yml) 文件，对照看以下讲解内容。
 
 ### 创建cni 基础网络插件配置文件
 
@@ -41,6 +42,9 @@ ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
   --allow-privileged=true \
   --anonymous-auth=false \
+  --authentication-token-webhook \
+  --authorization-mode=Webhook \
+  --pod-manifest-path=/etc/kubernetes/manifest \
   --client-ca-file={{ ca_dir }}/ca.pem \
   --cluster-dns={{ CLUSTER_DNS_SVC_IP }} \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
@@ -77,7 +81,7 @@ WantedBy=multi-user.target
 
 ### 创建 kube-proxy kubeconfig 文件
 
-该步骤已经在 deploy节点完成，[roles/deploy/tasks/main.yml](../roles/deploy/tasks/main.yml)
+该步骤已经在 deploy节点完成，[roles/deploy/tasks/main.yml](../../roles/deploy/tasks/main.yml)
 
 + 生成的kube-proxy.kubeconfig 配置文件需要移动到/etc/kubernetes/目录，后续kube-proxy服务启动参数里面需要指定
 
