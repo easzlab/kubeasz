@@ -6,7 +6,7 @@
 
 |组件|支持|
 |:-|:-|
-|OS|Ubuntu 16.04+, CentOS 7|
+|OS|Ubuntu 16.04+, CentOS/RedHat 7|
 |k8s|v1.8, v1.9, v1.10, v1.11, v1.12|
 |etcd|v3.1, v3.2, v3.3|
 |docker|17.03.2-ce, 18.06.1-ce|
