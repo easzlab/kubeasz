@@ -164,3 +164,4 @@ ETCDCTL_API=3 etcdctl --endpoints="http://127.0.0.1:2379" get --prefix /calico/i
 etcdctl --endpoints=http://127.0.0.1:2379 --ca-file=/etc/kubernetes/ssl/ca.pem ls /calico
 ```
 
+## 下一步：[设置 BGP Route Reflector](calico-bgp-rr.md)
