@@ -1,6 +1,10 @@
 # 默认使用kube-proxy的 'iptables' 模式，可选 'ipvs' 模式(experimental)
 PROXY_MODE: "iptables"
 
+# 基础容器镜像
+SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.1"
+#SANDBOX_IMAGE: "registry.access.redhat.com/rhel7/pod-infrastructure:latest"
+
 # Kubelet 根目录
 KUBELET_ROOT_DIR: "/var/lib/kubelet"
 
