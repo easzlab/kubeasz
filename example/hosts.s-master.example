@@ -27,7 +27,7 @@
 #集群部署模式：allinone, single-master, multi-master
 DEPLOY_MODE=single-master
 
-#集群主版本号，目前支持: v1.8, v1.9, v1.10，v1.11, v1.12
+#集群主版本号，目前支持: v1.8, v1.9, v1.10，v1.11, v1.12, v1.13
 K8S_VER="v1.11"
 
 #集群 MASTER IP，自动生成

@@ -7,7 +7,7 @@
 |组件|支持|
 |:-|:-|
 |OS|Ubuntu 16.04+, CentOS/RedHat 7|
-|k8s|v1.8, v1.9, v1.10, v1.11, v1.12|
+|k8s|v1.8, v1.9, v1.10, v1.11, v1.12, v1.13|
 |etcd|v3.1, v3.2, v3.3|
 |docker|17.03.2-ce, 18.06.1-ce|
 |network|calico, cilium, flannel, kube-router|
@@ -74,15 +74,15 @@
         <td><a href="docs/guide/harbor.md">harbor</a></td>
         <td><a href="docs/guide/helm.md">helm</a></td>
         <td><a href="docs/guide/jenkins.md">jenkins</a></td>
-        <td><a href=""></a></td>
+        <td><a href="docs/guide/gitlab.md">gitlab</a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
     <tr>
         <td><strong>应用实践</strong></td>
         <td><a href="docs/practice/java_war_app.md">java应用部署</a></td>
-        <td><a href="docs/practice/es_cluster.md">elasticsearch部署</a></td>
-        <td><a href=""></a></td>
+        <td><a href="docs/practice/es_cluster.md">elasticsearch集群</a></td>
+        <td><a href="docs/practice/mariadb_cluster.md">mariadb集群</a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
