@@ -1,8 +1,8 @@
 # calico 配置 BGP Route Reflectors
 
-BGP 路由反射器（Route Reflectors）是解决BGP扩展性问题的有效方式；没有 RR 时AS内的BGP路由器之间需要两两建立连接（IBGP全互联），引入 RR 后，其他 BGP 路由器只需要与它建立连接交换路由信息。更多相关知识请查阅思科/华为相关网络文档。
+`Calico`作为`k8s`的一个流行网络插件，它是基于`BGP`路由协议使得集群各个节点之间互通`POD`路由信息的；而节点互通路由信息的前提是建立 BGP Peer 连接。BGP 路由反射器（Route Reflectors，简称 RR）可以简化集群BGP Peer的连接方式，它是解决BGP扩展性问题的有效方式；具体来说：没有 RR 时同AS内所有节点之间需要两两建立连接（IBGP全互联），节点增加导致连接数剧增，资源占用剧增；引入 RR 后，其他 BGP 路由器只需要与它建立连接并交换路由信息，节点增加连接数只是线性增加，节省系统资源。更多相关知识请查阅思科/华为相关网络文档。
 
-calico-node 版本 v3.3 开始支持内建路由反射器，非常方便，因此使用 calico 作为网络插件可以支持大规模的 K8S 集群。
+calico-node 版本 v3.3 开始支持内建路由反射器，非常方便，因此使用 calico 作为网络插件可以支持大规模节点数的`K8S`集群。
 
 本文档主要讲解配置 BGP Route Reflectors，建议预先阅读[基础calico文档](calico.md)。
 
@@ -103,7 +103,7 @@ spec:
 EOF
 ```
 
-上述命令配置完成后，马上可以看到之前所有的bgp连接都消失了，查看命令: `calicoctl node status`
+上述命令配置完成后，再次使用命令`ansible all -m shell -a '/opt/kube/bin/calicoctl node status'`查看，可以看到之前所有的bgp连接都消失了。
 
 ## 配置 BGP node 与 Route Reflector 的连接建立规则
 
@@ -130,7 +130,7 @@ spec:
 EOF
 ```
 
-上述命令配置完成后，可以使用查看命令：`calicoctl get bgppeer` `calicoctl get bgppeer rr-mesh -o yaml`
+上述命令配置完成后，使用命令：`calicoctl get bgppeer` `calicoctl get bgppeer rr-mesh -o yaml` 检查配置是否正确。
 
 ## 选择并配置 Route Reflector 节点
 
@@ -244,11 +244,13 @@ IPv4 BGP status
 IPv6 BGP status
 No IPv6 peers found.
 ```
-可以看到所有其他节点都与两个rr节点建立bgp连接。
+可以看到所有其他节点都与所选rr节点建立bgp连接。
 
 ## 再增加一个 rr 节点
 
 步骤同上述选择第1个 rr 节点，这里省略；添加成功后可以看到所有其他节点都与两个rr节点建立bgp连接，两个rr节点之间也建立bgp连接。
+
+- 对于节点数较多的`K8S`集群建议配置3-4个 RR 节点
 
 ## 参考文档
 

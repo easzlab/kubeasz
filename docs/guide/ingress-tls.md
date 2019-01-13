@@ -68,6 +68,39 @@ https://hello.test.com:23457
 
 如果你已经配置了[转发 ingress nodePort](../op/loadballance_ingress_nodeport.md)，那么增加对应 hosts记录后，可以验证访问 `https://hello.test.com`
 
+## 配置 dashboard ingress
+
+前提1：k8s 集群的dashboard 已安装
+
+```
+$ kubectl get svc -n kube-system | grep dashboard
+kubernetes-dashboard      NodePort    10.68.211.168   <none>        443:39308/TCP	3d11h
+```
+前提2：`/etc/ansible/manifests/ingress/traefik/tls/traefik-controller.yaml`的配置文件`traefik.toml`开启了`insecureSkipVerify = true`
+
+配置 dashboard ingress：`kubectl apply -f /etc/ansible/manifests/ingress/traefik/tls/k8s-dashboard.ing.yaml` 内容如下：
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name:  kubernetes-dashboard
+  namespace: kube-system
+  annotations:
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+spec:
+  rules:
+  - host: dashboard.test.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 443
+```
+- 注意annotations 配置了 http 跳转 https 功能
+- 注意后端服务是443端口
+
 ## 参考
 
 - [Add a TLS Certificate to the Ingress](https://docs.traefik.io/user-guide/kubernetes/#add-a-tls-certificate-to-the-ingress)

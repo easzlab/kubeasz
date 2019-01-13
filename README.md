@@ -49,7 +49,7 @@
         <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
         <td><a href="docs/guide/prometheus.md">prometheus</a></td>
         <td><a href="docs/guide/efk.md">efk</a></td>
-        <td><a href="docs/guide/metallb.md">metallb</a></td>
+        <td><a href="docs/guide/ingress.md">ingress</a></td>
     </tr>
     <tr>
         <td><strong>集群管理</strong><a href="docs/op/op-index.md">+</a></td>
