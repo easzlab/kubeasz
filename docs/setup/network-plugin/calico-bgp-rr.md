@@ -1,10 +1,13 @@
 # calico 配置 BGP Route Reflectors
 
-`Calico`作为`k8s`的一个流行网络插件，它是基于`BGP`路由协议使得集群各个节点之间互通`POD`路由信息的；而节点互通路由信息的前提是建立 BGP Peer 连接。BGP 路由反射器（Route Reflectors，简称 RR）可以简化集群BGP Peer的连接方式，它是解决BGP扩展性问题的有效方式；具体来说：没有 RR 时同AS内所有节点之间需要两两建立连接（IBGP全互联），节点增加导致连接数剧增，资源占用剧增；引入 RR 后，其他 BGP 路由器只需要与它建立连接并交换路由信息，节点增加连接数只是线性增加，节省系统资源。更多相关知识请查阅思科/华为相关网络文档。
+`Calico`作为`k8s`的一个流行网络插件，它依赖`BGP`路由协议实现集群节点上的`POD`路由互通；而路由互通的前提是节点间建立 BGP Peer 连接。BGP 路由反射器（Route Reflectors，简称 RR）可以简化集群BGP Peer的连接方式，它是解决BGP扩展性问题的有效方式；具体来说：
+
+- 没有 RR 时，所有节点之间需要两两建立连接（IBGP全互联），节点数量增加将导致连接数剧增、资源占用剧增
+- 引入 RR 后，其他 BGP 路由器只需要与它建立连接并交换路由信息，节点数量增加连接数只是线性增加，节省系统资源
 
 calico-node 版本 v3.3 开始支持内建路由反射器，非常方便，因此使用 calico 作为网络插件可以支持大规模节点数的`K8S`集群。
 
-本文档主要讲解配置 BGP Route Reflectors，建议预先阅读[基础calico文档](calico.md)。
+本文档主要讲解配置 BGP Route Reflectors，建议首先阅读[基础calico文档](calico.md)。
 
 ## 前提条件
 
@@ -254,7 +257,7 @@ No IPv6 peers found.
 
 ## 参考文档
 
-[Calico 使用指南：Route Reflectors](https://docs.projectcalico.org/v3.3/usage/routereflector)
-[BGP路由反射器基础](https://www.sohu.com/a/140033025_761420)
- 
+- 1.[Calico 使用指南：Route Reflectors](https://docs.projectcalico.org/v3.3/usage/routereflector)
+- 2.[BGP路由反射器基础](https://www.sohu.com/a/140033025_761420)
 
+更多 BGP 路由协议相关知识请查阅思科/华为相关网络文档。

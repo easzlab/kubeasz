@@ -60,9 +60,11 @@ kubectl logs kubernetes-dashboard-7c74685c48-9qdpn -n kube-system
 + 第一步通过api-server本身安全认证流程，与之前[1.6.3版本](dashboard.1.6.3.md)相同，这里不再赘述
 + 第二步通过dashboard自带的登陆流程，使用`Kubeconfig` `Token`等方式登陆
 
-**注意：**如果启用 ingress tls的话，可以参考[配置ingress规则访问dashboard](ingress-tls.md#%E9%85%8D%E7%BD%AE-dashboard-ingress)
+**注意：** 如果集群已启用 ingress tls的话，可以[配置ingress规则访问dashboard](ingress-tls.md#%E9%85%8D%E7%BD%AE-dashboard-ingress)
 
-#### 演示使用 `https://NodeIP:NodePort` 方式访问 dashboard，支持两种登录方式：Kubeconfig、令牌(Token)
+### 演示新登陆方式
+
+为演示方便这里使用 `https://NodeIP:NodePort` 方式访问 dashboard，支持两种登录方式：Kubeconfig、令牌(Token)
 
 - 令牌登录（admin）
 
@@ -115,5 +117,5 @@ users:
 
 ### 参考
 
-- [Dashboard Access control](https://github.com/kubernetes/dashboard/wiki/Access-control)
-- [a-read-only-kubernetes-dashboard](https://blog.cowger.us/2018/07/03/a-read-only-kubernetes-dashboard.html)
+- 1. [Dashboard Access control](https://github.com/kubernetes/dashboard/wiki/Access-control)
+- 2. [a-read-only-kubernetes-dashboard](https://blog.cowger.us/2018/07/03/a-read-only-kubernetes-dashboard.html)
