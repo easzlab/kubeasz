@@ -28,7 +28,7 @@ E0522 22:22:15.492436   24409 portforward.go:331] an error occurred forwarding 3
 Error: cannot connect to Tiller
 ```
 
-## 安全安装 helm
+## 安全安装 helm（在线）
 
 上述安装的tiller服务器默认允许匿名访问，那么k8s集群中的任何pod都能访问tiller，风险较大，因此需要在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在delpoy节点运行:  
 ``` bash
@@ -52,6 +52,30 @@ $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 - 执行与tiller服务有关的命令，比如 `helm ls` `helm version` `helm install`等需要加`--tls`参数
 - 执行其他命令，比如`helm search` `helm fetch` `helm home`等不需要加`--tls`
 
+## 安全安装 helm（离线）
+在内网环境中，由于不能访问互联网，无法连接repo地址，使用上述的在线安装helm的方式会报错。因此需要使用离线安装的方法来安装。
+离线安装步骤：
+```bash
+# 1.创建本地repo
+mkdir -p /opt/helm-repo
+# 2.启动helm repo server,如果要其他服务器访问，改为本地IP
+nohup helm serve --address 127.0.0.1:8879 --repo-path /opt/helm-repo &
+# 3.更改helm 配置文件
+将/etc/ansible/role/helm/default/main.yml中repo的地址改为 http://127.0.0.1:8879
+cat <<EOF >/etc/ansible/role/helm/default/main.yml
+helm_namespace: kube-system 
+helm_cert_cn: helm001
+tiller_sa: tiller
+tiller_cert_cn: tiller001
+tiller_image: jmgao1983/tiller:v2.9.1
+#repo_url: https://kubernetes-charts.storage.googleapis.com
+repo_url: http://127.0.0.1:8879
+# 如果默认官方repo 网络访问不稳定可以使用如下的阿里云镜像repo
+#repo_url: https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
+EOF
+# 4.运行安全helm命令
+ansible-playbook /etc/ansible/role/helm/helm.yml 
+```
 ## 使用helm安装应用到k8s上
 
 请阅读本项目文档[helm安装prometheus监控](prometheus.md)
