@@ -12,3 +12,6 @@ LOG_MAX_FILE: 3
 
 # docker容器存储目录
 STORAGE_DIR: "/var/lib/docker"
+
+# 开启Restful API
+ENABLE_REMOTE_API: true
