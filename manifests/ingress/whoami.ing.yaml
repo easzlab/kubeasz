@@ -1,14 +1,15 @@
-# kubectl run test-hello --image=nginx --expose --port=80
+# kubectl run whoami --image=emilevauge/whoami --port=80 --expose
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: test-hello
+  name: test-whoami
 spec:
   rules:
-  - host: hello.test.com
+  - host: who.test.com
     http:
       paths:
       - path: /
         backend:
-          serviceName: test-hello
+          serviceName: whoami
           servicePort: 80
+
