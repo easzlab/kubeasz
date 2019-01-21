@@ -1,3 +1,6 @@
+# Calico Version v3.3.2
+# https://docs.projectcalico.org/v3.3/releases#v3.3.2
+
 ---
 
 kind: ClusterRole
@@ -52,6 +55,11 @@ rules:
       - namespaces
     verbs:
       - get
+  - apiGroups: [""]
+    resources:
+      - nodes/status
+    verbs:
+      - patch
 
 ---
 
