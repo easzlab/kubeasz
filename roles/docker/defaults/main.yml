@@ -14,4 +14,4 @@ LOG_MAX_FILE: 3
 STORAGE_DIR: "/var/lib/docker"
 
 # 开启Restful API
-ENABLE_REMOTE_API: true
+ENABLE_REMOTE_API: false
