@@ -1,6 +1,6 @@
-# 配置 gitlab-ci.yml
+## 3.1 配置 gitlab-ci.yml
 
-项目组对应用CI/CD的背景需求及实现方案简介
+示例应用搭建 CI/CD 流水线的背景需求
 
 - 应用测试环境部署在本地k8s平台，生产环境部署在阿里云上k8s平台
 - 应用的多个feature分支可以并行测试
@@ -33,7 +33,7 @@ job_beta_build:
     - develop
     - /^feature.*$/
     - release
-  when: manual                                                           # 调试阶段可以先手动，后续可以注释掉以自动运行
+  #when: manual                                                          # 调试阶段可以先手动，后续可以注释掉以自动运行
   script:                                                                ### runner上运行的脚本
   - bash .ci/config.sh                                                   # 不同环境配置替换，后文详解 config.sh
   - mvn clean install -Dmaven.test.skip=true -U                          # mvn 编译，可以去runner 虚机上手动执行编译测试
@@ -89,7 +89,7 @@ job_prod_build:                                                          ### pro
   only:                                                                  # 仅master和release分支可以执行该job
     - master
     - release
-  when: manual
+  #when: manual
   script:
   - bash .ci/config.sh                                                   # config.sh 会执行替换生产环境的变量
   - mvn clean install -Dmaven.test.skip=true -U                          # mvn 编译，可以去runner 虚机上手动执行编译测试
@@ -191,3 +191,4 @@ job_push_prod_release:                                                   ### 部
 EOF
 ```
 
+恭喜终于看完 gitlab-ci.yml 文件，怎么样，是不是一千个人可以写出一万个 CI/CD 流程 :)

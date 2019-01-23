@@ -1,10 +1,11 @@
-# 3.2环境配置替换 config.sh 
+## 3.2 环境配置替换 config.sh 
 
 首先应用开发人员需要整理在不同环境（测试环境/生产环境）的配置参数，并在源代码中约定好替换的名称（如db_host, db_usr）；然后用户必须在项目gitlab web界面（“Settings”>"CI/CD">"Variables"）配置变量；最后根据gitlab-ci.yml文件定义CI/CD执行的需要，编写如下简单变量替换shell脚本；该shell脚本分别在测试环境打包阶段（beta-build）和生产环境打包阶段（prod-build）阶段运行。
 
 以下脚本仅作示例，实际应根据项目需要增加/修改需替换变量名称与对应源代码中的配置文件
 
 ``` bash
+cat > .ci/config.sh << EOF
 #!/bin/bash
 
 #set -o verbose
@@ -43,5 +44,6 @@ elif [[ "$CI_JOB_STAGE" == "prod-build" ]];then
 else
 	echo "error: undefined CI_JOB_STAGE!"
 fi
+EOF
 ```
 

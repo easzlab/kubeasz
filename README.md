@@ -74,7 +74,7 @@
         <td><a href="docs/guide/harbor.md">harbor</a></td>
         <td><a href="docs/guide/helm.md">helm</a></td>
         <td><a href="docs/guide/jenkins.md">jenkins</a></td>
-        <td><a href="docs/guide/gitlab/gitlab-ci.md">gitlab</a></td>
+        <td><a href="docs/guide/gitlab/readme.md">gitlab</a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
