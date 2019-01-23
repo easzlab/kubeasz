@@ -1,15 +1,15 @@
-# gitlab CI/CD 基础
+# Gitlab CI/CD 基础
 
-gitlab-ci 兼容 travis ci 格式，也是最流行的 CI 工具之一；本文讲解利用 gitlab, gitlab-runner, docker, harbor, kubernetes 等流行开源工具搭建一个自动化CI/CD流水线；举的例子以简单实用为原则，暂时没有选用 dind（docker in dockers）打包、gitlab Auto DevOps 等方式。一个最简单的流水线如下：
+Gitlab-ci 兼容 travis ci 格式，也是最流行的 CI 工具之一；本文讲解利用 gitlab, gitlab-runner, docker, harbor, kubernetes 等流行开源工具搭建一个自动化CI/CD流水线；示例配置以简单实用为原则，暂时没有选用 dind（docker in dockers）打包、gitlab Auto DevOps 等方式。一个最简单的流水线如下：
 
 - 代码提交 --> 镜像构建 --> 部署测试 --> 部署生产
 
 ## 0.前提条件
 
-- 正常运行的 gitlab: [安装 gitlab 文档](gitlab-install.md)
-- 正常运行的容器仓库：[安装 Harbor 文档](../harbor.md)
-- 正常运行的 k8s 集群：可以是自建/公有云提供商
-- 若干虚机运行 gitlab-runner: 运行自动化流水线 pipeline
+- 正常运行的 gitlab，[安装 gitlab 文档](gitlab-install.md)
+- 正常运行的容器仓库，[安装 Harbor 文档](../harbor.md)
+- 正常运行的 k8s，可以本地自建 k8s 集群，也可以使用公有云 k8s 集群
+- 若干虚机运行 gitlab-runner: 运行自动化流水线任务 pipeline job
 - 了解代码管理流程 gitflow 等
 
 ## 1.准备测试项目代码
@@ -53,7 +53,7 @@ EOF
 
 ## 3.准备 CI/CD 相关脚本和文件
 
-装完 gitlab 后使用浏览器登陆gitlab，很容易找到帮助文档，里面有介绍gitlab-ci的内容（文档权威、详细！请多多阅读~ 随着CI/CD流程的深入，部分内容也可以回来查阅），先看如下文档（假设你本地gitlab使用的域名`gitlab.test.com`）
+装完 gitlab 后使用浏览器登陆gitlab，很容易找到帮助文档，里面有介绍gitlab-ci的内容（文档权威、详细！请多多阅读~ 随着CI/CD流程的深入，部分内容也可以回来查阅），先看如下文档（假设你本地gitlab使用域名`gitlab.test.com`）
 
 - 文档首页 http://gitlab.test.com/help
 - gitlab-ci 基本概念 http://gitlab.test.com/help/ci/README.md
@@ -131,9 +131,9 @@ EOF
 
 以下的安全实践配置作为个人经验分享，仅作参考；如果你的项目需要更高的安全性，请阅读 gitlab-ci 官方相关文档，尝试找到属于自己的最佳实践。
 
-- 正确设置项目成员（Settings >> Members），严格限制项目维护者（Maintainer）人数，大部分应该作为开发者（Developer）提交代码
-- 配置项目受保护分支/受保护tag http://gitlab.test.com/help/user/project/protected_branches.md，一般把master/release分支设置成受保护分支，限制只有维护者才能在保护分支commit和merge，从而限制只有维护者才能执行部署生产的 ci job
-- 配置受保护的变量 http://gitlab.test.com/help/ci/variables/README#protected-variables 受保护的变量只在受保护分支和受保护tag的pipeline中可见，防止生产环境配置参数泄露
+- 正确设置项目成员（Settings > Members），严格限制项目维护者（Maintainer）人数，大部分应该作为开发者（Developer）提交代码
+- 配置项目受保护分支/受保护标签，一般把master/release分支设置成受保护分支，限制只有维护者才能在保护分支commit和merge，从而限制只有维护者才能执行部署生产的 ci job，http://gitlab.test.com/help/user/project/protected_branches.md
+- 配置受保护的变量，受保护的变量只在受保护分支和受保护tag的pipeline中可见，防止生产环境配置参数泄露，http://gitlab.test.com/help/ci/variables/README#protected-variables
 - 配置受保护的Runner，只能执行受保护分支上的 ci jobs
-- CICD Pipelines 中发布生产的任务请设置手动执行，同样生产的回退设置手动执行
+- CICD Pipelines 中发布生产的任务请设置手动执行，同样生产的回退任务设置手动执行
 
