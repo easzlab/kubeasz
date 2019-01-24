@@ -5,6 +5,9 @@
 - import_tasks: centos.yml
   when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
 
+# 公共系统参数设置
+- import_tasks: common.yml
+
 - name: prepare some dirs
   file: name={{ item }} state=directory
   with_items:
@@ -51,6 +54,3 @@
     state: present
     regexp: 'kubectl completion'
     line: 'source <(kubectl completion bash)'
-
-# 公共系统参数设置
-- import_tasks: common.yml
