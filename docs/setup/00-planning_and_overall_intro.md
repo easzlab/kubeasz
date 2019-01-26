@@ -2,15 +2,17 @@
 
 多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加LB 负载均衡部署步骤。
 
-**注意1：请确保各节点时区设置一致、时间同步。** 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](../guide/chrony.md)。
-**注意2：如果需要在公有云上创建多主多节点集群，请结合阅读[在公有云上部署 kubeasz](kubeasz_on_public_cloud.md)**
+-注意1：请确保各节点时区设置一致、时间同步。 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](../guide/chrony.md)
+-注意2：如果需要在公有云上创建多主多节点集群，请结合阅读[在公有云上部署 kubeasz](kubeasz_on_public_cloud.md)
 
-## 高可用集群所需节点配置如下：
-+ 部署节点------x1 : 运行这份 ansible 脚本的节点
-+ etcd节点------x3 : 注意etcd集群必须是1,3,5,7...奇数个节点
-+ master节点----x2 : 根据实际集群规模可以增加节点数，需要额外规划一个master VIP(虚地址)
-+ lb节点--------x2 : 负载均衡节点两个，安装 haproxy+keepalived
-+ node节点------x3 : 真正应用负载的节点，根据需要提升机器配置和增加节点数
+## 高可用集群所需节点配置如下
+
+|角色|数量|描述|
+|deploy节点|1|运行这份 ansible 脚本的节点|
+|etcd节点|3|注意etcd集群必须是1,3,5,7...奇数个节点|
+|master节点|2|需要额外规划一个master VIP(虚地址)，可根据需要提升机器配置或增加节点数|
+|lb节点|2|负载均衡节点两个，安装 haproxy+keepalived|
+|node节点|3|运行应用负载的节点，可根据需要提升机器配置或增加节点数|
 
 项目预定义了4个例子，请修改后完成适合你的集群规划，生产环境建议一个节点只是一个角色。
 
@@ -53,6 +55,8 @@ yum install python -y
 ```
 ### 3.在deploy节点安装及准备ansible
 
+- pip 安装 ansible
+
 ``` bash
 # Ubuntu 16.04 
 apt-get install git python-pip -y
@@ -64,28 +68,7 @@ yum install git python-pip -y
 pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
-
-在`Ubuntu 16.04`中，如果出现以下错误:
-
-``` bash
-Traceback (most recent call last):
-  File "/usr/bin/pip", line 9, in <module>
-    from pip import main
-ImportError: cannot import name main
-```
-将`/usr/bin/pip`做以下修改：
-
-``` bash
-#原代码
-from pip import main
-if __name__ == '__main__':
-    sys.exit(main())
-
-#修改后
-from pip import __main__
-if __name__ == '__main__':
-    sys.exit(__main__._main())
-```
+  - 在`Ubuntu 16.04`中可能安装报错，请看[附录](00-planning_and_overall_intro.md#Appendix)
 
 - 在deploy节点配置免密码登陆
 
@@ -139,6 +122,30 @@ ansible-playbook 07.cluster-addon.yml
 ```
 
 + [可选]对集群所有节点进行操作系统层面的安全加固 `ansible-playbook roles/os-harden/os-harden.yml`，详情请参考[os-harden项目](https://github.com/dev-sec/ansible-os-hardening)
+
+## Appendix
+
+- Ubuntu 1604 安装 ansible 如果出现以下错误
+
+``` bash
+Traceback (most recent call last):
+  File "/usr/bin/pip", line 9, in <module>
+    from pip import main
+ImportError: cannot import name main
+```
+将`/usr/bin/pip`做以下修改即可
+
+``` bash
+#原代码
+from pip import main
+if __name__ == '__main__':
+    sys.exit(main())
+
+#修改后
+from pip import __main__
+if __name__ == '__main__':
+    sys.exit(__main__._main())
+```
 
 
 [后一篇](01-CA_and_prerequisite.md)
