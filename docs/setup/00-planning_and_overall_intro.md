@@ -2,12 +2,13 @@
 
 多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加LB 负载均衡部署步骤。
 
--注意1：请确保各节点时区设置一致、时间同步。 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](../guide/chrony.md)
--注意2：如果需要在公有云上创建多主多节点集群，请结合阅读[在公有云上部署 kubeasz](kubeasz_on_public_cloud.md)
+- 注意1：请确保各节点时区设置一致、时间同步。 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](../guide/chrony.md)
+- 注意2：如果需要在公有云上创建多主多节点集群，请结合阅读[在公有云上部署 kubeasz](kubeasz_on_public_cloud.md)
 
 ## 高可用集群所需节点配置如下
 
 |角色|数量|描述|
+|:-|:-|:-|
 |deploy节点|1|运行这份 ansible 脚本的节点|
 |etcd节点|3|注意etcd集群必须是1,3,5,7...奇数个节点|
 |master节点|2|需要额外规划一个master VIP(虚地址)，可根据需要提升机器配置或增加节点数|
@@ -55,7 +56,7 @@ yum install python -y
 ```
 ### 3.在deploy节点安装及准备ansible
 
-- pip 安装 ansible
+- pip 安装 ansible（如果 Ubuntu pip报错，请看[附录](00-planning_and_overall_intro.md#Appendix)）
 
 ``` bash
 # Ubuntu 16.04 
@@ -68,7 +69,6 @@ yum install git python-pip -y
 pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
-  - 在`Ubuntu 16.04`中可能安装报错，请看[附录](00-planning_and_overall_intro.md#Appendix)
 
 - 在deploy节点配置免密码登陆
 
