@@ -185,12 +185,28 @@ master:
     port=3306
     socket=/opt/bitnami/mariadb/tmp/mysql.sock
     tmpdir=/opt/bitnami/mariadb/tmp
-    max_allowed_packet=16M
     bind-address=0.0.0.0
     pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
     log-error=/opt/bitnami/mariadb/logs/mysqld.log
     character-set-server=UTF8
     collation-server=utf8_general_ci
+    # optimize
+    max_allowed_packet = 1024M
+    table_open_cache = 512
+    sort_buffer_size = 2M
+    read_buffer_size = 2M
+    read_rnd_buffer_size = 8M
+    thread_cache_size = 8
+    query_cache_size = 32M
+    max_heap_table_size=1024M
+    tmp_table_size=1024M
+    max_connections=65535
+    max_connect_errors=65535
+    wait_timeout=172800
+    interactive_timeout=172800
+    connect_timeout=30
+    # log settings
+    expire_logs_days=3
 
     [client]
     port=3306
@@ -280,12 +296,28 @@ slave:
     port=3306
     socket=/opt/bitnami/mariadb/tmp/mysql.sock
     tmpdir=/opt/bitnami/mariadb/tmp
-    max_allowed_packet=16M
     bind-address=0.0.0.0
     pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
     log-error=/opt/bitnami/mariadb/logs/mysqld.log
     character-set-server=UTF8
     collation-server=utf8_general_ci
+    # optimize
+    max_allowed_packet = 1024M
+    table_open_cache = 512
+    sort_buffer_size = 2M
+    read_buffer_size = 2M
+    read_rnd_buffer_size = 8M
+    thread_cache_size = 8
+    query_cache_size = 32M
+    max_heap_table_size=1024M
+    tmp_table_size=1024M
+    max_connections=65535
+    max_connect_errors=65535
+    wait_timeout=172800
+    interactive_timeout=172800
+    connect_timeout=30
+    # log settings
+    expire_logs_days=3
 
     [client]
     port=3306
