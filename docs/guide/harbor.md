@@ -12,18 +12,17 @@ mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
 ```
 2. 在deploy节点下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `/etc/ansible/down` 目录下，也可以从分享的百度云盘下载
 
-3. 由于ansible解压的一些问题，需要将官方的tgz包，重新打包为zip包
-
-4. 在deploy节点编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
+3. 在deploy节点编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
 
 ``` bash
 # 参数 NEW_INSTALL=(yes/no)：yes表示新建 harbor，并配置k8s节点的docker可以使用harbor仓库
 # no 表示仅配置k8s节点的docker使用已有的harbor仓库
+# 如果不需要设置域名访问 harbor，可以配置参数 HARBOR_DOMAIN=""
 [harbor]
-#192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
+192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=yes
 ```
 
-5. 在deploy节点执行 `ansible-playbook /etc/ansible/11.harbor.yml`，完成harbor安装和docker 客户端配置
+4. 在deploy节点执行 `ansible-playbook /etc/ansible/11.harbor.yml`，完成harbor安装和docker 客户端配置
 
 ### 安装讲解
 
