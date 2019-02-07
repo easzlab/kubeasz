@@ -23,6 +23,7 @@
 192.168.1.4
 
 # 参数 NEW_INSTALL：yes表示新建，no表示使用已有harbor服务器
+# 如果不使用域名，可以设置 HARBOR_DOMAIN=""
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 
@@ -33,6 +34,11 @@
 # 预留组，后续添加node节点使用
 [new-node]
 #192.168.1.xx
+
+#【可选】外部负载均衡，用于自有环境负载转发 NodePort 暴露的服务等
+[ex-lb]
+#192.168.1.6 LB_ROLE=backup EX_VIP=192.168.1.250
+#192.168.1.7 LB_ROLE=master EX_VIP=192.168.1.250
 
 [all:vars]
 # ---------集群主要参数---------------
