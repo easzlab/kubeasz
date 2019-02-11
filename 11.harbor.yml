@@ -19,19 +19,25 @@
   - new-master
   - kube-node
   - new-node
-  vars:
-    harbor_domain: "{{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}"
   tasks:
+  - name: Define 'harbor_host', a domain
+    set_fact: harbor_host="{{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}"
+
+  - name: Define 'harbor_host', an IP Addr
+    set_fact: harbor_host="{{ groups['harbor'][0] }}"
+    when: "hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] == ''"
+    
   - name: Creating cert dir of the HARBOR SERVER for the docker daemon
-    file: name=/etc/docker/certs.d/{{ harbor_domain }} state=directory
+    file: name=/etc/docker/certs.d/{{ harbor_host }} state=directory
   
   - name: Installing the HARBOR SERVER's cert on k8s nodes
-    copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_domain }}/ca.crt
+    copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_host }}/ca.crt
 
   # [optional] if you have a DNS server, add an 'A record' instead
   - name: Adding an '/etc/hosts' entry for the HARBOR DOMAIN
     lineinfile:
       dest: /etc/hosts
       state: present
-      regexp: '{{ harbor_domain }}'
-      line: "{{ groups['harbor'][0] }} {{ harbor_domain }}"
+      regexp: '{{ harbor_host }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_host }}"
+    when: "hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] != ''"

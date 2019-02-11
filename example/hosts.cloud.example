@@ -21,6 +21,7 @@
 192.168.1.4
 
 # 参数 NEW_INSTALL：yes表示新建，no表示使用已有harbor服务器
+# 如果不使用域名，可以设置 HARBOR_DOMAIN=""
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 

@@ -1,0 +1,30 @@
+global_defs {
+    router_id lb-master-{{ inventory_hostname }}
+}
+
+vrrp_script check-haproxy {
+    script "killall -0 haproxy"
+    interval 5
+    weight -60
+}
+
+vrrp_instance VI-kube-master {
+    state MASTER
+    priority 120
+    unicast_src_ip {{ inventory_hostname }}
+    unicast_peer {
+{% for h in groups['ex-lb'] %}{% if h != inventory_hostname %}
+        {{ h }}
+{% endif %}{% endfor %}
+    }
+    dont_track_primary
+    interface {{ LB_IF }}
+    virtual_router_id {{ ROUTER_ID }}
+    advert_int 3
+    track_script {
+        check-haproxy
+    }
+    virtual_ipaddress {
+        {{ EX_VIP }}
+    }
+}

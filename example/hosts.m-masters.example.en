@@ -23,7 +23,8 @@
 192.168.1.3
 192.168.1.4
 
-# variable NEW_INSTALL: 'yes' to setup a new harbor server; 'no' to integrate with existed one
+# set 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
+# if not using domian，set 'HARBOR_DOMAIN=""'
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 
@@ -34,6 +35,11 @@
 # group reserved, add new 'kube-node' in it
 [new-node]
 #192.168.1.xx
+
+# [optional] loadbalance for services with type 'NodePort'
+[ex-lb]
+#192.168.1.6 LB_ROLE=backup EX_VIP=192.168.1.250
+#192.168.1.7 LB_ROLE=master EX_VIP=192.168.1.250
 
 [all:vars]
 # --------- Main Variables ---------------

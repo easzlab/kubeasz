@@ -32,6 +32,3 @@
     dest: /etc/selinux/config
     regexp: "^SELINUX="
     line: "SELINUX=disabled"
-
-- name: 设置 Centos ulimits
-  template: src=30-kubeasz.conf.j2 dest=/etc/security/limits.d/30-kubeasz.conf

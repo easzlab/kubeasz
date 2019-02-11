@@ -97,6 +97,9 @@
   shell: "mv /root/kube-proxy.kubeconfig /etc/kubernetes/"
 
 # --- 以下为兼容ansible执行节点与deploy节点分离情况-------
+- name: 安装 rsync
+  package: name=rsync state=present
+
 - name: 复制 manifests至 deploy节点
   #copy: src={{ base_dir }}/manifests dest={{ base_dir }}
   synchronize: src={{ base_dir }}/manifests dest={{ base_dir }}

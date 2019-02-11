@@ -98,18 +98,49 @@ $ helm del --tls grafana --purge
 ## 验证告警
 
 - 修改`prom-alertsmanager.yaml`文件中邮件告警为有效的配置内容，并使用 helm upgrade更新安装
-- 查看`prom-alertrules.yaml`文件，确认文件中设置了内存使用超过90%的告警规则
-- 部署测试应用，并压力测试使其内存超过90%，看是否触发告警并发送告警邮件  
+- 手动临时关闭 master 节点的 kubelet 服务，等待几分钟看是否有告警邮件发送
+ 
 ``` bash
-# 创建deploy和service
-$ kubectl run nginx1 --image=nginx --port=80 --expose --limits='cpu=500m,memory=4Mi'
+# 在 master 节点运行
+$ systemctl stop kubelet
+```
 
-# 增加负载（可用Ctrl + C 停止）
-$ kubectl run --rm -it load-generator --image=busybox /bin/sh
-Hit enter for command prompt
-$ while true; do wget -q -O- http://nginx1; done;
+## [可选] 配置钉钉告警
 
-# 等待约几分钟查看是否有告警
+- 创建钉钉群，获取群机器人 webhook 地址
+
+使用钉钉创建群聊以后可以方便设置群机器人，【群设置】-【群机器人】-【添加】-【自定义】-【添加】，然后按提示操作即可，参考 https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.666d4a97eCG7XA&treeId=257&articleId=105735&docType=1
+
+上述配置好群机器人，获得这个机器人对应的Webhook地址，记录下来，后续配置钉钉告警插件要用，格式如下
+
+```
+https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxx
+```
+
+- 创建钉钉告警插件，参考 http://theo.im/blog/2017/10/16/release-prometheus-alertmanager-webhook-for-dingtalk/
+
+``` bash
+# 编辑修改文件中 access_token=xxxxxx 为上一步你获得的机器人认证 token
+$ vi /etc/ansible/manifests/prometheus/dingtalk-webhook.yaml
+# 运行插件
+$ kubectl apply -f /etc/ansible/manifests/prometheus/dingtalk-webhook.yaml
+```
+
+- 修改 alertsmanager 告警配置后，更新 helm prometheus 部署，成功后如上节测试告警发送
+
+``` bash
+# 修改 alertsmanager 告警配置
+$ cd /etc/ansible/manifests/prometheus
+$ vi prom-alertsmanager.yaml
+# 增加 receiver dingtalk，然后在 route 配置使用 receiver: dingtalk
+    receivers:
+    - name: dingtalk
+      webhook_configs:
+      - send_resolved: false
+        url: http://webhook-dingtalk.monitoring.svc.cluster.local:8060/dingtalk/webhook1/send
+# ...
+# 更新 helm prometheus 部署
+$ helm upgrade --tls monitor -f prom-settings.yaml -f prom-alertsmanager.yaml -f prom-alertrules.yaml prometheus
 ```
 
 ## 下一步

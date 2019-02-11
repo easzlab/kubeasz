@@ -21,7 +21,8 @@
 192.168.1.1
 192.168.1.4
 
-# variable NEW_INSTALL: 'yes' to setup a new harbor server; 'no' to integrate with existed one
+# set 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
+# if not using domian，set 'HARBOR_DOMAIN=""'
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 

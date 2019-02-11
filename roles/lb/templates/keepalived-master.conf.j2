@@ -1,5 +1,5 @@
 global_defs {
-    router_id lb-master
+    router_id lb-master-{{ inventory_hostname }}
 }
 
 vrrp_script check-haproxy {

@@ -28,6 +28,3 @@
     dest: /etc/profile
     regexp: "ulimit -SHn"
     line: "ulimit -SHn 65535"
-
-- name: 设置 ulimits2
-  template: src=30-kubeasz.conf.j2 dest=/etc/security/limits.d/30-kubeasz.conf

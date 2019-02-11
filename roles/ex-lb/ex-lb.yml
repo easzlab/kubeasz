@@ -1,0 +1,5 @@
+- hosts: ex-lb
+  roles:
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+  - prepare
+  - ex-lb

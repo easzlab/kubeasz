@@ -10,25 +10,28 @@
   register: result
 
 - block:
-    - name: 下载docker compose 二进制文件
+    - name: 下发docker compose二进制文件
       copy: src={{ base_dir }}/bin/docker-compose dest={{ bin_dir }}/docker-compose mode=0755
 
-    - name: 安装解压工具
-      package: name={{ item }} state=present
-      with_items:
-        - zip
-        - unzip
-    
+    - name: 下发harbor离线安装包
+      copy:
+        src: "{{ base_dir }}/down/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+        dest: "/data/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+
     - name: 解压harbor离线安装包
-      unarchive: 
-        src: "{{ base_dir }}/down/harbor-offline-installer-{{ HARBOR_VER }}.zip"
-        dest: /data
-        copy: yes
-        keep_newer: yes
-        mode: 0755
-    
+      shell: "cd /data && tar zxf harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+
     - name: 导入harbor所需 docker images
       shell: "{{ bin_dir }}/docker load -i /data/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
+    
+    - name: 分发证书相关
+      synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
+      with_items:
+      - ca.pem
+      - ca-key.pem
+      - ca.csr
+      - ca-config.json
+      delegate_to: "{{ groups.deploy[0] }}"
     
     - name: 创建harbor证书请求
       template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json
@@ -41,7 +44,7 @@
             -profile=kubernetes harbor-csr.json | {{ bin_dir }}/cfssljson -bare harbor"
     
     - name: 配置 harbor.cfg 文件
-      template: src=harbor.cfg.j2 dest=/data/harbor/harbor.cfg
+      template: src=harbor-{{ HARBOR_VER_MAIN }}.cfg.j2 dest=/data/harbor/harbor.cfg
     
     - name: 安装 harbor
       shell: "cd /data/harbor && \
