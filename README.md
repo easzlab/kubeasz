@@ -53,12 +53,12 @@
     </tr>
     <tr>
         <td><strong>集群管理</strong><a href="docs/op/op-index.md">+</a></td>
-        <td><a href="docs/op/AddNode.md">增加node</a></td>
-        <td><a href="docs/op/AddMaster.md">增加master</a></td>
+        <td><a href="docs/op/AddNode.md">增加node节点</a></td>
+        <td><a href="docs/op/AddMaster.md">增加master节点</a></td>
+        <td><a href="docs/op/AddEtcd.md">增加etcd节点</a></td>
         <td><a href="docs/op/del_one_node.md">删除节点</a></td>
         <td><a href="docs/op/upgrade.md">升级集群</a></td>
         <td><a href="docs/op/cluster_restore.md">备份恢复</a></td>
-        <td><a href="docs/op/change_k8s_network.md">修改network插件</a></td>
     </tr>
     <tr>
         <td><strong>特性实验</strong></td>
