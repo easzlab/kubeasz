@@ -5,6 +5,7 @@
 - 新节点安装 docker 服务
 - 新节点安装 kube-node 服务
 - 新节点安装网络插件相关
+- 修改hosts文件，把 new-node 组成员转移到 kube-node 组
 
 ### 操作步骤
 
@@ -40,3 +41,5 @@ $ kubectl get pod -n kube-system
 ### 后续
 
 上述步骤验证成功，确认新节点工作正常后，为了方便后续再次添加节点，在ansible hosts文件中，把 [new-node] 组下的节点全部复制到 [kube-node] 组下，并清空 [new-node] 组的节点。
+
+- 注：新版本 kubeasz 已经自动完成 new-node 组成员转移到 kube-node 组

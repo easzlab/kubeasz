@@ -38,7 +38,7 @@
     lineinfile:
       dest: "{{ base_dir }}/hosts"
       state: present
-      insertafter: '^\[etcd\]'
+      insertafter: '^\[etcd'
       firstmatch: yes
       line: "{{ inventory_hostname }} NODE_NAME={{ NODE_NAME }}"
     connection: local
