@@ -8,11 +8,8 @@ NODE_WITH_MULTIPLE_NETWORKS: "true"
 #FLANNEL_BACKEND: "host-gw"
 FLANNEL_BACKEND: "vxlan"
 
-#install_cni_image: "quay.io/coreos/flannel:v0.10.0-amd64"
-install_cni_image: "jmgao1983/flannel:v0.10.0-amd64"
-
 #flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
-flanneld_image: "jmgao1983/flannel:v0.10.0-amd64"
+flanneld_image: "jmgao1983/flannel:v0.11.0-amd64"
 
 # 离线镜像tar包
-flannel_offline: "flannel_v0.10.0-amd64.tar"
+flannel_offline: "flannel_v0.11.0-amd64.tar"
