@@ -10,31 +10,32 @@
 192.168.1.2 NODE_NAME=etcd2
 192.168.1.3 NODE_NAME=etcd3
 
+[new-etcd] # group reserved, add new 'etcd-node' in it
+#192.168.1.x NODE_NAME=etcdx
+
 [kube-master]
 192.168.1.1
 192.168.1.2
 
-# 'loadbalance' node, with 'haproxy+keepalived' installed
-[lb]
-192.168.1.1 LB_ROLE=backup
-192.168.1.2 LB_ROLE=master
+[new-master] # group reserved, add new 'kube-master' in it
+#192.168.1.5
 
 [kube-node]
 192.168.1.3
 192.168.1.4
+
+[new-node] # group reserved, add new 'kube-node' in it
+#192.168.1.xx
 
 # set 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
 # if not using domian，set 'HARBOR_DOMAIN=""'
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 
-# group reserved, add new 'kube-master' in it
-[new-master]
-#192.168.1.5
-
-# group reserved, add new 'kube-node' in it
-[new-node]
-#192.168.1.xx
+# 'loadbalance' node, with 'haproxy+keepalived' installed
+[lb]
+192.168.1.1 LB_ROLE=backup
+192.168.1.2 LB_ROLE=master
 
 # [optional] loadbalance for services with type 'NodePort'
 [ex-lb]

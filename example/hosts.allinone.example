@@ -7,20 +7,22 @@
 [etcd]
 192.168.1.1 NODE_NAME=etcd1
 
+[new-etcd] # 预留组，后续添加etcd节点使用
+#192.168.1.x NODE_NAME=etcdx
+
 [kube-master]
 192.168.1.1
 
 [kube-node]
 192.168.1.1
 
+[new-node] # 预留组，后续添加node节点使用
+#192.168.1.xx
+
 # 参数 NEW_INSTALL：yes表示新建，no表示使用已有harbor服务器
 # 如果不使用域名，可以设置 HARBOR_DOMAIN=""
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
-
-# 预留组，后续添加node节点使用
-[new-node]
-#192.168.1.xx
 
 # 【可选】外部负载均衡，用于自有环境负载转发 NodePort 暴露的服务等
 [ex-lb]

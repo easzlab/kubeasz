@@ -9,29 +9,27 @@
 192.168.1.2 NODE_NAME=etcd2
 192.168.1.3 NODE_NAME=etcd3
 
+[new-etcd] # 预留组，后续添加etcd节点使用
+#192.168.1.x NODE_NAME=etcdx
+
 [kube-master]
 192.168.1.2
 192.168.1.3
 
-# 公有云上一般都有提供负载均衡产品，且不允许自己创建，lb 节点留空，仅保留组名
-[lb]
+[new-master] # 预留组，后续添加master节点使用
+#192.168.1.5
 
 [kube-node]
 192.168.1.1
 192.168.1.4
 
+[new-node] # 预留组，后续添加node节点使用
+#192.168.1.xx
+
 # 参数 NEW_INSTALL：yes表示新建，no表示使用已有harbor服务器
 # 如果不使用域名，可以设置 HARBOR_DOMAIN=""
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
-
-# 预留组，后续添加master节点使用
-[new-master]
-#192.168.1.5
-
-# 预留组，后续添加node节点使用
-[new-node]
-#192.168.1.xx
 
 [all:vars]
 # ---------集群主要参数---------------
@@ -41,7 +39,8 @@ DEPLOY_MODE=multi-master
 #集群主版本号，目前支持: v1.8, v1.9, v1.10，v1.11, v1.12, v1.13
 K8S_VER="v1.10"
 
-# 创建内网云负载均衡，然后配置：前端监听 tcp 8443，后端 tcp 6443，后端节点即 master 节点
+# 公有云上一般都有提供负载均衡产品，且不允许自己创建lb
+# 创建公有云内网负载均衡，然后配置：前端监听 tcp 8443，后端 tcp 6443，后端节点即 master 节点
 MASTER_IP="192.168.1.10"		# 即负载均衡内网地址
 KUBE_APISERVER="https://{{ MASTER_IP }}:8443"
 
