@@ -6,7 +6,7 @@
 
 ## 安全安装 helm（在线）
 
-上述安装的tiller服务器默认允许匿名访问，那么k8s集群中的任何pod都能访问tiller，风险较大，因此需要在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在delpoy节点运行:  
+在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在delpoy节点运行:  
 ``` bash
 # 1.如果已安装非安全模式，使用 helm reset 清理
 # 2.配置默认helm参数 vi  /etc/ansible/roles/helm/defaults/main.yml

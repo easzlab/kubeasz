@@ -7,13 +7,13 @@ mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.13
 # metrics-server 
 mirrorgooglecontainers/metrics-server-amd64:v0.3.1
 # calico 
-calico/node:v3.2.4
-calico/cni:v3.2.4
-calico/kube-controllers:v3.2.4
+calico/node:v3.4.1
+calico/cni:v3.4.1
+calico/kube-controllers:v3.4.1
 # cilium 
 cilium/cilium:v1.1.4
 # flannel 
-jmgao1983/flannel:v0.10.0-amd64
+jmgao1983/flannel:v0.11.0-amd64
 # kube-router 
 cloudnativelabs/kube-router:v0.2.0
 # dashboard 
@@ -30,7 +30,7 @@ mirrorgooglecontainers/heapster-influxdb-amd64:v1.3.3
 
 ###---[extra-images]
 # helm tiller server 
-jmgao1983/tiller:v2.11.0
+jmgao1983/tiller:v2.12.3
 # efk 
 mirrorgooglecontainers/elasticsearch:v5.6.4
 alpine:3.6
