@@ -1,0 +1,52 @@
+# remove a etcd member 
+- hosts: deploy
+  vars_prompt:
+  - name: "ETCD_TO_DEL"
+    prompt: "which etcd node is about to be deleted?(e.g 192.168.1.1)"
+    private: no
+    confirm: yes
+  tasks:
+  - name: set warnning info
+    set_fact: WARN_INFO="CAN NOT DELETE THIS NODE!!!!!!"
+    when: "groups['etcd']|length < 2 or ETCD_TO_DEL not in groups['etcd']" 
+
+  - name: show warnning info
+    debug: var="WARN_INFO"
+    when: "groups['etcd']|length < 2 or ETCD_TO_DEL not in groups['etcd']" 
+
+  - block:
+    - name: get ID of etcd node to delete
+      shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d',' -f1"
+      register: ETCD_ID
+      delegate_to: "{{ groups.etcd[0] }}"
+  
+    - name: get NAME of etcd node to delete
+      shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d' ' -f3|cut -d',' -f1"
+      register: ETCD_NAME
+      delegate_to: "{{ groups.etcd[0] }}"
+  
+    - name: rm etcd's node in hosts
+      lineinfile:
+        dest: "{{ base_dir }}/hosts"
+        state: absent
+        regexp: '{{ ETCD_NAME.stdout }}'
+      connection: local
+      when: "ETCD_NAME.stdout != ''"
+  
+    - name: delete a etcd member
+      shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member remove {{ ETCD_ID.stdout }}"
+      delegate_to: "{{ groups.etcd[0] }}"
+      when: "ETCD_ID.stdout != ''"
+  
+    - name: rm data of the deleted etcd node
+      file: name=/var/lib/etcd state=absent
+      delegate_to: "{{ ETCD_TO_DEL }}"
+      when: "ETCD_ID.stdout != ''"
+   
+    - name: reconfig and restart the etcd cluster
+      shell: "ansible-playbook /etc/ansible/02.etcd.yml > /tmp/ansible-playbook.log 2>&1"
+      connection: local
+      when: "ETCD_ID.stdout != ''"
+    run_once: true
+    # 满足条件才进行删除
+    when: "groups['etcd']|length > 1 and ETCD_TO_DEL in groups['etcd']" 
