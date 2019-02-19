@@ -9,7 +9,7 @@
 |OS|Ubuntu 16.04+, CentOS/RedHat 7|
 |k8s|v1.8, v1.9, v1.10, v1.11, v1.12, v1.13|
 |etcd|v3.1, v3.2, v3.3|
-|docker|17.03.2-ce, 18.06.1-ce|
+|docker|17.03.2-ce, 18.06.1-ce, 18.09.2|
 |network|calico, cilium, flannel, kube-router|
 
 - 注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
