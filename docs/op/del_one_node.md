@@ -6,21 +6,28 @@
 
 ## 删除流程解释
 
+- 0.获取待删除节点参数`NODE_TO_DEL`
 - 1.待删除节点可能是kube-node节点，因此先执行`kubectl drain`，如果不是忽略执行报错
 - 2.参照`99.clean.yml`脚本方式删除节点可能的服务和配置，忽略执行报错
 - 3.待删除节点可能是kube-node节点，执行`kubectl delete node`, 如果不是忽略执行报错
+- 4.修改ansible hosts，移除删除节点
 
 ## 删除操作
 
-- 1.替换待删除节点变量，假设为192.168.1.1
-``` bash
-$ sed -i 's/NODE_TO_DEL/192.168.1.1/g' /etc/ansible/tools/clean_one_node.yml
-```
+- 假设待删除节点为 192.168.1.1
 
-- 2.执行删除
-``` 
+``` bash
+# 带参数执行如下
+$ ansible-playbook /etc/ansible/tools/clean_one_node.yml -e NODE_TO_DEL=192.168.1.1
+
+# 或者不带参数执行，然后根据提示输入/确认
 $ ansible-playbook /etc/ansible/tools/clean_one_node.yml
 ```
+
+## 验证
+
+- 验证删除节点上是否相关服务均已停止
+- 验证 ansible hosts 文件中已删除节点
 
 ## Debug
 
