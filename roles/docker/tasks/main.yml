@@ -1,9 +1,15 @@
-## ---------docker daemon配置部分-----------
 - name: 准备docker相关目录
   file: name={{ item }} state=directory
   with_items:
   - "{{ bin_dir }}"
   - /etc/docker
+
+# 18.09.x 版本二进制名字有变化，需要做判断
+- name: 获取docker版本信息
+  shell: "{{ base_dir }}/bin/dockerd --version"
+  register: docker_ver
+  connection: local
+  run_once: true
 
 - name: 下载 docker 二进制文件
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -17,6 +23,21 @@
   - dockerd
   - docker-proxy
   tags: upgrade_docker, download_docker
+  when: "'version 18.09' not in docker_ver.stdout"
+
+- name: 下载 docker 二进制文件(>= 18.09.x)
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - containerd
+  - containerd-shim
+  - docker-init
+  - runc
+  - docker
+  - ctr
+  - dockerd
+  - docker-proxy
+  tags: upgrade_docker, download_docker
+  when: "'version 18.09' in docker_ver.stdout"
 
 - name: docker命令自动补全
   copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
@@ -47,3 +68,11 @@
 # 先要安装轻量JSON处理程序‘jq’，已在 prepare 节点安装
 - name: 下载 docker-tag
   copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
+
+- name: 轮询等待docker服务运行
+  shell: "systemctl status docker.service|grep Active"
+  register: docker_status
+  until: '"running" in docker_status.stdout'
+  retries: 8
+  delay: 2
+  tags: upgrade_docker
