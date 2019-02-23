@@ -8,17 +8,11 @@
 [etcd]
 192.168.1.1 NODE_NAME=etcd1
 
-[new-etcd] # group reserved, add new 'etcd-node' in it
-#192.168.1.x NODE_NAME=etcdx
-
 [kube-master]
 192.168.1.1
 
 [kube-node]
 192.168.1.1
-
-[new-node] # group reserved, add new 'kube-node' in it
-#192.168.1.xx
 
 # set 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
 # if not using domian，set 'HARBOR_DOMAIN=""'
