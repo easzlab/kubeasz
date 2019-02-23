@@ -1,116 +1,60 @@
 #!/bin/bash
 # 
-# This script can be used to manage multiple k8s clusters. (unfinished)
+# This script can be used to manage k8s clusters. (developing)
 
 set -o nounset
-set -o errexit
+#set -o errexit
 #set -o xtrace
 
-function process_cmd {
-    echo "$ACTION : $CMD"
-    $CMD
-    if [[ $? -ne 0 ]]; then
-        echo "Command failed $CMD"
-        exit 1
-    fi
-}
-
-function usage {
+function usage() {
     cat <<EOF
-Usage: $0 COMMAND [args]
+Usage: easzctl COMMAND [args]
 Commands:
-    backup		To backup the current cluster (data and config)
-    checkout <name>	To checkout and to use the chosen cluster context
-    create <name>	To create a new cluster and to checkout the new cluster
-    delete		To delete the current cluster (keeping backups)
-    destroy		To delete the current cluster and its backups
-    help		To display usage
-    list		To list the existing cluster names
-    rename <oldname> <newname>	To rename an existing cluster's name
-    restore		To restore the current cluster from backups
-    test		To do some smoke tests on the current cluster
-    untest		To remove smoke tests on the current cluster
-    upgrade             Upgrades the current kubernetes cluster
+    add-node		To add a kube-node(work node) to the k8s cluster
+    add-master		To add a kube-master(master node) to the k8s cluster
+    add-etcd		To add a etcd-node to the etcd cluster
+    del-etcd		To delete a etcd-node from the etcd cluster
+    clean-node		To clean a node, whatever role the node plays
+    help		To display usage information
+
+Use "easzctl help <command>" for more information about a given command.
 EOF
 }
 
-function cp_role_conf {
-    ROLESPATH=$BASEPATH/../roles
-    for ROLE in $(ls $ROLESPATH);
-    do
-        if [ -d "$ROLESPATH/$ROLE/defaults" ]; then
-            mkdir -p $BASEPATH/../.cluster/$CLUSTERNAME/$ROLE/defaults/
-            cp -rp $ROLESPATH/$ROLE/defaults/* $BASEPATH/../.cluster/$CLUSTERNAME/$ROLE/defaults/
-        fi
-    done;
+function process_cmd() {
+    echo -e "$ACTION : $CMD"
+    $CMD || { echo "Command failed : $CMD"; exit 1; }
+    echo -e "\033[32mdone\033[0m"
 }
 
-function init {
-    if [ ! -d "$BASEPATH/../.cluster" ]; then
-        mkdir -p $BASEPATH/../.cluster
-        CLUSTERNAME=default
-        cp_role_conf
-    fi
-}
+function add-node() {
+    # check new node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "Invalid ip address!"; exit 2; }
 
+    # check if the new node already exsited
+    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1" && { echo "$1 already existed!"; exit 2; }
+
+    # add a node in 'kube-node' group of ansible hosts
+    sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
+
+    # check if playbook success
+    ansible-playbook $BASEPATH/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; exit 2; }
+}
 ###############################################################
 
-BASEPATH=$(cd `dirname $0`; pwd)
+BASEPATH=/etc/ansible
 
-init
-
-[ "$#" -gt 0 ] || { usage >&2; exit 2; }
+[ "$#" -gt 1 ] || { usage >&2; exit 2; }
 
 case "$1" in
 
-(backup)
-        ACTION="action backup"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=precheck"
+(add-node)
+        ACTION="+---\033[33maction add a k8s work node\033[0m---+"
+        CMD="add-node $2" 
         ;;
-(checkout)
-        ACTION="action checkout"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(create)
-        ACTION="action create"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=deploy -e common_run=true"
-        PLAYBOOK="${BASEDIR}/ansible/mariadb_recovery.yml"
-	;;
-(delete)
-        ACTION="action delete"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(destroy)
-        ACTION="action destroy"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(help)
-        usage
-        ;;
-(list)
-        ACTION="action list"
-        CMD="ls $BASEPATH/../.cluster"
-        process_cmd
-        ;;
-(rename)
-        ACTION="action rename"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(restore)
-        ACTION="action restore"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(test)
-        ACTION="action test"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(untest)
-        ACTION="action untest"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(upgrade)
-        ACTION="action upgrade"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+(add-master)
+        ACTION="+---\033[33maction add a k8s master node\033[0m---+"
+        CMD="add-master $2" 
         ;;
 (*)
         usage
@@ -118,6 +62,5 @@ case "$1" in
         ;;
 esac
 
-#CMD="echo $BASEPATH $ACTION"
-#process_cmd
+process_cmd
 
