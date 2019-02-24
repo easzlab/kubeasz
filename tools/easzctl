@@ -29,16 +29,52 @@ function process_cmd() {
 
 function add-node() {
     # check new node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "Invalid ip address!"; exit 2; }
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
 
     # check if the new node already exsited
-    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1" && { echo "$1 already existed!"; exit 2; }
+    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: node $1 already existed!"; exit 2; }
 
-    # add a node in 'kube-node' group of ansible hosts
+    # add a node into 'kube-node' group
     sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
 
-    # check if playbook success
+    # check if playbook runs successfully
     ansible-playbook $BASEPATH/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; exit 2; }
+}
+
+function add-master() {
+    # check new master's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # check if k8s with DPLOY_MODE='multi-master'
+    grep '^DEPLOY_MODE=multi-master' $BASEPATH/hosts || { echo "ERROR: only k8s with DPLOY_MODE='multi-master' can have master node added!"; exit 2; }
+
+    # check if the new master already exsited
+    sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: master $1 already existed!"; exit 2; }
+
+    # add a node into 'kube-master' group
+    sed -i "/\[kube-master/a $1 NEW_MASTER=yes" $BASEPATH/hosts
+
+    # check if playbook runs successfully
+    ansible-playbook $BASEPATH/21.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; exit 2; }
+}
+
+function add-etcd() {
+    # check new node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # check if the new node already exsited
+    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: node $1 already existed!"; exit 2; }
+
+    # input an unique NODE_NAME of the node in etcd cluster
+    echo "give an unique name(string) for the new node: "
+    read NAME
+    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "$NAME" && { echo "ERROR: name [$NAME] already existed!"; exit 2; }
+
+    # add a node into 'kube-node' group
+    sed -i "/\[etcd/a $1 NODE_NAME=$NAME" $BASEPATH/hosts
+
+    # check if playbook runs successfully
+    ansible-playbook $BASEPATH/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; exit 2; }
 }
 ###############################################################
 
@@ -49,12 +85,16 @@ BASEPATH=/etc/ansible
 case "$1" in
 
 (add-node)
-        ACTION="+---\033[33maction add a k8s work node\033[0m---+"
+        ACTION="+---\033[33mAction: add a k8s work node\033[0m---+"
         CMD="add-node $2" 
         ;;
 (add-master)
-        ACTION="+---\033[33maction add a k8s master node\033[0m---+"
+        ACTION="+---\033[33mAction: add a k8s master node\033[0m---+"
         CMD="add-master $2" 
+        ;;
+(add-etcd)
+        ACTION="+---\033[33mAction: add a etcd node\033[0m---+"
+        CMD="add-etcd $2" 
         ;;
 (*)
         usage
