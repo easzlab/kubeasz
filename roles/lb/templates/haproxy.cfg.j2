@@ -23,9 +23,6 @@ listen kube-master
 {% for host in groups['kube-master'] %}
         server {{ host }} {{ host }}:6443 check inter 2000 fall 2 rise 2 weight 1
 {% endfor %}
-{% for host in groups['new-master'] %}
-        server {{ host }} {{ host }}:6443 check inter 2000 fall 2 rise 2 weight 1
-{% endfor %}
 {% if INGRESS_NODEPORT_LB == "yes" %}
 
 listen ingress-node
@@ -34,9 +31,6 @@ listen ingress-node
         option tcplog
         balance {{ BALANCE_ALG }}
 {% for host in groups['kube-node'] %}
-        server {{ host }} {{ host }}:23456 check inter 2000 fall 2 rise 2 weight 1
-{% endfor %}
-{% for host in groups['new-node'] %}
         server {{ host }} {{ host }}:23456 check inter 2000 fall 2 rise 2 weight 1
 {% endfor %}
 {% endif %}
@@ -48,9 +42,6 @@ listen ingress-node-tls
         option tcplog
         balance {{ BALANCE_ALG }}
 {% for host in groups['kube-node'] %}
-        server {{ host }} {{ host }}:23457 check inter 2000 fall 2 rise 2 weight 1
-{% endfor %}
-{% for host in groups['new-node'] %}
         server {{ host }} {{ host }}:23457 check inter 2000 fall 2 rise 2 weight 1
 {% endfor %}
 {% endif %}

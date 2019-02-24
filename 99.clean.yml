@@ -4,9 +4,7 @@
 # to clean 'kube-node' nodes
 - hosts:
   - kube-master
-  - new-master
   - kube-node
-  - new-node
   tasks:
   - name: stop and disable kube-node service
     service: name={{ item }} state=stopped enabled=no
@@ -33,7 +31,6 @@
 # to clean 'kube-master' nodes
 - hosts:
   - kube-master
-  - new-master
   tasks:
   - name: stop and disable kube-master service
     service: name={{ item }} state=stopped enabled=no
@@ -54,9 +51,7 @@
 # to clean docker service and networking
 - hosts:
   - kube-master
-  - new-master
   - kube-node
-  - new-node
   tasks:
   - name: clean 'kube-router' stuff
     shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
@@ -168,9 +163,7 @@
 # to clean ntp, certs and keys, env path
 - hosts:
   - kube-master
-  - new-master
   - kube-node
-  - new-node
   - deploy
   - etcd
   - lb
