@@ -32,6 +32,12 @@
   when: p.stat.isreg is not defined
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert -initca ca-csr.json | {{ bin_dir }}/cfssljson -bare ca" 
 
+# 随机生成集群 basic auth 使用的密码
+- name: 生成随机 basic auth 密码
+  shell: 'export PWD=`date +%s%N | md5sum | head -c 16`; sed -i "s/^BASIC_AUTH_PASS.*$/BASIC_AUTH_PASS=\"$PWD\"/g" {{ base_dir }}/hosts'
+  connection: local
+  when: p.stat.isreg is not defined
+
 #----------- 创建kubectl kubeconfig文件: /root/.kube/config
 - name: 准备kubectl使用的admin 证书签名请求
   template: src=admin-csr.json.j2 dest={{ ca_dir }}/admin-csr.json

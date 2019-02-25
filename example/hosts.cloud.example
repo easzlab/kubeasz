@@ -56,7 +56,7 @@ CLUSTER_DNS_SVC_IP="10.68.0.2"
 # 集群 DNS 域名
 CLUSTER_DNS_DOMAIN="cluster.local."
 
-# 集群basic auth 使用的用户名和密码
+# 集群basic auth 使用的用户名和密码 (运行时会生成随机密码)
 BASIC_AUTH_USER="admin"
 BASIC_AUTH_PASS="test1234"
 

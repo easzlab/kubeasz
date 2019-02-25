@@ -57,7 +57,7 @@ CLUSTER_DNS_SVC_IP="10.68.0.2"
 # Cluster DNS Domain
 CLUSTER_DNS_DOMAIN="cluster.local."
 
-# Basic auth for apiserver
+# Basic auth for apiserver (a random password will be gennerated on cluster setup)
 BASIC_AUTH_USER="admin"
 BASIC_AUTH_PASS="test1234"
 
