@@ -23,8 +23,8 @@ EOF
 
 function process_cmd() {
     echo -e "$ACTION : $CMD"
-    $CMD || { echo "Command failed : $CMD"; exit 1; }
-    echo -e "\033[32mdone\033[0m"
+    $CMD || { echo -e "+---\033[31mAction failed\033[0m---+ : $CMD"; exit 1; }
+    echo -e "+---\033[32mAction successed\033[0m---+ : $CMD"
 }
 
 function add-node() {
@@ -66,7 +66,7 @@ function add-etcd() {
     sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: node $1 already existed!"; exit 2; }
 
     # input an unique NODE_NAME of the node in etcd cluster
-    echo "give an unique name(string) for the new node: "
+    echo "Please input an UNIQUE name(string) for the new node: "
     read NAME
     sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "$NAME" && { echo "ERROR: name [$NAME] already existed!"; exit 2; }
 
@@ -76,6 +76,23 @@ function add-etcd() {
     # check if playbook runs successfully
     ansible-playbook $BASEPATH/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; exit 2; }
 }
+
+function del-etcd() {
+    # check node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # 
+    ansible-playbook $BASEPATH/tools/remove_etcd_node.yml -e ETCD_TO_DEL=$1
+}
+
+function clean-node() {
+    # check node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # 
+    ansible-playbook $BASEPATH/tools/clean_one_node.yml -e NODE_TO_DEL=$1
+}
+
 ###############################################################
 
 BASEPATH=/etc/ansible
@@ -95,6 +112,14 @@ case "$1" in
 (add-etcd)
         ACTION="+---\033[33mAction: add a etcd node\033[0m---+"
         CMD="add-etcd $2" 
+        ;;
+(del-etcd)
+        ACTION="+---\033[33mAction: delete a etcd node\033[0m---+"
+        CMD="del-etcd $2" 
+        ;;
+(clean-node)
+        ACTION="+---\033[33mAction: clean a node\033[0m---+"
+        CMD="clean-node $2" 
         ;;
 (*)
         usage

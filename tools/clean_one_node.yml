@@ -11,6 +11,14 @@
     private: no
     confirm: yes
   tasks:
+  - name: fail info1
+    fail: msg="you CAN NOT delete the last member of etcd cluster!"
+    when: "groups['etcd']|length < 2 and NODE_TO_DEL in groups['etcd']"
+
+  - name: fail info2
+    fail: msg="you CAN NOT delete the last member of kube-master!"
+    when: "groups['kube-master']|length < 2 and NODE_TO_DEL in groups['kube-master']"
+
   - name: 执行kubectl drain(节点可能是kube-node节点)
     shell: "{{ bin_dir }}/kubectl drain {{ NODE_TO_DEL }} --ignore-daemonsets --delete-local-data"
     ignore_errors: true
