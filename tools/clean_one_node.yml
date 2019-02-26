@@ -1,4 +1,4 @@
-# 警告：此脚本将清理单个node节点，使用请详细参阅 docs/op/del_one_node.md
+# 警告：此脚本将清理单个node节点，使用请详细参阅 docs/op/clean_one_node.md
 # 请三思后运行此脚本，特别的：如果有pod使用了本地存储类型，请自行判断重要性
 # 使用：
 # 1. 执行 ansible-playbook /etc/ansible/tools/clean_one_node.yml

@@ -1,4 +1,4 @@
-# kubeasz
+# kubeasz - Ansible Spirit Zone In Kubernetes
 
 `kubeasz`致力于提供快速部署高可用`k8s`集群的工具, 并且也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化：即提供一键安装脚本, 也可以分步执行安装各个组件, 同时讲解每一步主要参数配置和注意事项。
 
@@ -56,7 +56,7 @@
         <td><a href="docs/op/AddNode.md">增加node节点</a></td>
         <td><a href="docs/op/AddMaster.md">增加master节点</a></td>
         <td><a href="docs/op/op-etcd.md">管理etcd集群</a></td>
-        <td><a href="docs/op/del_one_node.md">删除节点</a></td>
+        <td><a href="docs/op/clean_one_node.md">删除节点</a></td>
         <td><a href="docs/op/upgrade.md">升级集群</a></td>
         <td><a href="docs/op/cluster_restore.md">备份恢复</a></td>
     </tr>

@@ -21,6 +21,9 @@
   - cfssl-certinfo
   - cfssljson
 
+- name: 分发 easzctl 工具
+  copy: src={{ base_dir }}/tools/easzctl dest={{ bin_dir }}/easzctl mode=0755
+
 - name: 写入环境变量$PATH 
   lineinfile:
     dest: ~/.bashrc

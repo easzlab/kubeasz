@@ -8,7 +8,7 @@ set -o nounset
 
 function usage() {
     cat <<EOF
-Usage: easzctl COMMAND [args]
+Usage: easzctl COMMAND <args>
 Commands:
     add-node		To add a kube-node(work node) to the k8s cluster
     add-master		To add a kube-master(master node) to the k8s cluster
@@ -22,7 +22,7 @@ EOF
 }
 
 function process_cmd() {
-    echo -e "$ACTION : $CMD"
+    echo -e "+---\033[33m$ACTION\033[0m---+ : $CMD"
     $CMD || { echo -e "+---\033[31mAction failed\033[0m---+ : $CMD"; exit 1; }
     echo -e "+---\033[32mAction successed\033[0m---+ : $CMD"
 }
@@ -93,6 +93,30 @@ function clean-node() {
     ansible-playbook $BASEPATH/tools/clean_one_node.yml -e NODE_TO_DEL=$1
 }
 
+function help-info() {
+    case "$1" in
+        (add-node)
+            echo -e "Usage: easzctl add-node <new_node_ip>\n\nMore information please refer to 'docs/op/AddNode.md'"
+            ;;
+        (add-master)
+            echo -e "Usage: easzctl add-master <new_master_ip>\n\nMore information please refer to 'docs/op/AddMaster.md'"
+            ;;
+        (add-etcd)
+            echo -e "Usage: easzctl add-etcd <new_etcd_ip>\n\nMore information please refer to 'docs/op/op-etcd.md'"
+            ;;
+        (del-etcd)
+            echo -e "Usage: easzctl del-etcd <etcd_ip>\n\nMore information please refer to 'docs/op/op-etcd.md'"
+            ;;
+        (clean-node)
+            echo -e "Usage: easzctl clean-node <node_ip>\n\nMore information please refer to 'docs/op/clean_one_node.md'"
+            ;;
+        (*)
+            usage
+            exit 0
+            ;;
+    esac
+}
+
 ###############################################################
 
 BASEPATH=/etc/ansible
@@ -100,28 +124,32 @@ BASEPATH=/etc/ansible
 [ "$#" -gt 1 ] || { usage >&2; exit 2; }
 
 case "$1" in
-
-(add-node)
-        ACTION="+---\033[33mAction: add a k8s work node\033[0m---+"
+    
+    (add-node)
+        ACTION="Action: add a k8s work node"
         CMD="add-node $2" 
         ;;
-(add-master)
-        ACTION="+---\033[33mAction: add a k8s master node\033[0m---+"
+    (add-master)
+        ACTION="Action: add a k8s master node"
         CMD="add-master $2" 
         ;;
-(add-etcd)
-        ACTION="+---\033[33mAction: add a etcd node\033[0m---+"
+    (add-etcd)
+        ACTION="Action: add a etcd node"
         CMD="add-etcd $2" 
         ;;
-(del-etcd)
-        ACTION="+---\033[33mAction: delete a etcd node\033[0m---+"
+    (del-etcd)
+        ACTION="Action: delete a etcd node"
         CMD="del-etcd $2" 
         ;;
-(clean-node)
-        ACTION="+---\033[33mAction: clean a node\033[0m---+"
+    (clean-node)
+        ACTION="Action: clean a node"
         CMD="clean-node $2" 
         ;;
-(*)
+    (help)
+        help-info $2
+        exit 0
+        ;;
+    (*)
         usage
         exit 0
         ;;
