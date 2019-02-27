@@ -1,4 +1,4 @@
-# 如何删除单个节点
+# 删除节点
 
 本文档所指删除的节点是指使用kubeasz项目安装的节点角色（可能是kube-master, kube-node, etcd, lb节点）
 
@@ -6,7 +6,7 @@
 
 ## 删除流程解释
 
-- 0.获取待删除节点参数`NODE_TO_DEL`
+- 0.判断待删除节点不是 etcd/master 组的唯一节点，否则不允许删除
 - 1.待删除节点可能是kube-node节点，因此先执行`kubectl drain`，如果不是忽略执行报错
 - 2.参照`99.clean.yml`脚本方式删除节点可能的服务和配置，忽略执行报错
 - 3.待删除节点可能是kube-node节点，执行`kubectl delete node`, 如果不是忽略执行报错
@@ -14,13 +14,16 @@
 
 ## 删除操作
 
-- 假设待删除节点为 192.168.1.1
+可以使用以下三种方式删除节点（i.e. 192.168.1.1）
 
 ``` bash
-# 带参数执行如下
+# 1.推荐使用 easzctl 工具
+$ easzctl clean-node 192.168.1.1
+
+# 2.ansible-playbook 带参数执行如下
 $ ansible-playbook /etc/ansible/tools/clean_one_node.yml -e NODE_TO_DEL=192.168.1.1
 
-# 或者不带参数执行，然后根据提示输入/确认
+# 3.ansible-playbook 不带参数执行，然后根据提示输入/确认
 $ ansible-playbook /etc/ansible/tools/clean_one_node.yml
 ```
 
