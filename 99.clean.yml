@@ -95,6 +95,7 @@
     - "/etc/systemd/system/docker.service.d/"
     - "/opt/kube/kube-system/"
     - "/etc/bash_completion.d/docker"
+    - "/usr/bin/docker"
     ignore_errors: true
 
   - name: cleanup iptables
