@@ -38,7 +38,7 @@ function add-node() {
     sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
 
     # check if playbook runs successfully
-    ansible-playbook $BASEPATH/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; exit 2; }
+    ansible-playbook $BASEPATH/tools/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; exit 2; }
 }
 
 function add-master() {
@@ -55,7 +55,7 @@ function add-master() {
     sed -i "/\[kube-master/a $1 NEW_MASTER=yes" $BASEPATH/hosts
 
     # check if playbook runs successfully
-    ansible-playbook $BASEPATH/21.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; exit 2; }
+    ansible-playbook $BASEPATH/tools/21.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; exit 2; }
 }
 
 function add-etcd() {
@@ -74,7 +74,7 @@ function add-etcd() {
     sed -i "/\[etcd/a $1 NODE_NAME=$NAME" $BASEPATH/hosts
 
     # check if playbook runs successfully
-    ansible-playbook $BASEPATH/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; exit 2; }
+    ansible-playbook $BASEPATH/tools/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; exit 2; }
 }
 
 function del-etcd() {

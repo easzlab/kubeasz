@@ -1,3 +1,6 @@
+# Note: this playbook cann't run independently
+# Usage: easzctl add-etcd 1.1.1.1
+
 # add new-etcd node, one at a time
 - hosts: "{{ NODE_TO_ADD }}"
   tasks:
