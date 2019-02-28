@@ -58,25 +58,43 @@
     ignore_errors: true
     when: "CLUSTER_NETWORK == 'kube-router'"
 
+  - name: 获取是否运行名为'kubeasz'的容器
+    shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
+    register: install_info
+
   - name: stop and disable docker service
     service: 
       name: docker
       state: stopped
       enabled: no
     ignore_errors: true
+    when: "'kubeasz' not in install_info.stdout"
 
   # as k8s-network-plugins use host-network, '/var/run/docker/netns/default' must be umounted
   - name: unmount docker filesystem-1
     mount: path=/var/run/docker/netns/default state=unmounted
+    when: "'kubeasz' not in install_info.stdout"
 
   - name: unmount docker filesystem-2
     mount: path=/var/lib/docker/overlay state=unmounted
+    when: "'kubeasz' not in install_info.stdout"
 
   - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
+    - "/var/lib/docker/"
+    - "/var/run/docker/"
+    - "/etc/systemd/system/docker.service"
+    - "/etc/systemd/system/docker.service.requires/"
+    - "/etc/systemd/system/docker.service.d/"
+    - "/etc/bash_completion.d/docker"
+    - "/usr/bin/docker"
+    when: "'kubeasz' not in install_info.stdout"
+
+  - name: remove files and dirs2
+    file: name={{ item }} state=absent
+    with_items:
     - "/etc/cni/"
-    - "/root/.kube/"
     - "/run/flannel/"
     - "/etc/calico/"
     - "/var/run/calico/"
@@ -86,27 +104,18 @@
     - "/var/run/cilium/"
     - "/sys/fs/bpf/tc/"
     - "/var/lib/cni/"
-    - "/var/lib/docker/"
     - "/var/lib/kube-router/"
-    - "/var/run/docker/"
-    - "/etc/systemd/system/calico-node.service"
-    - "/etc/systemd/system/docker.service"
-    - "/etc/systemd/system/docker.service.requires/"
-    - "/etc/systemd/system/docker.service.d/"
     - "/opt/kube/kube-system/"
-    - "/etc/bash_completion.d/docker"
-    - "/usr/bin/docker"
-    ignore_errors: true
 
   - name: cleanup iptables
     shell: "iptables -F && iptables -X \
 	&& iptables -F -t nat && iptables -X -t nat \
 	&& iptables -F -t raw && iptables -X -t raw \
 	&& iptables -F -t mangle && iptables -X -t mangle"
+    when: "'kubeasz' not in install_info.stdout"
 
-  - name: cleanup networks
-    shell: "ip link del docker0; \
-	ip link del tunl0; \
+  - name: cleanup networks1
+    shell: "ip link del tunl0; \
 	ip link del flannel.1; \
 	ip link del cni0; \
         ip link del mynet0; \
@@ -114,10 +123,15 @@
         ip link del dummy0; \
         ip link del kube-ipvs0; \
         ip link del cilium_net; \
-        ip link del cilium_vxlan; \
+        ip link del cilium_vxlan"
+    ignore_errors: true
+
+  - name: cleanup networks2
+    shell: "ip link del docker0; \
 	systemctl restart networking; \
 	systemctl restart network"
     ignore_errors: true
+    when: "'kubeasz' not in install_info.stdout"
 
   - name: cleanup 'calico' routes
     shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
