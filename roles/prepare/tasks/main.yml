@@ -21,8 +21,9 @@
   - cfssl-certinfo
   - cfssljson
 
-- name: 分发 easzctl 工具
-  copy: src={{ base_dir }}/tools/easzctl dest={{ bin_dir }}/easzctl mode=0755
+- name: 创建 kubeasz 工具的软连接
+  file: src={{ base_dir }}/tools/kubeasz dest=/usr/bin/kubeasz state=link
+  connection: local
 
 - name: 写入环境变量$PATH 
   lineinfile:

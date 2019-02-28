@@ -112,6 +112,7 @@
 
   - name: 创建 kubectl 命令的软连接
     file: src={{ base_dir }}/bin/kubectl dest=/usr/bin/kubectl state=link
+    connection: local
 
   - name: 安装 rsync
     package: name=rsync state=present
