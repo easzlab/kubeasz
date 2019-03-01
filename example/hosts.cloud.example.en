@@ -28,9 +28,6 @@
 # Cluster Deployment Mode: allinone, single-master, multi-master
 DEPLOY_MODE=multi-master
 
-# Versions supported: v1.8, v1.9, v1.10, v1.11, v1.12, v1.13
-K8S_VER="v1.10"
-
 # use loadballance service by the Cloud Providor, no 'lb' nodes needed
 # cloud loadballance service: listen on tcp 8443, with kube-masters(apiservers) as backend servers
 MASTER_IP="192.168.1.10"

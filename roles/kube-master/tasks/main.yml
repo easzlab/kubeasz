@@ -45,15 +45,21 @@
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
 
+# 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
+- name: 获取 k8s 版本信息
+  shell: "{{ bin_dir }}/kube-apiserver --version"
+  register: k8s_ver
+  tags: upgrade_k8s, restart_master
+
 - name: 创建kube-apiserver的systemd unit文件
   template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
   tags: upgrade_k8s, restart_master
+  when: "'v1.8' not in k8s_ver.stdout"
 
-# 为兼容之前的模式，需特别对v1.8版本重新配置kube-apiserver的systemd unit文件
 - name: 创建kube-apiserver v1.8的systemd unit文件
-  template: src=kube-apiserver-{{ K8S_VER }}.service.j2 dest=/etc/systemd/system/kube-apiserver.service
+  template: src=kube-apiserver-v1.8.service.j2 dest=/etc/systemd/system/kube-apiserver.service
   tags: upgrade_k8s, restart_master
-  when: "K8S_VER is defined and K8S_VER == 'v1.8'"
+  when: "'v1.8' in k8s_ver.stdout"
 
 - name: 创建kube-controller-manager的systemd unit文件
   template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service

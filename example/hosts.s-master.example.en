@@ -30,9 +30,6 @@
 # Cluster Deployment Mode: allinone, single-master, multi-master
 DEPLOY_MODE=single-master
 
-# Versions supported: v1.8, v1.9, v1.10, v1.11, v1.12, v1.13
-K8S_VER="v1.11"
-
 # Cluster's Master IP, auto generated
 MASTER_IP="{{ groups['kube-master'][0] }}"
 KUBE_APISERVER="https://{{ MASTER_IP }}:6443"
