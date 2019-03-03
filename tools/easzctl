@@ -117,6 +117,33 @@ function help-info() {
     esac
 }
 
+function start() {
+    case "$1" in
+        (aio)
+            start-aio 
+            ;;
+        (*)
+            exit 0
+            ;;
+    esac
+}
+
+function start-aio(){
+    if [ ! -n "$KUBEASZ_DOCKER_HOST" ]; then
+        # easzctl runs in a host machine, get host's ip
+        HOST_IF=$(ip route|grep default|cut -d' ' -f5)
+        HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
+        cp -f $BASEPATH/example/hosts.allinone.example.en /root/hosts.aio
+        sed -i "s/192.168.1.1/$HOST_IP/g" /root/hosts.aio
+        ansible-playbook -i /root/hosts.aio 90.setup.yml
+    else
+        # easzctl runs in a container
+        cp -f $BASEPATH/example/hosts.allinone.example.en /root/hosts.aio
+        sed -i "s/192.168.1.1/$KUBEASZ_DOCKER_HOST/g" /root/hosts.aio
+        ansible-playbook -i /root/hosts.aio 90.setup.yml
+    fi
+}
+
 ###############################################################
 
 BASEPATH=/etc/ansible
@@ -148,6 +175,10 @@ case "$1" in
     (help)
         help-info $2
         exit 0
+        ;;
+    (start)
+        ACTION="Action: start an AllInOne cluster"
+        CMD="start $2" 
         ;;
     (*)
         usage
