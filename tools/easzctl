@@ -129,18 +129,19 @@ function start() {
 }
 
 function start-aio(){
+    [ -f "$BASEPATH/hosts" ] && { echo -e "ERROR: file $BASEPATH/hosts exists, checkout!\nRemove it if you really want to start an aio cluster"; exit 3; }
     if [ ! -n "$KUBEASZ_DOCKER_HOST" ]; then
         # easzctl runs in a host machine, get host's ip
         HOST_IF=$(ip route|grep default|cut -d' ' -f5)
         HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
-        cp -f $BASEPATH/example/hosts.allinone.example.en /root/hosts.aio
-        sed -i "s/192.168.1.1/$HOST_IP/g" /root/hosts.aio
-        ansible-playbook -i /root/hosts.aio 90.setup.yml
+        cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
+        sed -i "s/192.168.1.1/$HOST_IP/g" $BASEPATH/hosts
+        ansible-playbook $BASEPATH/90.setup.yml
     else
         # easzctl runs in a container
-        cp -f $BASEPATH/example/hosts.allinone.example.en /root/hosts.aio
-        sed -i "s/192.168.1.1/$KUBEASZ_DOCKER_HOST/g" /root/hosts.aio
-        ansible-playbook -i /root/hosts.aio 90.setup.yml
+        cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
+        sed -i "s/192.168.1.1/$KUBEASZ_DOCKER_HOST/g" $BASEPATH/hosts
+        ansible-playbook $BASEPATH/90.setup.yml
     fi
 }
 
