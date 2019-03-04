@@ -200,7 +200,7 @@
     with_items:
     - "/etc/kubernetes/"
     - "{{ ca_dir }}" 
-    - "/root/.kube/"
+    - "/root/.kube/config"
     - "/etc/docker/"
 
   - name: clean 'ENV PATH'
