@@ -14,7 +14,7 @@ EOF
 
 function start_kubeasz_docker() {
   # kubeasz docker version
-  KUBEASZ_DOCKER_VER=kubeasz:$1
+  KUBEASZ_DOCKER_VER=jmgao1983/kubeasz:$1
   echo "VERSION $KUBEASZ_DOCKER_VER"
   
   # init host dir
