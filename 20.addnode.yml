@@ -9,3 +9,31 @@
   - { role: cilium, when: "CLUSTER_NETWORK == 'cilium'" }
   - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
+
+# modify the ansible hosts file
+- hosts:
+  - new-node
+  tasks:
+  - name: tag new-node FINISHED=yes
+    shell: 'sed -i "/\[new-node/,/\[harbor/s/{{ inventory_hostname }}/{{ inventory_hostname }} FINISHED=yes/" {{ base_dir }}/hosts'
+    args:
+      warn: false
+    connection: local
+
+  - name: cp new-node to 'kube-node' group
+    lineinfile:
+      dest: "{{ base_dir }}/hosts"
+      state: present
+      insertafter: '^\[kube-node'
+      firstmatch: yes
+      line: "{{ inventory_hostname }} NEW_NODE=yes"
+    connection: local
+
+- hosts: deploy
+  tasks:
+  - name: rm new-node in ansible hosts
+    lineinfile:
+      dest: "{{ base_dir }}/hosts"
+      state: absent
+      regexp: 'FINISHED=yes'
+    connection: local

@@ -1,198 +1,206 @@
 # 警告：此脚本将清理单个node节点，使用请详细参阅 docs/op/del_one_node.md
-# 如果该节点为kube-node节点，请先执行kubectl drain
 # 请三思后运行此脚本，特别的：如果有pod使用了本地存储类型，请自行判断重要性
-# 参考 docs/op/del_one_node.md说明
 # 使用：
-# 1. 假设待删节点为 192.168.1.1，执行 sed -i 's/NODE_TO_DEL/192.168.1.1/g' tools/clean_one_node.yml
-# 2. 执行 ansible-playbook /etc/ansible/tools/clean_one_node.yml
+# 1. 执行 ansible-playbook /etc/ansible/tools/clean_one_node.yml
+# 2. 按照提示输入待删除节点
 
-# 执行kubectl drain(节点可能是kube-node节点)
 - hosts: deploy
+  vars_prompt:
+  - name: "NODE_TO_DEL"
+    prompt: "which node is about to be deleted?(e.g 192.168.1.1)"
+    private: no
+    confirm: yes
   tasks:
   - name: 执行kubectl drain(节点可能是kube-node节点)
-    shell: "{{ bin_dir }}/kubectl drain NODE_TO_DEL --ignore-daemonsets --delete-local-data"
+    shell: "{{ bin_dir }}/kubectl drain {{ NODE_TO_DEL }} --ignore-daemonsets --delete-local-data"
     ignore_errors: true
 
-# 清理 kube-node 相关服务
-- hosts: NODE_TO_DEL
-  tasks:
-  - name: stop kube-node service
-    shell: "systemctl stop kubelet kube-proxy"
-    ignore_errors: true
+  - block:
+    # 清理 kube-node 相关服务
+    - name: stop and disable kube-node service
+      service: name={{ item }} state=stopped enabled=no
+      with_items:
+      - kubelet
+      - kube-proxy
+      ignore_errors: true
+  
+    - name: umount kubelet 挂载的目录
+      shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount"
+      args:
+        warn: false
+      ignore_errors: true
+  
+    - name: 清理目录和文件
+      file: name={{ item }} state=absent
+      with_items:
+      - "/var/lib/kubelet/"
+      - "/var/lib/kube-proxy/"
+      - "/etc/systemd/system/kubelet.service"
+      - "/etc/systemd/system/kube-proxy.service"
+      - "/opt/kube/kube-system/"
+  
+    # 清理 kube-master 相关
+    - name: stop and disable kube-master service
+      service: name={{ item }} state=stopped enabled=no
+      with_items:
+      - kube-apiserver
+      - kube-controller-manager
+      - kube-scheduler
+      ignore_errors: true
+  
+    - name: 清理目录和文件
+      file: name={{ item }} state=absent
+      with_items:
+      - "/var/run/kubernetes"
+      - "/etc/systemd/system/kube-apiserver.service"
+      - "/etc/systemd/system/kube-controller-manager.service"
+      - "/etc/systemd/system/kube-scheduler.service"
+  
+    # 清理集群docker服务、网络相关
+    - name: 清理kube-router相关
+      shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
+      ignore_errors: true
+      when: "CLUSTER_NETWORK == 'kube-router'"
+  
+    - name: stop and disable docker service
+      service:
+        name: docker
+        state: stopped
+        enabled: no
+      ignore_errors: true
+  
+    # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
+    # 卸载 /var/run/docker/netns/default
+    - name: 卸载docker 相关fs1
+      mount: path=/var/run/docker/netns/default state=unmounted
+  
+    - name: 卸载docker 相关fs2
+      mount: path=/var/lib/docker/overlay state=unmounted
+  
+    - name: 清理目录和文件
+      file: name={{ item }} state=absent
+      with_items:
+      - "/etc/cni/"
+      - "/root/.kube/"
+      - "/run/flannel/"
+      - "/etc/calico/"
+      - "/var/run/calico/"
+      - "/var/lib/calico/"
+      - "/var/log/calico/"
+      - "/etc/cilium/"
+      - "/var/run/cilium/"
+      - "/sys/fs/bpf/tc/"
+      - "/var/lib/cni/"
+      - "/var/lib/docker/"
+      - "/var/lib/kube-router/"
+      - "/var/run/docker/"
+      - "/etc/systemd/system/calico-node.service"
+      - "/etc/systemd/system/docker.service"
+      - "/etc/systemd/system/docker.service.requires/"
+      - "/etc/systemd/system/docker.service.d/"
+      - "/opt/kube/kube-system/"
+      - "/etc/bash_completion.d/docker"
+      ignore_errors: true
+  
+    - name: 清理 iptables
+      shell: "iptables -F && iptables -X \
+  	&& iptables -F -t nat && iptables -X -t nat \
+  	&& iptables -F -t raw && iptables -X -t raw \
+  	&& iptables -F -t mangle && iptables -X -t mangle"
+  
+    - name: 清理网络
+      shell: "ip link del docker0; \
+  	ip link del tunl0; \
+          ip link del flannel.1; \
+          ip link del cni0; \
+          ip link del mynet0; \
+          ip link del kube-bridge; \
+          ip link del dummy0; \
+          ip link del kube-ipvs0; \
+          ip link del cilium_net; \
+          ip link del cilium_vxlan; \
+          systemctl restart networking; \
+  	systemctl restart network"
+      ignore_errors: true
+  
+    - name: 清理calico残留路由
+      shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
+      when: "CLUSTER_NETWORK == 'calico'"
+      ignore_errors: true
+  
+    # 清理etcd 集群相关
+    - name: stop and disable etcd service
+      service:
+        name: etcd
+        state: stopped
+        enabled: no
+      ignore_errors: true
+  
+    - name: 清理目录和文件
+      file: name={{ item }} state=absent
+      with_items:
+      - "/var/lib/etcd"
+      - "/etc/etcd/"
+      - "/backup/k8s"
+      - "/etc/systemd/system/etcd.service"
+  
+    # 清理负载均衡相关
+    - name: stop keepalived service
+      shell: systemctl disable keepalived && systemctl stop keepalived
+      ignore_errors: true
+  
+    - name: stop haproxy service
+      shell: systemctl disable haproxy && systemctl stop haproxy
+      ignore_errors: true
+  
+    - name: 清理LB 配置文件目录
+      file: name={{ item }} state=absent
+      with_items:
+      - "/etc/haproxy"
+      - "/etc/keepalived"
+  
+    # 清理其他
+    - name: stop and disable chrony in Ubuntu
+      service: name=chrony state=stopped enabled=no
+      ignore_errors: true
+      tags: rm_ntp
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+  
+    - name: stop and disable chronyd in CentOS/RedHat
+      service: name=chronyd state=stopped enabled=no
+      ignore_errors: true
+      tags: rm_ntp
+      when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
+  
+    - name: 清理证书目录和文件
+      file: name={{ item }} state=absent
+      with_items:
+      - "/etc/kubernetes/"
+      - "{{ ca_dir }}" 
+      - "/root/.kube/"
+      - "/etc/docker/"
+  
+    - name: 清理自动生成的PATH
+      lineinfile:
+        dest: ~/.bashrc
+        state: absent
+        regexp: '{{ item }}'
+      with_items:
+      - 'kubeasz'
+      - 'helm'
+      - 'kubectl completion'
+    delegate_to: "{{ NODE_TO_DEL }}"
+    run_once: true
 
-  - name: umount kubelet 挂载的目录
-    shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount"
-    ignore_errors: true
-
-  - name: 清理目录和文件
-    file: name={{ item }} state=absent
-    with_items:
-    - "/var/lib/kubelet/"
-    - "/var/lib/kube-proxy/"
-    - "/etc/systemd/system/kubelet.service"
-    - "/etc/systemd/system/kube-proxy.service"
-    - "/opt/kube/kube-system/"
-
-# 清理 kube-master 相关
-- hosts: NODE_TO_DEL
-  tasks:
-  - name: stop and disable kube-master service
-    service: name={{ item }} state=stopped enabled=no
-    with_items:
-    - kube-apiserver
-    - kube-controller-manager
-    - kube-scheduler
-    ignore_errors: true
-
-  - name: 清理目录和文件
-    file: name={{ item }} state=absent
-    with_items:
-    - "/var/run/kubernetes"
-    - "/etc/systemd/system/kube-apiserver.service"
-    - "/etc/systemd/system/kube-controller-manager.service"
-    - "/etc/systemd/system/kube-scheduler.service"
-
-# 清理集群docker服务、网络相关
-- hosts: NODE_TO_DEL
-  tasks:
-  - name: 清理kube-router相关
-    shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
-    ignore_errors: true
-    when: "CLUSTER_NETWORK == 'kube-router'"
-
-  - name: stop and disable docker service
-    service:
-      name: docker
-      state: stopped
-      enabled: no
-    ignore_errors: true
-
-  # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
-  # 卸载 /var/run/docker/netns/default
-  - name: 卸载docker 相关fs1
-    mount: path=/var/run/docker/netns/default state=unmounted
-
-  - name: 卸载docker 相关fs2
-    mount: path=/var/lib/docker/overlay state=unmounted
-
-  - name: 清理目录和文件
-    file: name={{ item }} state=absent
-    with_items:
-    - "/etc/cni/"
-    - "/root/.kube/"
-    - "/run/flannel/"
-    - "/etc/calico/"
-    - "/var/run/calico/"
-    - "/var/lib/calico/"
-    - "/var/log/calico/"
-    - "/etc/cilium/"
-    - "/var/run/cilium/"
-    - "/sys/fs/bpf/tc/"
-    - "/var/lib/cni/"
-    - "/var/lib/docker/"
-    - "/var/lib/kube-router/"
-    - "/var/run/docker/"
-    - "/etc/systemd/system/calico-node.service"
-    - "/etc/systemd/system/docker.service"
-    - "/etc/systemd/system/docker.service.requires/"
-    - "/opt/kube/kube-system/"
-    - "/etc/bash_completion.d/docker"
-    ignore_errors: true
-
-  - name: 清理 iptables
-    shell: "iptables -F && iptables -X \
-	&& iptables -F -t nat && iptables -X -t nat \
-	&& iptables -F -t raw && iptables -X -t raw \
-	&& iptables -F -t mangle && iptables -X -t mangle"
-
-  - name: 清理网络
-    shell: "ip link del docker0; \
-	ip link del tunl0; \
-        ip link del flannel.1; \
-        ip link del cni0; \
-        ip link del mynet0; \
-        ip link del kube-bridge; \
-        ip link del dummy0; \
-        ip link del kube-ipvs0; \
-        ip link del cilium_net; \
-        ip link del cilium_vxlan; \
-        systemctl restart networking; \
-	systemctl restart network"
-    ignore_errors: true
-
-  - name: 清理calico残留路由
-    shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
-    when: "CLUSTER_NETWORK == 'calico'"
-    ignore_errors: true
-
-# 清理etcd 集群相关
-- hosts: NODE_TO_DEL
-  tasks:
-  - name: stop and disable etcd service
-    service:
-      name: etcd
-      state: stopped
-      enabled: no
-    ignore_errors: true
-
-  - name: 清理目录和文件
-    file: name={{ item }} state=absent
-    with_items:
-    - "/var/lib/etcd"
-    - "/etc/etcd/"
-    - "/backup/k8s"
-    - "/etc/systemd/system/etcd.service"
-
-# 清理负载均衡相关
-- hosts: NODE_TO_DEL
-  tasks:
-  - name: stop keepalived service
-    shell: systemctl disable keepalived && systemctl stop keepalived
-    ignore_errors: true
-
-  - name: stop haproxy service
-    shell: systemctl disable haproxy && systemctl stop haproxy
-    ignore_errors: true
-
-  - name: 清理LB 配置文件目录
-    file: name={{ item }} state=absent
-    with_items:
-    - "/etc/haproxy"
-    - "/etc/keepalived"
-
-# 清理其他
-- hosts: NODE_TO_DEL
-  tasks:
-  - name: stop and disable chrony
-    service: name={{ item }} state=stopped enabled=no
-    with_items:
-    - chrony
-    - chronyd
-    ignore_errors: true
-    tags: rm_ntp
-
-  - name: 清理证书目录和文件
-    file: name={{ item }} state=absent
-    with_items:
-    - "/etc/kubernetes/"
-    - "{{ ca_dir }}" 
-    - "/root/.kube/"
-    - "/etc/docker/"
-
-  - name: 清理自动生成的PATH
-    lineinfile:
-      dest: ~/.bashrc
-      state: absent
-      regexp: '{{ item }}'
-    with_items:
-    - 'kubeasz'
-    - 'helm'
-    - 'kubectl completion'
-
-# 执行kubectl delete(节点可能是kube-node节点)
-- hosts: deploy
-  tasks:
+  # 执行kubectl delete(节点可能是kube-node节点)
   - name: 执行kubectl delete(节点可能是kube-node节点)
-    shell: "{{ bin_dir }}/kubectl delete node NODE_TO_DEL"
+    shell: "{{ bin_dir }}/kubectl delete node {{ NODE_TO_DEL }}"
     ignore_errors: true
 
+  # 删除 ansible hosts 中节点配置
+  - name: rm {{ NODE_TO_DEL }} in ansible hosts
+    lineinfile:
+      dest: "{{ base_dir }}/hosts"
+      state: absent
+      regexp: '{{ NODE_TO_DEL }}'
+    connection: local

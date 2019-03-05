@@ -10,6 +10,7 @@
 - 新节点安装 kube-node 服务
 - 新节点安装网络插件相关
 - 禁止业务 pod调度到新master节点
+- 修改hosts文件，把 new-master 组成员转移到 kube-master 组
 
 ### 操作步骤
 
@@ -54,3 +55,5 @@ NAME           STATUS                     ROLES     AGE       VERSION
 ### 后续
 
 上述步骤验证成功，确认新节点工作正常后，为了方便后续再次添加节点，在ansible hosts文件中，把 [new-master] 组下的节点全部复制到 [kube-master] 组下，并清空 [new-master] 组中的节点。
+
+- 注：新版本 kubeasz 已经自动完成 new-master 组成员转移到 kube-master 组

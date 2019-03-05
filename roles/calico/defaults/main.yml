@@ -18,9 +18,11 @@ FELIX_LOG_LVL: "warning"
 #IP_AUTODETECTION_METHOD: "interface=eth0"
 IP_AUTODETECTION_METHOD: "can-reach={{ groups.deploy[0] }}"
 
-# 镜像版本
-# 更新支持calico 版本: [v3.2.4]和[v3.3.2]
-calico_ver: "v3.3.2"
+# 更新支持calico 版本: [v3.2.x] [v3.3.x] [v3.4.x]
+calico_ver: "v3.4.1"
+
+# calico 主版本
+calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
 
 # 离线镜像tar包
 calico_offline: "calico_{{ calico_ver }}.tar"

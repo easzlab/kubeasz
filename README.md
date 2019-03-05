@@ -9,7 +9,7 @@
 |OS|Ubuntu 16.04+, CentOS/RedHat 7|
 |k8s|v1.8, v1.9, v1.10, v1.11, v1.12, v1.13|
 |etcd|v3.1, v3.2, v3.3|
-|docker|17.03.2-ce, 18.06.1-ce|
+|docker|17.03.2-ce, 18.06.1-ce, 18.09.2|
 |network|calico, cilium, flannel, kube-router|
 
 - 注：集群用到的所有二进制文件已打包好供下载 [https://pan.baidu.com/s/1c4RFaA](https://pan.baidu.com/s/1c4RFaA)  
@@ -53,12 +53,12 @@
     </tr>
     <tr>
         <td><strong>集群管理</strong><a href="docs/op/op-index.md">+</a></td>
-        <td><a href="docs/op/AddNode.md">增加node</a></td>
-        <td><a href="docs/op/AddMaster.md">增加master</a></td>
+        <td><a href="docs/op/AddNode.md">增加node节点</a></td>
+        <td><a href="docs/op/AddMaster.md">增加master节点</a></td>
+        <td><a href="docs/op/op-etcd.md">管理etcd集群</a></td>
         <td><a href="docs/op/del_one_node.md">删除节点</a></td>
         <td><a href="docs/op/upgrade.md">升级集群</a></td>
         <td><a href="docs/op/cluster_restore.md">备份恢复</a></td>
-        <td><a href="docs/op/change_k8s_network.md">修改network插件</a></td>
     </tr>
     <tr>
         <td><strong>特性实验</strong></td>

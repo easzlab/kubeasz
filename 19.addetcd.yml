@@ -1,0 +1,54 @@
+# add new-etcd node, one at a time
+- hosts:
+  - new-etcd
+  tasks:
+  - name: add a new etcd member
+    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add {{ NODE_NAME }} --peer-urls=https://{{ inventory_hostname }}:2380"
+    delegate_to: "{{ groups.etcd[0] }}"
+    when: "inventory_hostname == groups['new-etcd'][0]"
+
+# start the new-etcd node
+- hosts:
+  - new-etcd
+  roles:
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes' and inventory_hostname == groups['new-etcd'][0]" } 
+  - { role: prepare, when: "inventory_hostname == groups['new-etcd'][0]" }
+  - { role: new-etcd, when: "inventory_hostname == groups['new-etcd'][0]" }
+
+# restart the original etcd cluster with the new configuration 
+- hosts:
+  - etcd
+  roles:
+  - { role: new-etcd, when: "groups['new-etcd']|length > 0" }
+
+# modify the ansible hosts file
+- hosts:
+  - new-etcd
+  tasks:
+  - name: tag new-etcd's node FINISHED=yes
+    lineinfile:
+      dest: "{{ base_dir }}/hosts"
+      state: present
+      regexp: '{{ NODE_NAME }}'
+      line: "{{ inventory_hostname }} NODE_NAME={{ NODE_NAME }} FINISHED=yes"
+    connection: local
+    when: "inventory_hostname == groups['new-etcd'][0]"
+
+  - name: cp new-etcd's node to etcd group
+    lineinfile:
+      dest: "{{ base_dir }}/hosts"
+      state: present
+      insertafter: '^\[etcd'
+      firstmatch: yes
+      line: "{{ inventory_hostname }} NODE_NAME={{ NODE_NAME }}"
+    connection: local
+    when: "inventory_hostname == groups['new-etcd'][0]"
+
+- hosts: deploy
+  tasks:
+  - name: rm new-etcd's node
+    lineinfile:
+      dest: "{{ base_dir }}/hosts"
+      state: absent
+      regexp: 'FINISHED=yes'
+    connection: local

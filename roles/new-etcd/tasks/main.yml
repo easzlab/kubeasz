@@ -1,0 +1,62 @@
+- name: prepare some dirs
+  file: name={{ item }} state=directory
+  with_items:
+  - "{{ bin_dir }}"
+  - "{{ ca_dir }}"
+  - "/etc/etcd/ssl"    # etcd 证书目录
+  - "/var/lib/etcd"    # etcd 工作目录
+
+- name: 下载etcd二进制文件
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - etcd
+  - etcdctl
+  tags: upgrade_etcd
+
+- name: 分发证书相关
+  synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
+  with_items:
+  - ca.pem
+  - ca-key.pem
+  - ca.csr
+  - ca-config.json
+  delegate_to: "{{ groups.deploy[0] }}"
+
+# 注册变量p，根据p的stat信息判断是否已经生成过etcd证书，如果没有，下一步生成证书
+# 如果已经有etcd证书，为了保证整个安装的幂等性，跳过证书生成的步骤
+- name: 读取etcd证书stat信息
+  stat: path="/etc/etcd/ssl/etcd.pem"
+  register: p
+
+- name: 创建etcd证书请求
+  template: src=etcd-csr.json.j2 dest=/etc/etcd/ssl/etcd-csr.json
+  when: p.stat.isreg is not defined 
+
+- name: 创建 etcd证书和私钥
+  when: p.stat.isreg is not defined 
+  shell: "cd /etc/etcd/ssl && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd"
+
+- name: 创建etcd的systemd unit文件
+  template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
+  tags: upgrade_etcd
+
+- name: 开机启用etcd服务
+  shell: systemctl enable etcd
+  ignore_errors: true
+
+- name: 开启etcd服务
+  shell: systemctl daemon-reload && systemctl restart etcd
+  ignore_errors: true
+  tags: upgrade_etcd
+
+- name: 以轮询的方式等待服务同步完成
+  shell: "systemctl status etcd.service|grep Active"
+  register: etcd_status
+  until: '"running" in etcd_status.stdout'
+  retries: 8
+  delay: 8
+  tags: upgrade_etcd

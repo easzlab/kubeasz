@@ -1,5 +1,5 @@
 # Calico Version {{ calico_ver }} 
-# https://docs.projectcalico.org/v3.3/releases#{{ calico_ver }}
+# https://docs.projectcalico.org/v3.2/releases#{{ calico_ver }}
 # This manifest includes the following component versions:
 #   calico/node:{{ calico_ver }}
 #   calico/cni:{{ calico_ver }}
@@ -192,8 +192,6 @@ spec:
             # Calico will treat traffic to those ports as host traffic instead of pod traffic.
             - name: FELIX_KUBENODEPORTRANGES
               value: "{{ NODE_PORT_RANGE.split('-')[0] }}:{{ NODE_PORT_RANGE.split('-')[1] }}"
-            - name: FELIX_PROMETHEUSMETRICSENABLED
-              value: "true"
           securityContext:
             privileged: true
           resources:
@@ -218,9 +216,6 @@ spec:
             - mountPath: /lib/modules
               name: lib-modules
               readOnly: true
-            - mountPath: /run/xtables.lock
-              name: xtables-lock
-              readOnly: false
             - mountPath: /var/run/calico
               name: var-run-calico
               readOnly: false
@@ -274,10 +269,6 @@ spec:
         - name: var-lib-calico
           hostPath:
             path: /var/lib/calico
-        - name: xtables-lock
-          hostPath:
-            path: /run/xtables.lock
-            type: FileOrCreate
         # Used to install CNI.
         - name: cni-bin-dir
           hostPath:
@@ -369,7 +360,7 @@ spec:
                   key: etcd_cert
             # Choose which controllers to run.
             - name: ENABLED_CONTROLLERS
-              value: policy,namespace,serviceaccount,workloadendpoint,node
+              value: policy,profile,workloadendpoint,node
 {% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
             # if hosts have multiple net interfaces, set following two ENVs
             - name: KUBERNETES_SERVICE_HOST
@@ -402,3 +393,77 @@ metadata:
   name: calico-kube-controllers
   namespace: kube-system
 
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: calico-kube-controllers
+rules:
+  - apiGroups:
+    - ""
+    - extensions
+    resources:
+      - pods
+      - namespaces
+      - networkpolicies
+      - nodes
+      - serviceaccounts
+    verbs:
+      - watch
+      - list
+  - apiGroups:
+    - networking.k8s.io
+    resources:
+      - networkpolicies
+    verbs:
+      - watch
+      - list
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: calico-kube-controllers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: calico-kube-controllers
+subjects:
+- kind: ServiceAccount
+  name: calico-kube-controllers
+  namespace: kube-system
+
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: calico-node
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - nodes
+      - namespaces
+    verbs:
+      - get
+  - apiGroups: [""]
+    resources:
+      - nodes/status
+    verbs:
+      - patch
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: calico-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: calico-node
+subjects:
+- kind: ServiceAccount
+  name: calico-node
+  namespace: kube-system

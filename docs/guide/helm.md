@@ -2,35 +2,11 @@
 
 `Helm`致力于成为k8s集群的应用包管理工具，希望像linux 系统的`RPM` `DPKG`那样成功；确实在k8s上部署复杂一点的应用很麻烦，需要管理很多yaml文件（configmap,controller,service,rbac,pv,pvc等等），而helm能够整齐管理这些文档：版本控制，参数化安装，方便的打包与分享等。  
 - 建议积累一定k8s经验以后再去使用helm；对于初学者来说手工去配置那些yaml文件对于快速学习k8s的设计理念和运行原理非常有帮助，而不是直接去使用helm，面对又一层封装与复杂度。
-
-## 安装（开发测试环境）
-
-在开发环境安装（不考虑安全性问题）很方便，除了tiller官方镜像需要翻墙下载。  
-- 客户端：从最新[release](https://github.com/kubernetes/helm/releases)，下载helm-v2.9.1-linux-amd64.tar.gz到本地，解压后把二进制直接放到环境PATH下即可
-- 服务端：不能翻墙的可以使用docker hub上的转存镜像，比如jmgao1983/tiller:v2.9.1  
-helm默认使用kubectl客户端相同的配置文件去访问k8s集群，因此只要在能使用kubectl的节点运行如下，即能进行安装。  
-``` bash
-$ helm init --tiller-image jmgao1983/tiller:v2.9.1
-```
-- 验证  
-``` bash
-$ kubectl get pod --all-namespaces|grep tiller
-kube-system   tiller-deploy-7c6cd89d69-72r7j            1/1       Running   0          10h
-
-$ helm version
-Client: &version.Version{SemVer:"v2.9.1", GitCommit:"20adb27c7c5868466912eebdf6664e7390ebe710", GitTreeState:"clean"}
-Server: &version.Version{SemVer:"v2.9.1", GitCommit:"20adb27c7c5868466912eebdf6664e7390ebe710", GitTreeState:"clean"}
-```
-
-如果 `helm version` 出现如下错误，在每个节点安装 `socat`即可（如 apt install socat）  
-``` bash
-E0522 22:22:15.492436   24409 portforward.go:331] an error occurred forwarding 38398 -> 44134: error forwarding port 44134 to pod dc6da4ab99ad9c497c0cef1776b9dd18e0a612d507e2746ed63d36ef40f30174, uid : unable to do port forwarding: socat not found.
-Error: cannot connect to Tiller
-```
+- 本文参考 helm 官网安全实践启用 TLS 认证，参考 https://docs.helm.sh/using_helm/#securing-your-helm-installation 
 
 ## 安全安装 helm（在线）
 
-上述安装的tiller服务器默认允许匿名访问，那么k8s集群中的任何pod都能访问tiller，风险较大，因此需要在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在delpoy节点运行:  
+在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在delpoy节点运行:  
 ``` bash
 # 1.如果已安装非安全模式，使用 helm reset 清理
 # 2.配置默认helm参数 vi  /etc/ansible/roles/helm/defaults/main.yml
@@ -51,6 +27,7 @@ $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 
 - 执行与tiller服务有关的命令，比如 `helm ls` `helm version` `helm install`等需要加`--tls`参数
 - 执行其他命令，比如`helm search` `helm fetch` `helm home`等不需要加`--tls`
+- helm v2.11.0及以上版本，启用环境变量 HELM_TLS_ENABLE=true，可以都不用加 --tls 参数
 
 ## 安全安装 helm（离线）
 在内网环境中，由于不能访问互联网，无法连接repo地址，使用上述的在线安装helm的方式会报错。因此需要使用离线安装的方法来安装。

@@ -1,6 +1,6 @@
 ---
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: flannel
 rules:
@@ -25,7 +25,7 @@ rules:
       - patch
 ---
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: flannel
 roleRef:
@@ -82,7 +82,7 @@ data:
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: kube-flannel-ds
+  name: kube-flannel-ds-amd64
   namespace: kube-system
   labels:
     tier: node
@@ -98,13 +98,12 @@ spec:
       nodeSelector:
         beta.kubernetes.io/arch: amd64
       tolerations:
-      - key: node-role.kubernetes.io/master
-        operator: Exists
+      - operator: Exists
         effect: NoSchedule
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: {{ install_cni_image }} 
+        image: {{ flanneld_image }} 
         command:
         - cp
         args:
@@ -124,7 +123,6 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
-        #- --iface=eth1
         resources:
           requests:
             cpu: "100m"

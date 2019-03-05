@@ -147,7 +147,9 @@
     - "/etc/systemd/system/etcd.service"
 
 # to clean 'lb' nodes
-- hosts: lb
+- hosts:
+  - lb
+  - ex-lb
   tasks:
   - name: stop keepalived service
     shell: systemctl disable keepalived && systemctl stop keepalived

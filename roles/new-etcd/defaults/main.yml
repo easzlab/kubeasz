@@ -1,0 +1,4 @@
+# etcd 集群间通信的IP和端口, 根据etcd组成员自动生成
+# 新增 etcd 节点，一次只能增加一个
+TMP_NODES: "{% for h in groups['etcd'] %}{{ hostvars[h]['NODE_NAME'] }}=https://{{ h }}:2380,{% endfor %}{% if groups['new-etcd']|length > 0 %}{{ hostvars[groups['new-etcd'][0]]['NODE_NAME'] }}=https://{{ groups['new-etcd'][0] }}:2380,{% endif %}"
+ETCD_NODES: "{{ TMP_NODES.rstrip(',') }}"
