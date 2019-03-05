@@ -9,36 +9,6 @@
   register: docker_ver
   connection: local
   run_once: true
-<<<<<<< HEAD
-  tags: upgrade_docker, download_docker
-
-- name: 下载 docker 二进制文件
-  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-  with_items:
-  - docker-containerd
-  - docker-containerd-shim
-  - docker-init
-  - docker-runc
-  - docker
-  - docker-containerd-ctr
-  - dockerd
-  - docker-proxy
-  tags: upgrade_docker, download_docker
-  when: "'version 18.09' not in docker_ver.stdout"
-
-- name: 下载 docker 二进制文件(>= 18.09.x)
-  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-  with_items:
-  - containerd
-  - containerd-shim
-  - docker-init
-  - runc
-  - docker
-  - ctr
-  - dockerd
-  - docker-proxy
-=======
->>>>>>> dev
   tags: upgrade_docker, download_docker
     
 - block:
