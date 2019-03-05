@@ -7,4 +7,6 @@ FROM jmgao1983/ansible:v2.6
 
 COPY kubeasz/ /etc/ansible
 
+RUN ln -s /etc/ansible/tools/easzctl /usr/bin/easzctl
+
 CMD [ "sleep", "360000000" ]
