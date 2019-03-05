@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+function usage() {
+  cat <<EOF
+Usage: 
+  $0 start <kubeasz_ver>    To start a kubeasz(tagged) container
+  $0 clean                  To stop and remove all running containers
+
+EOF
+} 
+
+function start_kubeasz_docker() {
+  # kubeasz docker version
+  KUBEASZ_DOCKER_VER=kubeasz:$1
+  echo "VERSION $KUBEASZ_DOCKER_VER"
+  
+  # init host dir
+  if [ -d "/etc/ansible/roles/" ];then
+    echo "==> aleady Initialized."
+  else
+    rm -rf /etc/ansible
+    echo "==> run a temporary container"
+    docker run -d --name temp_easz $KUBEASZ_DOCKER_VER
+    echo "==> init host kubeasz dir..."
+    docker cp temp_easz:/etc/ansible /etc/ansible
+    echo "==> stop&remove temporary container"
+    docker stop temp_easz
+    docker rm temp_easz
+  fi
+  
+  # get host's IP
+  HOST_IF=$(ip route|grep default|cut -d' ' -f5)
+  HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
+  echo "==> get host IP: $HOST_IP"
+  
+  # run kubeasz docker container
+  echo "==> run kubeasz in a container"
+  docker run --detach \
+      --name kubeasz \
+      --restart always \
+      --env KUBEASZ_DOCKER_HOST=$HOST_IP \
+      --volume /etc/ansible:/etc/ansible \
+      --volume /root/.kube:/root/.kube \
+      --volume /root/.ssh/id_rsa:/root/.ssh/id_rsa:ro \
+      --volume /root/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub:ro \
+      --volume /root/.ssh/known_hosts:/root/.ssh/known_hosts:ro \
+      $KUBEASZ_DOCKER_VER
+}
+
+function clean_container() {
+ echo "==> clean all running containers"
+ docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f 
+} 
+
+[ "$#" -gt 0 ] || { usage >&2; exit 2; }
+
+case "$1" in
+
+    (start)
+        [ "$#" -gt 1 ] || { usage >&2; exit 2; } 
+        start_kubeasz_docker $2
+        ;;
+    (clean)
+        clean_container
+        ;;
+    (*)
+        usage
+        exit 0
+        ;;
+esac

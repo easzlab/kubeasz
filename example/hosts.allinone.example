@@ -7,17 +7,11 @@
 [etcd]
 192.168.1.1 NODE_NAME=etcd1
 
-[new-etcd] # 预留组，后续添加etcd节点使用
-#192.168.1.x NODE_NAME=etcdx
-
 [kube-master]
 192.168.1.1
 
 [kube-node]
 192.168.1.1
-
-[new-node] # 预留组，后续添加node节点使用
-#192.168.1.xx
 
 # 参数 NEW_INSTALL：yes表示新建，no表示使用已有harbor服务器
 # 如果不使用域名，可以设置 HARBOR_DOMAIN=""
@@ -33,9 +27,6 @@
 # ---------集群主要参数---------------
 #集群部署模式：allinone, single-master, multi-master
 DEPLOY_MODE=allinone
-
-#集群主版本号，目前支持: v1.8, v1.9, v1.10，v1.11, v1.12, v1.13
-K8S_VER="v1.10"
 
 #集群 MASTER IP，自动生成
 MASTER_IP="{{ groups['kube-master'][0] }}"
@@ -62,7 +53,7 @@ CLUSTER_DNS_SVC_IP="10.68.0.2"
 # 集群 DNS 域名
 CLUSTER_DNS_DOMAIN="cluster.local."
 
-# 集群basic auth 使用的用户名和密码
+# 集群basic auth 使用的用户名和密码 (运行时会生成随机密码)
 BASIC_AUTH_USER="admin"
 BASIC_AUTH_PASS="test1234"
 

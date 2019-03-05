@@ -62,9 +62,6 @@
 #集群部署模式：allinone, single-master, multi-master
 DEPLOY_MODE=multi-master
 
-#集群主版本号，目前支持: v1.8, v1.9, v1.10，v1.11，v1.12
-K8S_VER="v1.11"
-
 # 创建内网云负载均衡，然后配置：前端监听 tcp 8443，后端 tcp 6443，后端节点即 master 节点
 MASTER_IP="10.1.0.200"          # 即负载均衡内网地址
 KUBE_APISERVER="https://{{ MASTER_IP }}:8443"

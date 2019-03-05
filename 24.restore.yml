@@ -41,15 +41,12 @@
 - hosts:
   - kube-master
   - kube-node
-  - new-master
-  - new-node
   roles:
   - docker
 
 # to set up 'kube-master' nodes
 - hosts:
   - kube-master
-  - new-master
   roles:
   - kube-master
   - kube-node
@@ -67,7 +64,6 @@
 # to set up 'kube-node' nodes
 - hosts:
   - kube-node
-  - new-node
   roles:
   - kube-node
 

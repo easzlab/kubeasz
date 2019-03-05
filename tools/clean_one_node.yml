@@ -1,4 +1,4 @@
-# 警告：此脚本将清理单个node节点，使用请详细参阅 docs/op/del_one_node.md
+# 警告：此脚本将清理单个node节点，使用请详细参阅 docs/op/clean_one_node.md
 # 请三思后运行此脚本，特别的：如果有pod使用了本地存储类型，请自行判断重要性
 # 使用：
 # 1. 执行 ansible-playbook /etc/ansible/tools/clean_one_node.yml
@@ -11,6 +11,14 @@
     private: no
     confirm: yes
   tasks:
+  - name: fail info1
+    fail: msg="you CAN NOT delete the last member of etcd cluster!"
+    when: "groups['etcd']|length < 2 and NODE_TO_DEL in groups['etcd']"
+
+  - name: fail info2
+    fail: msg="you CAN NOT delete the last member of kube-master!"
+    when: "groups['kube-master']|length < 2 and NODE_TO_DEL in groups['kube-master']"
+
   - name: 执行kubectl drain(节点可能是kube-node节点)
     shell: "{{ bin_dir }}/kubectl drain {{ NODE_TO_DEL }} --ignore-daemonsets --delete-local-data"
     ignore_errors: true
@@ -62,26 +70,42 @@
       ignore_errors: true
       when: "CLUSTER_NETWORK == 'kube-router'"
   
+    - name: 获取是否运行名为'kubeasz'的容器
+      shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
+      register: install_info
+  
     - name: stop and disable docker service
       service:
         name: docker
         state: stopped
         enabled: no
       ignore_errors: true
+      when: "'kubeasz' not in install_info.stdout"
   
-    # 因为calico-kube-controller使用了host网络，相当于使用了docker -net=host，需要
-    # 卸载 /var/run/docker/netns/default
-    - name: 卸载docker 相关fs1
+    - name: unmount docker filesystem-1
       mount: path=/var/run/docker/netns/default state=unmounted
+      when: "'kubeasz' not in install_info.stdout"
   
-    - name: 卸载docker 相关fs2
+    - name: unmount docker filesystem-2
       mount: path=/var/lib/docker/overlay state=unmounted
+      when: "'kubeasz' not in install_info.stdout"
   
-    - name: 清理目录和文件
+    - name: remove files and dirs
+      file: name={{ item }} state=absent
+      with_items:
+      - "/var/lib/docker/"
+      - "/var/run/docker/"
+      - "/etc/systemd/system/docker.service"
+      - "/etc/systemd/system/docker.service.requires/"
+      - "/etc/systemd/system/docker.service.d/"
+      - "/etc/bash_completion.d/docker"
+      - "/usr/bin/docker"
+      when: "'kubeasz' not in install_info.stdout"
+  
+    - name: remove files and dirs2
       file: name={{ item }} state=absent
       with_items:
       - "/etc/cni/"
-      - "/root/.kube/"
       - "/run/flannel/"
       - "/etc/calico/"
       - "/var/run/calico/"
@@ -91,26 +115,18 @@
       - "/var/run/cilium/"
       - "/sys/fs/bpf/tc/"
       - "/var/lib/cni/"
-      - "/var/lib/docker/"
       - "/var/lib/kube-router/"
-      - "/var/run/docker/"
-      - "/etc/systemd/system/calico-node.service"
-      - "/etc/systemd/system/docker.service"
-      - "/etc/systemd/system/docker.service.requires/"
-      - "/etc/systemd/system/docker.service.d/"
       - "/opt/kube/kube-system/"
-      - "/etc/bash_completion.d/docker"
-      ignore_errors: true
   
-    - name: 清理 iptables
+    - name: cleanup iptables
       shell: "iptables -F && iptables -X \
-  	&& iptables -F -t nat && iptables -X -t nat \
-  	&& iptables -F -t raw && iptables -X -t raw \
-  	&& iptables -F -t mangle && iptables -X -t mangle"
+          && iptables -F -t nat && iptables -X -t nat \
+          && iptables -F -t raw && iptables -X -t raw \
+          && iptables -F -t mangle && iptables -X -t mangle"
+      when: "'kubeasz' not in install_info.stdout"
   
-    - name: 清理网络
-      shell: "ip link del docker0; \
-  	ip link del tunl0; \
+    - name: cleanup networks1
+      shell: "ip link del tunl0; \
           ip link del flannel.1; \
           ip link del cni0; \
           ip link del mynet0; \
@@ -118,12 +134,17 @@
           ip link del dummy0; \
           ip link del kube-ipvs0; \
           ip link del cilium_net; \
-          ip link del cilium_vxlan; \
-          systemctl restart networking; \
-  	systemctl restart network"
+          ip link del cilium_vxlan"
       ignore_errors: true
   
-    - name: 清理calico残留路由
+    - name: cleanup networks2
+      shell: "ip link del docker0; \
+          systemctl restart networking; \
+          systemctl restart network"
+      ignore_errors: true
+      when: "'kubeasz' not in install_info.stdout"
+  
+    - name: cleanup 'calico' routes
       shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
       when: "CLUSTER_NETWORK == 'calico'"
       ignore_errors: true

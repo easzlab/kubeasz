@@ -8,18 +8,12 @@
 [etcd]
 192.168.1.1 NODE_NAME=etcd1
 
-[new-etcd] # group reserved, add new 'etcd-node' in it
-#192.168.1.x NODE_NAME=etcdx
-
 [kube-master]
 192.168.1.1
 
 [kube-node]
 192.168.1.2
 192.168.1.3
-
-[new-node] # group reserved, add new 'kube-node' in it
-#192.168.1.xx
 
 # set 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
 # if not using domian，set 'HARBOR_DOMAIN=""'
@@ -35,9 +29,6 @@
 # --------- Main Variables ---------------
 # Cluster Deployment Mode: allinone, single-master, multi-master
 DEPLOY_MODE=single-master
-
-# Versions supported: v1.8, v1.9, v1.10, v1.11, v1.12, v1.13
-K8S_VER="v1.11"
 
 # Cluster's Master IP, auto generated
 MASTER_IP="{{ groups['kube-master'][0] }}"
@@ -64,7 +55,7 @@ CLUSTER_DNS_SVC_IP="10.68.0.2"
 # Cluster DNS Domain
 CLUSTER_DNS_DOMAIN="cluster.local."
 
-# Basic auth for apiserver
+# Basic auth for apiserver (a random password will be gennerated on cluster setup)
 BASIC_AUTH_USER="admin"
 BASIC_AUTH_PASS="test1234"
 

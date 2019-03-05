@@ -1,123 +1,191 @@
 #!/bin/bash
 # 
-# This script can be used to manage multiple k8s clusters. (unfinished)
+# This script can be used to manage k8s clusters. (developing)
 
 set -o nounset
-set -o errexit
+#set -o errexit
 #set -o xtrace
 
-function process_cmd {
-    echo "$ACTION : $CMD"
-    $CMD
-    if [[ $? -ne 0 ]]; then
-        echo "Command failed $CMD"
-        exit 1
-    fi
-}
-
-function usage {
+function usage() {
     cat <<EOF
-Usage: $0 COMMAND [args]
+Usage: easzctl COMMAND <args>
 Commands:
-    backup		To backup the current cluster (data and config)
-    checkout <name>	To checkout and to use the chosen cluster context
-    create <name>	To create a new cluster and to checkout the new cluster
-    delete		To delete the current cluster (keeping backups)
-    destroy		To delete the current cluster and its backups
-    help		To display usage
-    list		To list the existing cluster names
-    rename <oldname> <newname>	To rename an existing cluster's name
-    restore		To restore the current cluster from backups
-    test		To do some smoke tests on the current cluster
-    untest		To remove smoke tests on the current cluster
-    upgrade             Upgrades the current kubernetes cluster
+    add-node		To add a kube-node(work node) to the k8s cluster
+    add-master		To add a kube-master(master node) to the k8s cluster
+    add-etcd		To add a etcd-node to the etcd cluster
+    del-etcd		To delete a etcd-node from the etcd cluster
+    clean-node		To clean a node, whatever role the node plays
+    help		To display usage information
+
+Use "easzctl help <command>" for more information about a given command.
 EOF
 }
 
-function cp_role_conf {
-    ROLESPATH=$BASEPATH/../roles
-    for ROLE in $(ls $ROLESPATH);
-    do
-        if [ -d "$ROLESPATH/$ROLE/defaults" ]; then
-            mkdir -p $BASEPATH/../.cluster/$CLUSTERNAME/$ROLE/defaults/
-            cp -rp $ROLESPATH/$ROLE/defaults/* $BASEPATH/../.cluster/$CLUSTERNAME/$ROLE/defaults/
-        fi
-    done;
+function process_cmd() {
+    echo -e "+---\033[33m$ACTION\033[0m---+ : $CMD"
+    $CMD || { echo -e "+---\033[31mAction failed\033[0m---+ : $CMD"; exit 1; }
+    echo -e "+---\033[32mAction successed\033[0m---+ : $CMD"
 }
 
-function init {
-    if [ ! -d "$BASEPATH/../.cluster" ]; then
-        mkdir -p $BASEPATH/../.cluster
-        CLUSTERNAME=default
-        cp_role_conf
+function add-node() {
+    # check new node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # check if the new node already exsited
+    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: node $1 already existed!"; exit 2; }
+
+    # add a node into 'kube-node' group
+    sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
+
+    # check if playbook runs successfully
+    ansible-playbook $BASEPATH/tools/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; exit 2; }
+}
+
+function add-master() {
+    # check new master's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # check if k8s with DPLOY_MODE='multi-master'
+    grep '^DEPLOY_MODE=multi-master' $BASEPATH/hosts || { echo "ERROR: only k8s with DPLOY_MODE='multi-master' can have master node added!"; exit 2; }
+
+    # check if the new master already exsited
+    sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: master $1 already existed!"; exit 2; }
+
+    # add a node into 'kube-master' group
+    sed -i "/\[kube-master/a $1 NEW_MASTER=yes" $BASEPATH/hosts
+
+    # check if playbook runs successfully
+    ansible-playbook $BASEPATH/tools/21.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; exit 2; }
+}
+
+function add-etcd() {
+    # check new node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # check if the new node already exsited
+    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: node $1 already existed!"; exit 2; }
+
+    # input an unique NODE_NAME of the node in etcd cluster
+    echo "Please input an UNIQUE name(string) for the new node: "
+    read NAME
+    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "$NAME" && { echo "ERROR: name [$NAME] already existed!"; exit 2; }
+
+    # add a node into 'kube-node' group
+    sed -i "/\[etcd/a $1 NODE_NAME=$NAME" $BASEPATH/hosts
+
+    # check if playbook runs successfully
+    ansible-playbook $BASEPATH/tools/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; exit 2; }
+}
+
+function del-etcd() {
+    # check node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # 
+    ansible-playbook $BASEPATH/tools/remove_etcd_node.yml -e ETCD_TO_DEL=$1
+}
+
+function clean-node() {
+    # check node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; exit 2; }
+
+    # 
+    ansible-playbook $BASEPATH/tools/clean_one_node.yml -e NODE_TO_DEL=$1
+}
+
+function help-info() {
+    case "$1" in
+        (add-node)
+            echo -e "Usage: easzctl add-node <new_node_ip>\n\nMore information please refer to 'docs/op/AddNode.md'"
+            ;;
+        (add-master)
+            echo -e "Usage: easzctl add-master <new_master_ip>\n\nMore information please refer to 'docs/op/AddMaster.md'"
+            ;;
+        (add-etcd)
+            echo -e "Usage: easzctl add-etcd <new_etcd_ip>\n\nMore information please refer to 'docs/op/op-etcd.md'"
+            ;;
+        (del-etcd)
+            echo -e "Usage: easzctl del-etcd <etcd_ip>\n\nMore information please refer to 'docs/op/op-etcd.md'"
+            ;;
+        (clean-node)
+            echo -e "Usage: easzctl clean-node <node_ip>\n\nMore information please refer to 'docs/op/clean_one_node.md'"
+            ;;
+        (*)
+            usage
+            exit 0
+            ;;
+    esac
+}
+
+function start() {
+    case "$1" in
+        (aio)
+            start-aio 
+            ;;
+        (*)
+            exit 0
+            ;;
+    esac
+}
+
+function start-aio(){
+    [ -f "$BASEPATH/hosts" ] && { echo -e "ERROR: file $BASEPATH/hosts exists, checkout!\nRemove it if you really want to start an aio cluster"; exit 3; }
+    if [ ! -n "$KUBEASZ_DOCKER_HOST" ]; then
+        # easzctl runs in a host machine, get host's ip
+        HOST_IF=$(ip route|grep default|cut -d' ' -f5)
+        HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
+        cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
+        sed -i "s/192.168.1.1/$HOST_IP/g" $BASEPATH/hosts
+        ansible-playbook $BASEPATH/90.setup.yml
+    else
+        # easzctl runs in a container
+        cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
+        sed -i "s/192.168.1.1/$KUBEASZ_DOCKER_HOST/g" $BASEPATH/hosts
+        ansible-playbook $BASEPATH/90.setup.yml
     fi
 }
 
 ###############################################################
 
-BASEPATH=$(cd `dirname $0`; pwd)
+BASEPATH=/etc/ansible
 
-init
-
-[ "$#" -gt 0 ] || { usage >&2; exit 2; }
+[ "$#" -gt 1 ] || { usage >&2; exit 2; }
 
 case "$1" in
-
-(backup)
-        ACTION="action backup"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=precheck"
+    
+    (add-node)
+        ACTION="Action: add a k8s work node"
+        CMD="add-node $2" 
         ;;
-(checkout)
-        ACTION="action checkout"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+    (add-master)
+        ACTION="Action: add a k8s master node"
+        CMD="add-master $2" 
         ;;
-(create)
-        ACTION="action create"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=deploy -e common_run=true"
-        PLAYBOOK="${BASEDIR}/ansible/mariadb_recovery.yml"
-	;;
-(delete)
-        ACTION="action delete"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+    (add-etcd)
+        ACTION="Action: add a etcd node"
+        CMD="add-etcd $2" 
         ;;
-(destroy)
-        ACTION="action destroy"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+    (del-etcd)
+        ACTION="Action: delete a etcd node"
+        CMD="del-etcd $2" 
         ;;
-(help)
-        usage
+    (clean-node)
+        ACTION="Action: clean a node"
+        CMD="clean-node $2" 
         ;;
-(list)
-        ACTION="action list"
-        CMD="ls $BASEPATH/../.cluster"
-        process_cmd
+    (help)
+        help-info $2
+        exit 0
         ;;
-(rename)
-        ACTION="action rename"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
+    (start)
+        ACTION="Action: start an AllInOne cluster"
+        CMD="start $2" 
         ;;
-(restore)
-        ACTION="action restore"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(test)
-        ACTION="action test"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(untest)
-        ACTION="action untest"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(upgrade)
-        ACTION="action upgrade"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=check"
-        ;;
-(*)
+    (*)
         usage
         exit 0
         ;;
 esac
 
-#CMD="echo $BASEPATH $ACTION"
-#process_cmd
+process_cmd
 

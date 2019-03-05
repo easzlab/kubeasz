@@ -16,9 +16,7 @@
 
 - hosts: 
   - kube-master
-  - new-master
   - kube-node
-  - new-node
   tasks:
   - name: Define 'harbor_host', a domain
     set_fact: harbor_host="{{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}"
