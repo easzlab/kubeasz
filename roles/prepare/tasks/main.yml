@@ -21,6 +21,11 @@
   - cfssl-certinfo
   - cfssljson
 
+- name: 设置本地 bin 目录权限
+  file: path={{ base_dir }}/bin state=directory mode=0755 recurse=yes
+  connection: local
+  run_once: true
+
 - name: 写入环境变量$PATH 
   lineinfile:
     dest: ~/.bashrc
