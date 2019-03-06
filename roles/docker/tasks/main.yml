@@ -9,7 +9,6 @@
   register: docker_ver
   connection: local
   run_once: true
-<<<<<<< HEAD
   tags: upgrade_docker, download_docker
 
 - name: 下载 docker 二进制文件
@@ -37,8 +36,6 @@
   - ctr
   - dockerd
   - docker-proxy
-=======
->>>>>>> dev
   tags: upgrade_docker, download_docker
     
 - block:
