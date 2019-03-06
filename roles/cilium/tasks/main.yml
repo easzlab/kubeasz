@@ -9,9 +9,13 @@
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
 
+- name: 转换内核版本为浮点数
+  set_fact:
+     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
+
 - name: 检查内核版本>4.9
   fail: msg="kernel {{ ansible_kernel }} is too old for cilium installing"
-  when: "ansible_kernel.split('-')[0].split('.')[0]|int < 4 or ansible_kernel.split('-')[0].split('.')[1]|int < 10"
+  when: "KERNEL_VER <= 4.09"
   
 - name: 检查是否已下载离线cilium镜像
   command: "ls {{ base_dir }}/down"
