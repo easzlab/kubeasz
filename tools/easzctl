@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# This script can be used to manage k8s clusters. (developing)
+# This script aims to manage k8s clusters created by 'kubeasz'. (developing)
 
 set -o nounset
 set -o errexit
@@ -17,9 +17,9 @@ Commands 1 (in-cluster opration):
     clean-node		To clean a node, whatever role the node plays
 Commands 2 (cluster-wide operation):
     checkout		To switch to cluster <clustername> context, or create it if not existed
+    destroy		To destroy the current cluster, with '--purge' option to also delete the context
     list		To list all of clusters managed
     setup		To setup a cluster using the current context
-    status		To check the status of the current cluster 
 
 Use "easzctl help <command>" for more information about a given command.
 EOF
@@ -180,10 +180,14 @@ function install_context() {
     done
     
     echo "[INFO] install $1 ansible hosts"
-    [ -f "$BASEPATH/.cluster/$1/hosts" ] && cp -fp $BASEPATH/.cluster/$1/hosts $BASEPATH/
+    if [ -f "$BASEPATH/.cluster/$1/hosts" ];then
+        cp -fp $BASEPATH/.cluster/$1/hosts $BASEPATH/
+    fi
     
     echo "[INFO] install $1 kubeconfig"
-    [ -f "$BASEPATH/.cluster/$1/config" ] && cp -fp $BASEPATH/.cluster/$1/config /root/.kube/
+    if [ -f "$BASEPATH/.cluster/$1/config" ];then
+        cp -fp $BASEPATH/.cluster/$1/config /root/.kube/
+    fi
 }
 
 function checkout() {
@@ -224,18 +228,48 @@ function setup() {
     [ -f "$BASEPATH/bin/kube-apiserver" ] || { echo "[ERROR] no binaries found, download then fist"; return 1; }
     [ -f "$BASEPATH/hosts" ] || { echo "[ERROR] no ansible hosts found, read 'docs/setup/00-planning_and_overall_intro.md'"; return 1; }
     echo -e "[INFO] setup begin in 15s, press 'Enter' to stop it\n:"
-    ! (read -t 15 ANS) || { echo "[WARN] setup aborted"; return 1; }
+    ! (read -t 10 ANS) || { echo "[WARN] setup aborted"; return 1; }
     ansible-playbook $BASEPATH/90.setup.yml
     echo "[INFO] save context: $CLUSTER"
     save_context $CLUSTER
 }
 
 function list() {
-    ls $BASEPATH/.cluster/ |grep -v current_cluster
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
+    save_context $CLUSTER
+    i=1
+    for Cluster in $(ls $BASEPATH/.cluster/ |grep -v current_cluster);
+    do
+        KUBECONF=$BASEPATH/.cluster/$Cluster/config
+        if [ -f "$KUBECONF" ]; then
+            echo -e "\ncluster $i: $Cluster"
+            $BASEPATH/bin/kubectl --kubeconfig=$KUBECONF get node
+        fi
+        let "i++"
+    done
     echo -e "\nCurrent cluster context is: $CLUSTER"
 }
 
+function destroy() {
+    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
+    echo -e "[WARN] DELETE cluster: $CLUSTER, Continue? y/n:\n"
+    read -t 15 ANS || { echo "[WARN] timeout, destroy aborted"; return 1; }
+    if [[ -n $ANS && $ANS == y ]];then
+        echo "[INFO] clean all nodes of cluster"
+        sleep 5
+        ansible-playbook $BASEPATH/99.clean.yml
+        if [[ -n $1 && $1 == --purge ]];then
+            echo "[INFO] delete current context"
+            rm -rf $BASEPATH/.cluster/$CLUSTER
+            echo default > $BASEPATH/.cluster/current_cluster
+            rm -rf $BASEPATH/hosts /root/.kube/*
+            echo "[INFO] change current context to default"
+            install_context default
+        fi
+    else
+        echo "[WARN] destroy aborted"; return 1;
+    fi
+}
 ### Main Lines ##################################################
 
 BASEPATH=/etc/ansible
@@ -278,6 +312,14 @@ case "$1" in
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         ACTION="Action: checkout cluster context"
         CMD="checkout $2" 
+        ;;
+    (destroy)
+        ACTION="Action: destroy current cluster"
+        if [ "$#" -gt 1 ];then
+            CMD="destroy $2"
+        else
+            CMD="destroy"
+        fi
         ;;
     (setup)
         ACTION="Action: setup cluster with current context"
