@@ -13,7 +13,9 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --kubelet-client-certificate={{ ca_dir }}/admin.pem \
   --kubelet-client-key={{ ca_dir }}/admin-key.pem \
   --anonymous-auth=false \
+{% if BASIC_AUTH_ENABLE == "yes" %}
   --basic-auth-file={{ ca_dir }}/basic-auth.csv \
+{% endif %}
   --service-cluster-ip-range={{ SERVICE_CIDR }} \
   --service-node-port-range={{ NODE_PORT_RANGE }} \
   --tls-cert-file={{ ca_dir }}/kubernetes.pem \

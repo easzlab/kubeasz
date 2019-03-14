@@ -42,8 +42,22 @@
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
   tags: upgrade_k8s
 
+- block:
+  - name: 生成 basic-auth 随机密码
+    shell: 'PWD=`date +%s%N|md5sum|head -c16`; \
+	sed -i "s/_pwd_/$PWD/g" {{ base_dir }}/roles/kube-master/defaults/main.yml; \
+	echo $PWD;'
+    connection: local
+    register: TMP_PASS
+    run_once: true
+    
+  - name: 设置 basic-auth 随机密码
+    set_fact: BASIC_AUTH_PASS="{{ TMP_PASS.stdout }}"
+  when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
+  
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
+  when: 'BASIC_AUTH_ENABLE == "yes"'
 
 # 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
 - name: 获取 k8s 版本信息
