@@ -9,7 +9,7 @@
 
 如果之前已按照本项目部署dashboard1.6.3，先删除旧版本：`kubectl delete -f /etc/ansible/manifests/dashboard/1.6.3/`
 
-新版配置文件参考[官方文档](https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml)
+新版配置文件参考 https://github.com/kubernetes/dashboard
 
 + 增加了通过`api-server`方式访问dashboard
 + 增加了`NodePort`方式暴露服务，这样集群外部可以使用 `https://NodeIP:NodePort` (注意是https不是http，区别于1.6.3版本) 直接访问 dashboard。
@@ -19,9 +19,6 @@
 ``` bash
 # 部署dashboard 主yaml配置文件
 $ kubectl apply -f /etc/ansible/manifests/dashboard/kubernetes-dashboard.yaml
-# [可选]部署基本密码认证配置，使用apiserver 方式访问需要
-$ kubectl apply -f /etc/ansible/manifests/dashboard/ui-admin-rbac.yaml
-$ kubectl apply -f /etc/ansible/manifests/dashboard/ui-read-rbac.yaml
 # 创建可读可写 admin Service Account
 $ kubectl apply -f /etc/ansible/manifests/dashboard/admin-user-sa-rbac.yaml
 # 创建只读 read Service Account
@@ -117,5 +114,5 @@ users:
 
 ### 参考
 
-- 1. [Dashboard Access control](https://github.com/kubernetes/dashboard/wiki/Access-control)
-- 2. [a-read-only-kubernetes-dashboard](https://blog.cowger.us/2018/07/03/a-read-only-kubernetes-dashboard.html)
+- 1.[Dashboard Access control](https://github.com/kubernetes/dashboard/wiki/Access-control)
+- 2.[a-read-only-kubernetes-dashboard](https://blog.cowger.us/2018/07/03/a-read-only-kubernetes-dashboard.html)
