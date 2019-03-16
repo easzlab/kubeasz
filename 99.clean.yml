@@ -212,3 +212,4 @@
     - 'kubeasz'
     - 'helm'
     - 'kubectl completion'
+    - 'HELM_TLS_ENABLE'
