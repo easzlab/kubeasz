@@ -69,6 +69,9 @@ function add-node() {
 
     # check if playbook runs successfully
     ansible-playbook $BASEPATH/tools/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; return 2; }
+
+    # save current cluster context if needed
+    save_context
 }
 
 function add-master() {
@@ -86,6 +89,9 @@ function add-master() {
 
     # check if playbook runs successfully
     ansible-playbook $BASEPATH/tools/21.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; return 2; }
+
+    # save current cluster context if needed
+    save_context
 }
 
 function add-etcd() {
@@ -105,6 +111,9 @@ function add-etcd() {
 
     # check if playbook runs successfully
     ansible-playbook $BASEPATH/tools/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; return 2; }
+
+    # save current cluster context if needed
+    save_context
 }
 
 function del-etcd() {
@@ -113,6 +122,9 @@ function del-etcd() {
 
     # 
     ansible-playbook $BASEPATH/tools/remove_etcd_node.yml -e ETCD_TO_DEL=$1
+
+    # save current cluster context if needed
+    save_context
 }
 
 function clean-node() {
@@ -121,6 +133,9 @@ function clean-node() {
 
     # 
     ansible-playbook $BASEPATH/tools/clean_one_node.yml -e NODE_TO_DEL=$1
+
+    # save current cluster context if needed
+    save_context
 }
 
 function start() {
@@ -135,7 +150,7 @@ function start() {
 }
 
 function start-aio(){
-    [ -f "$BASEPATH/hosts" ] && { echo -e "ERROR: file $BASEPATH/hosts exists, checkout!\nRemove it if you really want to start an aio cluster"; return 3; }
+    [ -f "$BASEPATH/hosts" ] && { echo -e "ERROR: file $BASEPATH/hosts exists!\nRemove it if you really want to start an aio cluster"; return 3; }
     if [ ! -n "$KUBEASZ_DOCKER_HOST" ]; then
         # easzctl runs in a host machine, get host's ip
         HOST_IF=$(ip route|grep default|cut -d' ' -f5)
@@ -154,43 +169,47 @@ function start-aio(){
 ### cluster-wide operation functions ############################
 
 function save_context() {
-    echo "[INFO] save $1 roles' configration"
+    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[WARN] Invalid Context"; return 0; }
+    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
+    echo "[INFO] save context: $CLUSTER"
+    echo "[INFO] save $CLUSTER roles' configration"
     for ROLE in $(ls $BASEPATH/roles);
     do
         if [ -d "$BASEPATH/roles/$ROLE/defaults" ]; then
-            mkdir -p $BASEPATH/.cluster/$1/roles/$ROLE/defaults/
-            cp -fpr $BASEPATH/roles/$ROLE/defaults/* $BASEPATH/.cluster/$1/roles/$ROLE/defaults/
+            mkdir -p $BASEPATH/.cluster/$CLUSTER/roles/$ROLE/defaults/
+            cp -fpr $BASEPATH/roles/$ROLE/defaults/* $BASEPATH/.cluster/$CLUSTER/roles/$ROLE/defaults/
         fi
     done
     
-    echo "[INFO] save $1 ansible hosts"
+    echo "[INFO] save $CLUSTER ansible hosts"
     if [ -f "$BASEPATH/hosts" ];then
-        cp -fp $BASEPATH/hosts $BASEPATH/.cluster/$1/
+        cp -fp $BASEPATH/hosts $BASEPATH/.cluster/$CLUSTER/
     fi
     
-    echo "[INFO] save $1 kubeconfig"
+    echo "[INFO] save $CLUSTER kubeconfig"
     if [ -f /root/.kube/config ];then
-        cp -fp /root/.kube/config $BASEPATH/.cluster/$1/
+        cp -fp /root/.kube/config $BASEPATH/.cluster/$CLUSTER/
     fi
 }
 
 function install_context() {
-    [ -d "$BASEPATH/.cluster/$1" ] || { echo "Invalid Context"; return 1; }
-    
-    echo "[INFO] install $1 roles' configration"
-    for ROLE in $(ls $BASEPATH/.cluster/$1/roles);
+    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "Invalid Context"; return 1; }
+    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
+    echo "[INFO] install context: $CLUSTER"
+    echo "[INFO] install $CLUSTER roles' configration"
+    for ROLE in $(ls $BASEPATH/.cluster/$CLUSTER/roles);
     do
-        cp -fp $BASEPATH/.cluster/$1/roles/$ROLE/defaults/* $BASEPATH/roles/$ROLE/defaults/
+        cp -fp $BASEPATH/.cluster/$CLUSTER/roles/$ROLE/defaults/* $BASEPATH/roles/$ROLE/defaults/
     done
     
-    echo "[INFO] install $1 ansible hosts"
-    if [ -f "$BASEPATH/.cluster/$1/hosts" ];then
-        cp -fp $BASEPATH/.cluster/$1/hosts $BASEPATH/
+    echo "[INFO] install $CLUSTER ansible hosts"
+    if [ -f "$BASEPATH/.cluster/$CLUSTER/hosts" ];then
+        cp -fp $BASEPATH/.cluster/$CLUSTER/hosts $BASEPATH/
     fi
     
-    echo "[INFO] install $1 kubeconfig"
-    if [ -f "$BASEPATH/.cluster/$1/config" ];then
-        cp -fp $BASEPATH/.cluster/$1/config /root/.kube/
+    echo "[INFO] install $CLUSTER kubeconfig"
+    if [ -f "$BASEPATH/.cluster/$CLUSTER/config" ];then
+        cp -fp $BASEPATH/.cluster/$CLUSTER/config /root/.kube/
     fi
 }
 
@@ -199,7 +218,6 @@ function checkout() {
     if [ ! -d "$BASEPATH/.cluster" ]; then
         echo "[INFO] initialize directory $BASEPATH/.cluster"
         mkdir -p $BASEPATH/.cluster/default
-        save_context default
         echo default > $BASEPATH/.cluster/current_cluster
     fi
     # check if $1 is already the current context
@@ -207,38 +225,34 @@ function checkout() {
     [ "$1" != "$CLUSTER" ] || { echo "[WARN] $1 is already the current context"; return 0; }
     # save context of the current cluster
     echo "[INFO] save current context: $CLUSTER"
-    save_context $CLUSTER
+    save_context
     echo "[INFO] clean context: $CLUSTER"
     rm -rf $BASEPATH/hosts /root/.kube/*
-    echo "[INFO] change current context to $1"
-    echo $1 > $BASEPATH/.cluster/current_cluster
     # check context $1, install it if existed, otherwise initialize it using default context
-    if [ -d "$BASEPATH/.cluster/$1" ];then
-        install_context $1;
-    else
+    if [ ! -d "$BASEPATH/.cluster/$1" ];then
         echo "[INFO] context $1 not existed, initialize it using default context"
         cp -rp $BASEPATH/.cluster/default $BASEPATH/.cluster/$1
         rm -f $BASEPATH/.cluster/$1/hosts $BASEPATH/.cluster/$1/config
     fi
+    echo "[INFO] change current context to $1"
+    echo $1 > $BASEPATH/.cluster/current_cluster
+    install_context;
 }
 
 function setup() {
     [ -d "$BASEPATH/.cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
-    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo "[INFO] setup cluster: $CLUSTER"
+    save_context
     [ -f "$BASEPATH/bin/kube-apiserver" ] || { echo "[ERROR] no binaries found, download then fist"; return 1; }
     [ -f "$BASEPATH/hosts" ] || { echo "[ERROR] no ansible hosts found, read 'docs/setup/00-planning_and_overall_intro.md'"; return 1; }
-    echo -e "[INFO] setup begin in 10s, press 'Enter' to stop it\n:"
-    ! (read -t 10 ANS) || { echo "[WARN] setup aborted"; return 1; }
+    echo -e "\n[INFO] setup begin in 5s, press 'Enter' to abort\n:"
+    ! (read -t 5 ANS) || { echo "[WARN] setup aborted"; return 1; }
     ansible-playbook $BASEPATH/90.setup.yml
-    echo "[INFO] save context: $CLUSTER"
-    save_context $CLUSTER
 }
 
 function list() {
     [ -d "$BASEPATH/.cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    save_context $CLUSTER
+    #save_context $CLUSTER
     i=1
     for Cluster in $(ls $BASEPATH/.cluster/ |grep -v current_cluster);
     do
@@ -261,6 +275,7 @@ function destroy() {
         echo "[INFO] clean all nodes of cluster"
         sleep 5
         ansible-playbook $BASEPATH/99.clean.yml
+        rm -f $BASEPATH/.cluster/$CLUSTER/config
         [ "$#" -gt 0 ] || { return 0; }
         if [[ -n $1 && $1 == --purge ]];then
             echo "[INFO] delete current context"
@@ -268,7 +283,7 @@ function destroy() {
             rm -rf $BASEPATH/hosts /root/.kube/*
             echo "[INFO] change current context to default"
             echo default > $BASEPATH/.cluster/current_cluster
-            install_context default
+            install_context
         fi
     else
         echo "[WARN] destroy aborted"; return 1;
