@@ -181,13 +181,13 @@ function save_context() {
         fi
     done
     
-    echo "[INFO] save $CLUSTER ansible hosts"
     if [ -f "$BASEPATH/hosts" ];then
+        echo "[INFO] save $CLUSTER ansible hosts"
         cp -fp $BASEPATH/hosts $BASEPATH/.cluster/$CLUSTER/
     fi
     
-    echo "[INFO] save $CLUSTER kubeconfig"
     if [ -f /root/.kube/config ];then
+        echo "[INFO] save $CLUSTER kubeconfig"
         cp -fp /root/.kube/config $BASEPATH/.cluster/$CLUSTER/
     fi
 }
@@ -202,13 +202,13 @@ function install_context() {
         cp -fp $BASEPATH/.cluster/$CLUSTER/roles/$ROLE/defaults/* $BASEPATH/roles/$ROLE/defaults/
     done
     
-    echo "[INFO] install $CLUSTER ansible hosts"
     if [ -f "$BASEPATH/.cluster/$CLUSTER/hosts" ];then
+        echo "[INFO] install $CLUSTER ansible hosts"
         cp -fp $BASEPATH/.cluster/$CLUSTER/hosts $BASEPATH/
     fi
     
-    echo "[INFO] install $CLUSTER kubeconfig"
     if [ -f "$BASEPATH/.cluster/$CLUSTER/config" ];then
+        echo "[INFO] install $CLUSTER kubeconfig"
         cp -fp $BASEPATH/.cluster/$CLUSTER/config /root/.kube/
     fi
 }
@@ -249,32 +249,37 @@ function setup() {
     echo -e "[INFO] setup begin in 5s, press 'Enter' to abort\n:"
     ! (read -t 5 ANS) || { echo "[WARN] setup aborted"; return 1; }
     ansible-playbook $BASEPATH/90.setup.yml
+    save_context
 }
 
 function list() {
     [ -d "$BASEPATH/.cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    #save_context $CLUSTER
-    i=1
-    for Cluster in $(ls $BASEPATH/.cluster/ |grep -v current_cluster);
+    echo -e "\nlist of managed contexts (current: $CLUSTER)"
+    i=1; for Cluster in $(ls $BASEPATH/.cluster/ |grep -v current_cluster);
+    do
+        echo -e "==> context $i:\t$Cluster"
+        let "i++"
+    done
+    echo -e "\nlist of installed clusters (current: $CLUSTER)"
+    i=1; for Cluster in $(ls $BASEPATH/.cluster/ |grep -v current_cluster);
     do
         KUBECONF=$BASEPATH/.cluster/$Cluster/config
         if [ -f "$KUBECONF" ]; then
-            echo -e "\ncluster $i: $Cluster"
+            echo -e "==> cluster $i:\t$Cluster"
             $BASEPATH/bin/kubectl --kubeconfig=$KUBECONF get node
         fi
         let "i++"
     done
-    echo -e "\nCurrent cluster context is: $CLUSTER"
 }
 
 function destroy() {
     [ -d "$BASEPATH/.cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo -e "[WARN] DELETE cluster: $CLUSTER, Continue? y/n:\n"
-    read -t 15 ANS || { echo "[WARN] timeout, destroy aborted"; return 1; }
+    echo -n "[WARN] DELETE cluster: $CLUSTER, Continue? (y/n): "
+    read -t10 -n1 ANS || { echo -e "\n[WARN] timeout, destroy aborted"; return 1; }
     if [[ -n $ANS && $ANS == y ]];then
-        echo "[INFO] clean all nodes of cluster"
+        echo -e "\n[INFO] clean all nodes of cluster in 5s"
         sleep 5
         ansible-playbook $BASEPATH/99.clean.yml
         rm -f $BASEPATH/.cluster/$CLUSTER/config
@@ -288,7 +293,7 @@ function destroy() {
             install_context
         fi
     else
-        echo "[WARN] destroy aborted"; return 1;
+        echo -e "\n[WARN] destroy aborted"; return 1;
     fi
 }
 ### Main Lines ##################################################
