@@ -20,6 +20,7 @@ Commands 2 (cluster-wide operation):
     destroy		To destroy the current cluster, with '--purge' option to also delete the context
     list		To list all of clusters managed
     setup		To setup a cluster using the current context
+    start-aio		To quickly setup an all-in-one cluster for testing (like minikube)
 
 Use "easzctl help <command>" for more information about a given command.
 EOF
@@ -50,19 +51,19 @@ function help-info() {
 }
 
 function process_cmd() {
-    echo -e "+---\033[33m$ACTION\033[0m---+ : $CMD"
-    $CMD || { echo -e "+---\033[31mAction failed\033[0m---+ : $CMD"; return 1; }
-    echo -e "+---\033[32mAction successed\033[0m---+ : $CMD"
+    echo -e "[INFO] \033[33m$ACTION\033[0m : $CMD"
+    $CMD || { echo -e "[ERROR] \033[31mAction failed\033[0m : $CMD"; return 1; }
+    echo -e "[INFO] \033[32mAction successed\033[0m : $CMD"
 }
 
 ### in-cluster operation functions ##############################
 
 function add-node() {
     # check new node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; return 1; }
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 1; }
 
     # check if the new node already exsited
-    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: node $1 already existed!"; return 2; }
+    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1" && { echo "[ERROR] node $1 already existed!"; return 2; }
 
     # add a node into 'kube-node' group
     sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
@@ -76,13 +77,13 @@ function add-node() {
 
 function add-master() {
     # check new master's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; return 2; }
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # check if k8s with DPLOY_MODE='multi-master'
-    grep '^DEPLOY_MODE=multi-master' $BASEPATH/hosts || { echo "ERROR: only k8s with DPLOY_MODE='multi-master' can have master node added!"; return 2; }
+    grep '^DEPLOY_MODE=multi-master' $BASEPATH/hosts || { echo "[ERROR] only k8s with DPLOY_MODE='multi-master' can have master node added!"; return 2; }
 
     # check if the new master already exsited
-    sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: master $1 already existed!"; return 2; }
+    sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1" && { echo "[ERROR] master $1 already existed!"; return 2; }
 
     # add a node into 'kube-master' group
     sed -i "/\[kube-master/a $1 NEW_MASTER=yes" $BASEPATH/hosts
@@ -96,15 +97,15 @@ function add-master() {
 
 function add-etcd() {
     # check new node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; return 2; }
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # check if the new node already exsited
-    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1" && { echo "ERROR: node $1 already existed!"; return 2; }
+    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1" && { echo "[ERROR] node $1 already existed!"; return 2; }
 
     # input an unique NODE_NAME of the node in etcd cluster
     echo "Please input an UNIQUE name(string) for the new node: "
-    read NAME
-    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "$NAME" && { echo "ERROR: name [$NAME] already existed!"; return 2; }
+    read -t15 NAME
+    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "$NAME" && { echo "[ERROR] name [$NAME] already existed!"; return 2; }
 
     # add a node into 'kube-node' group
     sed -i "/\[etcd/a $1 NODE_NAME=$NAME" $BASEPATH/hosts
@@ -118,7 +119,7 @@ function add-etcd() {
 
 function del-etcd() {
     # check node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; return 2; }
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # 
     ansible-playbook $BASEPATH/tools/remove_etcd_node.yml -e ETCD_TO_DEL=$1
@@ -129,7 +130,7 @@ function del-etcd() {
 
 function clean-node() {
     # check node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "ERROR: Invalid ip address!"; return 2; }
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # 
     ansible-playbook $BASEPATH/tools/clean_one_node.yml -e NODE_TO_DEL=$1
@@ -138,32 +139,19 @@ function clean-node() {
     save_context
 }
 
-function start() {
-    case "$1" in
-        (aio)
-            start-aio 
-            ;;
-        (*)
-            return 0
-            ;;
-    esac
-}
-
 function start-aio(){
-    [ -f "$BASEPATH/hosts" ] && { echo -e "ERROR: file $BASEPATH/hosts exists!\nRemove it if you really want to start an aio cluster"; return 3; }
-    if [ ! -n "$KUBEASZ_DOCKER_HOST" ]; then
+    checkout aio
+    set +u
+    # Check ENV 'HOST_IP', if exist indecates running in a docker container, otherwise running in a host machine
+    if [[ -z $HOST_IP ]];then
         # easzctl runs in a host machine, get host's ip
         HOST_IF=$(ip route|grep default|cut -d' ' -f5)
         HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
-        cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
-        sed -i "s/192.168.1.1/$HOST_IP/g" $BASEPATH/hosts
-        ansible-playbook $BASEPATH/90.setup.yml
-    else
-        # easzctl runs in a container
-        cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
-        sed -i "s/192.168.1.1/$KUBEASZ_DOCKER_HOST/g" $BASEPATH/hosts
-        ansible-playbook $BASEPATH/90.setup.yml
     fi
+    set -u
+    cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
+    sed -i "s/192.168.1.1/$HOST_IP/g" $BASEPATH/hosts
+    setup
 }
 
 ### cluster-wide operation functions ############################
@@ -193,7 +181,7 @@ function save_context() {
 }
 
 function install_context() {
-    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "Invalid Context"; return 1; }
+    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] Invalid Context"; return 1; }
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
     echo "[INFO] install context: $CLUSTER"
     echo "[INFO] install $CLUSTER roles' configration"
@@ -329,10 +317,6 @@ case "$1" in
         ACTION="Action: clean a node"
         CMD="clean-node $2" 
         ;;
-    (start)
-        ACTION="Action: start an AllInOne cluster"
-        CMD="start $2" 
-        ;;
     ### cluster-wide operations #######################
     (checkout)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
@@ -347,13 +331,17 @@ case "$1" in
             CMD="destroy"
         fi
         ;;
+    (list)
+        ACTION="Action: list all of clusters managed"
+        CMD="list" 
+        ;;
     (setup)
         ACTION="Action: setup cluster with current context"
         CMD="setup" 
         ;;
-    (list)
-        ACTION="Action: list all of clusters managed"
-        CMD="list" 
+    (start-aio)
+        ACTION="Action: start an AllInOne cluster"
+        CMD="start-aio" 
         ;;
     (help)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }

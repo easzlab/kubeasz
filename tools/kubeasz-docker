@@ -15,33 +15,33 @@ EOF
 function start_kubeasz_docker() {
   # kubeasz docker version
   KUBEASZ_DOCKER_VER=jmgao1983/kubeasz:$1
-  echo "VERSION $KUBEASZ_DOCKER_VER"
+  echo "[INFO] VERSION $KUBEASZ_DOCKER_VER"
   
   # init host dir
   if [ -d "/etc/ansible/roles/" ];then
-    echo "==> aleady Initialized."
+    echo "[WARN] aleady Initialized."
   else
     rm -rf /etc/ansible
-    echo "==> run a temporary container"
+    echo "[INFO] run a temporary container"
     docker run -d --name temp_easz $KUBEASZ_DOCKER_VER
-    echo "==> init host kubeasz dir..."
+    echo "[INFO] init host kubeasz directory"
     docker cp temp_easz:/etc/ansible /etc/ansible
-    echo "==> stop&remove temporary container"
+    echo "[INFO] stop&remove temporary container"
     docker stop temp_easz
     docker rm temp_easz
   fi
   
   # get host's IP
-  HOST_IF=$(ip route|grep default|cut -d' ' -f5)
-  HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
-  echo "==> get host IP: $HOST_IP"
+  host_if=$(ip route|grep default|cut -d' ' -f5)
+  host_ip=$(ip a|grep $host_if|awk 'NR==2{print $2}'|cut -d'/' -f1)
+  echo "[INFO] get host IP: $host_ip"
   
   # run kubeasz docker container
-  echo "==> run kubeasz in a container"
+  echo "[INFO] run kubeasz in a container"
   docker run --detach \
       --name kubeasz \
       --restart always \
-      --env KUBEASZ_DOCKER_HOST=$HOST_IP \
+      --env HOST_IP=$host_ip \
       --volume /etc/ansible:/etc/ansible \
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh/id_rsa:/root/.ssh/id_rsa:ro \
@@ -51,7 +51,7 @@ function start_kubeasz_docker() {
 }
 
 function clean_container() {
- echo "==> clean all running containers"
+ echo "[INFO] clean all running containers"
  docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f 
 } 
 
