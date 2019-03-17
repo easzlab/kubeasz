@@ -236,7 +236,7 @@ function setup() {
     echo -e "\n[INFO] setup cluster with context: $CLUSTER"
     echo -e "[INFO] setup begin in 5s, press 'Enter' to abort\n:"
     ! (read -t 5 ANS) || { echo "[WARN] setup aborted"; return 1; }
-    ansible-playbook $BASEPATH/90.setup.yml
+    ansible-playbook $BASEPATH/90.setup.yml || return 1
     save_context
 }
 

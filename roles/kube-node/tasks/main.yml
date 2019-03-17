@@ -37,6 +37,7 @@
     line: 'source <(kubectl completion bash)'
   connection: local
   run_once: true
+  ignore_errors: true
 
 - name: 分发证书相关
   synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
