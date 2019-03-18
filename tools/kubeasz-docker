@@ -27,8 +27,7 @@ function start_kubeasz_docker() {
     echo "[INFO] init host kubeasz directory"
     docker cp temp_easz:/etc/ansible /etc/ansible
     echo "[INFO] stop&remove temporary container"
-    docker stop temp_easz
-    docker rm temp_easz
+    docker rm -f temp_easz
   fi
   
   # get host's IP
@@ -55,7 +54,7 @@ function clean_container() {
  docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f 
 } 
 
-[ "$#" -gt 0 ] || { usage >&2; exit 2; }
+[ "$#" -gt 0 ] || { start_kubeasz_docker stable; exit 0; }
 
 case "$1" in
 

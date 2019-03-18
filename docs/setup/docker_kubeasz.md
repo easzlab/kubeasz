@@ -10,22 +10,16 @@ ssh-keygen -t rsa -b 2048 回车 回车 回车
 ssh-copy-id $IP  # $IP 为所有节点地址包括自身，按照提示输入 yes 和 root 密码
 ```
 
-- 3.下载 kubeasz docker 镜像并运行
+- 3.下载 kubeasz docker 镜像并运行 (可能需较长时间下载镜像jmgao1983/kubeasz)
 
 ``` bash
-export KUBEASZ_VER=1.0.0rc1
-docker pull jmgao1983/kubeasz:$KUBEASZ_VER
-wget https://github.com/gjmzj/kubeasz/releases/download/$KUBEASZ_VER/kubeasz-docker
-bash kubeasz-docker start $KUBEASZ_VER
+curl -sfL https://github.com/gjmzj/kubeasz/releases/download/1.0.0/kubeasz-docker-1.0.0 | bash -
 ```
 
-- 4.在 kubeasz 容器中创建 k8s 集群，步骤与非容器方式创建类似
+- 4.在 kubeasz 容器中创建 k8s 集群，步骤与非容器方式创建类似，快速创建单节点集群如下
 
 ``` bash
-# 进入容器后，在 /etc/ansible 目录配置 hosts等，然后创建集群（与非容器方式一致）
-docker exec -it kubeasz sh
-# 举例1：快速创建单节点集群
-docker exec -t kubeasz easzctl start aio
+docker exec -it kubeasz easzctl start-aio
 ```
 
 ## 验证
@@ -54,7 +48,7 @@ docker build -t kubeasz:$TAG .
 docker run --detach \
       --name kubeasz \
       --restart always \
-      --env KUBEASZ_DOCKER_HOST=$HOST_IP \
+      --env HOST_IP=$host_ip \
       --volume /etc/ansible:/etc/ansible \
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh/id_rsa:/root/.ssh/id_rsa:ro \
@@ -63,7 +57,7 @@ docker run --detach \
       $KUBEASZ_DOCKER_VER
 ```
 
-- --env KUBEASZ_DOCKER_HOST=$HOST_IP 传递这个参数是为了快速在本机安装aio集群
+- --env HOST_IP=$host_ip 传递这个参数是为了快速在本机安装aio集群
 - --volume /etc/ansible:/etc/ansible 挂载本地目录，这样可以在宿主机上修改集群配置，然后在容器内执行 ansible 安装
 - --volume /root/.kube:/root/.kube 容器内与主机共享 kubeconfig，这样都可以执行 kubectl 命令
 - --volume /root/.ssh/id_rsa:/root/.ssh/id_rsa:ro 等三个 volume 挂载保证：如果宿主机配置了免密码登陆所有集群节点，那么容器内也可以免密码登陆所有节点
