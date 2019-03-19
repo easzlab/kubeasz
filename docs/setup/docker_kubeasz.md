@@ -41,7 +41,7 @@ docker exec -t kubeasz easzctl start aio
 ``` bash
 cd /etc/ansible/dockerfiles/kubeasz
 # 克隆代码
-git clone https://github.com/gjmzj/kubeasz.git
+git clone --depth=1 https://github.com/gjmzj/kubeasz.git
 # 手动下载二进制文件放入上述 git clone 完成目录 kubeasz/bin 
 docker build -t kubeasz:$TAG .
 ```
