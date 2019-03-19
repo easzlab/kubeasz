@@ -68,7 +68,7 @@ setup_ansible_k8s() {
   pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
   pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
-  git clone https://github.com/gjmzj/kubeasz.git
+  git clone --depth=1 https://github.com/gjmzj/kubeasz.git
   mv kubeasz /etc/ansible
 
   # Download from CDN & Move bin files
