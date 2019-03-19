@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script describes where to download the official released binaries needed 
+# This script describes where to download the official released binaries needed
 # It's suggested to download the entire *.tar.gz at https://pan.baidu.com/s/1c4RFaA
 
 # example releases
@@ -8,7 +8,7 @@ ETCD_VER=v3.3.8
 DOCKER_VER=17.03.2-ce
 CNI_VER=v0.6.0
 DOCKER_COMPOSE=1.18.0
-HARBOR=v1.5.2
+HARBOR=1.5.2
 
 echo "\nNote1: Before this script, please finish downloading binaries manually from following urls."
 echo "\nNote2：If binaries are not ready, use `Ctrl + C` to stop this script."
@@ -32,7 +32,7 @@ echo "\n----download docker-compose at:"
 echo https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE}/docker-compose-Linux-x86_64
 
 echo "\n----download harbor-offline-installer at:"
-echo https://github.com/vmware/harbor/releases/download/${HARBOR}/harbor-offline-installer-${HARBOR}.tgz
+echo https://storage.googleapis.com/harbor-releases/release-${HARBOR}/harbor-offline-installer-v${HARBOR}.tgz
 
 echo "\n----download cni plugins at:"
 echo https://github.com/containernetworking/plugins/releases
@@ -89,7 +89,7 @@ if [ -f "docker-${DOCKER_VER}.tgz" ]; then
     mv -f docker/completion/bash/docker ../roles/docker/files/docker
   fi
 else
-  echo Please download 'docker-${DOCKER_VER}.tgz' first 
+  echo Please download 'docker-${DOCKER_VER}.tgz' first
 fi
 
 ### prepare cni plugins, needed by flannel;
@@ -102,5 +102,5 @@ if [ -f "cni-${CNI_VER}.tgz" ]; then
   mv -f loopback ../bin
   mv -f portmap ../bin
 else
-  echo Please download 'cni-${CNI_VER}.tgz' first 
+  echo Please download 'cni-${CNI_VER}.tgz' first
 fi
