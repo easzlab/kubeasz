@@ -3,7 +3,7 @@
 # It's suggested to download the entire *.tar.gz at https://pan.baidu.com/s/1c4RFaA
 
 # example releases
-K8S_VER=v1.10.4
+K8S_VER=v1.13.4
 ETCD_VER=v3.3.8
 DOCKER_VER=18.09.2
 CNI_VER=v0.6.0
