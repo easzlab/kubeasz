@@ -15,7 +15,7 @@ metricsserver_offline: "metrics-server_v0.3.1.tar"
 
 # dashboard 自动安装
 dashboard_install: "yes"
-dashboard_offline: "dashboard_v1.10.0.tar"
+dashboard_offline: "dashboard_v1.10.1.tar"
 
 # ingress 自动安装，可选 "traefik" 和 "nginx-ingress"
 ingress_install: "no"
