@@ -35,8 +35,9 @@
     </tr>
 </table>
 
-- 公有云上部署请阅读 [使用kubeasz在公有云上创建k8s集群](docs/setup/kubeasz_on_public_cloud.md)
-- 容器方式部署请阅读 [使用kubeasz容器创建k8s集群](docs/setup/docker_kubeasz.md)
+- 命令行工具 [easzctl介绍](docs/setup/easzctl_cmd.md)
+- 公有云部署 [使用kubeasz在公有云上创建k8s集群](docs/setup/kubeasz_on_public_cloud.md)
+- 容器部署   [使用kubeasz容器创建k8s集群](docs/setup/docker_kubeasz.md)
 
 ## 使用指南
 

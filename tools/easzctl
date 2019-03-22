@@ -9,18 +9,18 @@ set -o errexit
 function usage() {
     cat <<EOF
 Usage: easzctl COMMAND [args]
-Commands 1 (in-cluster opration):
-    add-node		To add a kube-node(work node) to the k8s cluster
-    add-master		To add a kube-master(master node) to the k8s cluster
-    add-etcd		To add a etcd-node to the etcd cluster
-    del-etcd		To delete a etcd-node from the etcd cluster
-    clean-node		To clean a node, whatever role the node plays
-Commands 2 (cluster-wide operation):
+Commands 1 (cluster-wide operation):
     checkout		To switch to cluster <clustername> context, or create it if not existed
     destroy		To destroy the current cluster, with '--purge' option to also delete the context
     list		To list all of clusters managed
     setup		To setup a cluster using the current context
     start-aio		To quickly setup an all-in-one cluster for testing (like minikube)
+Commands 2 (in-cluster opration):
+    add-node		To add a kube-node(work node) to the k8s cluster
+    add-master		To add a kube-master(master node) to the k8s cluster
+    add-etcd		To add a etcd-node to the etcd cluster
+    del-etcd		To delete a etcd-node from the etcd cluster
+    clean-node		To clean a node, whatever role the node plays
 
 Use "easzctl help <command>" for more information about a given command.
 EOF
@@ -137,21 +137,6 @@ function clean-node() {
 
     # save current cluster context if needed
     save_context
-}
-
-function start-aio(){
-    checkout aio
-    set +u
-    # Check ENV 'HOST_IP', if exist indecates running in a docker container, otherwise running in a host machine
-    if [[ -z $HOST_IP ]];then
-        # easzctl runs in a host machine, get host's ip
-        HOST_IF=$(ip route|grep default|cut -d' ' -f5)
-        HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
-    fi
-    set -u
-    cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
-    sed -i "s/192.168.1.1/$HOST_IP/g" $BASEPATH/hosts
-    setup
 }
 
 ### cluster-wide operation functions ############################
@@ -284,6 +269,22 @@ function destroy() {
         echo -e "\n[WARN] destroy aborted"; return 1;
     fi
 }
+
+function start-aio(){
+    checkout aio
+    set +u
+    # Check ENV 'HOST_IP', if exist indecates running in a docker container, otherwise running in a host machine
+    if [[ -z $HOST_IP ]];then
+        # easzctl runs in a host machine, get host's ip
+        HOST_IF=$(ip route|grep default|cut -d' ' -f5)
+        HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
+    fi
+    set -u
+    cp -f $BASEPATH/example/hosts.allinone.example.en $BASEPATH/hosts
+    sed -i "s/192.168.1.1/$HOST_IP/g" $BASEPATH/hosts
+    setup
+}
+
 ### Main Lines ##################################################
 
 BASEPATH=/etc/ansible
