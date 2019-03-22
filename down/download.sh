@@ -8,7 +8,7 @@ ETCD_VER=v3.3.8
 DOCKER_VER=18.09.2
 CNI_VER=v0.7.5
 DOCKER_COMPOSE=1.18.0
-HARBOR=v1.5.2
+HARBOR=v1.5.4
 
 echo "\nNote1: Before this script, please finish downloading binaries manually from following urls."
 echo "\nNote2：If binaries are not ready, use `Ctrl + C` to stop this script."
