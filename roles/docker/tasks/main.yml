@@ -5,7 +5,8 @@
 
 # 18.09.x 版本二进制名字有变化，需要做判断
 - name: 获取docker版本信息
-  shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
+  # shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
+  shell: "{{ base_dir }}/bin/dockerd --version|awk -F ',' '{print $1}' |awk -F 'version' '{print $NF}' |awk -F '-' '{print $1}'"
   register: docker_ver
   connection: local
   run_once: true
