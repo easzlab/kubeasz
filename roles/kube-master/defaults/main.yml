@@ -8,3 +8,9 @@ MASTER_CERT_HOSTS:
   - "k8s.test.io"
   #- "61.182.11.41"
   #- "www.test.com"
+
+# apiserver 基础认证（用户名/密码）配置
+# 在 master 节点文件‘/etc/kubernetes/ssl/basic-auth.csv’ 可以查看密码
+BASIC_AUTH_ENABLE: "no"              # 是否启用 yes/no
+BASIC_AUTH_USER: "admin"
+BASIC_AUTH_PASS: "_pwd_"             # BASIC_AUTH_PASS 初次运行时会被随机密码覆盖

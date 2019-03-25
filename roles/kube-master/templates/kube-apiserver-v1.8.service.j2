@@ -13,7 +13,9 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --kubelet-client-certificate={{ ca_dir }}/admin.pem \
   --kubelet-client-key={{ ca_dir }}/admin-key.pem \
   --anonymous-auth=false \
+{% if BASIC_AUTH_ENABLE == "yes" %}
   --basic-auth-file={{ ca_dir }}/basic-auth.csv \
+{% endif %}
   --service-cluster-ip-range={{ SERVICE_CIDR }} \
   --service-node-port-range={{ NODE_PORT_RANGE }} \
   --tls-cert-file={{ ca_dir }}/kubernetes.pem \
@@ -25,7 +27,7 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --etcd-keyfile={{ ca_dir }}/kubernetes-key.pem \
   --etcd-servers={{ ETCD_ENDPOINTS }} \
   --enable-swagger-ui=true \
-  --apiserver-count={% if DEPLOY_MODE == "multi-master" %}{{ groups['kube-master']|length + groups['new-master']|length }}{% else %}1{% endif %} \
+  --apiserver-count={% if DEPLOY_MODE == "multi-master" %}{{ groups['kube-master']|length }}{% else %}1{% endif %} \
   --allow-privileged=true \
   --audit-log-maxage=30 \
   --audit-log-maxbackup=3 \

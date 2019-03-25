@@ -1,79 +1,99 @@
-- name: 准备docker相关目录
-  file: name={{ item }} state=directory
-  with_items:
-  - "{{ bin_dir }}"
-  - /etc/docker
+- name: 获取是否运行名为'kubeasz'的容器
+  shell: 'systemctl status docker|grep Active && docker ps|grep kubeasz || echo "NOT FOUND"'
+  register: install_info
+  tags: upgrade_docker, download_docker
 
 # 18.09.x 版本二进制名字有变化，需要做判断
 - name: 获取docker版本信息
-  shell: "{{ base_dir }}/bin/dockerd --version"
+  shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
   register: docker_ver
   connection: local
   run_once: true
   tags: upgrade_docker, download_docker
 
-- name: 下载 docker 二进制文件
-  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-  with_items:
-  - docker-containerd
-  - docker-containerd-shim
-  - docker-init
-  - docker-runc
-  - docker
-  - docker-containerd-ctr
-  - dockerd
-  - docker-proxy
-  tags: upgrade_docker, download_docker
-  when: "'version 18.09' not in docker_ver.stdout"
-
-- name: 下载 docker 二进制文件(>= 18.09.x)
-  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-  with_items:
-  - containerd
-  - containerd-shim
-  - docker-init
-  - runc
-  - docker
-  - ctr
-  - dockerd
-  - docker-proxy
-  tags: upgrade_docker, download_docker
-  when: "'version 18.09' in docker_ver.stdout"
-
-- name: docker命令自动补全
-  copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
-
-- name: docker国内镜像加速
-  template: src=daemon.json.j2 dest=/etc/docker/daemon.json
-
-- name: flush-iptables
-  shell: "iptables -P INPUT ACCEPT \
-        && iptables -F && iptables -X \
-        && iptables -F -t nat && iptables -X -t nat \
-        && iptables -F -t raw && iptables -X -t raw \
-        && iptables -F -t mangle && iptables -X -t mangle"
-
-- name: 创建docker的systemd unit文件
-  template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
+- name: 转换docker版本信息为浮点数
+  set_fact: 
+    DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
   tags: upgrade_docker, download_docker
 
-- name: 开机启用docker 服务
-  shell: systemctl enable docker
-  ignore_errors: true
+#- name: debug info
+#  debug: var="DOCKER_VER"
+#  tags: upgrade_docker, download_docker
 
-- name: 开启docker 服务
-  shell: systemctl daemon-reload && systemctl restart docker
-  tags: upgrade_docker
-
-## 可选 ------安装docker查询镜像 tag的小工具----
-# 先要安装轻量JSON处理程序‘jq’，已在 prepare 节点安装
-- name: 下载 docker-tag
-  copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
-
-- name: 轮询等待docker服务运行
-  shell: "systemctl status docker.service|grep Active"
-  register: docker_status
-  until: '"running" in docker_status.stdout'
-  retries: 8
-  delay: 2
-  tags: upgrade_docker
+- block:
+    - name: 准备docker相关目录
+      file: name={{ item }} state=directory
+      with_items:
+      - "{{ bin_dir }}"
+      - /etc/docker
+    
+    - name: 下载 docker 二进制文件
+      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+      with_items:
+      - docker-containerd
+      - docker-containerd-shim
+      - docker-init
+      - docker-runc
+      - docker
+      - docker-containerd-ctr
+      - dockerd
+      - docker-proxy
+      tags: upgrade_docker, download_docker
+      when: "DOCKER_VER < 18.09"
+    
+    - name: 下载 docker 二进制文件(>= 18.09.x)
+      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+      with_items:
+      - containerd
+      - containerd-shim
+      - docker-init
+      - runc
+      - docker
+      - ctr
+      - dockerd
+      - docker-proxy
+      tags: upgrade_docker, download_docker
+      when: "DOCKER_VER >= 18.09"
+    
+    - name: docker命令自动补全
+      copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
+    
+    - name: docker国内镜像加速
+      template: src=daemon.json.j2 dest=/etc/docker/daemon.json
+    
+    - name: flush-iptables
+      shell: "iptables -P INPUT ACCEPT \
+            && iptables -F && iptables -X \
+            && iptables -F -t nat && iptables -X -t nat \
+            && iptables -F -t raw && iptables -X -t raw \
+            && iptables -F -t mangle && iptables -X -t mangle"
+    
+    - name: 创建docker的systemd unit文件
+      template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
+      tags: upgrade_docker, download_docker
+    
+    - name: 开机启用docker 服务
+      shell: systemctl enable docker
+      ignore_errors: true
+    
+    - name: 开启docker 服务
+      shell: systemctl daemon-reload && systemctl restart docker
+      tags: upgrade_docker
+    
+    ## 可选 ------安装docker查询镜像 tag的小工具----
+    # 先要安装轻量JSON处理程序‘jq’，已在 prepare 节点安装
+    - name: 下载 docker-tag
+      copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
+    
+    - name: 轮询等待docker服务运行
+      shell: "systemctl status docker.service|grep Active"
+      register: docker_status
+      until: '"running" in docker_status.stdout'
+      retries: 8
+      delay: 2
+      tags: upgrade_docker
+    
+    # 配置 docker 命令软链接，方便单独安装 docker
+    - name: 配置 docker 命令软链接
+      file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
+  when: "'kubeasz' not in install_info.stdout"

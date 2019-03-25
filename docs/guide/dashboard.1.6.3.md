@@ -10,8 +10,8 @@
 # 部署dashboard 主yaml配置文件
 $ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/kubernetes-dashboard.yaml
 # 部署基本密码认证配置[可选]，密码文件位于 /etc/kubernetes/ssl/basic-auth.csv
-$ kubectl create -f /etc/ansible/manifests/dashboard/ui-admin-rbac.yaml
-$ kubectl create -f /etc/ansible/manifests/dashboard/ui-read-rbac.yaml
+$ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/ui-admin-rbac.yaml
+$ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/ui-read-rbac.yaml
 ```
 
 请在另外窗口打开 [kubernetes-dashboard.yaml](../../manifests/dashboard/1.6.3/kubernetes-dashboard.yaml)

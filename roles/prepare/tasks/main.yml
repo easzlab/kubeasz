@@ -21,6 +21,16 @@
   - cfssl-certinfo
   - cfssljson
 
+- name: 本地设置 bin 目录权限
+  file: path={{ base_dir }}/bin state=directory mode=0755 recurse=yes
+  connection: local
+  run_once: true
+
+- name: 本地创建 easzctl 工具的软连接
+  file: src={{ base_dir }}/tools/easzctl dest=/usr/bin/easzctl state=link
+  connection: local
+  run_once: true
+
 - name: 写入环境变量$PATH 
   lineinfile:
     dest: ~/.bashrc

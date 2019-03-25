@@ -1,38 +1,22 @@
-- block:
-    - name: 在deploy 节点创建cilium 相关目录
-      file: name={{ item }} state=directory
-      with_items:
-      - /etc/cilium/ssl
-      - /opt/kube/kube-system/cilium
-
-    - name: 创建cilium 证书请求
-      template: src=cilium-csr.json.j2 dest=/etc/cilium/ssl/cilium-csr.json
-    
-    - name: 创建 cilium证书和私钥
-      shell: "cd /etc/cilium/ssl && {{ bin_dir }}/cfssl gencert \
-            -ca={{ ca_dir }}/ca.pem \
-            -ca-key={{ ca_dir }}/ca-key.pem \
-            -config={{ ca_dir }}/ca-config.json \
-            -profile=kubernetes cilium-csr.json | {{ bin_dir }}/cfssljson -bare cilium"
-    
-    - name: get cilium-etcd-secrets info
-      shell: "{{ bin_dir }}/kubectl get secrets -n kube-system"
-      register: secrets_info
-    
-    - name: 创建 cilium-etcd-secrets
-      shell: "cd /etc/cilium/ssl && \
-    	{{ bin_dir }}/kubectl create secret generic -n kube-system cilium-etcd-secrets \
-    	--from-file=etcd-ca={{ ca_dir }}/ca.pem \
-    	--from-file=etcd-client-key=cilium-key.pem \
-    	--from-file=etcd-client-crt=cilium.pem"
-      when: '"cilium-etcd-secrets" not in secrets_info.stdout'
-    
-    - name: 配置 cilium DaemonSet yaml文件
-      template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium/cilium.yaml
-      tags: reconf  
+- name: 在deploy 节点创建cilium 相关目录
+  file: name=/opt/kube/kube-system/cilium state=directory
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
     
+- name: 配置 cilium DaemonSet yaml文件
+  template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium/cilium.yaml
+  tags: reconf  
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+
+- name: 转换内核版本为浮点数
+  set_fact:
+     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
+
+- name: 检查内核版本>4.9
+  fail: msg="kernel {{ ansible_kernel }} is too old for cilium installing"
+  when: "KERNEL_VER <= 4.09"
+  
 - name: 检查是否已下载离线cilium镜像
   command: "ls {{ base_dir }}/down"
   register: download_info
@@ -42,7 +26,6 @@
 - name: node 节点创建cilium 相关目录
   file: name={{ item }} state=directory
   with_items:
-  - /etc/cilium/ssl
   - /etc/cni/net.d
   - /var/run/cilium
   - /opt/kube/images 
@@ -61,7 +44,6 @@
   with_items:
   - "pause_3.1.tar"
   - "{{ cilium_offline }}"
-  - "{{ busybox_offline }}"
   ignore_errors: true
 
 - name: 获取cilium离线镜像推送情况
@@ -75,7 +57,6 @@
   with_items:
   - "pause_3.1.tar"
   - "{{ cilium_offline }}"
-  - "{{ busybox_offline }}"
   ignore_errors: true
 
 # 只需单节点执行一次
@@ -96,3 +77,4 @@
   delegate_to: "{{ groups.deploy[0] }}"
   retries: 15
   delay: 8
+  ignore_errors: true

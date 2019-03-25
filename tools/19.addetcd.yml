@@ -1,0 +1,25 @@
+# Note: this playbook cann't run independently
+# Usage: easzctl add-etcd 1.1.1.1
+
+# add new-etcd node, one at a time
+- hosts: "{{ NODE_TO_ADD }}"
+  tasks:
+  - name: add a new etcd member
+    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add {{ NODE_NAME }} --peer-urls=https://{{ NODE_TO_ADD }}:2380"
+    delegate_to: "{{ groups.etcd[1] }}"
+
+# start the new-etcd node
+- hosts: "{{ NODE_TO_ADD }}"
+  vars:
+    CLUSTER_STATE: existing
+  roles:
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+  - prepare
+  - etcd
+
+# restart the original etcd cluster with the new configuration
+- hosts: etcd
+  vars:
+    CLUSTER_STATE: existing
+  roles:
+  - etcd

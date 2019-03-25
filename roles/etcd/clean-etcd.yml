@@ -1,7 +1,6 @@
-# to clean 'etcd' nodes
+# WARNNING: clean 'etcd' nodes service & data
 - hosts:
   - etcd
-  - new-etcd
   tasks:
   - name: stop and disable etcd service
     service:

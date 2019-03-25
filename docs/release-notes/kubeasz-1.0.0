@@ -1,0 +1,41 @@
+## kubeasz-1.0.0 发布说明
+
+- Note: kubeasz 1.x 第一个正式版本，引入新功能：easzctl 命令行工具、多集群管理、容器化使用以及更多配置精简与优化；原 master 已并入 release-0 分支，停止主要更新，仅做 bug 修复版本；后续 master 分支将开始 kubeasz-1.x 版本发布。
+- Action Required: 本次更新修改 ansible hosts 文件，请按照 example 目录中的对应例子修改`/etc/ansible/hosts`文件, 确保 ansible hosts 文件中主机组的顺序与例子一致。
+
+CHANGELOG: (0.6.x 版本以后)
+- 组件更新：
+  - k8s: v1.13.4
+  - calico v3.4.3
+  - cilium v1.4.1
+  - dashboard v1.10.1
+- 集群安装：
+  - **引入[easzctl](https://github.com/gjmzj/kubeasz/blob/master/tools/easzctl)命令行工具**，后续它将作为推荐的集群常规管理工具，[使用介绍](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/easzctl_cmd.md)
+  - **新增 docker 运行安装 kubeasz**，请参考文档 https://github.com/gjmzj/kubeasz/blob/master/docs/setup/docker_kubeasz.md
+  - 优化 ansible hosts 配置，更加精简、易用
+    - 废弃 new-node/new-master/new-etcd 主机组，对应功能已集成在 easzctl 命令行
+    - 废弃变量 K8S_VER，改为自动识别，避免手工配置错误
+    - 迁移 basic_auth 相关配置至 roles:kube-master，增强初始安全性，且默认关闭apiserver的用户名/密码认证，详见 roles/kube-master/defaults/main.yml
+  - easzctl 提供以下集群层面操作
+    - 切换/创建集群 context
+    - 删除当前集群
+    - 显示所有集群
+    - 创建集群
+    - 创建单机集群（类似 minikube）
+  - easzctl 提供以下集群内操作
+    - [添加 master](https://github.com/gjmzj/kubeasz/blob/master/docs/op/AddMaster.md)
+    - [添加 node](https://github.com/gjmzj/kubeasz/blob/master/docs/op/AddNode.md)
+    - [添加 etcd](https://github.com/gjmzj/kubeasz/blob/master/docs/op/op-etcd.md)
+    - [删除 etcd](https://github.com/gjmzj/kubeasz/blob/master/docs/op/op-etcd.md)
+    - [删除节点](https://github.com/gjmzj/kubeasz/blob/master/docs/op/clean_one_node.md)
+  - 修改优化部分安装脚本以兼容 docker 运行 kubeasz
+  - 增加启动 kubeasz 容器的脚本 tools/kubeasz-docker
+  - 修改默认安装 dashboard 的同时安装 heapster（当前 dashboard 版本仍旧依赖 heapster）
+- 其他：
+  - 修复兼容 docker 18.09.x 版本安装
+  - 修复项目bin目录下二进制不能执行的错误
+  - 修复docker版本判断逻辑
+  - 修复cilium安装时判断内核版本逻辑
+  - add support for harbor v1.7.x （#478 by weilinqwe）
+  - perf: 加速源码下载速度 （#483 by waitingsong）
+  - 更新 dashboard 文档

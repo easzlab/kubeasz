@@ -42,18 +42,50 @@
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
   tags: upgrade_k8s
 
+- block:
+  - name: 生成 basic-auth 随机密码
+    shell: 'PWD=`date +%s%N|md5sum|head -c16`; \
+	sed -i "s/_pwd_/$PWD/g" {{ base_dir }}/roles/kube-master/defaults/main.yml; \
+	echo $PWD;'
+    connection: local
+    register: TMP_PASS
+    run_once: true
+    
+  - name: 设置 basic-auth 随机密码
+    set_fact: BASIC_AUTH_PASS="{{ TMP_PASS.stdout }}"
+  when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
+  
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+
+- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
+  template: src=admin-user-binding.yaml.j2 dest=/opt/kube/kube-system/admin-user-binding.yaml
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+
+- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/admin-user-binding.yaml"
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+
+# 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
+- name: 获取 k8s 版本信息
+  shell: "{{ bin_dir }}/kube-apiserver --version"
+  register: k8s_ver
+  tags: upgrade_k8s, restart_master
 
 - name: 创建kube-apiserver的systemd unit文件
   template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
   tags: upgrade_k8s, restart_master
+  when: "'v1.8' not in k8s_ver.stdout"
 
-# 为兼容之前的模式，需特别对v1.8版本重新配置kube-apiserver的systemd unit文件
 - name: 创建kube-apiserver v1.8的systemd unit文件
-  template: src=kube-apiserver-{{ K8S_VER }}.service.j2 dest=/etc/systemd/system/kube-apiserver.service
+  template: src=kube-apiserver-v1.8.service.j2 dest=/etc/systemd/system/kube-apiserver.service
   tags: upgrade_k8s, restart_master
-  when: "K8S_VER is defined and K8S_VER == 'v1.8'"
+  when: "'v1.8' in k8s_ver.stdout"
 
 - name: 创建kube-controller-manager的systemd unit文件
   template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service

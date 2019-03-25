@@ -97,18 +97,28 @@
   shell: "mv /root/kube-proxy.kubeconfig /etc/kubernetes/"
 
 # --- 以下为兼容ansible执行节点与deploy节点分离情况-------
-- name: 安装 rsync
-  package: name=rsync state=present
+- block:
+  - name: 在 ansible 执行节点创建 .kube 目录
+    file: path=/root/.kube state=directory
 
-- name: 复制 manifests至 deploy节点
-  #copy: src={{ base_dir }}/manifests dest={{ base_dir }}
-  synchronize: src={{ base_dir }}/manifests dest={{ base_dir }}
-  when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
+  - name: 获取 kubeconfig 文件
+    fetch: src=/root/.kube/config dest=/root/.kube/config flat=yes
 
-- name: 推送 ssh 密钥对至 deploy节点
-  copy: src=~/.ssh/{{ item }} dest=~/.ssh/{{ item }} mode=0600
-  with_items:
-  - id_rsa
-  - id_rsa.pub
-  - known_hosts
+  - name: 创建 kubectl 命令的软连接
+    file: src={{ base_dir }}/bin/kubectl dest=/usr/bin/kubectl state=link
+    connection: local
+
+  - name: 安装 rsync
+    package: name=rsync state=present
+  
+  - name: 复制 manifests至 deploy节点
+    #copy: src={{ base_dir }}/manifests dest={{ base_dir }}
+    synchronize: src={{ base_dir }}/manifests dest={{ base_dir }}
+  
+  - name: 推送 ssh 密钥对至 deploy节点
+    copy: src=~/.ssh/{{ item }} dest=~/.ssh/{{ item }} mode=0600
+    with_items:
+    - id_rsa
+    - known_hosts
+  run_once: true
   when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"

@@ -6,13 +6,13 @@
     private: no
     confirm: yes
   tasks:
-  - name: set warnning info
-    set_fact: WARN_INFO="CAN NOT DELETE THIS NODE!!!!!!"
-    when: "groups['etcd']|length < 2 or ETCD_TO_DEL not in groups['etcd']" 
+  - name: fail info1
+    fail: msg="{{ ETCD_TO_DEL }} is NOT a member of etcd cluster!"
+    when: "ETCD_TO_DEL not in groups['etcd']" 
 
-  - name: show warnning info
-    debug: var="WARN_INFO"
-    when: "groups['etcd']|length < 2 or ETCD_TO_DEL not in groups['etcd']" 
+  - name: fail info2
+    fail: msg="you CAN NOT delete the last member of etcd cluster!"
+    when: "groups['etcd']|length < 2" 
 
   - block:
     - name: get ID of etcd node to delete

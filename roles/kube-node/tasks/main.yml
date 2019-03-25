@@ -29,6 +29,16 @@
     regexp: 'kubectl completion'
     line: 'source <(kubectl completion bash)'
 
+- name: ansible 控制端添加 kubectl 自动补全
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'kubectl completion'
+    line: 'source <(kubectl completion bash)'
+  connection: local
+  run_once: true
+  ignore_errors: true
+
 - name: 分发证书相关
   synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
   with_items:
