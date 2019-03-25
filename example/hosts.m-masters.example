@@ -39,6 +39,7 @@ DEPLOY_MODE=multi-master
 
 # 集群 MASTER IP即 LB节点VIP地址，为区别与默认apiserver端口，设置VIP监听的服务端口8443
 # 公有云上请使用云负载均衡内网地址和监听端口
+# 后端kube-apiserver服务监听6443端口，如果不使用LB，请修改端口
 MASTER_IP="192.168.1.10"
 KUBE_APISERVER="https://{{ MASTER_IP }}:8443"
 
