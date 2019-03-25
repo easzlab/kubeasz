@@ -6,8 +6,8 @@ set -o errexit
 function usage() {
   cat <<EOF
 Usage: 
-  $0 start <kubeasz_ver>    To start a kubeasz(tagged) container
-  $0 clean                  To stop and remove all running containers
+  kubeasz-docker start <kubeasz_ver>    To start a kubeasz(tagged) container
+  kubeasz-docker clean                  To stop and remove all running containers
 
 EOF
 } 

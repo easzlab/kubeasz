@@ -67,6 +67,7 @@
   when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
   ignore_errors: true
 
+# 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
 - block:
     - name: 尝试推送离线 dashboard镜像（若执行失败，可忽略）
       copy: src={{ base_dir }}/down/{{ dashboard_offline }} dest=/opt/kube/images/{{ dashboard_offline }}
@@ -81,7 +82,8 @@
       when: 'dashboard_offline in image_info.stdout'
       
     - name: 创建 dashboard部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
+	      {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster-only"
       delegate_to: "{{ groups.deploy[0] }}"
       run_once: true
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
