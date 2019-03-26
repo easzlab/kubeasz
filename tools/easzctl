@@ -16,11 +16,12 @@ Commands 1 (cluster-wide operation):
     setup		To setup a cluster using the current context
     start-aio		To quickly setup an all-in-one cluster for testing (like minikube)
 Commands 2 (in-cluster opration):
-    add-node		To add a kube-node(work node) to the k8s cluster
-    add-master		To add a kube-master(master node) to the k8s cluster
     add-etcd		To add a etcd-node to the etcd cluster
-    del-etcd		To delete a etcd-node from the etcd cluster
+    add-master		To add a kube-master(master node) to the k8s cluster
+    add-node		To add a kube-node(work node) to the k8s cluster
     clean-node		To clean a node, whatever role the node plays
+    del-etcd		To delete a etcd-node from the etcd cluster
+    upgrade		To upgrade the k8s cluster
 
 Use "easzctl help <command>" for more information about a given command.
 EOF
@@ -139,6 +140,13 @@ function clean-node() {
     save_context
 }
 
+function upgrade() {
+    echo -e "[INFO] prepare the new binaries in advance"
+    echo -e "[INFO] upgrade begin in 5s, press any key to abort\n:"
+    ! (read -t5 -n1 ANS) || { echo "[WARN] upgrade aborted"; return 1; }
+    ansible-playbook -t upgrade_k8s $BASEPATH/22.upgrade.yml || return 1
+    save_context
+}
 ### cluster-wide operation functions ############################
 
 function save_context() {
@@ -219,8 +227,8 @@ function setup() {
     save_context
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
     echo -e "\n[INFO] setup cluster with context: $CLUSTER"
-    echo -e "[INFO] setup begin in 5s, press 'Enter' to abort\n:"
-    ! (read -t 5 ANS) || { echo "[WARN] setup aborted"; return 1; }
+    echo -e "[INFO] setup begin in 5s, press any key to abort\n:"
+    ! (read -t5 -n1 ANS) || { echo "[WARN] setup aborted"; return 1; }
     ansible-playbook $BASEPATH/90.setup.yml || return 1
     save_context
 }
@@ -317,6 +325,10 @@ case "$1" in
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         ACTION="Action: clean a node"
         CMD="clean-node $2" 
+        ;;
+    (upgrade)
+        ACTION="Action: upgrade the cluster"
+        CMD="upgrade" 
         ;;
     ### cluster-wide operations #######################
     (checkout)
