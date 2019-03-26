@@ -221,10 +221,9 @@ function checkout() {
 }
 
 function setup() {
+    [ -d "$BASEPATH/.cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
     [ -f "$BASEPATH/bin/kube-apiserver" ] || { echo "[ERROR] no binaries found, download then fist"; return 1; }
     [ -f "$BASEPATH/hosts" ] || { echo "[ERROR] no ansible hosts found, read 'docs/setup/00-planning_and_overall_intro.md'"; return 1; }
-    [ -d "$BASEPATH/.cluster" ] || checkout default
-    save_context
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
     echo -e "\n[INFO] setup cluster with context: $CLUSTER"
     echo -e "[INFO] setup begin in 5s, press any key to abort\n:"
