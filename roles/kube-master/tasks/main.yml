@@ -59,18 +59,6 @@
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
   when: 'BASIC_AUTH_ENABLE == "yes"'
 
-- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
-  template: src=admin-user-binding.yaml.j2 dest=/opt/kube/kube-system/admin-user-binding.yaml
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
-
-- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/admin-user-binding.yaml"
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
-
 # 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
 - name: 获取 k8s 版本信息
   shell: "{{ bin_dir }}/kube-apiserver --version"
@@ -113,3 +101,15 @@
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: True
   tags: upgrade_k8s, restart_master
+
+- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
+  template: src=admin-user-binding.yaml.j2 dest=/opt/kube/admin-user-binding.yaml
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
+
+- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/admin-user-binding.yaml"
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
