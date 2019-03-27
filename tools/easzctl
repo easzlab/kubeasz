@@ -114,6 +114,9 @@ function add-etcd() {
     # check if playbook runs successfully
     ansible-playbook $BASEPATH/tools/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; return 2; }
 
+    # restart apiservers to use the new etcd cluster
+    ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
+
     # save current cluster context if needed
     save_context
 }
@@ -124,6 +127,9 @@ function del-etcd() {
 
     # 
     ansible-playbook $BASEPATH/tools/remove_etcd_node.yml -e ETCD_TO_DEL=$1
+
+    # restart apiservers to use the new etcd cluster
+    ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
 
     # save current cluster context if needed
     save_context
