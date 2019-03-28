@@ -28,3 +28,16 @@
     dest: /etc/profile
     regexp: "ulimit -SHn"
     line: "ulimit -SHn 65535"
+
+# 优化设置 journal 日志相关，避免日志重复搜集，浪费系统资源
+- name: 准备 journal 日志相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - "/etc/systemd/journald.conf.d"
+  - "/var/log/journal"
+
+- name: 优化设置 journal 日志
+  template: src=95-k8s-journald.conf.j2 dest=/etc/systemd/journald.conf.d/95-k8s-journald.conf
+
+- name: 重启 journald 服务
+  service: name=systemd-journald state=restarted

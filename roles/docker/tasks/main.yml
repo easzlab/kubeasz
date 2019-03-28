@@ -96,4 +96,5 @@
     # 配置 docker 命令软链接，方便单独安装 docker
     - name: 配置 docker 命令软链接
       file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
+      ignore_errors: true
   when: "'kubeasz' not in install_info.stdout"
