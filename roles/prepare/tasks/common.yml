@@ -39,3 +39,6 @@
 
 - name: 设置系统 ulimits
   template: src=30-k8s-ulimits.conf.j2 dest=/etc/security/limits.d/30-k8s-ulimits.conf
+
+- name: 把SCTP列入内核模块黑名单
+  copy: src=sctp.conf dest=/etc/modprobe.d/sctp.conf

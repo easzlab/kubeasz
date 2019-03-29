@@ -1,0 +1,4 @@
+# kubeconfig 配置参数
+CLUSTER_NAME: "cluster1"
+USER_NAME: "user1"
+CONTEXT_NAME: "context1"

@@ -22,18 +22,10 @@
   - ca-config.json
   delegate_to: "{{ groups.deploy[0] }}"
 
-# 注册变量p，根据p的stat信息判断是否已经生成过etcd证书，如果没有，下一步生成证书
-# 如果已经有etcd证书，为了保证整个安装的幂等性，跳过证书生成的步骤
-- name: 读取etcd证书stat信息
-  stat: path="/etc/etcd/ssl/etcd.pem"
-  register: p
-
 - name: 创建etcd证书请求
   template: src=etcd-csr.json.j2 dest=/etc/etcd/ssl/etcd-csr.json
-  when: p.stat.isreg is not defined 
 
 - name: 创建 etcd证书和私钥
-  when: p.stat.isreg is not defined 
   shell: "cd /etc/etcd/ssl && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \
