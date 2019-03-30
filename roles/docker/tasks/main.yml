@@ -29,7 +29,7 @@
   - dockerd
   - docker-proxy
   tags: upgrade_docker, download_docker
-  when: "DOCKER_VER < 18.09"
+  when: "DOCKER_VER|float < 18.09"
 
 - name: 下载 docker 二进制文件(>= 18.09.x)
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -43,7 +43,7 @@
   - dockerd
   - docker-proxy
   tags: upgrade_docker, download_docker
-  when: "DOCKER_VER >= 18.09"
+  when: "DOCKER_VER|float >= 18.09"
 
 - name: docker命令自动补全
   copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
