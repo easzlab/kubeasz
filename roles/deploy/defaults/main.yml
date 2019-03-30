@@ -1,4 +1,9 @@
+# CA 证书相关参数
+CA_EXPIRY: "876000h"
+CERT_EXPIRY: "438000h"
+
 # kubeconfig 配置参数
 CLUSTER_NAME: "cluster1"
 USER_NAME: "user1"
 CONTEXT_NAME: "context1"
+
