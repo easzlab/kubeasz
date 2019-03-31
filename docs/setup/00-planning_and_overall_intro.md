@@ -82,9 +82,8 @@ ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 
 
 ``` bash
 # 方式一：使用git clone
-git clone --depth=1 https://github.com/gjmzj/kubeasz.git
-mkdir -p /etc/ansible
-mv kubeasz/* /etc/ansible
+git clone --depth=1 https://github.com/gjmzj/kubeasz.git /etc/ansible
+
 # 方式二：从发布页面 https://github.com/gjmzj/kubeasz/releases 下载源码解压到同样目录
 ```
 - 4.2a 下载二进制文件
