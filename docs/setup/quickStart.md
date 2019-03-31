@@ -77,14 +77,14 @@ git clone --depth=1 https://github.com/gjmzj/kubeasz.git /etc/ansible
 请从分享的[百度云链接](https://pan.baidu.com/s/1c4RFaA)，下载解压到/etc/ansible/bin目录，如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包
 
 ``` bash
-tar zxvf k8s.1-9-8.tar.gz	# 以安装k8s v1.9.8为例
+tar xvf k8s.1-9-8.tar.gz	# 以安装k8s v1.9.8为例
 mv bin/* /etc/ansible/bin
 ```
 - 4.2b [可选]下载离线docker镜像  
 服务器使用内部yum源/apt源，但是无法访问公网情况下，请下载离线docker镜像完成集群安装；从百度云盘把`basic_images_kubeasz_x.y.tar.gz` 下载解压到`/etc/ansible/down` 目录
 
 ``` bash
-tar zxvf basic_images_kubeasz_1.0.tar.gz -C /etc/ansible/down
+tar xvf basic_images_kubeasz_1.0.tar.gz -C /etc/ansible/down
 ```
 - 4.3 配置集群参数
   - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.allinone.example hosts`, 然后实际情况修改此hosts文件
