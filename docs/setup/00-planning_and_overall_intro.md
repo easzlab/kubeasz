@@ -97,7 +97,7 @@ mv bin/* /etc/ansible/bin
 服务器使用内部yum源/apt源，但是无法访问公网情况下，请下载离线docker镜像完成集群安装；从百度云盘把`basic_images_kubeasz_x.y.tar.gz` 下载解压到`/etc/ansible/down` 目录
 
 ``` bash
-tar zxvf basic_images_kubeasz_0.2.tar.gz -C /etc/ansible/down
+tar zxvf basic_images_kubeasz_1.0.tar.gz -C /etc/ansible/down
 ```
 - 4.3 配置集群参数
   - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.m-masters.example hosts`, 然后实际情况修改此hosts文件
