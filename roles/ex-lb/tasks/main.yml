@@ -11,7 +11,7 @@
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
 
 - name: 安装 haproxy
-  package: name=haproxy state=latest
+  package: name=haproxy state=present
 
 - name: 创建haproxy配置目录
   file: name=/etc/haproxy state=directory
@@ -26,7 +26,7 @@
   tags: restart_lb
 
 - name: 安装 keepalived
-  package: name=keepalived state=latest
+  package: name=keepalived state=present
 
 - name: 创建keepalived配置目录
   file: name=/etc/keepalived state=directory

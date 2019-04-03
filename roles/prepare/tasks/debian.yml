@@ -21,7 +21,7 @@
       - rsync               # 文件同步工具，分发证书等配置文件需要
       - ipset
       - ipvsadm
-    state: latest
+    state: present
 
 - name: 设置 ulimits
   lineinfile:

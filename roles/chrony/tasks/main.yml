@@ -6,7 +6,7 @@
   package: name=ntp state=absent
 
 - name: 安装 chrony
-  package: name=chrony state=latest
+  package: name=chrony state=present
 
 - block:
   - name: 配置 chrony server 
