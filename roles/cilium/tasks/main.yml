@@ -15,7 +15,7 @@
 
 - name: 检查内核版本>4.9
   fail: msg="kernel {{ ansible_kernel }} is too old for cilium installing"
-  when: "KERNEL_VER <= 4.09"
+  when: "KERNEL_VER|float <= 4.09"
   
 - name: 检查是否已下载离线cilium镜像
   command: "ls {{ base_dir }}/down"

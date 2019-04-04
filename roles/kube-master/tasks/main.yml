@@ -49,14 +49,17 @@
     connection: local
     register: TMP_PASS
     run_once: true
+    tags: restart_master
     
   - name: 设置 basic-auth 随机密码
     set_fact: BASIC_AUTH_PASS="{{ TMP_PASS.stdout }}"
+    tags: restart_master
   when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
   
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
   when: 'BASIC_AUTH_ENABLE == "yes"'
+  tags: restart_master
 
 # 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
 - name: 获取 k8s 版本信息
@@ -106,9 +109,11 @@
   when: 'BASIC_AUTH_ENABLE == "yes"'
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
+  tags: restart_master
 
 - name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
   shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/admin-user-binding.yaml"
   when: 'BASIC_AUTH_ENABLE == "yes"'
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
+  tags: restart_master
