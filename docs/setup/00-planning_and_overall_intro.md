@@ -73,7 +73,7 @@ pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --t
 - 在deploy节点配置免密码登陆
 
 ``` bash
-ssh-keygen -t rsa -b 2048 回车 回车 回车
+ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa
 ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 和root密码
 ```
 ### 4.在deploy节点编排k8s安装
