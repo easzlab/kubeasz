@@ -73,6 +73,9 @@ pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --t
 - 在deploy节点配置免密码登陆
 
 ``` bash
+# 更安全 Ed25519 算法
+ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519
+# 或者传统 RSA 算法
 ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa
 ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 和root密码
 ```
