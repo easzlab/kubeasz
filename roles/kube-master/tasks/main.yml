@@ -105,14 +105,14 @@
   tags: upgrade_k8s, restart_master
 
 - name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
-  template: src=admin-user-binding.yaml.j2 dest=/opt/kube/admin-user-binding.yaml
+  template: src=basic-auth-rbac.yaml.j2 dest=/opt/kube/basic-auth-rbac.yaml
   when: 'BASIC_AUTH_ENABLE == "yes"'
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
   tags: restart_master
 
 - name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/admin-user-binding.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/basic-auth-rbac.yaml"
   when: 'BASIC_AUTH_ENABLE == "yes"'
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true

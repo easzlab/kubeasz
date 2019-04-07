@@ -9,19 +9,24 @@ set -o errexit
 function usage() {
     cat <<EOF
 Usage: easzctl COMMAND [args]
-Commands 1 (cluster-wide operation):
+
+Cluster-wide operation:
     checkout		To switch to cluster <clustername> context, or create it if not existed
     destroy		To destroy the current cluster, with '--purge' option to also delete the context
     list		To list all of clusters managed
     setup		To setup a cluster using the current context
     start-aio		To quickly setup an all-in-one cluster for testing (like minikube)
-Commands 2 (in-cluster opration):
+
+In-cluster operation:
     add-etcd		To add a etcd-node to the etcd cluster
     add-master		To add a kube-master(master node) to the k8s cluster
     add-node		To add a kube-node(work node) to the k8s cluster
     clean-node		To clean a node, whatever role the node plays
     del-etcd		To delete a etcd-node from the etcd cluster
     upgrade		To upgrade the k8s cluster
+
+Extra operation:
+    basic-auth   	To enable/disable basic-auth for apiserver
 
 Use "easzctl help <command>" for more information about a given command.
 EOF
@@ -43,6 +48,9 @@ function help-info() {
             ;;
         (clean-node)
             echo -e "Usage: easzctl clean-node <node_ip>\n\nread 'https://github.com/gjmzj/kubeasz/blob/master/docs/op/clean_one_node.md'"
+            ;;
+        (basic-auth)
+            echo -e "Usage: easzctl basic-auth <options>\nOption:\t -s enable basic-auth\n\t -S disable basic-auth\n\t -u <user> set username\n\t -p <pass> set password"
             ;;
         (*)
             usage
@@ -298,6 +306,43 @@ function start-aio(){
     setup
 }
 
+### extra operation functions ###################################
+function print-user-pass(){
+    echo -e "\n[INFO]basic auth for apiserver enabled\n"
+    sed -n '/BASIC_AUTH_USER/p' $BASEPATH/roles/kube-master/defaults/main.yml
+    sed -n '/BASIC_AUTH_PASS/p' $BASEPATH/roles/kube-master/defaults/main.yml
+}
+
+function basic-auth(){
+    OPTIND=2
+    while getopts "sSu:p:" OPTION; do
+        case $OPTION in
+          s)
+            grep BASIC_AUTH_ENABLE roles/kube-master/defaults/main.yml|grep yes > /dev/null && { print-user-pass; return 0; }
+            sed -i "s/BASIC_AUTH_ENABLE.*$/BASIC_AUTH_ENABLE: 'yes'/g" $BASEPATH/roles/kube-master/defaults/main.yml
+            ;;
+          S)
+            grep BASIC_AUTH_ENABLE roles/kube-master/defaults/main.yml|grep no > /dev/null && { echo -e "\n[INFO]basic auth for apiserver disabled\n"; return 0; }
+            sed -i "s/BASIC_AUTH_ENABLE.*$/BASIC_AUTH_ENABLE: 'no'/g" $BASEPATH/roles/kube-master/defaults/main.yml
+            ;;
+          u)
+            grep BASIC_AUTH_ENABLE roles/kube-master/defaults/main.yml|grep no > /dev/null && { echo -e "\n[INFO]basic auth for apiserver disabled\n"; return 0; }
+            sed -i "s/BASIC_AUTH_USER.*$/BASIC_AUTH_USER: '$OPTARG'/g" $BASEPATH/roles/kube-master/defaults/main.yml
+            ;;
+          p)
+            grep BASIC_AUTH_ENABLE roles/kube-master/defaults/main.yml|grep no > /dev/null && { echo -e "\n[INFO]basic auth for apiserver disabled\n"; return 0; }
+            sed -i "s/BASIC_AUTH_PASS.*$/BASIC_AUTH_PASS: '$OPTARG'/g" $BASEPATH/roles/kube-master/defaults/main.yml
+            ;;
+          ?)
+            help-info basic-auth
+            return 1
+            ;;
+        esac
+    done
+
+    ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master
+}
+
 ### Main Lines ##################################################
 
 BASEPATH=/etc/ansible
@@ -365,6 +410,12 @@ case "$1" in
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         help-info $2
         exit 0
+        ;;
+    ### extra operations ##############################
+    (basic-auth)
+        [ "$#" -gt 1 ] || { help-info $1; exit 2; }
+        ACTION="Action: enable/disable apiserver's basic-auth"
+        CMD="basic-auth $*"
         ;;
     (*)
         usage
