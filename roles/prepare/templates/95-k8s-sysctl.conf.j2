@@ -7,3 +7,8 @@ net.netfilter.nf_conntrack_max=1000000
 vm.swappiness = 0
 vm.max_map_count=655360
 fs.file-max=655360
+
+# TIME_WAIT
+net.ipv4.tcp_tw_recycle = 1
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_timestamps = 1
