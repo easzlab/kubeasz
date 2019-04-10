@@ -1,5 +1,7 @@
 # Use public servers from the pool.ntp.org project.
-server {{ ntp_server }} iburst
+{% for HOST in ntp_servers %}
+server {{ HOST }} iburst
+{% endfor %}
 server 0.centos.pool.ntp.org iburst
 server 1.centos.pool.ntp.org iburst
 server 2.centos.pool.ntp.org iburst
@@ -28,7 +30,7 @@ rtcsync
 # Allow NTP client access from local network.
 allow {{ local_network }}
 
-# 
+#
 bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 

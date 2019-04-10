@@ -1,7 +1,11 @@
 # 设置时间源服务器
-ntp_server: "ntp1.aliyun.com"
+ntp_servers:
+  - "ntp1.aliyun.com"
+  - "ntp2.aliyun.com"
+  - "time1.cloud.tencent.com"
+  - "time2.cloud.tencent.com"
+  - "0.cn.pool.ntp.org"
 
 # 设置允许内部时间同步的网络段，比如"10.0.0.0/8"，默认全部允许
 local_network: "0.0.0.0/0"
-
 

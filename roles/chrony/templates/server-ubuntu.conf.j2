@@ -1,5 +1,7 @@
-# Use public servers from the pool.ntp.org project. 
-pool {{ ntp_server }} iburst
+# Use public servers from the pool.ntp.org project.
+{% for HOST in ntp_servers %}
+server {{ HOST }} iburst
+{% endfor %}
 pool 2.debian.pool.ntp.org iburst
 
 # Look here for the admin password needed for chronyc.  The initial
