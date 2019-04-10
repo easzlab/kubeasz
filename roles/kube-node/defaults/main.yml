@@ -10,3 +10,9 @@ KUBELET_ROOT_DIR: "/var/lib/kubelet"
 
 # node节点最大pod 数
 MAX_PODS: 110
+
+# 配置为kube组件（kubelet,kube-proxy,dockerd等）预留的资源量
+KUBE_RESERVED: "cpu=200m,memory=500Mi,ephemeral-storage=1Gi"
+
+# 配置kubelet的hard eviction条件
+HARD_EVICTION: "memory.available<200Mi,nodefs.available<10%"

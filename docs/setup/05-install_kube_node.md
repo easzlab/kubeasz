@@ -37,7 +37,10 @@ Requires=docker.service
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
-#--pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
   --allow-privileged=true \
@@ -61,6 +64,12 @@ ExecStart={{ bin_dir }}/kubelet \
   --root-dir={{ KUBELET_ROOT_DIR }} \
   --tls-cert-file={{ ca_dir }}/kubelet.pem \
   --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
+  --cgroups-per-qos=true \
+  --cgroup-driver=cgroupfs \
+  --enforce-node-allocatable=pods,kube-reserved \
+  --kube-reserved={{ KUBE_RESERVED }} \
+  --kube-reserved-cgroup=/system.slice/kubelet.service \
+  --eviction-hard={{ HARD_EVICTION }} \
   --v=2
 Restart=on-failure
 RestartSec=5
@@ -73,6 +82,8 @@ WantedBy=multi-user.target
 + --network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir={{ bin_dir }} 为使用cni 网络，并调用calico管理网络所需的配置
 + --fail-swap-on=false K8S 1.8+需显示禁用这个，否则服务不能启动
 + --client-ca-file={{ ca_dir }}/ca.pem 和 --anonymous-auth=false 关闭kubelet的匿名访问，详见[匿名访问漏洞说明](mixes/01.fix_kubelet_annoymous_access.md)
++ --ExecStartPre=/bin/mkdir -p xxx 对于某些系统（centos7）cpuset和hugetlb 是默认没有初始化system.slice 的，需要手动创建，否则在启用--kube-reserved-cgroup 时会报错Failed to start ContainerManager Failed to enforce System Reserved Cgroup Limits
++ 关于kubelet资源预留相关配置请参考 https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/
 
 ### 创建 kube-proxy kubeconfig 文件
 

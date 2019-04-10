@@ -6,6 +6,10 @@ Requires=docker.service
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
   --allow-privileged=true \
@@ -28,6 +32,12 @@ ExecStart={{ bin_dir }}/kubelet \
   --root-dir={{ KUBELET_ROOT_DIR }} \
   --tls-cert-file={{ ca_dir }}/kubelet.pem \
   --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
+  --cgroups-per-qos=true \
+  --cgroup-driver=cgroupfs \
+  --enforce-node-allocatable=pods,kube-reserved \
+  --kube-reserved={{ KUBE_RESERVED }} \
+  --kube-reserved-cgroup=/system.slice/kubelet.service \
+  --eviction-hard={{ HARD_EVICTION }} \
   --v=2
 Restart=on-failure
 RestartSec=5
