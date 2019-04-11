@@ -1,20 +1,14 @@
 ## 部署集群 DNS
 
-DNS 是 k8s 集群首先需要部署的，集群中的其他 pods 使用它提供域名解析服务；主要可以解析 `集群服务名 SVC` 和 `Pod hostname`；目前 k8s v1.9+ 版本可以有两个选择：`kube-dns` 和 `coredns`，可以选择其中一个部署安装。
+DNS 是 k8s 集群首先需要部署的，集群中的其他 pods 使用它提供域名解析服务；主要可以解析 `集群服务名 SVC` 和 `Pod hostname`；目前 k8s v1.9+ 版本可以有两个选择：`kube-dns` 和 `coredns`（推荐），可以选择其中一个部署安装。
 
 ### 部署 dns
 
 配置文件参考 `https://github.com/kubernetes/kubernetes` 项目目录 `kubernetes/cluster/addons/dns`
 
-+ 安装 
++ 安装
 
-``` bash
-# 安装 kube-dns
-$ kubectl create -f /etc/ansible/manifests/kubedns
-
-# 或者选择安装 coredns
-$ kubectl create -f /etc/ansible/manifests/coredns
-```
+目前 kubeasz 已经自动集成安装 dns 组件，配置模板位于`roles/cluster-addon/templates/`目录，安装文件位于 deploy 节点`/opt/kube/kube-system/`目录
 
 + 集群 pod默认继承 node的dns 解析，修改 kubelet服务启动参数 --resolv-conf=""，可以更改这个特性，详见 kubelet 启动参数
 
