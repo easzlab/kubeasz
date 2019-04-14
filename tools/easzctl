@@ -81,7 +81,7 @@ function add-node() {
     ansible-playbook $BASEPATH/tools/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; return 2; }
 
     # save current cluster context if needed
-    save_context
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
 }
 
 function add-master() {
@@ -101,7 +101,7 @@ function add-master() {
     ansible-playbook $BASEPATH/tools/21.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; return 2; }
 
     # save current cluster context if needed
-    save_context
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
 }
 
 function add-etcd() {
@@ -126,7 +126,7 @@ function add-etcd() {
     ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
 
     # save current cluster context if needed
-    save_context
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
 }
 
 function del-etcd() {
@@ -140,7 +140,7 @@ function del-etcd() {
     ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
 
     # save current cluster context if needed
-    save_context
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
 }
 
 function clean-node() {
@@ -151,7 +151,7 @@ function clean-node() {
     ansible-playbook $BASEPATH/tools/clean_one_node.yml -e NODE_TO_DEL=$1
 
     # save current cluster context if needed
-    save_context
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
 }
 
 function upgrade() {
@@ -159,7 +159,7 @@ function upgrade() {
     echo -e "[INFO] upgrade begin in 5s, press any key to abort\n:"
     ! (read -t5 -n1 ANS) || { echo "[WARN] upgrade aborted"; return 1; }
     ansible-playbook -t upgrade_k8s $BASEPATH/22.upgrade.yml || return 1
-    save_context
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
 }
 ### cluster-wide operation functions ############################
 
