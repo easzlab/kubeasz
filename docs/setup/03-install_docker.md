@@ -47,7 +47,7 @@ WantedBy=multi-user.target
 
 ``` bash
 {
-  "registry-mirrors": ["https://registry.docker-cn.com"],
+  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",
