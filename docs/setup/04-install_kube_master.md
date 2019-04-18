@@ -70,6 +70,10 @@ roles/kube-master/
 
 可选，为后续使用基础认证的场景做准备，如实现dashboard 用不同用户名登陆绑定不同的权限，后续更新dashboard的实践文档。
 
+若未创建任何基础认证配置，K8S集群部署完毕后访问dashboard将会提示`401`错误。
+
+当前如需创建基础认证，需单独修改`roles/kube-master/defaults/main.yml`文件，将`BASIC_AUTH_ENABLE`改为`yes`，并相应配置用户名`BASIC_AUTH_USER`（默认用户名为`admin`）及密码`BASIC_AUTH_PASS`。
+
 ### 创建apiserver的服务配置文件
 
 ``` bash
