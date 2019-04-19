@@ -73,7 +73,7 @@ setup_ansible_k8s() {
 
   # Download from CDN & Move bin files
   curl -o k8s_download.tar.gz "$bin_resource_url"
-  tar zxvf k8s_download.tar.gz
+  tar xvf k8s_download.tar.gz
   mv -f bin/* /etc/ansible/bin
   rm -rf bin
   echo "Finish setup. Please config your hosts and run 'ansible-playbook' command at /etc/ansible."

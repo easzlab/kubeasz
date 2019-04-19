@@ -157,7 +157,7 @@ cd ..
 mkdir -p /backup && mv harbor /backup/harbor
 
 # 下载更新的离线安装包，并解压
-tar zxvf harbor-offline-installer-v1.2.2.tgz  -C /data
+tar xvf harbor-offline-installer-v1.2.2.tgz  -C /data
 
 # 使用官方数据库迁移工具，备份数据库，修改数据库连接用户和密码，创建数据库备份目录
 # 迁移工具使用docker镜像，镜像tag由待升级到目标harbor版本决定，这里由 1.1.2升级到1.2.2，所以使用 tag 1.2
