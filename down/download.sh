@@ -93,14 +93,14 @@ else
 fi
 
 ### prepare cni plugins, needed by flannel;
-if [ -f "cni-${CNI_VER}.tgz" ]; then
+if [ -f "cni-plugins-amd64-${CNI_VER}.tgz" ]; then
   echo "\nextracting cni plugins binaries..."
-  tar zxf cni-${CNI_VER}.tgz
+  tar zxf cni-plugins-amd64-${CNI_VER}.tgz
   mv -f bridge ../bin
   mv -f flannel ../bin
   mv -f host-local ../bin
   mv -f loopback ../bin
   mv -f portmap ../bin
 else
-  echo Please download 'cni-${CNI_VER}.tgz' first
+  echo Please download 'cni-plugins-amd64-${CNI_VER}.tgz' first
 fi
