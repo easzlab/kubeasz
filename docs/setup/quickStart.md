@@ -38,7 +38,7 @@ pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-ho
 pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 # 配置ansible ssh密钥登陆
 ssh-keygen -t rsa -b 2048 回车 回车 回车
-ssh-copy-id $IP #$IP为本虚机地址，按照提示输入yes 和root密码
+ssh-copy-id $IP #$IP为本虚拟机地址，按照提示输入yes 和root密码
 ```
 
 在`Ubuntu 16.04`中，如果出现以下错误:
