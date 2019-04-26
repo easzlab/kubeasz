@@ -26,7 +26,7 @@ $ kubectl apply -f /etc/ansible/manifests/ingress/traefik/tls/traefik-controller
 
 ``` bash
 # 创建示例应用
-$ kubectl run test-hello --image=nginx --port=80 --expose
+$ kubectl run test-hello --image=nginx:alpine --port=80 --expose
 # hello-tls-ingress 示例
 apiVersion: extensions/v1beta1
 kind: Ingress
