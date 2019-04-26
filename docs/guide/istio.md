@@ -74,7 +74,7 @@ helm template install/kubernetes/helm/istio --name istio --namespace istio-syste
   --set gateways.istio-ingressgateway.type=NodePort \
   --set gateways.istio-egressgateway.type=NodePort | kubectl apply -f -
 
-# 或者选择demo 配置
+# 或选择 demo 配置
 helm template install/kubernetes/helm/istio --name istio --namespace istio-system \
   --set gateways.istio-ingressgateway.type=NodePort \
   --set gateways.istio-egressgateway.type=NodePort \
@@ -227,6 +227,11 @@ sleep-7549f66447-x4td6          2/2     Running   0          37s
 ---
 
 ```bash
-helm delete --purge istio
+# 采用 default 配置安装
+helm template install/kubernetes/helm/istio --name istio --namespace istio-system | kubectl delete -f -
+# 采用 demo 配置安装
+helm template install/kubernetes/helm/istio --name istio --namespace istio-system \
+  --values install/kubernetes/helm/istio/values-istio-demo.yaml | kubectl delete -f -
 
+kubectl delete namespace istio-system
 ```
