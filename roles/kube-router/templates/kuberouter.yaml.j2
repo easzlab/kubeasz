@@ -19,7 +19,7 @@ data:
     }
 
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
@@ -28,6 +28,10 @@ metadata:
   name: kube-router
   namespace: kube-system
 spec:
+  selector:
+    matchLabels:
+      k8s-app: kube-router
+      tier: node
   template:
     metadata:
       labels:
@@ -39,7 +43,7 @@ spec:
       serviceAccountName: kube-router
       containers:
       - name: kube-router
-        image: cloudnativelabs/kube-router:{{ kube_router_ver }} 
+        image: cloudnativelabs/kube-router:{{ kube_router_ver }}
         imagePullPolicy: {{ PullPolicy }}
         args:
         - "--run-router=true"
@@ -79,7 +83,7 @@ spec:
       initContainers:
       - name: install-cni
         image: busybox:{{ busybox_ver }}
-        imagePullPolicy: {{ PullPolicy }} 
+        imagePullPolicy: {{ PullPolicy }}
         command:
         - /bin/sh
         - -c
@@ -93,7 +97,7 @@ spec:
         - mountPath: /etc/cni/net.d
           name: cni-conf-dir
         - mountPath: /etc/kube-router
-          name: kube-router-cfg       
+          name: kube-router-cfg
       hostNetwork: true
       tolerations:
       - key: CriticalAddonsOnly

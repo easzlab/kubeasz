@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
 {{- if .Values.server.deploymentAnnotations }}
@@ -14,6 +14,11 @@ metadata:
   name: {{ template "prometheus.server.fullname" . }}
 spec:
   replicas: {{ .Values.server.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "prometheus.name" . }}
+      component: "{{ .Values.server.name }}"
+      release: {{ .Release.Name }}
   {{- if .Values.server.strategy }}
   strategy:
 {{ toYaml .Values.server.strategy | indent 4 }}

@@ -21,13 +21,16 @@ data:
 type: kubernetes.io/dockerconfigjson
 
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: APP_NAME
   namespace: PROJECT_NS
 spec:
   replicas: APP_REP
+  selector:
+    matchLabels:
+      run: APP_NAME
   template:
     metadata:
       labels:

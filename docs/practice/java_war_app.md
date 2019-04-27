@@ -89,13 +89,16 @@ RUN sed -i 's/^JAVA_OPTS=.*webresources\"$/JAVA_OPTS=\"$JAVA_OPTS -Djava.protoco
 
 ```
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: TemplateProject
   namespace: PROJECT_NS
 spec:
   replicas: APP_REP
+  selector:
+    matchLabels:
+      run: TemplateProject
   template:
     metadata:
       labels:

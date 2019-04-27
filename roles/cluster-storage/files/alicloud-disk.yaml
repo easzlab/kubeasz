@@ -68,12 +68,15 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 kind: Deployment
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 metadata:
   name: alicloud-disk-controller
   namespace: kube-system
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: alicloud-disk-controller
   strategy:
     type: Recreate
   template:

@@ -1,5 +1,5 @@
 {{- if .Values.alertmanager.enabled -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -12,6 +12,11 @@ metadata:
 spec:
   replicas: {{ .Values.alertmanager.replicaCount }}
   {{- if .Values.server.strategy }}
+  selector:
+    matchLabels:
+      app: {{ template "prometheus.name" . }}
+      component: "{{ .Values.alertmanager.name }}"
+      release: {{ .Release.Name }}
   strategy:
 {{ toYaml .Values.server.strategy | indent 4 }}
   {{- end }}

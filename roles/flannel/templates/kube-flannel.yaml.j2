@@ -79,7 +79,7 @@ data:
       }
     }
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kube-flannel-ds-amd64
@@ -88,6 +88,10 @@ metadata:
     tier: node
     app: flannel
 spec:
+  selector:
+    matchLabels:
+      tier: node
+      app: flannel
   template:
     metadata:
       labels:
@@ -103,7 +107,7 @@ spec:
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: {{ flanneld_image }} 
+        image: {{ flanneld_image }}
         command:
         - cp
         args:
@@ -117,7 +121,7 @@ spec:
           mountPath: /etc/kube-flannel/
       containers:
       - name: kube-flannel
-        image: {{ flanneld_image }} 
+        image: {{ flanneld_image }}
         command:
         - /opt/bin/flanneld
         args:
