@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -10,6 +10,10 @@ metadata:
   name: {{ template "elasticsearch.client.fullname" . }}
 spec:
   replicas: {{ .Values.client.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "elasticsearch.name" . }}
+      component: "{{ .Values.client.name }}"
   template:
     metadata:
       labels:

@@ -25,7 +25,7 @@ data:
             KeyFile = "/ssl/tls.key"
 ---
 kind: Deployment
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 metadata:
   name: traefik-ingress-controller
   namespace: kube-system
@@ -105,7 +105,7 @@ spec:
       nodePort: 23456
       name: http
     - protocol: TCP
-      # 
+      #
       port: 443
       nodePort: 23457
       name: https

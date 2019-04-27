@@ -20,7 +20,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: heapster
