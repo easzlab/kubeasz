@@ -159,7 +159,7 @@ data:
   # [1] http://docs.cilium.io/en/stable/install/upgrade/#changes-that-may-require-action
   tofqdns-enable-poller: "false"
 ---
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
@@ -510,7 +510,7 @@ spec:
       maxUnavailable: 2
     type: RollingUpdate
 ---
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -838,7 +838,7 @@ metadata:
   name: cilium-etcd-sa
   namespace: kube-system
 ---
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
