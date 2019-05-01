@@ -7,3 +7,7 @@ CLUSTER_NAME: "cluster1"
 USER_NAME: "user1"
 CONTEXT_NAME: "context1"
 
+# kubectl 权限配置
+# 'admin' 表示创建集群管理员（所有）权限的 kubeconfig 
+# 'read' 表示创建只读权限的 kubeconfig
+KUBECTL_USER: "admin"

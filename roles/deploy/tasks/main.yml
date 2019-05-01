@@ -5,6 +5,7 @@
   - "{{ ca_dir }}"
   - "{{ base_dir }}"
   - "/etc/kubernetes"
+  - "/opt/kube/kube-system"
 
 - name: 下载证书工具 CFSSL和 kubectl
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -33,34 +34,54 @@
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert -initca ca-csr.json | {{ bin_dir }}/cfssljson -bare ca" 
 
 #----------- 创建kubectl kubeconfig文件: /root/.kube/config
-- name: 准备kubectl使用的admin 证书签名请求
-  template: src=admin-csr.json.j2 dest={{ ca_dir }}/admin-csr.json
+- name: 删除原有kubeconfig
+  file: path=/root/.kube state=absent
+  tags: create_kctl_cfg
 
-- name: 创建 admin证书与私钥
+- name: 下载 group:read rbac 文件
+  copy: src=read-group-rbac.yaml dest=/opt/kube/kube-system/read-group-rbac.yaml
+  when: KUBECTL_USER == "read"
+  tags: create_kctl_cfg
+
+- name: 创建group:read rbac 绑定
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/read-group-rbac.yaml"
+  when: KUBECTL_USER == "read"
+  tags: create_kctl_cfg
+
+- name: 准备kubectl使用的{{ KUBECTL_USER }}证书签名请求
+  template: src={{ KUBECTL_USER }}-csr.json.j2 dest={{ ca_dir }}/{{ KUBECTL_USER }}-csr.json
+  tags: create_kctl_cfg
+
+- name: 创建{{ KUBECTL_USER }}证书与私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes admin-csr.json | {{ bin_dir }}/cfssljson -bare admin"
-# 设置集群参数，指定CA证书和apiserver地址
+        -profile=kubernetes {{ KUBECTL_USER }}-csr.json | {{ bin_dir }}/cfssljson -bare {{ KUBECTL_USER }}"
+  tags: create_kctl_cfg
+
 - name: 设置集群参数
   shell: "{{ bin_dir }}/kubectl config set-cluster {{ CLUSTER_NAME }} \
         --certificate-authority={{ ca_dir }}/ca.pem \
         --embed-certs=true \
         --server={{ KUBE_APISERVER }}"
-# 设置客户端认证参数，指定使用admin证书和私钥
+  tags: create_kctl_cfg
+
 - name: 设置客户端认证参数
   shell: "{{ bin_dir }}/kubectl config set-credentials {{ USER_NAME }} \
-        --client-certificate={{ ca_dir }}/admin.pem \
+        --client-certificate={{ ca_dir }}/{{ KUBECTL_USER }}.pem \
         --embed-certs=true \
-        --client-key={{ ca_dir }}/admin-key.pem"
-# 设置上下文参数，说明使用cluster集群和用户admin
+        --client-key={{ ca_dir }}/{{ KUBECTL_USER }}-key.pem"
+  tags: create_kctl_cfg
+
 - name: 设置上下文参数
   shell: "{{ bin_dir }}/kubectl config set-context {{ CONTEXT_NAME }} \
         --cluster={{ CLUSTER_NAME }} --user={{ USER_NAME }}"
-# 选择默认上下文
+  tags: create_kctl_cfg
+
 - name: 选择默认上下文
   shell: "{{ bin_dir }}/kubectl config use-context {{ CONTEXT_NAME }}"
+  tags: create_kctl_cfg
 
 #------------创建kube-proxy.kubeconfig配置文件: /root/kube-proxy.kubeconfig
 - name: 准备kube-proxy 证书签名请求
