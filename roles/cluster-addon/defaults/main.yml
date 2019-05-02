@@ -1,8 +1,10 @@
 # dns 自动安装，可选"coredns"和“kubedns”
 dns_install: "yes"
 dns_backend: "coredns"
-kubedns_offline: "kubedns_1.14.13.tar"
-coredns_offline: "coredns_1.2.6.tar"
+kubednsVer: "1.14.13"
+corednsVer: "1.5.0"
+kubedns_offline: "kubedns_{{ kubednsVer }}.tar"
+coredns_offline: "coredns_{{ corednsVer }}.tar"
 dns_offline: "{%- if dns_backend == 'coredns' -%} \
                 {{ coredns_offline }} \
               {%- else -%} \
@@ -11,27 +13,33 @@ dns_offline: "{%- if dns_backend == 'coredns' -%} \
 
 # metric server 自动安装
 metricsserver_install: "yes"
-metricsserver_offline: "metrics-server_v0.3.1.tar"
+metricsVer: "v0.3.2"
+metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 
 # dashboard 自动安装
 dashboard_install: "yes"
-dashboard_offline: "dashboard_v1.10.1.tar"
+dashboardVer: "v1.10.1"
+dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
 
 # ingress 自动安装，可选 "traefik" 和 "nginx-ingress"
 ingress_install: "no"
 ingress_backend: "traefik"
-traefik_offline: "traefik_v1.7.4.tar"
-nginx_ingress_offline: "nginx_ingress_0.21.0.tar"
+traefikVer: "v1.7.4"
+nginxingVer: "0.21.0"
+traefik_offline: "traefik_{{ traefikVer }}.tar"
+nginx_ingress_offline: "nginx_ingress_{{ nginxingVer }}.tar"
 
 # heapster 自动安装
 heapster_install: "no"
-heapster_offline: "heapster_v1.5.4.tar"
+heapsterVer: "v1.5.4"
+heapster_offline: "heapster_{{ heapsterVer }}.tar"
 
 # metallb 自动安装
 metallb_install: "no"
+metallbVer: "v0.7.3"
 # 模式选择: 二层 "layer2" 或者三层 "bgp"
 metallb_protocol: "layer2"
-metallb_offline: "metallb_v0.7.3.tar"
+metallb_offline: "metallb_{{ metallbVer }}.tar"
 metallb_vip_pool: "192.168.1.240/29"
 
 # efk 自动安装
