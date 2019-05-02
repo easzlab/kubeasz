@@ -1,5 +1,10 @@
 {
-  "registry-mirrors": ["{{ REG_MIRROR_1 }}"],
+  "registry-mirrors": [
+{% for SITE in REG_MIRRORS %}
+    "{{ SITE }}",
+{% endfor %}
+    "http://hub-mirror.c.163.com"
+  ],
   "max-concurrent-downloads": 10,
   "log-driver": "{{ LOG_DRIVER }}",
   "log-level": "{{ LOG_LEVEL }}",
@@ -8,9 +13,7 @@
     "max-file": "{{ LOG_MAX_FILE }}"
     },
   "data-root": "{{ STORAGE_DIR }}"
-
   {% if ENABLE_REMOTE_API %}
   , "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"]
   {% endif %}
-
 }
