@@ -77,8 +77,8 @@ git clone --depth=1 https://github.com/gjmzj/kubeasz.git /etc/ansible
 请从分享的[百度云链接](https://pan.baidu.com/s/1c4RFaA)，下载解压到/etc/ansible/bin目录，如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包
 
 ``` bash
-tar xvf k8s.1-9-8.tar.gz	# 以安装k8s v1.9.8为例
-mv bin/* /etc/ansible/bin
+# 以安装k8s v1.13.5为例
+tar -xvf k8s.1-13-5.tar.gz -C /etc/ansible
 ```
 - 4.2b [可选]下载离线docker镜像  
 服务器使用内部yum源/apt源，但是无法访问公网情况下，请下载离线docker镜像完成集群安装；从百度云盘把`basic_images_kubeasz_x.y.tar.gz` 下载解压到`/etc/ansible/down` 目录
@@ -116,7 +116,7 @@ ansible-playbook 07.cluster-addon.yml
 kubectl version
 kubectl get componentstatus # 可以看到scheduler/controller-manager/etcd等组件 Healthy
 kubectl cluster-info # 可以看到kubernetes master(apiserver)组件 running
-kubectl get node # 可以看到单 node Ready状态
+kubectl get node # 可以看到单节点就绪 (Ready) 状态
 kubectl get pod --all-namespaces # 可以查看所有集群pod状态，默认已安装网络插件、coredns、metrics-server等
 kubectl get svc --all-namespaces # 可以查看所有集群服务状态
 ```

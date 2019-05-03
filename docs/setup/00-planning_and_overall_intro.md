@@ -11,11 +11,11 @@
 |:-|:-|:-|
 |deploy节点|1|运行这份 ansible 脚本的节点|
 |etcd节点|3|注意etcd集群必须是1,3,5,7...奇数个节点|
-|master节点|2|需要额外规划一个master VIP(虚地址)，可根据需要提升机器配置或增加节点数|
+|master节点|2|需要额外规划一个master VIP(虚地址)，一般可以复用etcd节点|
 |lb节点|2|负载均衡节点两个，安装 haproxy+keepalived|
 |node节点|3|运行应用负载的节点，可根据需要提升机器配置或增加节点数|
 
-项目预定义了4个例子，请修改后完成适合你的集群规划，生产环境建议一个节点只是一个角色。
+项目预定义了4个例子，请修改后完成适合你的集群规划。
 
 + [单节点](../../example/hosts.allinone.example)
 + [单主多节点](../../example/hosts.s-master.example)
