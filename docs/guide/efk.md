@@ -1,26 +1,20 @@
 ### 第一部分：EFK
 
-`EFK` 插件是`k8s`项目的一个日志解决方案，它包括三个组件：[Elasticsearch](), [Fluentd](), [Kibana]()；Elasticsearch 是日志存储和日志搜索引擎，Fluentd 负责把`k8s`集群的日志发送给 Elasticsearch, Kibana 则是可视化界面查看和检索存储在 Elasticsearch 的数据。
+`EFK` 插件是`k8s`项目的一个日志解决方案，它包括三个组件：[Elasticsearch](), [Fluentd](), [Kibana]()；Elasticsearch 是日志存储和日志搜索引擎，Fluentd 负责把`k8s`集群的日志发送给 Elasticsearch, Kibana 则是可视化界面查看和检索存储在 ES 中的数据。
 
 ### 准备 
 
 下载官方最新[release](https://github.com/kubernetes/kubernetes/release)，进入目录: `kubernetes/cluster/addons/fluentd-elasticsearch`，参考官方配置的基础上使用本项目`manifests/efk/`部署，以下为几点主要的修改：
 
-+ 官方提供的`kibana-deployment.yaml`中的参数`SERVER_BASEPATH`在k8s v1.8 版本以后部署需要按照本项目调整
++ 修改 fluentd-es-configmap.yaml 中的部分 journald 日志源（增加集群组件服务日志搜集）
 + 修改官方docker镜像，方便国内下载加速
++ 修改 es-statefulset.yaml 支持日志存储持久化等
 
 ### 安装
 
 ``` bash
-$ kubectl create -f /etc/ansible/manifests/efk/
-$ kubectl create -f /etc/ansible/manifests/efk/es-without-pv/
-```
-
-**注意**：Fluentd 是以 DaemonSet 形式运行且只会调度到有`beta.kubernetes.io/fluentd-ds-ready=true`标签的节点，所以对需要收集日志的节点逐个打上标签：
-
-``` bash
-$ kubectl label nodes 192.168.1.2 beta.kubernetes.io/fluentd-ds-ready=true
-node "192.168.1.2" labeled
+$ kubectl apply -f /etc/ansible/manifests/efk/
+$ kubectl apply -f /etc/ansible/manifests/efk/es-without-pv/
 ```
 
 ### 验证
@@ -45,15 +39,17 @@ $ kubectl logs -n kube-system kibana-logging-d5cffd7c6-9lz2p -f
 
 ### 访问 Kibana
 
-这里介绍 `kube-apiserver`方式访问，获取访问 URL
+推荐使用`kube-apiserver`方式访问（可以使用basic-auth、证书和rbac等方式进行认证授权），获取访问 URL
+
+- 开启 apiserver basic-auth(用户名/密码认证)：`easzctl basic-auth -s -u admin -p test1234`
 
 ``` bash
 $ kubectl cluster-info | grep Kibana
 Kibana is running at https://192.168.1.10:8443/api/v1/namespaces/kube-system/services/kibana-logging/proxy
 ```
-浏览器访问 URL：`https://192.168.1.10:8443/api/v1/namespaces/kube-system/services/kibana-logging/proxy`，然后使用`basic auth（参照hosts文件设置，默认：用户admin 密码test1234）`或者`证书` 的方式认证后即可，关于认证可以参考[dashboard文档](dashboard.md)
+浏览器访问 URL：`https://192.168.1.10:8443/api/v1/namespaces/kube-system/services/kibana-logging/proxy`，然后使用`basic-auth`或者`证书` 的方式认证后即可，关于认证可以参考[dashboard文档](dashboard.md)
 
-首次登陆需要在`Management` - `Index Patterns` 创建 `index pattern`，可以使用默认的 logstash-* pattern，点击 Create; 创建Index后，稍等几分钟就可以在 Discover 菜单看到 ElasticSearch logging 中汇聚的日志；
+首次登陆需要在`Management` - `Index Patterns` 创建 `index pattern`，可以使用默认的 logstash-* pattern，点击下一步；在 Time Filter field name 下拉框选择 @timestamp; 点击创建Index Pattern后，稍等几分钟就可以在 Discover 菜单看到 ElasticSearch logging 中汇聚的日志；
 
 ### 第二部分：日志持久化之静态PV
 日志数据是存放于 `Elasticsearch POD`中，但是默认情况下它使用的是`emptyDir`存储类型，所以当 `POD`被删除或重新调度时，日志数据也就丢失了。以下讲解使用`NFS` 服务器手动（静态）创建`PV` 持久化保存日志数据的例子。
@@ -81,8 +77,8 @@ $ kubectl delete -f /etc/ansible/manifests/efk/
 $ kubectl delete -f /etc/ansible/manifests/efk/es-without-pv/
 
 # 安装静态PV 的 EFK
-$ kubectl create -f /etc/ansible/manifests/efk/
-$ kubectl create -f /etc/ansible/manifests/efk/es-static-pv/
+$ kubectl apply -f /etc/ansible/manifests/efk/
+$ kubectl apply -f /etc/ansible/manifests/efk/es-static-pv/
 ```
 + 目录`es-static-pv` 下首先是利用 NFS服务预定义了三个 PV资源，然后在 `es-statefulset.yaml`定义中使用 `volumeClaimTemplates` 去匹配使用预定义的 PV资源；注意 PV参数：`accessModes` `storageClassName` `storage`容量大小必须两边匹配。 
 
@@ -145,8 +141,8 @@ $ kubectl delete -f /etc/ansible/manifests/efk/es-without-pv/
 $ kubectl delete -f /etc/ansible/manifests/efk/es-static-pv/
 
 # 安装动态PV 的 EFK
-$ kubectl create -f /etc/ansible/manifests/efk/
-$ kubectl create -f /etc/ansible/manifests/efk/es-dynamic-pv/
+$ kubectl apply -f /etc/ansible/manifests/efk/
+$ kubectl apply -f /etc/ansible/manifests/efk/es-dynamic-pv/
 ```
 + 首先 `nfs-client-provisioner.yaml` 创建一个工作 POD，它监听集群的 PVC请求，并当 PVC请求来到时调用 `nfs-client` 去请求 `nfs-server`的存储资源，成功后即动态生成对应的 PV资源。
 + `nfs-dynamic-storageclass.yaml` 定义 NFS存储类型的类型名 `nfs-dynamic-class`，然后在 `es-statefulset.yaml`中必须使用这个类型名才能动态请求到资源。
