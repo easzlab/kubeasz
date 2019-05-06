@@ -223,5 +223,5 @@
     lineinfile:
       dest: "{{ base_dir }}/hosts"
       state: absent
-      regexp: '{{ NODE_TO_DEL }}'
+      regexp: '^{{ NODE_TO_DEL }}$|^{{ NODE_TO_DEL }}[^0-9]'
     connection: local
