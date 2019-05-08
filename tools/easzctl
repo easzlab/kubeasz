@@ -82,6 +82,7 @@ function add-node() {
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
 }
 
 function add-master() {
@@ -102,6 +103,7 @@ function add-master() {
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
 }
 
 function add-etcd() {
@@ -127,6 +129,7 @@ function add-etcd() {
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
 }
 
 function del-etcd() {
@@ -141,6 +144,7 @@ function del-etcd() {
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
 }
 
 function clean-node() {
@@ -152,6 +156,7 @@ function clean-node() {
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
 }
 
 function upgrade() {
@@ -160,6 +165,7 @@ function upgrade() {
     ! (read -t5 -n1 ANS) || { echo "[WARN] upgrade aborted"; return 1; }
     ansible-playbook -t upgrade_k8s $BASEPATH/22.upgrade.yml || return 1
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
 }
 ### cluster-wide operation functions ############################
 
@@ -348,6 +354,9 @@ function basic-auth(){
     elif [[ $ENABLED == no ]];then
         echo -e "\n[INFO]basic-auth for apiserver is disabled!\n"
     fi
+    # save current cluster context if needed
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
 }
 
 ### Main Lines ##################################################
