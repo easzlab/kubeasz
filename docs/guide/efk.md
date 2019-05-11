@@ -181,6 +181,50 @@ kube-system-elasticsearch-logging-elasticsearch-logging-0-pvc-50644f36-358b-11e8
 kube-system-elasticsearch-logging-elasticsearch-logging-1-pvc-5b105ee6-358b-11e8-9edd-525400cecc16
 ```
 
+### 第四部分：日志自动清理
+
+我们知道日志都存储在elastic集群中，且日志每天被分割成一个index，例如：
+
+```
+/ # curl elasticsearch-logging:9200/_cat/indices?v
+health status index               uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   logstash-2019.04.29 ejMBlRcJQvqK76xIerenYg   5   1      69864            0     65.9mb         32.9mb
+green  open   logstash-2019.04.28 hacNCuQVTQCUL62Sl8avOA   5   1      17558            0     21.3mb         10.6mb
+green  open   .kibana_1           MVjF8lQeRDeKfoZcDhA93A   1   1          2            0     30.1kb           15kb
+green  open   logstash-2019.05.05 m2aD8X9RQ3u48DvVq18x_Q   5   1      31218            0     34.4mb         17.2mb
+green  open   logstash-2019.05.01 66OjwM5wT--DZaVfzUdXYQ   5   1      50610            0     54.6mb         27.1mb
+green  open   logstash-2019.04.30 L3AH165jT6izjHHa5L5g0w   5   1      56401            0     55.5mb         27.8mb
+...
+```
+
+因此 EFK 中的日志自动清理，只要定时去删除 es 中的 index 即可：`curl -X DELETE elasticsearch-logging:9200/logstash-xxxx.xx.xx`
+
+基于 alpine:3.8 创建镜像`es-index-rotator` [查看Dockerfile](../../dockerfiles/es-index-rotator/Dockerfile)，然后创建一个cronjob去完成清理任务
+
+```
+$ kubectl apply -f /etc/ansible/manifests/efk/es-index-rotator/
+```
+
+#### 验证日志清理
+
+- 查看 cronjob
+
+```
+$ kubectl get cronjob -n kube-system 
+NAME               SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+es-index-rotator   3 1 */1 * *   False     0        19h             20h
+```
+- 查看日志清理情况
+
+```
+$ kubectl get pod -n kube-system |grep es-index-rotator
+es-index-rotator-1557507780-7xb89             0/1     Completed   0          19h
+
+# 查看日志，可以了解日志清理情况
+$ kubectl logs -n kube-system es-index-rotator-1557507780-7xb89 es-index-rotator 
+```
+HAVE FUN!
+
 ### 参考
 
 1. [EFK 配置](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch)
