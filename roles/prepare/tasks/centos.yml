@@ -9,6 +9,11 @@
 #- name: 添加EPEL仓库
 #  yum: name=epel-release state=present
 
+- name: 添加Amazon EPEL仓库
+  shell: "amazon-linux-extras install epel"
+  when: ansible_distribution == "Amazon"
+  ignore_errors: true
+
 - name: 安装基础软件包
   yum: 
     name: 
