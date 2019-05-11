@@ -3,7 +3,7 @@
   when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
 
 - import_tasks: centos.yml
-  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
+  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat" or ansible_distribution == "Amazon"
 
 # 公共系统参数设置
 - import_tasks: common.yml
