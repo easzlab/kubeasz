@@ -16,9 +16,9 @@ CHANGELOG:
   - 增加 pod-infra-container 可选择配置
   - 增加 nginx-ingress manifests
 - 文档更新：
-  - **增加 [calico 设置route reflector文档](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/network-plugin/calico-bgp-rr.md)**，大规模k8s集群使用calico网络必读
+  - **增加 [calico 设置route reflector文档](https://github.com/easzlab/kubeasz/blob/master/docs/setup/network-plugin/calico-bgp-rr.md)**，大规模k8s集群使用calico网络必读
   - 部分文档更新优化，部分文档中内部链接修复（PR #429）
-  - 增加 dashboard ingress [配置示例](https://github.com/gjmzj/kubeasz/blob/master/docs/guide/ingress-tls.md#%E9%85%8D%E7%BD%AE-dashboard-ingress)
+  - 增加 dashboard ingress [配置示例](https://github.com/easzlab/kubeasz/blob/master/docs/guide/ingress-tls.md#%E9%85%8D%E7%BD%AE-dashboard-ingress)
 - 其他：
   - 添加 helm tls 环境变量（PR #398）
   - 修复 dashboard ingress 配置（issue #403）

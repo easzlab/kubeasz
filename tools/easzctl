@@ -35,19 +35,19 @@ EOF
 function help-info() {
     case "$1" in
         (add-node)
-            echo -e "Usage: easzctl add-node <new_node_ip>\n\nread 'https://github.com/gjmzj/kubeasz/blob/master/docs/op/AddNode.md'"
+            echo -e "Usage: easzctl add-node <new_node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/AddNode.md'"
             ;;
         (add-master)
-            echo -e "Usage: easzctl add-master <new_master_ip>\n\nread 'https://github.com/gjmzj/kubeasz/blob/master/docs/op/AddMaster.md'"
+            echo -e "Usage: easzctl add-master <new_master_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/AddMaster.md'"
             ;;
         (add-etcd)
-            echo -e "Usage: easzctl add-etcd <new_etcd_ip>\n\nread 'https://github.com/gjmzj/kubeasz/blob/master/docs/op/op-etcd.md'"
+            echo -e "Usage: easzctl add-etcd <new_etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
             ;;
         (del-etcd)
-            echo -e "Usage: easzctl del-etcd <etcd_ip>\n\nread 'https://github.com/gjmzj/kubeasz/blob/master/docs/op/op-etcd.md'"
+            echo -e "Usage: easzctl del-etcd <etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
             ;;
         (clean-node)
-            echo -e "Usage: easzctl clean-node <node_ip>\n\nread 'https://github.com/gjmzj/kubeasz/blob/master/docs/op/clean_one_node.md'"
+            echo -e "Usage: easzctl clean-node <node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/clean_one_node.md'"
             ;;
         (basic-auth)
             echo -e "Usage: easzctl basic-auth <options>\nOption:\t -s enable basic-auth\n\t -S disable basic-auth\n\t -u <user> set username\n\t -p <pass> set password"

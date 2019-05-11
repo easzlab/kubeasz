@@ -69,9 +69,9 @@ if __name__ == '__main__':
 
 ``` bash
 # 方式一：使用git clone
-git clone --depth=1 https://github.com/gjmzj/kubeasz.git /etc/ansible
+git clone --depth=1 https://github.com/easzlab/kubeasz.git /etc/ansible
 
-# 方式二：从发布页面 https://github.com/gjmzj/kubeasz/releases 下载源码解压到同样目录
+# 方式二：从发布页面 https://github.com/easzlab/kubeasz/releases 下载源码解压到同样目录
 ```
 - 4.2a 下载二进制文件  
 请从分享的[百度云链接](https://pan.baidu.com/s/1c4RFaA)，下载解压到/etc/ansible/bin目录，如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包

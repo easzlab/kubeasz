@@ -7,7 +7,7 @@ CHANGELOG:
   - dashboard: v1.10.0
   - docker: 17.03.2-ce (选择k8s官方测试稳定的版本)
 - 集群安装：
-  - **增加集群时间同步服务chrony** [说明](https://github.com/gjmzj/kubeasz/blob/master/docs/guide/chrony.md)
+  - **增加集群时间同步服务chrony** [说明](https://github.com/easzlab/kubeasz/blob/master/docs/guide/chrony.md)
   - **取消 Node节点 Bootstrap机制**，安装流程更稳定，配置更精简
   - 简化 ansible host 文件配置，移除etcd、harbor 相关变量
   - 拆分 prepare 阶段的安装脚本，增加设置系统 ulimit
@@ -16,8 +16,8 @@ CHANGELOG:
   - 自定义 kubelet docker 存储目录 (#305)
   - 增加变量配置支持多网卡情况时安装 flannel calico 
 - 文档更新：
-  - 更新 kubeasz 公有云安装文档 https://github.com/gjmzj/kubeasz/blob/master/docs/setup/kubeasz_on_public_cloud.md
-  - 更新 java war应用部署实践 https://github.com/gjmzj/kubeasz/blob/master/docs/practice/java_war_app.md
+  - 更新 kubeasz 公有云安装文档 https://github.com/easzlab/kubeasz/blob/master/docs/setup/kubeasz_on_public_cloud.md
+  - 更新 java war应用部署实践 https://github.com/easzlab/kubeasz/blob/master/docs/practice/java_war_app.md
   - 更新 cilium 文档，翻译官方 cilium 安全策略例子（deathstar/starwar） 
   - 更新 harbor kubedns README 文档
   - 更新集群安装部分文档

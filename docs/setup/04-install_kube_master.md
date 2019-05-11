@@ -198,7 +198,7 @@ WantedBy=multi-user.target
 
 ### 在master 节点安装 node 服务: kubelet kube-proxy 
 
-项目master 分支使用 DaemonSet 方式安装网络插件，如果master 节点不安装 kubelet 服务是无法安装网络插件的，如果 master 节点不安装网络插件，那么通过`apiserver` 方式无法访问 `dashboard` `kibana`等管理界面，[ISSUES #130](https://github.com/gjmzj/kubeasz/issues/130)
+项目master 分支使用 DaemonSet 方式安装网络插件，如果master 节点不安装 kubelet 服务是无法安装网络插件的，如果 master 节点不安装网络插件，那么通过`apiserver` 方式无法访问 `dashboard` `kibana`等管理界面，[ISSUES #130](https://github.com/easzlab/kubeasz/issues/130)
 
 项目v1.8 分支使用二进制方式安装网络插件，所以没有这个问题
 

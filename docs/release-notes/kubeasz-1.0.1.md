@@ -15,7 +15,7 @@ CHANGELOG:
   - 调整ca证书有效期等配置
   - 增加kubectl使用可选参数配置kubeconfig
 - easzctl 命令行 
-  - 新增[升级集群](https://github.com/gjmzj/kubeasz/blob/master/docs/op/upgrade.md)
+  - 新增[升级集群](https://github.com/easzlab/kubeasz/blob/master/docs/op/upgrade.md)
   - 修复easzctl setup启动前检查项
   - 增加/删除etcd节点成功后配置重启apiserver
 - 其他：

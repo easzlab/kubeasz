@@ -10,8 +10,8 @@ CHANGELOG: (0.6.x 版本以后)
   - cilium v1.4.1
   - dashboard v1.10.1
 - 集群安装：
-  - **引入[easzctl](https://github.com/gjmzj/kubeasz/blob/master/tools/easzctl)命令行工具**，后续它将作为推荐的集群常规管理工具，[使用介绍](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/easzctl_cmd.md)
-  - **新增 docker 运行安装 kubeasz**，请参考文档 https://github.com/gjmzj/kubeasz/blob/master/docs/setup/docker_kubeasz.md
+  - **引入[easzctl](https://github.com/easzlab/kubeasz/blob/master/tools/easzctl)命令行工具**，后续它将作为推荐的集群常规管理工具，[使用介绍](https://github.com/easzlab/kubeasz/blob/master/docs/setup/easzctl_cmd.md)
+  - **新增 docker 运行安装 kubeasz**，请参考文档 https://github.com/easzlab/kubeasz/blob/master/docs/setup/docker_kubeasz.md
   - 优化 ansible hosts 配置，更加精简、易用
     - 废弃 new-node/new-master/new-etcd 主机组，对应功能已集成在 easzctl 命令行
     - 废弃变量 K8S_VER，改为自动识别，避免手工配置错误
@@ -23,11 +23,11 @@ CHANGELOG: (0.6.x 版本以后)
     - 创建集群
     - 创建单机集群（类似 minikube）
   - easzctl 提供以下集群内操作
-    - [添加 master](https://github.com/gjmzj/kubeasz/blob/master/docs/op/AddMaster.md)
-    - [添加 node](https://github.com/gjmzj/kubeasz/blob/master/docs/op/AddNode.md)
-    - [添加 etcd](https://github.com/gjmzj/kubeasz/blob/master/docs/op/op-etcd.md)
-    - [删除 etcd](https://github.com/gjmzj/kubeasz/blob/master/docs/op/op-etcd.md)
-    - [删除节点](https://github.com/gjmzj/kubeasz/blob/master/docs/op/clean_one_node.md)
+    - [添加 master](https://github.com/easzlab/kubeasz/blob/master/docs/op/AddMaster.md)
+    - [添加 node](https://github.com/easzlab/kubeasz/blob/master/docs/op/AddNode.md)
+    - [添加 etcd](https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md)
+    - [删除 etcd](https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md)
+    - [删除节点](https://github.com/easzlab/kubeasz/blob/master/docs/op/clean_one_node.md)
   - 修改优化部分安装脚本以兼容 docker 运行 kubeasz
   - 增加启动 kubeasz 容器的脚本 tools/kubeasz-docker
   - 修改默认安装 dashboard 的同时安装 heapster（当前 dashboard 版本仍旧依赖 heapster）

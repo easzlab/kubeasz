@@ -1,5 +1,5 @@
 # 修改AIO 部署的IP
-前两天在项目[ISSUES #201](https://github.com/gjmzj/kubeasz/issues/201)看到有人提：`在虚拟机A装了allinone，并搭建一套开发环境，我想通过copy A出来一套B然后交给别人测试`，觉得这个场景蛮有用，就写了这个文档和对应的脚本，希望对各位有帮助，也可以熟悉kubeasz的安装逻辑。
+前两天在项目[ISSUES #201](https://github.com/easzlab/kubeasz/issues/201)看到有人提：`在虚拟机A装了allinone，并搭建一套开发环境，我想通过copy A出来一套B然后交给别人测试`，觉得这个场景蛮有用，就写了这个文档和对应的脚本，希望对各位有帮助，也可以熟悉kubeasz的安装逻辑。
 
 首先，因为kubeasz创建的集群都是TLS双向认证的，所以修改host ip地址比想象中要复杂很多。具体步骤可以参考[脚本](../../tools/change_ip_aio.yml)中的注释内容。
 

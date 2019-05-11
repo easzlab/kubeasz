@@ -13,7 +13,7 @@ ssh-copy-id $IP  # $IP 为所有节点地址包括自身，按照提示输入 ye
 - 3.下载 kubeasz docker 镜像并运行 (可能需较长时间下载镜像jmgao1983/kubeasz)
 
 ``` bash
-curl -sfL https://github.com/gjmzj/kubeasz/releases/download/1.0.0/kubeasz-docker-1.0.0 | bash -
+curl -sfL https://github.com/easzlab/kubeasz/releases/download/1.0.0/kubeasz-docker-1.0.0 | bash -
 ```
 
 - 4.在 kubeasz 容器中创建 k8s 集群，步骤与非容器方式创建类似，快速创建单节点集群如下
@@ -35,7 +35,7 @@ docker exec -it kubeasz easzctl start-aio
 ``` bash
 cd /etc/ansible/dockerfiles/kubeasz
 # 克隆代码
-git clone --depth=1 https://github.com/gjmzj/kubeasz.git
+git clone --depth=1 https://github.com/easzlab/kubeasz.git
 # 手动下载二进制文件放入上述 git clone 完成目录 kubeasz/bin 
 docker build -t kubeasz:$TAG .
 ```

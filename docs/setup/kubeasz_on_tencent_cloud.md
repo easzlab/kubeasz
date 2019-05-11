@@ -204,7 +204,7 @@ kubectl top node
 ```
 
 #### 资源
-- [kubeasz](https://github.com/gjmzj/kubeasz)
+- [kubeasz](https://github.com/easzlab/kubeasz)
 - [镜像打包脚本](https://github.com/waitingsong/blog/tree/master/201904/assets)
 
 origin by [waitingsong](https://github.com/waitingsong/blog/blob/master/201904/k8s_cvm_intro.md)
