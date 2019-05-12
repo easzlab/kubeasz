@@ -4,11 +4,12 @@
 
 ### 准备 
 
-下载官方最新[release](https://github.com/kubernetes/kubernetes/release)，进入目录: `kubernetes/cluster/addons/fluentd-elasticsearch`，参考官方配置的基础上使用本项目`manifests/efk/`部署，以下为几点主要的修改：
+参考官方[部署文档](https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/fluentd-elasticsearch)的基础上使用本项目`manifests/efk/`部署，以下为几点主要的修改：
 
 + 修改 fluentd-es-configmap.yaml 中的部分 journald 日志源（增加集群组件服务日志搜集）
 + 修改官方docker镜像，方便国内下载加速
 + 修改 es-statefulset.yaml 支持日志存储持久化等
++ 增加自动清理日志，见后文`第四部分`
 
 ### 安装
 
@@ -197,7 +198,11 @@ green  open   logstash-2019.04.30 L3AH165jT6izjHHa5L5g0w   5   1      56401     
 ...
 ```
 
-因此 EFK 中的日志自动清理，只要定时去删除 es 中的 index 即可：`curl -X DELETE elasticsearch-logging:9200/logstash-xxxx.xx.xx`
+因此 EFK 中的日志自动清理，只要定时去删除 es 中的 index 即可，如下命令
+
+```
+$ curl -X DELETE elasticsearch-logging:9200/logstash-xxxx.xx.xx
+```
 
 基于 alpine:3.8 创建镜像`es-index-rotator` [查看Dockerfile](../../dockerfiles/es-index-rotator/Dockerfile)，然后创建一个cronjob去完成清理任务
 
