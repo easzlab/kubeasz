@@ -36,8 +36,8 @@
 </table>
 
 - 命令行工具 [easzctl介绍](docs/setup/easzctl_cmd.md)
-- 公有云[部署指南](docs/setup/kubeasz_on_public_cloud.md) [阿里云](docs/setup/kubeasz_on_aliyun.md) [腾讯云](docs/setup/kubeasz_on_tencent_cloud.md) [百度云](docs/setup/kubeasz_on_baidu_cloud.md) [AWS](docs/setup/kubeasz_on_aws_cloud.md)
-- 容器部署 [（测试）使用kubeasz容器创建k8s集群](docs/setup/docker_kubeasz.md)
+- 公有云自建集群 [部署指南](docs/setup/kubeasz_on_public_cloud.md) [阿里云](docs/setup/kubeasz_on_aliyun.md) [腾讯云](docs/setup/kubeasz_on_tencent_cloud.md) [百度云](docs/setup/kubeasz_on_baidu_cloud.md) [AWS](docs/setup/kubeasz_on_aws_cloud.md)
+- 容器部署集群 [使用kubeasz容器创建k8s集群（测试）](docs/setup/docker_kubeasz.md)
 
 ## 使用指南
 
