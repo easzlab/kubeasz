@@ -34,6 +34,9 @@ DEPLOY_MODE=single-master
 MASTER_IP="{{ groups['kube-master'][0] }}"
 KUBE_APISERVER="https://{{ MASTER_IP }}:6443"
 
+# Cluster container-runtime supported: docker, containerd
+CONTAINER_RUNTIME="docker"
+
 # Network plugins supported: calico, flannel, kube-router, cilium
 CLUSTER_NETWORK="flannel"
 

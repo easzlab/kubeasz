@@ -28,12 +28,13 @@
   roles:
   - etcd
 
-# to install docker service
+# to install container runtime
 - hosts:
   - kube-master
   - kube-node
   roles:
-  - docker
+  - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" }
+  - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" }
 
 # to set up 'kube-master' nodes
 - hosts: kube-master
@@ -68,7 +69,7 @@
   - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
 
-# to install clust-addons
+# to install cluster-addons
 - hosts:
   - kube-node
   roles:

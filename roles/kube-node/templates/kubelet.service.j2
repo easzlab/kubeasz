@@ -1,8 +1,6 @@
 [Unit]
 Description=Kubernetes Kubelet
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-After=docker.service
-Requires=docker.service
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
@@ -21,6 +19,10 @@ ExecStart={{ bin_dir }}/kubelet \
   --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
   --cni-bin-dir={{ bin_dir }} \
   --cni-conf-dir=/etc/cni/net.d \
+{% if CONTAINER_RUNTIME == "containerd" %}
+  --container-runtime=remote \
+  --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
+{% endif %}
   --fail-swap-on=false \
   --hairpin-mode hairpin-veth \
   --hostname-override={{ inventory_hostname }} \
