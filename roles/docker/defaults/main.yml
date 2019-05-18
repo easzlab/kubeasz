@@ -1,9 +1,3 @@
-# 国内镜像加速
-
-REG_MIRRORS:
-  - "https://dockerhub.azk8s.cn"
-  - "https://docker.mirrors.ustc.edu.cn"
-
 # docker日志相关
 
 LOG_DRIVER: "json-file"

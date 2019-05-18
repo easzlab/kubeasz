@@ -51,12 +51,27 @@ oom_score = 0
       conf_template = ""
     [plugins.cri.registry]
       [plugins.cri.registry.mirrors]
+        # reference from https://www.ilanni.com/?p=14534
         [plugins.cri.registry.mirrors."docker.io"]
           endpoint = [
-{% for SITE in REG_MIRRORS %}
-            "{{ SITE }}",
-{% endfor %}
+            "https://dockerhub.azk8s.cn",
+            "https://docker.mirrors.ustc.edu.cn",
             "http://hub-mirror.c.163.com"
+          ]
+        [plugins.cri.registry.mirrors."gcr.io"]
+          endpoint = [
+            "https://gcr.azk8s.cn",
+            "https://gcr.mirrors.ustc.edu.cn"
+          ]
+        [plugins.cri.registry.mirrors."k8s.gcr.io"]
+          endpoint = [
+            "https://gcr.azk8s.cn/google-containers/",
+            "https://gcr.mirrors.ustc.edu.cn/google-containers/"
+          ]
+        [plugins.cri.registry.mirrors."quay.io"]
+          endpoint = [
+            "https://quay.azk8s.cn",
+            "https://quay.mirrors.ustc.edu.cn"
           ]
     [plugins.cri.x509_key_pair_streaming]
       tls_cert_file = ""

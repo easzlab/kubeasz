@@ -3,8 +3,3 @@ STORAGE_DIR: "/var/lib/containerd"
 
 # 基础容器镜像
 SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.1"
-
-# 国内镜像加速
-REG_MIRRORS:
-  - "https://dockerhub.azk8s.cn"
-  - "https://docker.mirrors.ustc.edu.cn"
