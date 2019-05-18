@@ -25,17 +25,19 @@
   run_once: true
 
 - block:
-    - name: 尝试推送离线{{ dns_backend }}镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ dns_offline }} dest=/opt/kube/images/{{ dns_offline }}
-      when: 'dns_offline in download_info.stdout'
-
-    - name: 获取{{ dns_backend }}离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info     
- 
-    - name: 导入{{ dns_backend }}的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dns_offline }}"
-      when: 'dns_offline in image_info.stdout'
+    - block:
+        - name: 尝试推送离线{{ dns_backend }}镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ dns_offline }} dest=/opt/kube/images/{{ dns_offline }}
+          when: 'dns_offline in download_info.stdout'
+    
+        - name: 获取{{ dns_backend }}离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+     
+        - name: 导入{{ dns_backend }}的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dns_offline }}"
+          when: 'dns_offline in image_info.stdout'
+      when: CONTAINER_RUNTIME == 'docker'
     
     - name: 创建{{ dns_backend }}部署
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}"
@@ -48,17 +50,19 @@
   ignore_errors: true
 
 - block:
-    - name: 尝试推送离线 metrics-server镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ metricsserver_offline }} dest=/opt/kube/images/{{ metricsserver_offline }}
-      when: 'metricsserver_offline in download_info.stdout'
-    
-    - name: 获取metrics-server离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info     
- 
-    - name: 导入 metrics-server的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metricsserver_offline }}"
-      when: 'metricsserver_offline in image_info.stdout'
+    - block:
+        - name: 尝试推送离线 metrics-server镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ metricsserver_offline }} dest=/opt/kube/images/{{ metricsserver_offline }}
+          when: 'metricsserver_offline in download_info.stdout'
+        
+        - name: 获取metrics-server离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+     
+        - name: 导入 metrics-server的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metricsserver_offline }}"
+          when: 'metricsserver_offline in image_info.stdout'
+      when: CONTAINER_RUNTIME == 'docker'
     
     - name: 创建 metrics-server部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
@@ -69,17 +73,19 @@
 
 # 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
 - block:
-    - name: 尝试推送离线 dashboard镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ dashboard_offline }} dest=/opt/kube/images/{{ dashboard_offline }}
-      when: 'dashboard_offline in download_info.stdout'
-    
-    - name: 获取dashboard离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info     
-      
-    - name: 导入 dashboard的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dashboard_offline }}"
-      when: 'dashboard_offline in image_info.stdout'
+    - block:
+        - name: 尝试推送离线 dashboard镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ dashboard_offline }} dest=/opt/kube/images/{{ dashboard_offline }}
+          when: 'dashboard_offline in download_info.stdout'
+        
+        - name: 获取dashboard离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+          
+        - name: 导入 dashboard的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dashboard_offline }}"
+          when: 'dashboard_offline in image_info.stdout'
+      when: CONTAINER_RUNTIME == 'docker'
       
     - name: 创建 dashboard部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
@@ -93,17 +99,19 @@
   when: '"ingress-controller" not in pod_info.stdout and ingress_install == "yes"'
 
 - block:
-    - name: 尝试推送离线 heapster镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ heapster_offline }} dest=/opt/kube/images/{{ heapster_offline }}
-      when: 'heapster_offline in download_info.stdout'
-    
-    - name: 获取heapster离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info     
-      
-    - name: 导入 heapster的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ heapster_offline }}"
-      when: 'heapster_offline in image_info.stdout'
+    - block:
+        - name: 尝试推送离线 heapster镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ heapster_offline }} dest=/opt/kube/images/{{ heapster_offline }}
+          when: 'heapster_offline in download_info.stdout'
+        
+        - name: 获取heapster离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+          
+        - name: 导入 heapster的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ heapster_offline }}"
+          when: 'heapster_offline in image_info.stdout'
+      when: CONTAINER_RUNTIME == 'docker'
       
     - name: 创建 heapster部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster.yaml"
@@ -113,17 +121,19 @@
   ignore_errors: true
 
 - block:
-    - name: 尝试推送离线 metallb镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ metallb_offline }} dest=/opt/kube/images/{{ metallb_offline }}
-      when: 'metallb_offline in download_info.stdout'
-    
-    - name: 获取metallb离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info     
-      
-    - name: 导入 metallb的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metallb_offline }}"
-      when: 'metallb_offline in image_info.stdout'
+    - block:
+        - name: 尝试推送离线 metallb镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ metallb_offline }} dest=/opt/kube/images/{{ metallb_offline }}
+          when: 'metallb_offline in download_info.stdout'
+        
+        - name: 获取metallb离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+          
+        - name: 导入 metallb的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metallb_offline }}"
+          when: 'metallb_offline in image_info.stdout'
+      when: CONTAINER_RUNTIME == 'docker'
 
     - name: 生成 metallb 相关 manifests
       template: src=metallb/{{ item }}.j2 dest=/opt/kube/kube-system/{{ item }}
