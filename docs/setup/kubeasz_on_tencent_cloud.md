@@ -24,15 +24,16 @@
 - 2个或以上 `node` 节点 网段 10.0.8.0/21
 
 ##### 创建 master vip
-- 云负载均衡中创建传统型内网 CLB, 区域与 CVM 相同，取名为 `k8s-master-lb`，假定为 `10.0.8.12`
+- `传统型负载均衡`中创建内网 CLB, 区域与 CVM 相同，取名为 `k8s-master-lb`，假定为 `10.0.8.12`
 - 创建 TCP 类型监听器，前端监听 `8443` 端口，转发后端 `6443` 端口
 - 绑定 `master` 节点到监听器
 
 ##### 创建 ingress vip （收费类型 可在集群创建成功后操作）
-- 云负载均衡中创建应用型外网 CLB, 区域与 CVM 相同，取名为 `k8s-ingress-lb`
+- `负载均衡`中创建应用型外网 CLB, 区域与 CVM 相同，取名为 `k8s-ingress-lb`
 - 创建 TCP 类型监听器，前端监听 `23457` 端口，转发后端 `23457` 端口
 - 创建 TCP 类型监听器，前端监听 `23456` 端口，转发后端 `23456` 端口
 - 绑定 `node` 节点到监听器
+- **在本集群关联的网络安全组的入站规则中放行此负载均衡的外网 IP**
 
 
 #### 部署步骤
@@ -103,8 +104,8 @@ pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --t
 - 下载 k8s 二进制文件
 从分享的[百度云链接](https://pan.baidu.com/s/1c4RFaA)，下载解压到 `/etc/ansible/bin` 目录
   ```bash
-  # 以安装k8s v1.13.5为例
-  tar -xvf k8s.1-13-5.tar.gz -C /etc/ansible/
+  # 以安装k8s v1.14.1为例
+  tar -xvf k8s.1-14-1.tar.gz -C /etc/ansible/
   ```
 
 - 生成离线 docker 镜像  
@@ -118,9 +119,9 @@ pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --t
 
   # 根据需要执行脚本进行下载并打包 xz 格式压缩时间比较长
   # 分别生成以下文件
-  # /tmp/basic_images_kubeasz_1.0.tar.xz
-  # /tmp/extra_images_kubeasz_1.0.tar.xz
-  # /tmp/istio_images_bundle_1.1.3.tar.xz
+  # /tmp/basic_images_kubeasz_1.1.tar.xz
+  # /tmp/extra_images_kubeasz_1.1.tar.xz
+  # /tmp/istio_images_bundle_1.1.7.tar.xz
   ./make_basic_images_bundle.sh dump
   ./make_extra_images_bundle.sh dump
   ./make_istio_images_bundle.sh dump
