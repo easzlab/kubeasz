@@ -65,43 +65,70 @@
       - "/etc/systemd/system/kube-scheduler.service"
   
     # 清理集群docker服务、网络相关
-    - name: 清理kube-router相关
-      shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
-      ignore_errors: true
-      when: "CLUSTER_NETWORK == 'kube-router'"
-  
-    - name: 获取是否运行名为'kubeasz'的容器
-      shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
-      register: install_info
-  
-    - name: stop and disable docker service
-      service:
-        name: docker
-        state: stopped
-        enabled: no
-      ignore_errors: true
-      when: "'kubeasz' not in install_info.stdout"
-  
-    - name: unmount docker filesystem-1
-      mount: path=/var/run/docker/netns/default state=unmounted
-      when: "'kubeasz' not in install_info.stdout"
-  
-    - name: unmount docker filesystem-2
-      mount: path=/var/lib/docker/overlay state=unmounted
-      when: "'kubeasz' not in install_info.stdout"
-  
-    - name: remove files and dirs
-      file: name={{ item }} state=absent
-      with_items:
-      - "/var/lib/docker/"
-      - "/var/run/docker/"
-      - "/etc/systemd/system/docker.service"
-      - "/etc/systemd/system/docker.service.requires/"
-      - "/etc/systemd/system/docker.service.d/"
-      - "/etc/bash_completion.d/docker"
-      - "/usr/bin/docker"
-      when: "'kubeasz' not in install_info.stdout"
-  
+    - block:
+        - name: 清理kube-router相关
+          shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
+          ignore_errors: true
+          when: "CLUSTER_NETWORK == 'kube-router'"
+      
+        - name: 获取是否运行名为'kubeasz'的容器
+          shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
+          register: install_info
+      
+        - name: stop and disable docker service
+          service:
+            name: docker
+            state: stopped
+            enabled: no
+          ignore_errors: true
+          when: "'kubeasz' not in install_info.stdout"
+      
+        - name: unmount docker filesystem-1
+          mount: path=/var/run/docker/netns/default state=unmounted
+          when: "'kubeasz' not in install_info.stdout"
+      
+        - name: unmount docker filesystem-2
+          mount: path=/var/lib/docker/overlay state=unmounted
+          when: "'kubeasz' not in install_info.stdout"
+      
+        - name: remove files and dirs
+          file: name={{ item }} state=absent
+          with_items:
+          - "/var/lib/docker/"
+          - "/var/run/docker/"
+          - "/etc/systemd/system/docker.service"
+          - "/etc/systemd/system/docker.service.requires/"
+          - "/etc/systemd/system/docker.service.d/"
+          - "/etc/bash_completion.d/docker"
+          - "/usr/bin/docker"
+          when: "'kubeasz' not in install_info.stdout"
+      when: CONTAINER_RUNTIME == 'docker'
+
+    - block:
+      - name: stop and disable containerd service
+        service:
+          name: containerd
+          state: stopped
+          enabled: no
+        ignore_errors: true
+
+      - name: umount containerd filesystems
+        shell: "mount | grep 'containerd/io.containerd'| awk '{print $3}'|xargs umount || exit 0"
+        args:
+          warn: false
+        ignore_errors: true
+
+      - name: remove files and dirs
+        file: name={{ item }} state=absent
+        with_items:
+        - "/etc/containerd/"
+        - "/etc/crictl.yaml"
+        - "/etc/systemd/system/containerd.service"
+        - "/opt/containerd/"
+        - "/var/lib/containerd/"
+        - "/var/run/containerd/"
+      when: CONTAINER_RUNTIME == 'containerd'
+
     - name: remove files and dirs2
       file: name={{ item }} state=absent
       with_items:
@@ -123,7 +150,6 @@
           && iptables -F -t nat && iptables -X -t nat \
           && iptables -F -t raw && iptables -X -t raw \
           && iptables -F -t mangle && iptables -X -t mangle"
-      when: "'kubeasz' not in install_info.stdout"
   
     - name: cleanup networks1
       shell: "ip link del tunl0; \
@@ -142,7 +168,6 @@
           systemctl restart networking; \
           systemctl restart network"
       ignore_errors: true
-      when: "'kubeasz' not in install_info.stdout"
   
     - name: cleanup 'calico' routes
       shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
@@ -208,8 +233,10 @@
         regexp: '{{ item }}'
       with_items:
       - 'kubeasz'
-      - 'helm'
+      - 'helm completion'
+      - 'crictl completion'
       - 'kubectl completion'
+      - 'HELM_TLS_ENABLE'
     delegate_to: "{{ NODE_TO_DEL }}"
     run_once: true
 
