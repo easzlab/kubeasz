@@ -98,7 +98,7 @@ pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --t
 
 - 克隆源码
   ```bash
-  git clone --depth=1 -b cvm https://github.com/waitingsong/kubeasz.git /etc/ansible
+  git clone --depth=1 https://github.com/easzlab/kubeasz.git /etc/ansible
   ```
 
 - 下载 k8s 二进制文件
