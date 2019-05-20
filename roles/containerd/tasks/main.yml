@@ -21,9 +21,7 @@
   - containerd
   - containerd-shim
   - containerd-shim-runc-v1
-  - containerd-stress
   - crictl
-  - critest
   - ctr
   - runc
   tags: upgrade
