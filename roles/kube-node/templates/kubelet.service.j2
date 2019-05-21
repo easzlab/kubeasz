@@ -4,10 +4,12 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
+{% if KUBE_RESERVED_ENABLED == "yes" %}
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
+{% endif %}
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
   --allow-privileged=true \
@@ -36,9 +38,11 @@ ExecStart={{ bin_dir }}/kubelet \
   --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
   --cgroups-per-qos=true \
   --cgroup-driver=cgroupfs \
+{% if KUBE_RESERVED_ENABLED == "yes" %}
   --enforce-node-allocatable=pods,kube-reserved \
   --kube-reserved={{ KUBE_RESERVED }} \
   --kube-reserved-cgroup=/system.slice/kubelet.service \
+{% endif %}
   --eviction-hard={{ HARD_EVICTION }} \
   --v=2
 Restart=on-failure
