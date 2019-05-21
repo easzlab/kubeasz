@@ -10,8 +10,11 @@
     
         - name: 导入 traefik的离线镜像（若执行失败，可忽略）
           shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ traefik_offline }}"
-          when: 'traefik_offline in image_info.stdout'
-      when: CONTAINER_RUNTIME == 'docker'
+          when: 'traefik_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+
+        - name: 导入 traefik的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ traefik_offline }}"
+          when: 'traefik_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
 
     - name: 创建 traefik部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
@@ -32,8 +35,11 @@
     
         - name: 导入 nginx_ingress的离线镜像（若执行失败，可忽略）
           shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ nginx_ingress_offline }}"
-          when: 'nginx_ingress_offline in image_info.stdout'
-      when: CONTAINER_RUNTIME == 'docker'
+          when: 'nginx_ingress_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+
+        - name: 导入 nginx_ingress的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ nginx_ingress_offline }}"
+          when: 'nginx_ingress_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
 
     - name: 创建 nginx_ingress部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/nginx-ingress/nginx-ingress.yaml"
