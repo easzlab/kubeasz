@@ -144,6 +144,10 @@
       - "/var/lib/cni/"
       - "/var/lib/kube-router/"
       - "/opt/kube/kube-system/"
+      - "/var/run/openvswitch/"
+      - "/etc/origin/openvswitch/"
+      - "/etc/openvswitch/"
+      - "/var/log/openvswitch/"
   
     - name: cleanup iptables
       shell: "iptables -F && iptables -X \
@@ -160,7 +164,9 @@
           ip link del dummy0; \
           ip link del kube-ipvs0; \
           ip link del cilium_net; \
-          ip link del cilium_vxlan"
+          ip link del cilium_vxlan; \
+          ip link del ovn0; \
+          ip link del ovs-system"
       ignore_errors: true
   
     - name: cleanup networks2
