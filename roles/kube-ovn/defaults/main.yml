@@ -1,0 +1,5 @@
+# 选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
+OVN_DB_NODE: "{{ groups['kube-master'][0] }}"
+
+# 离线镜像tar包
+kube_ovn_offline: "kube_ovn_0.4.0.tar"
