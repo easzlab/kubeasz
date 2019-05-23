@@ -6,6 +6,7 @@ After=network.target
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
   --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook \
+  --advertise-address={{ inventory_hostname }} \
   --bind-address={{ inventory_hostname }} \
   --insecure-bind-address=127.0.0.1 \
   --authorization-mode=Node,RBAC \
