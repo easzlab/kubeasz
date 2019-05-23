@@ -99,6 +99,11 @@ git clone --depth=1 https://github.com/easzlab/kubeasz.git /etc/ansible
 ``` bash
 # 以安装k8s v1.13.5为例
 tar -xvf k8s.1-13-5.tar.gz -C /etc/ansible
+# 添加cfssl和kubectl二进制文件
+mv cfssl-certinfo_linux-amd64 /etc/ansible/bin/cfssl-certinfo
+mv cfssl_linux-amd64 /etc/ansible/bin/cfssl
+mv cfssljson_linux-amd64 /etc/ansible/bin/cfssljson
+cp /etc/ansible/kubernetes/server/bin/kubectl /etc/ansible/bin/
 ```
 - 4.2b [可选]下载离线docker镜像
 服务器使用内部yum源/apt源，但是无法访问公网情况下，请下载离线docker镜像完成集群安装；从百度云盘把`basic_images_kubeasz_x.y.tar.gz` 下载解压到`/etc/ansible/down` 目录
