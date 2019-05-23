@@ -45,7 +45,7 @@ KUBE_APISERVER="https://{{ MASTER_IP }}:8443"
 # 集群容器运行时，支持 docker, containerd
 CONTAINER_RUNTIME="docker"
 
-# 集群网络插件，目前支持calico, flannel, kube-router, cilium
+# 集群网络插件，目前支持calico, flannel, kube-router, cilium, kube-ovn
 CLUSTER_NETWORK="flannel"
 
 # 服务网段 (Service CIDR），注意不要与内网已有网段冲突
