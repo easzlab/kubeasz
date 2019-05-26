@@ -5,8 +5,8 @@
 - **集群特性** `TLS`双向认证、`RBAC`授权、多`Master`高可用、支持`Network Policy`、备份恢复
 - **集群版本** kubernetes v1.8, v1.9, v1.10, v1.11, v1.12, v1.13, v1.14
 - **操作系统** Ubuntu 16.04+, CentOS/RedHat 7
-- **运行时** docker 17.03.x-ce, 18.06.x-ce, 18.09.x, containerd 1.2.6
-- **网络** calico, cilium, flannel, kube-router
+- **运行时** docker 17.03.x-ce, 18.06.x-ce, 18.09.x, [containerd](docs/guide/containerd.md) 1.2.6
+- **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 ## 快速指南
 

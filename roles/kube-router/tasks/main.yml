@@ -4,11 +4,6 @@
 
     - name: 准备配置 kube-router DaemonSet (without IPVS)
       template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
-      when: 'SERVICE_PROXY != "true"'
-        
-    - name: 准备配置 kube-router DaemonSet (with IPVS)
-      template: src=kuberouter-all.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
-      when: 'SERVICE_PROXY == "true"'
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
     
@@ -25,17 +20,6 @@
   - host-local
   - loopback
   - portmap
-
-# kube-router 带service proxy (IPVS/LVS)
-- name: 停止 kube-proxy 服务
-  service: name=kube-proxy state=stopped enabled=no 
-  when: 'SERVICE_PROXY == "true"'
-  ignore_errors: true
-
-- name: 清理 kube-proxy产生的iptables或ipvs规则
-  shell: "{{ bin_dir }}/kube-proxy --cleanup; ipvsadm -C"
-  when: 'SERVICE_PROXY == "true"'
-  ignore_errors: true
 
 # 【可选】推送离线docker 镜像，可以忽略执行错误
 - block:

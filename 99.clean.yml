@@ -54,14 +54,13 @@
   - kube-node
   tasks:
   - block:
-      - name: clean 'kube-router' stuff
-        shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
-        ignore_errors: true
-        when: "CLUSTER_NETWORK == 'kube-router'"
-    
-      - name: 获取是否运行名为'kubeasz'的容器
+      - name: to check if container 'kubeasz' is running
         shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
         register: install_info
+    
+      - name: fail info
+        fail: msg="you CAN NOT delete dockerd, because container 'kubeasz' is running!" 
+        when: "'kubeasz' in install_info.stdout"
     
       - name: stop and disable docker service
         service: 
@@ -69,16 +68,13 @@
           state: stopped
           enabled: no
         ignore_errors: true
-        when: "'kubeasz' not in install_info.stdout"
     
       # as k8s-network-plugins use host-network, '/var/run/docker/netns/default' must be umounted
       - name: unmount docker filesystem-1
         mount: path=/var/run/docker/netns/default state=unmounted
-        when: "'kubeasz' not in install_info.stdout"
     
       - name: unmount docker filesystem-2
         mount: path=/var/lib/docker/overlay state=unmounted
-        when: "'kubeasz' not in install_info.stdout"
     
       - name: remove files and dirs
         file: name={{ item }} state=absent
@@ -90,7 +86,6 @@
         - "/etc/systemd/system/docker.service.d/"
         - "/etc/bash_completion.d/docker"
         - "/usr/bin/docker"
-        when: "'kubeasz' not in install_info.stdout"
     when: CONTAINER_RUNTIME == 'docker'
 
   - block:
