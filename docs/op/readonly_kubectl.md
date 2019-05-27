@@ -5,7 +5,7 @@
 ## 创建
 
 - 备份下原先 admin 权限的 kubeconfig 文件：`mv ~/.kube ~/.kubeadmin`
-- 执行 `ansible-playbook /etc/ansible/01.prepare.yml -t create_kctl_cfg -e KUBECTL_USER=read`，成功后查看~/.kube/config 即为只读权限
+- 执行 `ansible-playbook /etc/ansible/01.prepare.yml -t create_kctl_cfg -e USER_NAME=read`，成功后查看~/.kube/config 即为只读权限
 
 ## 讲解
 

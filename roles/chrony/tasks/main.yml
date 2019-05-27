@@ -1,6 +1,7 @@
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
   when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
+  ignore_errors: true
 
 - name: 确保已卸载ntp
   package: name=ntp state=absent
@@ -11,7 +12,7 @@
 - block:
   - name: 配置 chrony server 
     template: src=server-centos.conf.j2 dest=/etc/chrony.conf
-    when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
 
   - name: 配置 chrony server
     template: src=server-ubuntu.conf.j2 dest=/etc/chrony/chrony.conf
@@ -19,17 +20,17 @@
 
   - name: 启动 chrony server
     service: name=chronyd state=restarted enabled=yes
-    when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
-  
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+
   - name: 启动 chrony server
     service: name=chrony state=restarted enabled=yes
     when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16 
-  when: 'inventory_hostname == groups.deploy[0]'
+  when: 'inventory_hostname == groups.chrony[0]'
 
 - block:
   - name: 配置 chrony client
     template: src=client-centos.conf.j2 dest=/etc/chrony.conf
-    when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
 
   - name: 配置 chrony client
     template: src=client-ubuntu.conf.j2 dest=/etc/chrony/chrony.conf
@@ -37,10 +38,10 @@
 
   - name: 启动 chrony client 
     service: name=chronyd state=restarted enabled=yes
-    when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
 
   - name: 启动 chrony client
     service: name=chrony state=restarted enabled=yes
     when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
-  when: 'inventory_hostname != groups.deploy[0]'
+  when: 'inventory_hostname != groups.chrony[0]'
 
