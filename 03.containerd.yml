@@ -3,4 +3,4 @@
   - kube-master
   - kube-node
   roles:
-  - containerd
+  - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" } 

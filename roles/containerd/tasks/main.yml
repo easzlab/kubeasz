@@ -6,11 +6,11 @@
 
 - name: 安装 libseccomp2
   package: name=libseccomp2 state=present
-  when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+  when: 'ansible_distribution in ["Ubuntu","Debian"]'
   
 - name: 安装 libseccomp
   package: name=libseccomp state=present
-  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat" or ansible_distribution == "Amazon"
+  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
 
 - name: 加载内核模块 overlay
   modprobe: name=overlay state=present

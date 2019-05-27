@@ -1,8 +1,8 @@
 - name: prepare some dirs
   file: name={{ item }} state=directory
   with_items:
-  - "{{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl"
-  - "{{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/yaml"
+  - "{{ base_dir }}/.cluster/ssl"
+  - "{{ base_dir }}/.cluster/yaml"
 
 - name: 本地设置 bin 目录权限
   file: path={{ base_dir }}/bin state=directory mode=0755 recurse=yes
@@ -10,11 +10,11 @@
 # 注册变量p，根据p的stat信息判断是否已经生成过ca证书，如果没有，下一步生成证书
 # 如果已经有ca证书，为了保证整个安装的幂等性，跳过证书生成的步骤
 - name: 读取ca证书stat信息
-  stat: path="{{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/ca.pem"
+  stat: path="{{ base_dir }}/.cluster/ssl/ca.pem"
   register: p
 
 - name: 准备CA配置文件和签名请求
-  template: src={{ item }}.j2 dest={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/{{ item }}
+  template: src={{ item }}.j2 dest={{ base_dir }}/.cluster/ssl/{{ item }}
   with_items:
   - "ca-config.json"
   - "ca-csr.json"
@@ -22,7 +22,7 @@
 
 - name: 生成 CA 证书和私钥
   when: p.stat.isreg is not defined
-  shell: "cd {{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl && \
+  shell: "cd {{ base_dir }}/.cluster/ssl && \
 	 {{ base_dir }}/bin/cfssl gencert -initca ca-csr.json | {{ base_dir }}/bin/cfssljson -bare ca" 
 
 #----------- 创建kubectl kubeconfig文件: /root/.kube/config
@@ -31,18 +31,18 @@
       file: path=/root/.kube state=absent
     
     - name: 下载 group:read rbac 文件
-      copy: src=read-group-rbac.yaml dest={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/yaml/read-group-rbac.yaml
+      copy: src=read-group-rbac.yaml dest={{ base_dir }}/.cluster/yaml/read-group-rbac.yaml
       when: USER_NAME == "read"
     
     - name: 创建group:read rbac 绑定
-      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/yaml/read-group-rbac.yaml"
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/.cluster/yaml/read-group-rbac.yaml"
       when: USER_NAME == "read"
     
     - name: 准备kubectl使用的{{ USER_NAME }}证书签名请求
-      template: src={{ USER_NAME }}-csr.json.j2 dest={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/{{ USER_NAME }}-csr.json
+      template: src={{ USER_NAME }}-csr.json.j2 dest={{ base_dir }}/.cluster/ssl/{{ USER_NAME }}-csr.json
     
     - name: 创建{{ USER_NAME }}证书与私钥
-      shell: "cd {{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+      shell: "cd {{ base_dir }}/.cluster/ssl && {{ base_dir }}/bin/cfssl gencert \
             -ca=ca.pem \
             -ca-key=ca-key.pem \
             -config=ca-config.json \
@@ -50,15 +50,15 @@
     
     - name: 设置集群参数
       shell: "{{ base_dir }}/bin/kubectl config set-cluster {{ CLUSTER_NAME }} \
-            --certificate-authority={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/ca.pem \
+            --certificate-authority={{ base_dir }}/.cluster/ssl/ca.pem \
             --embed-certs=true \
             --server={{ KUBE_APISERVER }}"
     
     - name: 设置客户端认证参数
       shell: "{{ base_dir }}/bin/kubectl config set-credentials {{ USER_NAME }} \
-            --client-certificate={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/{{ USER_NAME }}.pem \
+            --client-certificate={{ base_dir }}/.cluster/ssl/{{ USER_NAME }}.pem \
             --embed-certs=true \
-            --client-key={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/{{ USER_NAME }}-key.pem"
+            --client-key={{ base_dir }}/.cluster/ssl/{{ USER_NAME }}-key.pem"
     
     - name: 设置上下文参数
       shell: "{{ base_dir }}/bin/kubectl config set-context {{ CONTEXT_NAME }} \
@@ -68,12 +68,12 @@
       shell: "{{ base_dir }}/bin/kubectl config use-context {{ CONTEXT_NAME }}"
   tags: create_kctl_cfg
 
-#------------创建kube-proxy.kubeconfig配置文件: /root/kube-proxy.kubeconfig
+#------------创建kube-proxy配置文件: kube-proxy.kubeconfig
 - name: 准备kube-proxy 证书签名请求
-  template: src=kube-proxy-csr.json.j2 dest={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/kube-proxy-csr.json
+  template: src=kube-proxy-csr.json.j2 dest={{ base_dir }}/.cluster/ssl/kube-proxy-csr.json
 
 - name: 创建 kube-proxy证书与私钥
-  shell: "cd {{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+  shell: "cd {{ base_dir }}/.cluster/ssl && {{ base_dir }}/bin/cfssl gencert \
         -ca=ca.pem \
         -ca-key=ca-key.pem \
         -config=ca-config.json \
@@ -81,24 +81,24 @@
 
 - name: 设置集群参数
   shell: "{{ base_dir }}/bin/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/ca.pem \
+        --certificate-authority={{ base_dir }}/.cluster/ssl/ca.pem \
         --embed-certs=true \
         --server={{ KUBE_APISERVER }} \
-        --kubeconfig={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/kube-proxy.kubeconfig"
+        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 - name: 设置客户端认证参数
   shell: "{{ base_dir }}/bin/kubectl config set-credentials kube-proxy \
-        --client-certificate={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/kube-proxy.pem \
-        --client-key={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/ssl/kube-proxy-key.pem \
+        --client-certificate={{ base_dir }}/.cluster/ssl/kube-proxy.pem \
+        --client-key={{ base_dir }}/.cluster/ssl/kube-proxy-key.pem \
         --embed-certs=true \
-        --kubeconfig={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/kube-proxy.kubeconfig"
+        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 - name: 设置上下文参数
   shell: "{{ base_dir }}/bin/kubectl config set-context default \
         --cluster=kubernetes \
         --user=kube-proxy \
-        --kubeconfig={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/kube-proxy.kubeconfig"
+        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 - name: 选择默认上下文
   shell: "{{ base_dir }}/bin/kubectl config use-context default \
-	--kubeconfig={{ base_dir }}/.cluster/{{ CLUSTER_NAME }}/kube-proxy.kubeconfig"
+	--kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 
 - name: 本地创建 easzctl 工具的软连接
   file: src={{ base_dir }}/tools/easzctl dest=/usr/bin/easzctl state=link
