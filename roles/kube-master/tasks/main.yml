@@ -6,15 +6,6 @@
   - kube-scheduler
   tags: upgrade_k8s
 
-- name: 分发证书相关
-  copy: src={{ base_dir }}/.cluster/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
-  with_items:
-  - admin.pem
-  - admin-key.pem
-  - ca.pem
-  - ca-key.pem
-  - ca-config.json
-
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
   tags: change_cert
@@ -87,9 +78,6 @@
   shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
 	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
   tags: upgrade_k8s, restart_master
-
-- name: 分发 kubeconfig 给 master 节点
-  copy: src=/root/.kube/config dest=/root/.kube/config
 
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:
