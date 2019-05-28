@@ -13,6 +13,7 @@
   with_items:
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
+  - /root/.kube
 
 - name: 分发证书工具 CFSSL
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
