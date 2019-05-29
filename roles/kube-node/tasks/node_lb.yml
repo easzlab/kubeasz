@@ -21,6 +21,11 @@
   shell: systemctl enable haproxy
   ignore_errors: true
 
-- name: 重启haproxy服务
-  shell: systemctl restart haproxy
+- name: 停止haproxy服务
+  shell: systemctl stop haproxy
+  tags: restart_lb
+
+- name: 开启haproxy服务
+  shell: systemctl start haproxy
+  when: "groups['kube-master']|length > 1"
   tags: restart_lb

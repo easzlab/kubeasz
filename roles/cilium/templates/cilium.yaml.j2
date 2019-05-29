@@ -346,14 +346,6 @@ spec:
               key: tofqdns-pre-cache
               name: cilium-config
               optional: true
-{% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
-        # if hosts have multiple net interfaces, set following two ENVs
-        - name: KUBERNETES_SERVICE_HOST
-          value: "{{ MASTER_IP }}"
-          #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
-        - name: KUBERNETES_SERVICE_PORT
-          value: "{{ KUBE_APISERVER.split(':')[2] }}"
-{% endif %}
         image: docker.io/cilium/cilium:{{ cilium_ver }}
         imagePullPolicy: IfNotPresent
         lifecycle:
@@ -886,14 +878,6 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.uid
-{% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
-        # if hosts have multiple net interfaces, set following two ENVs
-        - name: KUBERNETES_SERVICE_HOST
-          value: "{{ MASTER_IP }}"
-          #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
-        - name: KUBERNETES_SERVICE_PORT
-          value: "{{ KUBE_APISERVER.split(':')[2] }}"
-{% endif %}
         image: docker.io/cilium/cilium-etcd-operator:v2.0.5
         imagePullPolicy: IfNotPresent
         name: cilium-etcd-operator

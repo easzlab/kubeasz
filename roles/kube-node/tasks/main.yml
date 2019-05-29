@@ -1,15 +1,3 @@
-# 每个 node 节点运行 haproxy 连接到多个 apiserver
-- import_tasks: node_lb.yml
-  when: "inventory_hostname not in groups['kube-master']"
-
-- name: 替换 kubeconfig 的 apiserver 地址
-  lineinfile:
-    dest: /root/.kube/config
-    regexp: "^    server"
-    line: "    server: https://127.0.0.1:6443"
-  when: "inventory_hostname not in groups['kube-master']"
-
-# 创建kubelet,kube-proxy工作目录和cni配置目录
 - name: 创建kube-node 相关目录
   file: name={{ item }} state=directory
   with_items:
@@ -28,6 +16,17 @@
   - loopback
   tags: upgrade_k8s
 
+# 每个 node 节点运行 haproxy 连接到多个 apiserver
+- import_tasks: node_lb.yml
+  when: "inventory_hostname not in groups['kube-master']"
+
+- name: 替换 kubeconfig 的 apiserver 地址
+  lineinfile:
+    dest: /root/.kube/config
+    regexp: "^    server"
+    line: "    server: {{ KUBE_APISERVER }}"
+  when: "inventory_hostname not in groups['kube-master']"
+
 ##----------kubelet 配置部分--------------
 
 - name: 准备kubelet 证书签名请求
@@ -45,7 +44,7 @@
   shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
         --certificate-authority={{ ca_dir }}/ca.pem \
         --embed-certs=true \
-        --server=https://127.0.0.1:6443 \
+        --server={{ KUBE_APISERVER }} \
 	--kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
   when: "inventory_hostname not in groups['kube-master']"
 
@@ -95,7 +94,7 @@
   lineinfile:
     dest: /etc/kubernetes/kube-proxy.kubeconfig
     regexp: "^    server"
-    line: "    server: https://127.0.0.1:6443"
+    line: "    server: {{ KUBE_APISERVER }}"
   when: "inventory_hostname not in groups['kube-master']"
 
 - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址

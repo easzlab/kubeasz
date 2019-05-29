@@ -1,4 +1,4 @@
-# dns 自动安装，可选"coredns"和“kubedns”
+# dns 自动安装，'dns_backend'可选"coredns"和“kubedns”
 dns_install: "yes"
 dns_backend: "coredns"
 kubednsVer: "1.14.13"

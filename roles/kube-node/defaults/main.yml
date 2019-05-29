@@ -24,3 +24,10 @@ HARD_EVICTION: "memory.available<200Mi,nodefs.available<10%"
 # "source": 基于请求源IP地址
 # "uri": 基于请求的URI
 BALANCE_ALG: "roundrobin"
+
+# 设置 APISERVER 地址
+KUBE_APISERVER: "{%- if groups['kube-master']|length > 1 -%} \
+                   https://127.0.0.1:6443 \
+                 {%- else -%} \
+                   https://{{ groups['kube-master'][0] }}:6443 \
+                 {%- endif -%}"

@@ -17,8 +17,8 @@
           when: 'traefik_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
 
     - name: 创建 traefik部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
-      delegate_to: "{{ groups.deploy[0] }}"
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+      connection: local
       run_once: true
   when: 'ingress_backend == "traefik"'
   ignore_errors: true
@@ -42,8 +42,8 @@
           when: 'nginx_ingress_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
 
     - name: 创建 nginx_ingress部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/nginx-ingress/nginx-ingress.yaml"
-      delegate_to: "{{ groups.deploy[0] }}"
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/ingress/nginx-ingress/nginx-ingress.yaml"
+      connection: local
       run_once: true
   when: 'ingress_backend == "nginx-ingress"'
   ignore_errors: true

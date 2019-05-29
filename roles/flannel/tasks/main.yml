@@ -1,11 +1,8 @@
-- block:
-    - name: 在deploy 节点创建相关目录
-      file: name=/opt/kube/kube-system/flannel state=directory
+- name: 创建相关目录
+  file: name=/opt/kube/kube-system state=directory
 
-    - name: 配置 flannel DaemonSet yaml文件
-      template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
+- name: 配置 flannel DaemonSet yaml文件
+  template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel.yaml
     
 - name: 创建flannel cni 相关目录
   file: name={{ item }} state=directory
@@ -61,8 +58,7 @@
 
 # 只需单节点执行一次
 - name: 运行 flannel网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel/ && sleep 5"
-  delegate_to: "{{ groups.deploy[0] }}"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel.yaml && sleep 5"
   run_once: true
 
 # 删除原有cni配置
@@ -74,8 +70,6 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
-  delegate_to: "{{ groups.deploy[0] }}"
   retries: 15
   delay: 8
   ignore_errors: true
-
