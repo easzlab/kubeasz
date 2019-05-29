@@ -1,39 +1,36 @@
-# 'deploy' node, which the ansible-playbooks usually run on
-# variable 'NTP_ENABLED(=yes/no)' enables/disables the NTP server 'chrony'
-[deploy]
-192.168.1.1 NTP_ENABLED=no
-
-# 'etcd' cluster must have odd member(s) (1,3,5,...)
+# 'etcd' cluster should have odd member(s) (1,3,5,...)
 # variable 'NODE_NAME' is the distinct name of a member in 'etcd' cluster
 [etcd]
 192.168.1.1 NODE_NAME=etcd1
+192.168.1.2 NODE_NAME=etcd2
+192.168.1.3 NODE_NAME=etcd3
 
+# master node(s)
 [kube-master]
 192.168.1.1
-
-[kube-node]
 192.168.1.2
-192.168.1.3
 
-# set 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
-# if not using domian，set 'HARBOR_DOMAIN=""'
+# work node(s)
+[kube-node]
+192.168.1.3
+192.168.1.4
+
+# [optional] harbor server, a private docker registry
+# 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
 [harbor]
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no
 
-# [optional] loadbalance for services with type 'NodePort'
+# [optional] loadbalance for accessing k8s from outside
 [ex-lb]
-#192.168.1.6 LB_ROLE=backup EX_VIP=192.168.1.250
-#192.168.1.7 LB_ROLE=master EX_VIP=192.168.1.250
+#192.168.1.6 LB_ROLE=backup EX_APISERVER_VIP=192.168.1.250
+#192.168.1.7 LB_ROLE=master EX_APISERVER_VIP=192.168.1.250
+
+# [optional] ntp server for cluster
+[chrony]
+#192.168.1.1
 
 [all:vars]
 # --------- Main Variables ---------------
-# Cluster Deployment Mode: allinone, single-master, multi-master
-DEPLOY_MODE=single-master
-
-# Cluster's Master IP, auto generated
-MASTER_IP="{{ groups['kube-master'][0] }}"
-KUBE_APISERVER="https://{{ MASTER_IP }}:6443"
-
 # Cluster container-runtime supported: docker, containerd
 CONTAINER_RUNTIME="docker"
 
@@ -48,12 +45,6 @@ CLUSTER_CIDR="172.20.0.0/16"
 
 # NodePort Range
 NODE_PORT_RANGE="20000-40000"
-
-# Kubernetes SVC IP (usually assigned with the first available IP of 'SERVICE_CIDR')
-CLUSTER_KUBERNETES_SVC_IP="10.68.0.1"
-
-# Cluster DNS Server's IP (assigned with an available IP of 'SERVICE_CIDR')
-CLUSTER_DNS_SVC_IP="10.68.0.2"
 
 # Cluster DNS Domain
 CLUSTER_DNS_DOMAIN="cluster.local."
