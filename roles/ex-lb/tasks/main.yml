@@ -1,14 +1,21 @@
+# ex-lb 节点成员不能同时是 kube-node 节点，因为它们都需要安装 haproxy
+- name: fail info1
+  fail: msg="an 'ex-lb' node CAN NOT be a 'kube-node' node at the same time"
+  when: "inventory_hostname in groups['kube-node']"
+
 # 自动设置LB节点变量'LB_IF'
 - name: 注册变量 LB_IF_TMP
   shell: "ip a|grep '{{ inventory_hostname }}/'|awk '{print $NF}'"
   register: LB_IF_TMP
+  tags: restart_lb
 
 - name: 设置变量 LB_IF
-  set_fact: LB_IF="{{ LB_IF_TMP.stdout }}"
+  set_fact: LB_IF={{ LB_IF_TMP.stdout }}
+  tags: restart_lb
 
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
+  when: 'ansible_distribution in ["Ubuntu","Debian"]'
 
 - name: 安装 haproxy
   package: name=haproxy state=present
@@ -18,7 +25,7 @@
 
 - name: 修改centos的haproxy.service
   template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
-  when: (ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "7"
+  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
   tags: restart_lb
 
 - name: 配置 haproxy

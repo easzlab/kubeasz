@@ -1,3 +1,8 @@
+# kube-node 节点成员不能同时是 ex-lb 节点，因为它们都需要安装 haproxy
+- name: fail info1
+  fail: msg="an 'kube-node' node CAN NOT be a 'ex-lb' node at the same time"
+  when: "inventory_hostname in groups['ex-lb']"
+
 - name: 安装 haproxy
   package: name=haproxy state=present
 

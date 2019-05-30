@@ -25,6 +25,6 @@ vrrp_instance VI-kube-master {
         check-haproxy
     }
     virtual_ipaddress {
-        {{ EX_VIP }}
+        {{ EX_APISERVER_VIP }}
     }
 }

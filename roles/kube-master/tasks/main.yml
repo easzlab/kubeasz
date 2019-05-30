@@ -10,9 +10,11 @@
 - name: 注册变量 KUBERNETES_SVC_IP
   shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+1}'
   register: KUBERNETES_SVC_IP
+  tags: change_cert
 
 - name: 设置变量 CLUSTER_KUBERNETES_SVC_IP
   set_fact: CLUSTER_KUBERNETES_SVC_IP={{ KUBERNETES_SVC_IP.stdout }}
+  tags: change_cert
 
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
@@ -47,12 +49,11 @@
     connection: local
     register: TMP_PASS
     run_once: true
-    tags: restart_master
     
   - name: 设置 basic-auth 随机密码
-    set_fact: BASIC_AUTH_PASS="{{ TMP_PASS.stdout }}"
-    tags: restart_master
+    set_fact: BASIC_AUTH_PASS={{ TMP_PASS.stdout }}
   when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
+  tags: restart_master
   
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv

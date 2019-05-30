@@ -210,14 +210,16 @@
     - name: stop and disable chrony in Ubuntu
       service: name=chrony state=stopped enabled=no
       ignore_errors: true
-      tags: rm_ntp
-      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+      when:
+      - 'ansible_distribution in ["Ubuntu","Debian"]'
+      - "groups['chrony']|length > 0"
   
     - name: stop and disable chronyd in CentOS/RedHat
       service: name=chronyd state=stopped enabled=no
       ignore_errors: true
-      tags: rm_ntp
-      when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat"
+      when:
+      - 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+      - "groups['chrony']|length > 0"
   
     - name: 清理证书目录和文件
       file: name={{ item }} state=absent
