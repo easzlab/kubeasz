@@ -25,12 +25,11 @@
       shell: "{{ bin_dir }}/docker load -i /data/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
     
     - name: 分发证书相关
-      synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
+      copy: src={{ base_dir }}/.cluster/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
       with_items:
       - ca.pem
       - ca-key.pem
       - ca-config.json
-      delegate_to: "{{ groups.deploy[0] }}"
     
     - name: 创建harbor证书请求
       template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json

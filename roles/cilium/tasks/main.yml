@@ -1,14 +1,3 @@
-- name: 在deploy 节点创建cilium 相关目录
-  file: name=/opt/kube/kube-system/cilium state=directory
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
-    
-- name: 配置 cilium DaemonSet yaml文件
-  template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium/cilium.yaml
-  tags: reconf  
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
-
 - name: 转换内核版本为浮点数
   set_fact:
      KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
@@ -16,13 +5,18 @@
 - name: 检查内核版本>4.9
   fail: msg="kernel {{ ansible_kernel }} is too old for cilium installing"
   when: "KERNEL_VER|float <= 4.09"
-  
+
 - name: node 节点创建cilium 相关目录
   file: name={{ item }} state=directory
   with_items:
   - /etc/cni/net.d
   - /var/run/cilium
-  - /opt/kube/images 
+  - /opt/kube/images
+  - /opt/kube/kube-system
+    
+- name: 配置 cilium DaemonSet yaml文件
+  template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium.yaml
+  tags: reconf
 
 - name: Optional-Mount BPF FS
   mount:
@@ -70,8 +64,7 @@
 
 # 只需单节点执行一次
 - name: 运行 cilium网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/cilium/ && sleep 5"
-  delegate_to: "{{ groups.deploy[0] }}"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/cilium.yaml"
   run_once: true
 
 # 删除原有cni配置
@@ -83,7 +76,6 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'cilium'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
-  delegate_to: "{{ groups.deploy[0] }}"
   retries: 15
   delay: 8
   ignore_errors: true

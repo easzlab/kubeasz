@@ -1,15 +1,13 @@
-- name: 创建相关目录
-  file: name=/opt/kube/kube-system state=directory
-
-- name: 配置 flannel DaemonSet yaml文件
-  template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel.yaml
-    
-- name: 创建flannel cni 相关目录
+- name: 创建flannel 相关目录
   file: name={{ item }} state=directory
   with_items:
   - /etc/cni/net.d
   - /opt/kube/images
+  - /opt/kube/kube-system
 
+- name: 配置 flannel DaemonSet yaml文件
+  template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel.yaml
+    
 - name: 下载flannel cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
@@ -58,7 +56,7 @@
 
 # 只需单节点执行一次
 - name: 运行 flannel网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel.yaml && sleep 5"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel.yaml"
   run_once: true
 
 # 删除原有cni配置

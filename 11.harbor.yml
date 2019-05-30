@@ -3,7 +3,7 @@
 
 - hosts: harbor
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes' and NEW_INSTALL == 'yes'" }
+  - { role: chrony, when: "NEW_INSTALL == 'yes' and groups['chrony']|length > 0" }
   - { role: prepare, when: "NEW_INSTALL == 'yes'" }
   - { role: docker, when: "NEW_INSTALL == 'yes'" }
   - { role: harbor, when: "NEW_INSTALL == 'yes'" }
@@ -19,10 +19,10 @@
   - kube-node
   tasks:
   - name: Define 'harbor_host', a domain name
-    set_fact: harbor_host="{{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}"
+    set_fact: harbor_host={{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}
 
   - name: Define 'harbor_host', an IP Addr
-    set_fact: harbor_host="{{ groups['harbor'][0] }}"
+    set_fact: harbor_host={{ groups['harbor'][0] }}
     when: hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] == ''
   
   - block:  
