@@ -160,7 +160,7 @@
     ignore_errors: true
 
   - name: cleanup 'calico' routes
-    shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
+    shell: "for rt in `ip route|grep bird|sed 's/blackhole //'|awk '{print $1}'`;do ip route del $rt;done;"
     when: "CLUSTER_NETWORK == 'calico'"
     ignore_errors: true
 
@@ -184,7 +184,7 @@
 
 # to clean 'lb' nodes
 - hosts:
-  - lb
+  - kube-node
   - ex-lb
   tasks:
   - name: stop keepalived service
