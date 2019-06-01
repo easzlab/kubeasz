@@ -1,0 +1,16 @@
+# to clean 'lb' service
+- block:
+  - name: stop keepalived service
+    shell: systemctl disable keepalived && systemctl stop keepalived
+    ignore_errors: true
+
+  - name: stop haproxy service
+    shell: systemctl disable haproxy && systemctl stop haproxy
+    ignore_errors: true
+
+  - name: remove files and dirs
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/haproxy"
+    - "/etc/keepalived"
+  when: "inventory_hostname in groups['kube-node'] or inventory_hostname in groups['ex-lb']"
