@@ -31,7 +31,6 @@
 # 创建aggregator proxy相关证书
 - name: 创建 aggregator proxy证书签名请求
   template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
-  tags: upgrade_k8s
 
 - name: 创建 aggregator-proxy证书和私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
@@ -39,7 +38,6 @@
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
-  tags: upgrade_k8s
 
 - block:
   - name: 生成 basic-auth 随机密码
@@ -66,17 +64,17 @@
   - kube-apiserver.service
   - kube-controller-manager.service
   - kube-scheduler.service
-  tags: upgrade_k8s, restart_master
+  tags: restart_master
 
 # 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
 - name: 获取 k8s 版本信息
   shell: "{{ bin_dir }}/kube-apiserver --version"
   register: k8s_ver
-  tags: upgrade_k8s, restart_master
+  tags: restart_master
 
 - name: 创建kube-apiserver v1.8的systemd unit文件
   template: src=kube-apiserver-v1.8.service.j2 dest=/etc/systemd/system/kube-apiserver.service
-  tags: upgrade_k8s, restart_master
+  tags: restart_master
   when: "'v1.8' in k8s_ver.stdout"
 
 - name: enable master 服务

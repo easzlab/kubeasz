@@ -2,6 +2,7 @@
 - name: fail info1
   fail: msg="an 'kube-node' node CAN NOT be a 'ex-lb' node at the same time"
   when: "inventory_hostname in groups['ex-lb']"
+  tags: restart_lb
 
 - name: 安装 haproxy
   package: name=haproxy state=present

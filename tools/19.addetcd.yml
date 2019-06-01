@@ -6,6 +6,7 @@
   tasks:
   - name: add a new etcd member
     shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add {{ NODE_NAME }} --peer-urls=https://{{ NODE_TO_ADD }}:2380"
+    # new etcd node will be groups.etcd[0]
     delegate_to: "{{ groups.etcd[1] }}"
 
 # start the new-etcd node
@@ -13,7 +14,7 @@
   vars:
     CLUSTER_STATE: existing
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+  - { role: chrony, when: "groups['chrony']|length > 0" }
   - prepare
   - etcd
 

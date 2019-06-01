@@ -1,9 +1,9 @@
-# Note: this playbook cann't run independently
+# Note: this playbook can not run independently
 # Usage: easzctl add-node 1.1.1.1
 
 - hosts: "{{ NODE_TO_ADD }}" 
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" } 
+  - { role: chrony, when: "groups['chrony']|length > 0" } 
   - prepare
   - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" }
   - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" }

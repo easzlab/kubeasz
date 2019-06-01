@@ -80,13 +80,15 @@
 - name: 注册变量 DNS_SVC_IP
   shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
   register: DNS_SVC_IP
+  tags: restart_node 
 
 - name: 设置变量 CLUSTER_DNS_SVC_IP
   set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
+  tags: restart_node 
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
-  tags: upgrade_k8s, restart_node 
+  tags: restart_node 
 
 - name: 开机启用kubelet 服务
   shell: systemctl enable kubelet
@@ -113,8 +115,8 @@
   when: "inventory_hostname in groups['kube-master']"
 
 - name: 创建kube-proxy 服务文件
-  tags: reload-kube-proxy, upgrade_k8s, restart_node
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
+  tags: reload-kube-proxy, restart_node
 
 - name: 开机启用kube-proxy 服务
   shell: systemctl enable kube-proxy
@@ -131,6 +133,7 @@
   until: '"running" in kubelet_status.stdout'
   retries: 8
   delay: 2
+  tags: reload-kube-proxy, upgrade_k8s, restart_node
 
 - name: 轮询等待node达到Ready状态
   shell: "{{ bin_dir }}/kubectl get node {{ inventory_hostname }}|awk 'NR>1{print $2}'"
