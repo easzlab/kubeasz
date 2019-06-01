@@ -6,7 +6,7 @@
   - /opt/kube/kube-system
 
 - name: 准备配置 kube-router DaemonSet (without IPVS)
-  template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kuberouter.yaml
+  template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kube-router.yaml
     
 - name: 下载cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -58,7 +58,7 @@
 
 # 只需单节点执行一次
 - name: 运行 kube-router DaemonSet
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kuberouter.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kube-router.yaml"
   run_once: true
 
 # 删除原有cni配置

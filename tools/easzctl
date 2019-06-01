@@ -78,7 +78,7 @@ function add-node() {
     sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
 
     # check if playbook runs successfully
-    ansible-playbook $BASEPATH/tools/20.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; return 2; }
+    ansible-playbook $BASEPATH/tools/02.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; return 2; }
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
@@ -96,7 +96,7 @@ function add-master() {
     sed -i "/\[kube-master/a $1 NEW_MASTER=yes" $BASEPATH/hosts
 
     # check if playbook runs successfully
-    ansible-playbook $BASEPATH/tools/21.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; return 2; }
+    ansible-playbook $BASEPATH/tools/03.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; return 2; }
 
     # reconfigure and restart the haproxy service on 'kube-node' nodes
     ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
@@ -122,7 +122,7 @@ function add-etcd() {
     sed -i "/\[etcd/a $1 NODE_NAME=$NAME" $BASEPATH/hosts
 
     # check if playbook runs successfully
-    ansible-playbook $BASEPATH/tools/19.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; return 2; }
+    ansible-playbook $BASEPATH/tools/01.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; return 2; }
 
     # restart apiservers to use the new etcd cluster
     ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
@@ -137,7 +137,7 @@ function del-etcd() {
     [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # 
-    ansible-playbook $BASEPATH/tools/remove_etcd_node.yml -e ETCD_TO_DEL=$1
+    ansible-playbook $BASEPATH/tools/11.deletcd.yml -e ETCD_TO_DEL=$1 || { echo "[ERROR] Failed to delete etcd node: $1!"; return 2; }
 
     # restart apiservers to use the new etcd cluster
     ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }

@@ -1,5 +1,5 @@
 # remove a etcd member 
-- hosts: deploy
+- hosts: localhost 
   vars_prompt:
   - name: "ETCD_TO_DEL"
     prompt: "which etcd node is about to be deleted?(e.g 192.168.1.1)"
@@ -30,7 +30,6 @@
         dest: "{{ base_dir }}/hosts"
         state: absent
         regexp: '{{ ETCD_NAME.stdout }}'
-      connection: local
       when: "ETCD_NAME.stdout != ''"
   
     - name: delete a etcd member
@@ -44,8 +43,7 @@
       when: "ETCD_ID.stdout != ''"
    
     - name: reconfig and restart the etcd cluster
-      shell: "ansible-playbook /etc/ansible/02.etcd.yml > /tmp/ansible-playbook.log 2>&1"
-      connection: local
+      shell: "ansible-playbook {{ base_dir }}/02.etcd.yml > /tmp/ansible-playbook.log 2>&1"
       when: "ETCD_ID.stdout != ''"
     run_once: true
     # 满足条件才进行删除

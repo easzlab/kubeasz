@@ -35,7 +35,7 @@ server {{ groups.deploy[0] }} iburst
 - 修改 ansible hosts 文件，在 `deploy` 节点配置 `NTP_ENABLED=yes` (默认: no)
 - [可选] 修改 roles/chrony/var/main.yml 中的变量定义，关于文件 roles/chrony/var/main.yml 的由来请看[这里](../setup/config_guide.md)
 
-对于新集群或者新节点，`chrony` 的安装配置已经集成到 `90.setup.yml` `01.prepare.yml` `20.addnode.yml` `21.addmaster.yml` 等脚本中；对于已运行中的集群请执行如下命令进行安装：
+对于新集群或者新节点，`chrony` 的安装配置已经集成到脚本中；对于已运行中的集群请执行如下命令进行安装：
 
 `ansible-playbook /etc/ansible/roles/chrony/chrony.yml `
 
