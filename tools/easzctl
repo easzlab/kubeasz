@@ -23,6 +23,8 @@ In-cluster operation:
     add-node		To add a kube-node(work node) to the k8s cluster
     clean-node		To clean a node, whatever role the node plays
     del-etcd		To delete a etcd-node from the etcd cluster
+    del-master		To delete a kube-master from the k8s cluster
+    del-node		To delete a kube-node from the k8s cluster
     upgrade		To upgrade the k8s cluster
 
 Extra operation:
@@ -45,6 +47,12 @@ function help-info() {
             ;;
         (del-etcd)
             echo -e "Usage: easzctl del-etcd <etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
+            ;;
+        (del-master)
+            echo -e "Usage: easzctl del-master <master_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-master.md'"
+            ;;
+        (del-node)
+            echo -e "Usage: easzctl del-node <node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
             ;;
         (clean-node)
             echo -e "Usage: easzctl clean-node <node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/clean_one_node.md'"
@@ -141,6 +149,39 @@ function del-etcd() {
 
     # restart apiservers to use the new etcd cluster
     ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
+
+    # save current cluster context if needed
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
+}
+
+function del-node() {
+    # check node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
+
+    # 
+    ansible-playbook $BASEPATH/tools/12.delnode.yml -e ETCD_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-node': $1!"; return 2; }
+
+    # remove node in ansible hosts
+    sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]*$/d}' $BASEPATH/hosts
+
+    # save current cluster context if needed
+    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
+    return 0
+}
+
+function del-master() {
+    # check node's address regexp
+    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
+
+    # 
+    ansible-playbook $BASEPATH/tools/13.delmaster.yml -e ETCD_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-master': $1!"; return 2; }
+
+    # remove node in ansible hosts
+    sed -i '/^\[kube-master/,/^\[kube-node/{/^'"$1"'[^0-9]*$/d}' $BASEPATH/hosts
+
+    # reconfig kubeconfig in ansible controller
+    ansible-playbook $BASEPATH/01.prepare.yml -t create_kctl_cfg 
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
@@ -367,30 +408,40 @@ BASEPATH=/etc/ansible
 
 case "$1" in
     ### in-cluster operations #####################
-    (add-node)
+    (add-etcd)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: add a k8s work node"
-        CMD="add-node $2" 
+        ACTION="Action: add a etcd node"
+        CMD="add-etcd $2" 
         ;;
     (add-master)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         ACTION="Action: add a k8s master node"
         CMD="add-master $2" 
         ;;
-    (add-etcd)
+    (add-node)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: add a etcd node"
-        CMD="add-etcd $2" 
+        ACTION="Action: add a k8s work node"
+        CMD="add-node $2" 
+        ;;
+    (clean-node)
+        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+        ACTION="Action: clean a node"
+        CMD="clean-node $2" 
         ;;
     (del-etcd)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         ACTION="Action: delete a etcd node"
         CMD="del-etcd $2" 
         ;;
-    (clean-node)
+    (del-master)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: clean a node"
-        CMD="clean-node $2" 
+        ACTION="Action: delete a kube-master"
+        CMD="del-master $2" 
+        ;;
+    (del-node)
+        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+        ACTION="Action: delete a kube-node"
+        CMD="del-node $2" 
         ;;
     (upgrade)
         ACTION="Action: upgrade the cluster"

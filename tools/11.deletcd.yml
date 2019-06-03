@@ -1,4 +1,6 @@
-# remove a etcd member 
+# 警告：此脚本将清理指定 etcd 节点
+# 使用：`easzctl del-etcd 1.1.1.1` 
+
 - hosts: localhost 
   vars_prompt:
   - name: "ETCD_TO_DEL"

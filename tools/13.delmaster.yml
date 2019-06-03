@@ -1,0 +1,37 @@
+# 警告：此脚本将清理指定 kube-master 节点
+# 使用：`easzctl del-master 1.1.1.1` 
+
+- hosts: "{{ NODE_TO_DEL }}" 
+  tasks:
+  - name: fail info1
+    fail: msg="you CAN NOT delete the last member of etcd cluster!"
+    when: "groups['etcd']|length < 2 and NODE_TO_DEL in groups['etcd']"
+
+  - name: fail info2
+    fail: msg="you CAN NOT delete the last member of kube-master!"
+    when: "groups['kube-master']|length < 2 and NODE_TO_DEL in groups['kube-master']"
+
+  - name: 执行 kubectl drain 迁移 pod
+    shell: "{{ bin_dir }}/kubectl drain {{ NODE_TO_DEL }} --ignore-daemonsets --delete-local-data"
+    connection: local
+    ignore_errors: true
+
+- hosts: "{{ NODE_TO_DEL }}" 
+  vars:
+    DEL_MASTER: "yes"
+    DEL_NODE: "yes"
+    DEL_LB: "yes"
+  roles:
+  - clean
+  task:
+  - name: 执行 kubectl delete node
+    shell: "{{ bin_dir }}/kubectl delete node {{ NODE_TO_DEL }}"
+    delegate_to: "{{ groups['kube-node'][0] }}"
+
+# 删除 ansible hosts 中节点配置
+#  - name: rm {{ NODE_TO_DEL }} in ansible hosts
+#    lineinfile:
+#      dest: "{{ base_dir }}/hosts"
+#      state: absent
+#      regexp: '^{{ NODE_TO_DEL }}$|^{{ NODE_TO_DEL }}[^0-9]'
+#    connection: local
