@@ -2,7 +2,6 @@
   file: name={{ item }} state=directory
   with_items:
   - "{{ base_dir }}/.cluster/ssl"
-  - "{{ base_dir }}/.cluster/yaml"
 
 - name: 本地设置 bin 目录权限
   file: path={{ base_dir }}/bin state=directory mode=0755 recurse=yes
@@ -31,11 +30,11 @@
       file: path=/root/.kube state=absent
     
     - name: 下载 group:read rbac 文件
-      copy: src=read-group-rbac.yaml dest={{ base_dir }}/.cluster/yaml/read-group-rbac.yaml
+      copy: src=read-group-rbac.yaml dest=/tmp/read-group-rbac.yaml
       when: USER_NAME == "read"
     
     - name: 创建group:read rbac 绑定
-      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/.cluster/yaml/read-group-rbac.yaml"
+      shell: "{{ base_dir }}/bin/kubectl apply -f /tmp/read-group-rbac.yaml"
       when: USER_NAME == "read"
     
     - name: 准备kubectl使用的{{ USER_NAME }}证书签名请求

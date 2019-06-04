@@ -4,6 +4,7 @@
   - kube-apiserver
   - kube-controller-manager
   - kube-scheduler
+  - kubectl
   tags: upgrade_k8s
 
 # 设置 kubernetes svc ip (一般是 SERVICE_CIDR 中第一个IP)
