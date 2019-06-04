@@ -26,8 +26,15 @@ HARD_EVICTION: "memory.available<200Mi,nodefs.available<10%"
 BALANCE_ALG: "roundrobin"
 
 # 设置 APISERVER 地址
-KUBE_APISERVER: "{%- if groups['kube-master']|length > 1 -%} \
-                   https://127.0.0.1:6443 \
+KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
+                     https://{{ inventory_hostname }}:6443 \
                  {%- else -%} \
-                   https://{{ groups['kube-master'][0] }}:6443 \
+                     {%- if groups['kube-master']|length > 1 -%} \
+                         https://127.0.0.1:6443 \
+                     {%- else -%} \
+                         https://{{ groups['kube-master'][0] }}:6443 \
+                     {%- endif -%} \
                  {%- endif -%}"
+
+# 增加/删除 master 节点时，node 节点需要重新配置 haproxy 等
+MASTER_CHG: "no"

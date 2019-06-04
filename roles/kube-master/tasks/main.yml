@@ -91,6 +91,7 @@
     dest: /root/.kube/config
     regexp: "^    server"
     line: "    server: https://{{ inventory_hostname }}:6443"
+  tags: upgrade_k8s, restart_master
 
 - name: 以轮询的方式等待master服务启动完成
   command: "{{ bin_dir }}/kubectl get node"

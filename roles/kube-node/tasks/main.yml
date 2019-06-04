@@ -25,7 +25,6 @@
     dest: /root/.kube/config
     regexp: "^    server"
     line: "    server: {{ KUBE_APISERVER }}"
-  when: "inventory_hostname not in groups['kube-master']"
 
 ##----------kubelet 配置部分--------------
 
@@ -46,15 +45,6 @@
         --embed-certs=true \
         --server={{ KUBE_APISERVER }} \
 	--kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
-  when: "inventory_hostname not in groups['kube-master']"
-
-- name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
-        --embed-certs=true \
-        --server=https://{{ inventory_hostname }}:6443 \
-	--kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
-  when: "inventory_hostname in groups['kube-master']"
 
 - name: 设置客户端认证参数
   shell: "{{ bin_dir }}/kubectl config set-credentials system:node:{{ inventory_hostname }} \
@@ -105,14 +95,6 @@
     dest: /etc/kubernetes/kube-proxy.kubeconfig
     regexp: "^    server"
     line: "    server: {{ KUBE_APISERVER }}"
-  when: "inventory_hostname not in groups['kube-master']"
-
-- name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
-  lineinfile:
-    dest: /etc/kubernetes/kube-proxy.kubeconfig
-    regexp: "^    server"
-    line: "    server: https://{{ inventory_hostname }}:6443"
-  when: "inventory_hostname in groups['kube-master']"
 
 - name: 创建kube-proxy 服务文件
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service

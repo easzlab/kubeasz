@@ -35,3 +35,33 @@
   shell: systemctl start haproxy
   when: "groups['kube-master']|length > 1"
   tags: restart_lb
+
+# master 节点从1个增加到2个时候，需要修改如下配置
+# master 节点从2个减少到1个时候，也需要修改
+- block:
+  - name: 替换 kubeconfig 的 apiserver 地址
+    lineinfile:
+      dest: /root/.kube/config
+      regexp: "^    server"
+      line: "    server: {{ KUBE_APISERVER }}"
+  
+  - name: 替换 kubelet.kubeconfig 的 apiserver 地址
+    lineinfile:
+      dest: /etc/kubernetes/kubelet.kubeconfig
+      regexp: "^    server"
+      line: "    server: {{ KUBE_APISERVER }}"
+  
+  - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
+    lineinfile:
+      dest: /etc/kubernetes/kube-proxy.kubeconfig
+      regexp: "^    server"
+      line: "    server: {{ KUBE_APISERVER }}"
+
+  - name: restart kube-node service
+    service: name={{ item }} state=restarted
+    with_items:
+    - kubelet
+    - kube-proxy
+    ignore_errors: true
+  when: "MASTER_CHG == 'yes' and groups['kube-master']|length < 3"
+  tags: restart_lb

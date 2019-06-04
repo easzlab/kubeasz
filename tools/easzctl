@@ -107,7 +107,7 @@ function add-master() {
     ansible-playbook $BASEPATH/tools/03.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; return 2; }
 
     # reconfigure and restart the haproxy service on 'kube-node' nodes
-    ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
+    ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb -e MASTER_CHG=yes || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
@@ -160,7 +160,7 @@ function del-node() {
     [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # 
-    ansible-playbook $BASEPATH/tools/12.delnode.yml -e ETCD_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-node': $1!"; return 2; }
+    ansible-playbook $BASEPATH/tools/12.delnode.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-node': $1!"; return 2; }
 
     # remove node in ansible hosts
     sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]*$/d}' $BASEPATH/hosts
@@ -175,13 +175,16 @@ function del-master() {
     [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # 
-    ansible-playbook $BASEPATH/tools/13.delmaster.yml -e ETCD_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-master': $1!"; return 2; }
+    ansible-playbook $BASEPATH/tools/13.delmaster.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-master': $1!"; return 2; }
 
     # remove node in ansible hosts
     sed -i '/^\[kube-master/,/^\[kube-node/{/^'"$1"'[^0-9]*$/d}' $BASEPATH/hosts
 
     # reconfig kubeconfig in ansible controller
     ansible-playbook $BASEPATH/01.prepare.yml -t create_kctl_cfg 
+
+    # reconfigure and restart the haproxy service on 'kube-node' nodes
+    ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb -e MASTER_CHG=yes || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context

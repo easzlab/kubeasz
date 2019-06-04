@@ -4,10 +4,6 @@
 - hosts: "{{ NODE_TO_DEL }}" 
   tasks:
   - name: fail info1
-    fail: msg="you CAN NOT delete the last member of etcd cluster!"
-    when: "groups['etcd']|length < 2 and NODE_TO_DEL in groups['etcd']"
-
-  - name: fail info2
     fail: msg="you CAN NOT delete the last member of kube-master!"
     when: "groups['kube-master']|length < 2 and NODE_TO_DEL in groups['kube-master']"
 
@@ -22,7 +18,7 @@
     DEL_LB: "yes"
   roles:
   - clean
-  task:
+  tasks:
   - name: 执行 kubectl delete node
     shell: "{{ bin_dir }}/kubectl delete node {{ NODE_TO_DEL }}"
     connection: local
