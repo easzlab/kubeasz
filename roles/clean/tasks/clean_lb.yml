@@ -1,11 +1,10 @@
 # to clean 'lb' service
 - block:
-  - name: stop keepalived service
-    shell: systemctl disable keepalived && systemctl stop keepalived
-    ignore_errors: true
-
-  - name: stop haproxy service
-    shell: systemctl disable haproxy && systemctl stop haproxy
+  - name: rm service keepalived and haproxy
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - keepalived
+    - haproxy
     ignore_errors: true
 
   - name: remove files and dirs
