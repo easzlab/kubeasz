@@ -16,6 +16,8 @@
   vars:
     DEL_NODE: "yes"
     DEL_LB: "yes"
+    DEL_CHRONY: "yes"
+    DEL_ENV: "yes"
   roles:
   - clean
   tasks:

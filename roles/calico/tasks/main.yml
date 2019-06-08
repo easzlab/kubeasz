@@ -87,6 +87,7 @@
   #- calico-ipam
   #- loopback
   - calicoctl
+  ignore_errors: true
 
 - name: 准备 calicoctl配置文件
   template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg

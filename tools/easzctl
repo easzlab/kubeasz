@@ -11,8 +11,8 @@ function usage() {
 Usage: easzctl COMMAND [args]
 
 Cluster-wide operation:
-    checkout		To switch to cluster <clustername> context, or create it if not existed
-    destroy		To destroy the current cluster, with '--purge' option to also delete the context
+    checkout		To switch to context <clustername>, or create it if not existed
+    destroy		To destroy the current cluster, '--purge' to also delete the context
     list		To list all of clusters managed
     setup		To setup a cluster using the current context
     start-aio		To quickly setup an all-in-one cluster for testing (like minikube)
@@ -21,7 +21,6 @@ In-cluster operation:
     add-etcd		To add a etcd-node to the etcd cluster
     add-master		To add a kube-master(master node) to the k8s cluster
     add-node		To add a kube-node(work node) to the k8s cluster
-    clean-node		To clean a node, whatever role the node plays
     del-etcd		To delete a etcd-node from the etcd cluster
     del-master		To delete a kube-master from the k8s cluster
     del-node		To delete a kube-node from the k8s cluster
@@ -36,14 +35,14 @@ EOF
 
 function help-info() {
     case "$1" in
-        (add-node)
-            echo -e "Usage: easzctl add-node <new_node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/AddNode.md'"
-            ;;
-        (add-master)
-            echo -e "Usage: easzctl add-master <new_master_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/AddMaster.md'"
-            ;;
         (add-etcd)
             echo -e "Usage: easzctl add-etcd <new_etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
+            ;;
+        (add-master)
+            echo -e "Usage: easzctl add-master <new_master_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-master.md'"
+            ;;
+        (add-node)
+            echo -e "Usage: easzctl add-node <new_node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
             ;;
         (del-etcd)
             echo -e "Usage: easzctl del-etcd <etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
@@ -53,9 +52,6 @@ function help-info() {
             ;;
         (del-node)
             echo -e "Usage: easzctl del-node <node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
-            ;;
-        (clean-node)
-            echo -e "Usage: easzctl clean-node <node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/clean_one_node.md'"
             ;;
         (basic-auth)
             echo -e "Usage: easzctl basic-auth <options>\nOption:\t -s enable basic-auth\n\t -S disable basic-auth\n\t -u <user> set username\n\t -p <pass> set password"
@@ -186,18 +182,6 @@ function del-master() {
 
     # reconfigure and restart the haproxy service on 'kube-node' nodes
     ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb -e MASTER_CHG=yes || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
-
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
-}
-
-function clean-node() {
-    # check node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
-
-    # 
-    ansible-playbook $BASEPATH/tools/clean_one_node.yml -e NODE_TO_DEL=$1
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
@@ -448,11 +432,6 @@ case "$1" in
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         ACTION="Action: add a k8s work node"
         CMD="add-node $2" 
-        ;;
-    (clean-node)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: clean a node"
-        CMD="clean-node $2" 
         ;;
     (del-etcd)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }

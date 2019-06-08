@@ -49,12 +49,12 @@
     </tr>
     <tr>
         <td><strong>集群管理</strong><a href="docs/op/op-index.md">+</a></td>
-        <td><a href="docs/op/AddNode.md">增加node节点</a></td>
-        <td><a href="docs/op/AddMaster.md">增加master节点</a></td>
-        <td><a href="docs/op/op-etcd.md">管理etcd集群</a></td>
-        <td><a href="docs/op/clean_one_node.md">删除节点</a></td>
+        <td><a href="docs/op/op-node.md">管理node节点</a></td>
+        <td><a href="docs/op/op-master.md">管理master节点</a></td>
+        <td><a href="docs/op/op-etcd.md">管理etcd节点</a></td>
         <td><a href="docs/op/upgrade.md">升级集群</a></td>
         <td><a href="docs/op/cluster_restore.md">备份恢复</a></td>
+        <td><a href=""></a></td>
     </tr>
     <tr>
         <td><strong>特性实验</strong></td>
