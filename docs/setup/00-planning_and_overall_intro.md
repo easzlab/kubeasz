@@ -1,31 +1,32 @@
 ## 00-集群规划和基础参数设定
 
-多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加LB 负载均衡部署步骤。
+多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加 node 节点安装 haproxy。
+
+- HA 架构
+
+![ha-2x](../../pics/ha-2x.gif)
 
 - 注意1：请确保各节点时区设置一致、时间同步。 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](../guide/chrony.md)
-- 注意2：如果需要在公有云上创建多主多节点集群，请结合阅读[在公有云上部署 kubeasz](kubeasz_on_public_cloud.md)
+- 注意2：如果需要在公有云上创建多主集群，请结合阅读[在公有云上部署 kubeasz](kubeasz_on_public_cloud.md)
 
 ## 高可用集群所需节点配置如下
 
 |角色|数量|描述|
 |:-|:-|:-|
-|easzctl节点|1|运行ansible/easzctl脚本，一般复用deploy节点，但如果需要[管理创建多个集群](easzctl_cmd.md#%E5%85%B8%E5%9E%8B-easzctl-%E5%88%9B%E5%BB%BA%E7%AE%A1%E7%90%86%E7%9A%84%E9%9B%86%E7%BE%A4%E6%8B%93%E6%89%91%E5%A6%82%E4%B8%8B)，建议使用独立节点（1c1g）|
-|deploy节点|1|运行CA创建、集群部署、插件安装等，一般复用第一个master或node节点|
+|管理节点|1|运行ansible/easzctl脚本，可以复用master节点，但如果需要[管理创建多个集群](easzctl_cmd.md#%E5%85%B8%E5%9E%8B-easzctl-%E5%88%9B%E5%BB%BA%E7%AE%A1%E7%90%86%E7%9A%84%E9%9B%86%E7%BE%A4%E6%8B%93%E6%89%91%E5%A6%82%E4%B8%8B)，建议使用独立节点（1c1g）|
 |etcd节点|3|注意etcd集群需要1,3,5,7...奇数个节点，一般复用master节点|
-|master节点|2|多master节点需要额外规划一个master VIP(虚地址)|
-|lb节点|2|负载均衡节点安装 haproxy+keepalived，一般复用master节点|
+|master节点|2|高可用集群至少2个master节点)|
 |node节点|3|运行应用负载的节点，可根据需要提升机器配置/增加节点数|
 
-项目预定义了4个例子，请修改后完成适合你的集群规划。
+项目预定义了2个例子，请修改后完成适合你的集群规划。
 
-+ [单节点](../../example/hosts.allinone.example)
-+ [单主多节点](../../example/hosts.s-master.example)
-+ [多主多节点](../../example/hosts.m-masters.example)
-+ [在公有云上部署](../../example/hosts.cloud.example)
+- [单节点](../../example/hosts.allinone)
+  - 注意：在 ha-2x 架构下，单节点可以简单地通过`add-master/add-node/add-etcd`扩容成高可用集群
+- [多主多节点](../../example/hosts.multi-node)
 
 ## 部署步骤
 
-按照[多主多节点](../../example/hosts.m-masters.example)示例的节点配置，准备4台虚机，搭建一个多主高可用集群。
+按照`example/hosts.multi-node`示例的节点配置，准备4台虚机，搭建一个多主高可用集群。
 
 ### 1.基础系统配置
 
@@ -89,7 +90,7 @@ ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 
 
 ``` bash
 # 方式一：使用git clone
-git clone --depth=1 https://github.com/easzlab/kubeasz.git /etc/ansible
+git clone --depth=1 https://github.com/easzlab/kubeasz.git -b dev2 /etc/ansible
 
 # 方式二：从发布页面 https://github.com/easzlab/kubeasz/releases 下载源码解压到同样目录
 ```
@@ -107,7 +108,7 @@ tar -xvf k8s.1-13-5.tar.gz -C /etc/ansible
 tar xvf basic_images_kubeasz_1.0.tar.gz -C /etc/ansible/down
 ```
 - 4.3 配置集群参数
-  - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.m-masters.example hosts`, 然后实际情况修改此hosts文件
+  - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.multi-node hosts`, 然后实际情况修改此hosts文件
   - 4.3.2 可选配置，初次使用可以不做修改，详见[配置指南](config_guide.md)
   - 4.3.3 验证ansible 安装：`ansible all -m ping` 正常能看到节点返回 SUCCESS
 
