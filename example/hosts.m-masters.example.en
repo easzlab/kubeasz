@@ -58,12 +58,6 @@ CLUSTER_CIDR="172.20.0.0/16"
 # NodePort Range
 NODE_PORT_RANGE="20000-40000"
 
-# Kubernetes SVC IP (usually assigned with the first available IP of 'SERVICE_CIDR')
-CLUSTER_KUBERNETES_SVC_IP="10.68.0.1"
-
-# Cluster DNS Server's IP (assigned with an available IP of 'SERVICE_CIDR')
-CLUSTER_DNS_SVC_IP="10.68.0.2"
-
 # Cluster DNS Domain
 CLUSTER_DNS_DOMAIN="cluster.local."
 

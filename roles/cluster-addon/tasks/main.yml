@@ -1,3 +1,11 @@
+# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
+- name: 注册变量 DNS_SVC_IP
+  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
+  register: DNS_SVC_IP
+
+- name: 设置变量 CLUSTER_DNS_SVC_IP
+  set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
+
 - block:
     - name: 在deploy 节点创建相关目录
       file: path={{ item }} state=directory

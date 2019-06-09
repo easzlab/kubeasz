@@ -89,6 +89,16 @@
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
 
+# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
+- name: 注册变量 DNS_SVC_IP
+  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
+  register: DNS_SVC_IP
+  tags: restart_node
+
+- name: 设置变量 CLUSTER_DNS_SVC_IP
+  set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
+  tags: restart_node
+
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
   tags: upgrade_k8s, restart_node 

@@ -57,12 +57,6 @@ CLUSTER_CIDR="172.20.0.0/16"
 # 服务端口范围 (NodePort Range)
 NODE_PORT_RANGE="20000-40000"
 
-# kubernetes 服务 IP (预分配，一般是 SERVICE_CIDR 中第一个IP)
-CLUSTER_KUBERNETES_SVC_IP="10.68.0.1"
-
-# 集群 DNS 服务 IP (从 SERVICE_CIDR 中预分配)
-CLUSTER_DNS_SVC_IP="10.68.0.2"
-
 # 集群 DNS 域名
 CLUSTER_DNS_DOMAIN="cluster.local."
 
