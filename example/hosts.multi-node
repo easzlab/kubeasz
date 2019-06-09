@@ -49,12 +49,12 @@ NODE_PORT_RANGE="20000-40000"
 # Cluster DNS Domain
 CLUSTER_DNS_DOMAIN="cluster.local."
 
-# -------- Additional Variables --------------------
+# -------- Additional Variables (don't change the default value right now) ---
 # Binaries Directory
 bin_dir="/opt/kube/bin"
 
 # CA and other components cert/key Directory
 ca_dir="/etc/kubernetes/ssl"
 
-# Deploy Directory (kubeasz workspace), don't change the default value right now
+# Deploy Directory (kubeasz workspace)
 base_dir="/etc/ansible"

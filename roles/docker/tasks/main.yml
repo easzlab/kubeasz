@@ -1,26 +1,34 @@
+- name: 获取是否已经安装containerd
+  shell: 'systemctl status containerd|grep Active'
+  register: containerd_status
+
+- name: fail info1
+  fail: msg="Containerd already installed!"
+  when: '"running" in containerd_status.stdout'
+
 - name: 获取是否运行名为'kubeasz'的容器
   shell: 'systemctl status docker|grep Active && docker ps|grep kubeasz || echo "NOT FOUND"'
   register: install_info
   tags: upgrade_docker, download_docker
 
-# 18.09.x 版本二进制名字有变化，需要做判断
-- name: 获取docker版本信息
-  shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
-  register: docker_ver
-  connection: local
-  run_once: true
-  tags: upgrade_docker, download_docker
-
-- name: 转换docker版本信息为浮点数
-  set_fact: 
-    DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
-  tags: upgrade_docker, download_docker
-
-- name: debug info
-  debug: var="DOCKER_VER"
-  tags: upgrade_docker, download_docker
-
 - block:
+    # 18.09.x 版本二进制名字有变化，需要做判断
+    - name: 获取docker版本信息
+      shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
+      register: docker_ver
+      connection: local
+      run_once: true
+      tags: upgrade_docker, download_docker
+    
+    - name: 转换docker版本信息为浮点数
+      set_fact: 
+        DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
+      tags: upgrade_docker, download_docker
+    
+    - name: debug info
+      debug: var="DOCKER_VER"
+      tags: upgrade_docker, download_docker
+    
     - name: 准备docker相关目录
       file: name={{ item }} state=directory
       with_items:
