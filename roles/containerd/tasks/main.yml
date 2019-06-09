@@ -1,3 +1,11 @@
+- name: 获取是否已经安装docker
+  shell: 'systemctl status docker|grep Active'
+  register: docker_status
+
+- name: fail info1
+  fail: msg="Docker already installed!"
+  when: '"running" in docker_status.stdout'
+
 - name: 准备containerd相关目录
   file: name={{ item }} state=directory
   with_items:
