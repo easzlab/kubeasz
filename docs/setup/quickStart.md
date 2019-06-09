@@ -1,6 +1,6 @@
 ## 快速指南
 
-以下为快速体验k8s集群的测试、开发环境--allinone部署，国内环境下觉得比官方的minikube方便、简单很多。
+以下为快速体验k8s集群的测试、开发环境--allinone部署，国内环境下比官方的minikube方便、简单很多。
 
 ### 1.基础系统配置
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
 ``` bash
 # 方式一：使用git clone
-git clone --depth=1 https://github.com/easzlab/kubeasz.git /etc/ansible
+git clone --depth=1 https://github.com/easzlab/kubeasz.git -b dev2 /etc/ansible
 
 # 方式二：从发布页面 https://github.com/easzlab/kubeasz/releases 下载源码解压到同样目录
 ```
@@ -87,7 +87,7 @@ tar -xvf k8s.1-13-5.tar.gz -C /etc/ansible
 tar xvf basic_images_kubeasz_1.0.tar.gz -C /etc/ansible/down
 ```
 - 4.3 配置集群参数
-  - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.allinone.example hosts`, 然后实际情况修改此hosts文件
+  - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.allinone hosts`, 然后实际情况修改此hosts文件
   - 4.3.2 可选配置，初次使用可以不做修改，详见[配置指南](config_guide.md)
   - 4.3.3 验证ansible 安装：`ansible all -m ping` 正常能看到节点返回 SUCCESS
 

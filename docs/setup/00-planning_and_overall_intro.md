@@ -15,13 +15,12 @@
 |:-|:-|:-|
 |管理节点|1|运行ansible/easzctl脚本，可以复用master节点，但如果需要[管理创建多个集群](easzctl_cmd.md#%E5%85%B8%E5%9E%8B-easzctl-%E5%88%9B%E5%BB%BA%E7%AE%A1%E7%90%86%E7%9A%84%E9%9B%86%E7%BE%A4%E6%8B%93%E6%89%91%E5%A6%82%E4%B8%8B)，建议使用独立节点（1c1g）|
 |etcd节点|3|注意etcd集群需要1,3,5,7...奇数个节点，一般复用master节点|
-|master节点|2|高可用集群至少2个master节点)|
+|master节点|2|高可用集群至少2个master节点|
 |node节点|3|运行应用负载的节点，可根据需要提升机器配置/增加节点数|
 
 项目预定义了2个例子，请修改后完成适合你的集群规划。
 
-- [单节点](../../example/hosts.allinone)
-  - 注意：在 ha-2x 架构下，单节点可以简单地通过`add-master/add-node/add-etcd`扩容成高可用集群
+- [单节点](../../example/hosts.allinone) ，在 ha-2x 架构下，单节点集群可以通过`add-master/add-node/add-etcd`扩容成高可用集群
 - [多主多节点](../../example/hosts.multi-node)
 
 ## 部署步骤

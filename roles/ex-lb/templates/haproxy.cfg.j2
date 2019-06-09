@@ -58,7 +58,7 @@ listen ingress-node-tls
         server {{ groups['kube-node'][2] }} {{ groups['kube-node'][2] }}:23457 check inter 5s fall 2 rise 2 weight 1
 {% else %}
 {% for host in groups['kube-node'] %}
-        server {{ host }} {{ host }}:23456 check inter 5s fall 2 rise 2 weight 1
+        server {{ host }} {{ host }}:23457 check inter 5s fall 2 rise 2 weight 1
 {% endfor %}
 {% endif %}
 {% endif %}

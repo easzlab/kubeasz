@@ -6,12 +6,12 @@
 - 2.部署ingress-controller时使用`LoadBalancer`类型服务，需要集群支持`LoadBalancer`
 - 3.部署ingress-controller时使用`nodePort`类型服务，然后在集群外使用 haproxy/f5 等配置 virtual server 集群
 
-本文档讲解使用 haproxy 配置 ingress的 VS 集群，前提是`多主多节点集群`并且配置了自建`lb`节点
+本文档讲解使用 haproxy 配置 ingress的 VS 集群，前提是配置了自建`ex-lb`节点
 
-## 1.配置 lb 参数开启转发 ingress nodeport
+## 1.配置 ex-lb 参数开启转发 ingress nodeport
 
 ``` bash
-# 编辑 roles/lb/defaults/main.yml，配置如下变量
+# 编辑 roles/ex-lb/defaults/main.yml，配置如下变量
 INGRESS_NODEPORT_LB: "yes"
 INGRESS_TLS_NODEPORT_LB: "yes"
 ```
@@ -19,10 +19,10 @@ INGRESS_TLS_NODEPORT_LB: "yes"
 ## 2.重新配置启动LB节点服务
 
 ``` bash
-$ ansible-playbook /etc/ansible/roles/lb/lb.yml
+$ ansible-playbook /etc/ansible/roles/ex-lb/ex-lb.yml
 ```
 
-## 3.验证 lb 节点的 haproxy 服务配置 `/etc/haproxy/haproxy.cfg` 包含如下配置
+## 3.验证 ex-lb 节点的 haproxy 服务配置 `/etc/haproxy/haproxy.cfg` 包含如下配置
 
 ``` bash
 ... 前文省略

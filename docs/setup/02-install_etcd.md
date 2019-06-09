@@ -1,6 +1,6 @@
 ## 02-安装etcd集群
 
-kuberntes 系统使用 etcd 存储所有数据，是最重要的组件之一，注意 etcd集群只能有奇数个节点(1,3,5...)，本文档使用3个节点做集群。
+kuberntes 集群使用 etcd 存储所有数据，是最重要的组件之一，注意 etcd集群需要奇数个节点(1,3,5...)，本文档使用3个节点做集群。
 
 请在另外窗口打开[roles/etcd/tasks/main.yml](../../roles/etcd/tasks/main.yml) 文件，对照看以下讲解内容。
 
@@ -9,8 +9,6 @@ kuberntes 系统使用 etcd 存储所有数据，是最重要的组件之一，�
 https://github.com/etcd-io/etcd/releases
 
 ### 创建etcd证书请求 [etcd-csr.json.j2](../../roles/etcd/templates/etcd-csr.json.j2)
-
-首先判断下是否etcd 证书已经存在，如果已经存在就跳过证书生成步骤
 
 ``` bash
 {
@@ -86,7 +84,6 @@ WantedBy=multi-user.target
 ```
 + 完整参数列表请使用 `etcd --help` 查询
 + 注意etcd 即需要服务器证书也需要客户端证书，这里为方便使用一个peer 证书代替两个证书，更多证书相关请阅读 [01-创建CA证书和环境配置](01-CA_and_prerequisite.md)
-+ 注意{{ }} 中的参数与ansible hosts文件中设置对应
 + `--initial-cluster-state` 值为 `new` 时，`--name` 的参数值必须位于 `--initial-cluster` 列表中；
 
 ### 启动etcd服务

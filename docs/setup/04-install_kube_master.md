@@ -11,35 +11,42 @@
   - 根据调度策略为这些Pod分配节点
 - controller-manager由一系列的控制器组成，它通过apiserver监控整个集群的状态，并确保集群处于预期的工作状态
 
-master节点的高可用主要就是实现apiserver组件的高可用，在之前部署lb节点时候已经配置haproxy对它进行负载均衡。
+master节点的高可用主要就是实现apiserver组件的高可用，后面我们会看到每个 node 节点会启用 4 层负载均衡来请求 apiserver 服务。
 
 ``` text
 roles/kube-master/
+├── defaults
+│   └── main.yml
 ├── tasks
 │   └── main.yml
 └── templates
+    ├── aggregator-proxy-csr.json.j2
     ├── basic-auth.csv.j2
+    ├── basic-auth-rbac.yaml.j2
     ├── kube-apiserver.service.j2
+    ├── kube-apiserver-v1.8.service.j2
     ├── kube-controller-manager.service.j2
     ├── kubernetes-csr.json.j2
-    ├── kube-scheduler.service.j2
-    └── token.csv.j2
+    └── kube-scheduler.service.j2
 ```
 
 请在另外窗口打开[roles/kube-master/tasks/main.yml](../../roles/kube-master/tasks/main.yml) 文件，对照看以下讲解内容。
 
 ### 创建 kubernetes 证书签名请求
 
-增加判断是否已经有kubernetes证书，如果是就使用原证书，跳过生成证书步骤
-
 ``` bash
 {
   "CN": "kubernetes",
   "hosts": [
     "127.0.0.1",
-    "{{ MASTER_IP }}",
+{% if groups['ex-lb']|length > 0 %}
+    "{{ hostvars[groups['ex-lb'][0]]['EX_APISERVER_VIP'] }}",
+{% endif %}
     "{{ inventory_hostname }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
+{% for host in MASTER_CERT_HOSTS %}
+    "{{ host }}",
+{% endfor %}
     "kubernetes",
     "kubernetes.default",
     "kubernetes.default.svc",
@@ -62,13 +69,11 @@ roles/kube-master/
 }
 ```
 - kubernetes 证书既是服务器证书，同时apiserver又作为客户端证书去访问etcd 集群；作为服务器证书需要设置hosts 指定使用该证书的IP 或域名列表，需要注意的是：
-  - 多主高可用集群需要把master VIP地址 {{ MASTER_IP }} 也添加进去
+  - 如果配置 ex-lb，需要把 EX_APISERVER_VIP 也配置进去
+  - 如果需要外部访问 apiserver，需要在 defaults/main.yml 配置 MASTER_CERT_HOSTS
   - `kubectl get svc` 将看到集群中由api-server 创建的默认服务 `kubernetes`，因此也要把 `kubernetes` 服务名和各个服务域名也添加进去
-- 注意所有{{ }}变量与ansible hosts中设置的对应关系
 
-### 创建基础用户名/密码认证配置
-
-可选，为后续使用基础认证的场景做准备，如实现dashboard 用不同用户名登陆绑定不同的权限，后续更新dashboard的实践文档。
+### 【可选】创建基础用户名/密码认证配置
 
 若未创建任何基础认证配置，K8S集群部署完毕后访问dashboard将会提示`401`错误。
 
@@ -200,8 +205,6 @@ WantedBy=multi-user.target
 
 项目master 分支使用 DaemonSet 方式安装网络插件，如果master 节点不安装 kubelet 服务是无法安装网络插件的，如果 master 节点不安装网络插件，那么通过`apiserver` 方式无法访问 `dashboard` `kibana`等管理界面，[ISSUES #130](https://github.com/easzlab/kubeasz/issues/130)
 
-项目v1.8 分支使用二进制方式安装网络插件，所以没有这个问题
-
 ``` bash
 # vi 04.kube-master.yml
 - hosts: kube-master
@@ -216,7 +219,6 @@ WantedBy=multi-user.target
     ignore_errors: true
 ```
 在master 节点也同时成为 node 节点后，默认业务 POD也会调度到 master节点，多主模式下这显然增加了 master节点的负载，因此可以使用 `kubectl cordon`命令禁止业务 POD调度到 master节点
-
 
 ### master 集群的验证
 

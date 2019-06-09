@@ -1,24 +1,37 @@
 ## 05-安装kube-node节点
 
-`kube-node` 是集群中承载应用的节点，前置条件需要先部署好`kube-master`节点(因为需要操作`用户角色绑定`、`批准kubelet TLS 证书请求`等)，它需要部署如下组件：
+`kube-node` 是集群中运行工作负载的节点，前置条件需要先部署好`kube-master`节点，它需要部署如下组件：
 
 + docker：运行容器
-+ calico： 配置容器网络 (或者 flannel)
 + kubelet： kube-node上最主要的组件
 + kube-proxy： 发布应用服务与负载均衡
++ haproxy：用于请求转发到多个 apiserver，详见[HA 架构](00-planning_and_overall_intro.md)
++ calico： 配置容器网络 (或者 flannel)
 
 ``` bash
-roles/kube-node
+roles/kube-node/
+├── defaults
+│   └── main.yml		# 变量配置文件
 ├── tasks
-│   └── main.yml
+│   ├── main.yml		# 主执行文件
+│   └── node_lb.yml		# haproxy 安装文件
 └── templates
-    ├── cni-default.conf.j2
-    ├── kubelet.service.j2
-    ├── kubelet-csr.json.j2
-    └── kube-proxy.service.j2
+    ├── cni-default.conf.j2	# 默认cni插件配置模板
+    ├── haproxy.cfg.j2		# haproxy 配置模板
+    ├── haproxy.service.j2	# haproxy 服务模板
+    ├── kubelet-csr.json.j2	# 证书请求模板
+    ├── kubelet.service.j2	# kubelet 服务模板
+    └── kube-proxy.service.j2	# kube-proxy 服务模板
 ```
 
 请在另外窗口打开[roles/kube-node/tasks/main.yml](../../roles/kube-node/tasks/main.yml) 文件，对照看以下讲解内容。
+
+### 变量配置文件
+
+详见 roles/kube-node/defaults/main.yml
+- 变量`PROXY_MODE`，配置 kube-proxy 服务代理模式 iptables or ipvs
+- 变量`KUBE_APISERVER`，根据不同的节点情况，它有三种取值方式
+- 变量`MASTER_CHG`，变更 master 节点时会根据它来重新配置 haproxy
 
 ### 创建cni 基础网络插件配置文件
 
@@ -117,15 +130,6 @@ WantedBy=multi-user.target
 
 + --hostname-override 参数值必须与 kubelet 的值一致，否则 kube-proxy 启动后会找不到该 Node，从而不会创建任何 iptables 规则
 + 特别注意：kube-proxy 根据 --cluster-cidr 判断集群内部和外部流量，指定 --cluster-cidr 或 --masquerade-all 选项后 kube-proxy 才会对访问 Service IP 的请求做 SNAT；但是这个特性与calico 实现 network policy冲突，所以如果要用 network policy，这两个选项都不要指定。
-
-### 批准kubelet 的 TLS 证书请求
-
-``` bash
-sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve
-```
-+ 增加15秒延时等待kubelet启动
-+ `kubectl get csr |grep 'Pending'` 找出待批准的 TLS请求
-+ `kubectl certificate approve` 批准请求
 
 ### 验证 node 状态
 

@@ -2,14 +2,16 @@
 
 ``` bash
 roles/docker/
+├── defaults
+│   └── main.yml		# 变量配置文件
 ├── files
-│   ├── daemon.json
-│   ├── docker
-│   └── docker-tag
+│   ├── docker			# bash 自动补全
+│   └── docker-tag		# 查询镜像tag的小工具
 ├── tasks
-│   └── main.yml
-└── templates
-    └── docker.service.j2
+│   └── main.yml		# 主执行文件
+└── templates	
+    ├── daemon.json.j2		# docker daemon 配置文件
+    └── docker.service.j2	# service 服务模板
 ```
 
 请在另外窗口打开[roles/docker/tasks/main.yml](../../roles/docker/tasks/main.yml) 文件，对照看以下讲解内容。
@@ -58,14 +60,14 @@ WantedBy=multi-user.target
 }
 ```
 
-这将在后续部署calico下载 calico/node镜像和kubedns/heapster/dashboard镜像时起到重要加速效果。
+这将在后续部署calico下载 calico/node镜像和kubedns/heapster/dashboard镜像时起到加速效果。
 
 由于K8S的官方镜像存放在`gcr.io`仓库，因此这个镜像加速对K8S的官方镜像没有效果；好在`Docker Hub`上有很多K8S镜像的转存，而`Docker Hub`上的镜像可以加速。这里推荐两个K8S镜像的`Docker Hub`项目,几乎能找到所有K8S相关的镜像，而且更新及时，感谢维护者的辛勤付出！
 
 + [mirrorgooglecontainers](https://hub.docker.com/u/mirrorgooglecontainers/)
 + [anjia0532](https://hub.docker.com/u/anjia0532/), [项目github地址](https://github.com/anjia0532/gcr.io_mirror)
 
-当然对于企业内部应用的docker镜像，想要在K8S平台运行的话，特别是结合开发`CI/CD` 流程，肯定是需要部署私有镜像仓库的，后续会简单提到 `Harbor`的部署。
+当然对于企业内部应用的docker镜像，想要在K8S平台运行的话，特别是结合开发`CI/CD` 流程，肯定是需要部署私有镜像仓库的，参阅[harbor文档](../guide/harbor.md)。
 
 另外，daemon.json配置中也配置了docker 容器日志相关参数，设置单个容器日志超过10M则进行回卷，回卷的副本数超过3个就进行清理。
 
