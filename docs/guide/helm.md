@@ -6,13 +6,13 @@
 
 ## 安全安装 helm（在线）
 
-在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在delpoy节点运行:  
+以下步骤以 helm/tiller 版本 v2.14.1 为例，在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在ansible控制端运行:  
 ``` bash
-# 1.如果已安装非安全模式，使用 helm reset 清理
-# 2.配置默认helm参数 vi  /etc/ansible/roles/helm/defaults/main.yml
-# 3.执行安装
+# 1.配置默认helm参数 vi  /etc/ansible/roles/helm/defaults/main.yml
+# 2.执行安装
 $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 ```
+- 注意：默认仅在第一个master节点初始化helm客户端，如果需要在其他节点初始化helm客户端，请修改 roles/helm/helm.yml 文件的 hosts 定义，然后再次执行`ansible-playbook /etc/ansible/roles/helm/helm.yml`即可
 
 简单介绍下`/roles/helm/tasks/main.yml`中的步骤
 
@@ -22,12 +22,6 @@ $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 - 4-创建tiller专用的RBAC配置，只允许helm在指定的namespace查看和安装应用
 - 5-安全安装tiller到集群，tiller服务启用tls验证
 - 6-配置helm客户端使用tls方式与tiller服务端通讯
-
-### 注意因使用了TLS认证，所以helm命令执行分以下两种情况 
-
-- 执行与tiller服务有关的命令，比如 `helm ls` `helm version` `helm install`等需要加`--tls`参数
-- 执行其他命令，比如`helm search` `helm fetch` `helm home`等不需要加`--tls`
-- helm v2.11.0及以上版本，启用环境变量 HELM_TLS_ENABLE=true，可以都不用加 --tls 参数
 
 ## 安全安装 helm（离线）
 在内网环境中，由于不能访问互联网，无法连接repo地址，使用上述的在线安装helm的方式会报错。因此需要使用离线安装的方法来安装。
