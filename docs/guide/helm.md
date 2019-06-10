@@ -16,7 +16,7 @@ $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 
 简单介绍下`/roles/helm/tasks/main.yml`中的步骤
 
-- 1-下载最新release的helm客户端到/etc/ansible/bin目录下，再由它自动推送到deploy的{{ bin_dir }}目录下
+- 1-下载最新release的helm客户端到/etc/ansible/bin目录下
 - 2-由集群CA签发helm客户端证书和私钥
 - 3-由集群CA签发tiller服务端证书和私钥
 - 4-创建tiller专用的RBAC配置，只允许helm在指定的namespace查看和安装应用

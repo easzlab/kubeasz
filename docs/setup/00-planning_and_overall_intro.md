@@ -56,7 +56,7 @@ yum update
 yum install python -y
 ```
 
-### 3.在deploy节点安装及准备ansible
+### 3.在ansible控制端安装及准备ansible
 
 - pip 安装 ansible（如果 Ubuntu pip报错，请看[附录](00-planning_and_overall_intro.md#Appendix)）
 
@@ -72,7 +72,7 @@ pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-ho
 pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
-- 在deploy节点配置免密码登陆
+- 在ansible控制端配置免密码登陆
 
 ``` bash
 # 更安全 Ed25519 算法
@@ -83,7 +83,7 @@ ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa
 ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 和root密码
 ```
 
-### 4.在deploy节点编排k8s安装
+### 4.在ansible控制端编排k8s安装
 
 - 4.1 下载项目源码
 

@@ -37,7 +37,7 @@ kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 
 + `kubectl` `calico` `kube-proxy` 只需要`client cert`，因此证书请求中 `hosts` 字段可以为空
 + `kubelet` 需要标识自己服务的`server cert`，也需要`client cert`请求`apiserver`，也使用一个对等证书
 
-整个集群要使用统一的CA 证书，只需要在 deploy 节点创建，然后分发给其他节点；为了保证安装的幂等性，如果已经存在CA 证书，就跳过创建CA 步骤
+整个集群要使用统一的CA 证书，只需要在ansible控制端创建，然后分发给其他节点；为了保证安装的幂等性，如果已经存在CA 证书，就跳过创建CA 步骤
 
 #### 创建 CA 配置文件 [ca-config.json.j2](../../roles/deploy/templates/ca-config.json.j2)
 ``` bash
