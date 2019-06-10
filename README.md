@@ -2,7 +2,7 @@
 
 `kubeasz`致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据[指南](docs/setup/00-planning_and_overall_intro.md)分步执行安装各个组件。
 
-- **集群特性** `TLS`双向认证、`RBAC`授权、[多Master高可用](docs/setup/00-planning_and_overall_intro.md#HA architecture)、支持`Network Policy`、备份恢复
+- **集群特性** `TLS`双向认证、`RBAC`授权、[多Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、备份恢复
 - **集群版本** kubernetes v1.8, v1.9, v1.10, v1.11, v1.12, v1.13, v1.14
 - **操作系统** Ubuntu 16.04+, CentOS/RedHat 7
 - **运行时** docker 17.03.x-ce, 18.06.x-ce, 18.09.x, [containerd](docs/guide/containerd.md) 1.2.6
