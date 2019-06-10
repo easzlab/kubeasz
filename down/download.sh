@@ -3,16 +3,15 @@
 # It's suggested to download the entire *.tar.gz at https://pan.baidu.com/s/1c4RFaA
 
 # example releases
-K8S_VER=v1.13.4
-ETCD_VER=v3.3.8
-DOCKER_VER=18.09.2
+K8S_VER=v1.13.7
+ETCD_VER=v3.3.10
+DOCKER_VER=18.09.6
 CNI_VER=v0.7.5
-DOCKER_COMPOSE_VER=1.18.0
+DOCKER_COMPOSE_VER=1.23.2
 HARBOR_VER=v1.5.4
 CONTAINERD_VER=1.2.6
 
-echo -e "\nNote1: Before this script, please finish downloading binaries manually from following urls."
-echo -e "\nNote2：If binaries are not ready, use `Ctrl + C` to stop this script."
+echo -e "\n\033[33mNote1: please download binaries manually from following urls.\033[0m"
 
 echo -e "\n----download k8s binary at:"
 echo -e https://dl.k8s.io/${K8S_VER}/kubernetes-server-linux-amd64.tar.gz
