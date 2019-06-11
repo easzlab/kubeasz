@@ -1,5 +1,5 @@
 - name: 获取是否已经安装containerd
-  shell: 'systemctl status containerd|grep Active'
+  shell: 'systemctl status containerd|grep Active || echo "NOT FOUND"'
   register: containerd_status
 
 - name: fail info1

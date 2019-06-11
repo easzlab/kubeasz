@@ -1,5 +1,5 @@
 - name: 获取是否已经安装docker
-  shell: 'systemctl status docker|grep Active'
+  shell: 'systemctl status docker|grep Active || echo "NOT FOUND"'
   register: docker_status
 
 - name: fail info1
