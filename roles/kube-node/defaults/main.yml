@@ -14,9 +14,10 @@ MAX_PODS: 110
 # 配置为kube组件（kubelet,kube-proxy,dockerd等）预留的资源量
 KUBE_RESERVED_ENABLED: "yes"
 KUBE_RESERVED: "cpu=200m,memory=500Mi,ephemeral-storage=1Gi"
+SYS_RESERVED: "cpu=200m,memory=500Mi,ephemeral-storage=1Gi"
 
 # 配置kubelet的hard eviction条件
-HARD_EVICTION: "memory.available<200Mi,nodefs.available<10%"
+HARD_EVICTION: "memory.available<500Mi,nodefs.available<10%"
 
 # node 请求 apiserver 负载均衡算法，常见如下：
 # "roundrobin": 基于服务器权重的轮询

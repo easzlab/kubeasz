@@ -39,9 +39,11 @@ ExecStart={{ bin_dir }}/kubelet \
   --cgroups-per-qos=true \
   --cgroup-driver=cgroupfs \
 {% if KUBE_RESERVED_ENABLED == "yes" %}
-  --enforce-node-allocatable=pods,kube-reserved \
+  --enforce-node-allocatable=pods,kube-reserved,system-reserved \
   --kube-reserved={{ KUBE_RESERVED }} \
   --kube-reserved-cgroup=/system.slice/kubelet.service \
+  --system-reserved={{ SYS_RESERVED }} \
+  --system-reserved-cgroup=/system.slice \
 {% endif %}
   --eviction-hard={{ HARD_EVICTION }} \
   --v=2
