@@ -117,6 +117,11 @@
 - name: 移动 kube-proxy.kubeconfig
   shell: "mv /root/kube-proxy.kubeconfig /etc/kubernetes/"
 
+# 检查deploy节点是否有 kubeasz 代码，有的话说明deploy节点就是ansible控制节点
+- name: 获取当前节点是否有 kubeasz 相关代码
+  shell: 'ls /etc/ansible/README.md || echo "NotFound"'
+  register: kubeasz_files
+
 # --- 以下为兼容ansible执行节点与deploy节点分离情况-------
 - block:
   - name: 在 ansible 执行节点创建 .kube 目录
@@ -143,4 +148,6 @@
     - id_rsa.pub
     - known_hosts
   run_once: true
-  when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
+  when:
+  - "'NotFound' in kubeasz_files.stdout"
+  - "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
