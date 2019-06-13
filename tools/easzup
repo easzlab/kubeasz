@@ -2,7 +2,7 @@
 
 set -o nounset
 set -o errexit
-set -o xtrace
+#set -o xtrace
 
 function install_docker() {
   systemctl status docker|grep Active|grep -q running && { echo "[WARN] dockerd already running!"; return 0; }
@@ -10,7 +10,7 @@ function install_docker() {
   systemctl status containerd|grep Active|grep -q running && { echo "[ERROR] containerd running, but unsupported!"; exit 1; }
 
   mkdir -p /opt/kube/bin /etc/docker
-  echo "[INFO] downloading docker $DOCKER_VER"
+  echo -e "[INFO] \033[33mdownloading docker\033[0m $DOCKER_VER"
   wget -c https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/x86_64/docker-$DOCKER_VER.tgz
   tar zxf docker-$DOCKER_VER.tgz
   mv docker/* /opt/kube/bin
@@ -62,7 +62,7 @@ function get_kubeasz() {
   if [ -d "/etc/ansible/roles/kube-node" ];then
     echo "[WARN] kubeasz already Initialized."
   else
-    echo "[INFO] downloading kubeasz $KUBEASZ_VER"
+    echo -e "[INFO] \033[33mdownloading kubeasz\033[0m $KUBEASZ_VER"
     rm -rf /etc/ansible
     docker pull easzlab/kubeasz:$KUBEASZ_VER
     echo "[INFO] run a temporary container"
@@ -78,14 +78,15 @@ function get_k8s_bin() {
   if [ -f "/etc/ansible/bin/kubelet" ];then
     echo "[WARN] kubernetes:$K8S_BIN_VER binaries already existed."
   else
-    echo "[INFO] downloading kubernetes:$K8S_BIN_VER binaries"
+    echo -e "[INFO] \033[33mdownloading kubernetes\033[0m $K8S_BIN_VER binaries"
     docker pull easzlab/kubeasz-k8s-bin:$K8S_BIN_VER
     echo "[INFO] run a temporary container"
     docker run -d --name temp_k8s_bin easzlab/kubeasz-k8s-bin:$K8S_BIN_VER
     echo "[INFO] cp k8s binaries"
-    docker cp temp_k8s_bin:/k8s /k8s_bin && mv /k8s_bin/* /etc/ansible/bin
+    docker cp temp_k8s_bin:/k8s /k8s_bin_tmp && mv /k8s_bin_tmp/* /etc/ansible/bin
     echo "[INFO] stop&remove temporary container"
     docker rm -f temp_k8s_bin
+    rm -rf /k8s_bin_tmp
   fi
 }
 
@@ -93,15 +94,15 @@ function get_ext_bin() {
   if [ -f "/etc/ansible/bin/etcdctl" ];then
     echo "[WARN] extral binaries already existed."
   else
-    echo "[INFO] downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
+    echo -e "[INFO] \033[33mdownloading extral binaries\033[0m kubeasz-ext-bin:$EXT_BIN_VER"
     docker pull easzlab/kubeasz-ext-bin:$EXT_BIN_VER
     echo "[INFO] run a temporary container"
     docker run -d --name temp_ext_bin easzlab/kubeasz-ext-bin:$EXT_BIN_VER
     echo "[INFO] cp extral binaries"
-    docker cp temp_ext_bin:/extra /extra_bin && mv /extra_bin/* /etc/ansible/bin
+    docker cp temp_ext_bin:/extra /extra_bin_tmp && mv /extra_bin_tmp/* /etc/ansible/bin
     echo "[INFO] stop&remove temporary container"
     docker rm -f temp_ext_bin
-    chmod +x /etc/ansible/bin/*
+    rm -rf /extra_bin_tmp
   fi
 }
 
@@ -119,6 +120,8 @@ function get_offline_image() {
   imageDir=/etc/ansible/down
   [ -d "$imageDir" ] || { echo "[ERROR] $imageDir not existed!"; exit 1; }
   
+  echo -e "[INFO] \033[33mdownloading offline images\033[0m"
+
   if [ ! -f "$imageDir/calico_${calicoVer}.tar" ];then
     docker pull calico/cni:$calicoVer
     docker pull calico/kube-controllers:$calicoVer
@@ -197,7 +200,7 @@ function usage() {
   cat <<EOF
 Usage: $0 [options] [args]
   option: -{DdekSz}
-    -C         stop&clean all containers
+    -C         stop&clean all local containers
     -D         download all into /etc/ansible
     -S         start kubeasz in a container
     -d <ver>   set docker-ce version, default 18.09.6 
@@ -230,7 +233,7 @@ fi
 
 # default version, can be overridden by cmd line options
 export DOCKER_VER=18.09.6
-export KUBEASZ_VER=1.2.0
+export KUBEASZ_VER=1.3.0
 export K8S_BIN_VER=v1.14.3
 export EXT_BIN_VER=0.3.0
 
