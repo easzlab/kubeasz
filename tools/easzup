@@ -85,19 +85,18 @@ EOF
 function get_kubeasz() {
   # check if kubeasz already existed
   [[ -d "/etc/ansible/roles/kube-node" ]] && { echo "[WARN] kubeasz already existed"; return 0; }
-  # temporarily move docker binaries
-  [[ -f "/etc/ansible/down/docker-${DOCKER_VER}.tgz" ]] && mv "/etc/ansible/down/docker-${DOCKER_VER}.tgz" /tmp
 
-  rm -rf /etc/ansible && \
   echo -e "[INFO] \033[33mdownloading kubeasz\033[0m $KUBEASZ_VER" && \
   docker pull easzlab/kubeasz:${KUBEASZ_VER} && \
   echo "[INFO] run a temporary container" && \
   docker run -d --name temp_easz easzlab/kubeasz:${KUBEASZ_VER} && \
+  mv "/etc/ansible/down/docker-${DOCKER_VER}.tgz" /tmp && \
+  rm -rf /etc/ansible && \
   echo "[INFO] cp kubeasz code from the temporary container" && \
   docker cp temp_easz:/etc/ansible /etc/ansible && \
   echo "[INFO] stop&remove temporary container" && \
   docker rm -f temp_easz && \
-  [[ -f "/tmp/docker-${DOCKER_VER}.tgz" ]] && mv "/tmp/docker-${DOCKER_VER}.tgz" /etc/ansible/down || true
+  mv "/tmp/docker-${DOCKER_VER}.tgz" /etc/ansible/down
 }
 
 function get_k8s_bin() {
