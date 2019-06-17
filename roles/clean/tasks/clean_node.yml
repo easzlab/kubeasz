@@ -31,35 +31,33 @@
         shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
         register: install_info
 
-      - name: fail info
-        fail: msg="you CAN NOT delete dockerd, because container 'kubeasz' is running!"
-        when: "'kubeasz' in install_info.stdout"
-
-      - name: stop and disable docker service
-        service:
-          name: docker
-          state: stopped
-          enabled: no
-        ignore_errors: true
-
-      # as k8s-network-plugins use host-network, '/var/run/docker/netns/default' must be umounted
-      - name: unmount docker filesystem-1
-        mount: path=/var/run/docker/netns/default state=unmounted
-
-      - name: unmount docker filesystem-2
-        mount: path=/var/lib/docker/overlay state=unmounted
-
-      - name: remove files and dirs
-        file: name={{ item }} state=absent
-        with_items:
-        - "/var/lib/docker/"
-        - "/var/run/docker/"
-        - "/etc/docker/"
-        - "/etc/systemd/system/docker.service"
-        - "/etc/systemd/system/docker.service.requires/"
-        - "/etc/systemd/system/docker.service.d/"
-        - "/etc/bash_completion.d/docker"
-        - "/usr/bin/docker"
+      - block:
+        - name: stop and disable docker service
+          service:
+            name: docker
+            state: stopped
+            enabled: no
+          ignore_errors: true
+  
+        # as k8s-network-plugins use host-network, '/var/run/docker/netns/default' must be umounted
+        - name: unmount docker filesystem-1
+          mount: path=/var/run/docker/netns/default state=unmounted
+  
+        - name: unmount docker filesystem-2
+          mount: path=/var/lib/docker/overlay state=unmounted
+  
+        - name: remove files and dirs
+          file: name={{ item }} state=absent
+          with_items:
+          - "/var/lib/docker/"
+          - "/var/run/docker/"
+          - "/etc/docker/"
+          - "/etc/systemd/system/docker.service"
+          - "/etc/systemd/system/docker.service.requires/"
+          - "/etc/systemd/system/docker.service.d/"
+          - "/etc/bash_completion.d/docker"
+          - "/usr/bin/docker"
+        when: "'kubeasz' not in install_info.stdout"
     when: CONTAINER_RUNTIME == 'docker'
 
   - block:
@@ -123,8 +121,7 @@
     ignore_errors: true
 
   - name: cleanup networks2
-    shell: "ip link del docker0; \
-        systemctl restart networking; \
+    shell: "systemctl restart networking; \
         systemctl restart network"
     ignore_errors: true
 
