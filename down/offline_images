@@ -1,22 +1,22 @@
 ###---[basic_images ]
 
+calico/node:v3.4.4
+calico/cni:v3.4.4
+calico/kube-controllers:v3.4.4
+
 coredns/coredns:1.5.0
+
+mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.1
+
+easzlab/flannel:v0.11.0-amd64
+ 
+mirrorgooglecontainers/heapster-amd64:v1.5.4
 
 mirrorgooglecontainers/metrics-server-amd64:v0.3.2
  
-calico/node:v3.4.3
-calico/cni:v3.4.3
-calico/kube-controllers:v3.4.3
-
-jmgao1983/flannel:v0.11.0-amd64
- 
-mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.1
-mirrorgooglecontainers/heapster-amd64:v1.5.4
-
 mirrorgooglecontainers/pause-amd64:3.1
 
-# traefik ingress 
-traefik:v1.7.11
+traefik:v1.7.12
 
 ###---[extra-images]
 # kube-dns
@@ -26,18 +26,19 @@ mirrorgooglecontainers/k8s-dns-sidecar-amd64:1.14.13
 # cilium 
 cilium/cilium:v1.4.4
 # kube-router 
-cloudnativelabs/kube-router:v0.2.0
+cloudnativelabs/kube-router:v0.3.1
 # heapster 
 mirrorgooglecontainers/heapster-grafana-amd64:v4.4.3
 mirrorgooglecontainers/heapster-amd64:v1.5.4
 mirrorgooglecontainers/heapster-influxdb-amd64:v1.5.2
 # helm tiller server 
-jmgao1983/tiller:v2.12.3
+easzlab/tiller:v2.14.1
 # efk 
-mirrorgooglecontainers/elasticsearch:v5.6.4
+easzlab/elasticsearch:v6.6.1
+easzlab/es-index-rotator:0.1.3
 alpine:3.6
-mirrorgooglecontainers/fluentd-elasticsearch:v2.0.2
-jmgao1983/kibana:5.6.4
+mirrorgooglecontainers/fluentd-elasticsearch:v2.4.0
+easzlab/kibana-oss:6.6.1
 # nfs dynamic PV provisioner
 jmgao1983/nfs-client-provisioner:latest
 # prometheus

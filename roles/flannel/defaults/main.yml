@@ -5,7 +5,7 @@
 FLANNEL_BACKEND: "vxlan"
 
 #flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
-flanneld_image: "jmgao1983/flannel:v0.11.0-amd64"
+flanneld_image: "easzlab/flannel:v0.11.0-amd64"
 
 # 离线镜像tar包
 flannel_offline: "flannel_v0.11.0-amd64.tar"
