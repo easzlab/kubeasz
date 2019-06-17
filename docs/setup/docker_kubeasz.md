@@ -4,7 +4,8 @@
 
 - 1.准备一台全新虚机（ansible控制端）
 ```
-$ curl -sfL https://github.com/easzlab/kubeasz/releases/download/1.3.0/easzup
+$ wget https://github.com/easzlab/kubeasz/releases/download/1.3.0/easzup
+$ chmod +x ./easzup
 $ ./easzup -D
 ``` 
 - 2.配置 ssh 密钥登陆集群节点
