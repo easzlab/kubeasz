@@ -2,7 +2,7 @@
 
 多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加 node 节点安装 haproxy。
 
-- HA 架构
+### HA architecture
 
 ![ha-2x](../../pics/ha-2x.gif)
 

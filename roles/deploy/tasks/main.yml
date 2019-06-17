@@ -28,6 +28,7 @@
 - block:
     - name: 删除原有kubeconfig
       file: path=/root/.kube state=absent
+      ignore_errors: true
     
     - name: 下载 group:read rbac 文件
       copy: src=read-group-rbac.yaml dest=/tmp/read-group-rbac.yaml
