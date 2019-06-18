@@ -1,28 +1,41 @@
 # 公有云上部署 kubeasz
 
-在公有云上使用`kubeasz`部署`k8s`集群需要注意以下几点：
+在公有云上使用`kubeasz`部署`k8s`集群需要注意以下几个常见问题。
 
-1. 注意虚机的安全组规则配置，一般集群内部节点之间端口放开即可;
+### 安全组
 
-2. 部分`k8s`网络组件受限，一般可以选择 flannel (vxlan模式)、calico（开启ipinip）;
+注意虚机的安全组规则配置，一般集群内部节点之间端口放开即可；
 
-3. 无法自由创建`lb`节点，一般使用云负载均衡（内网）四层TCP负载模式;
+### 网络组件
 
-4. 安装时各个节点开通公网访问（可以使用绑定EIP/开通NAT网关/利用iptables自建上网网关等方式）
+一般公有云对网络限制较多，跨节点 pod 通讯需要使用 OVERLAY 添加报头；比如可以使用如下：(kubeasz 项目中已默认配置)
 
-5. 部分云厂商负载均衡使用四层模式时不支持添加进后端云服务器池的 ECS 既作为 Real Server，又作为客户端向所在的 SLB 实例发送请求；因此在 master节点执行 kubectl 访问 apiserver VIP 地址时，会出现时通时不通的情况；但是不影响 kubeasz-k8s 集群正常工作。
+- flannel 使用 vxlan 模式：`roles/flannel/defaults/main.yml`
+- calico 开启 ipinip：`roles/calico/defaults/main.yml`
+- kube-router 开启 ipinip：`roles/kube-router/defaults/main.yml`
+
+### 节点公网访问
+
+可以在安装时每个节点绑定`弹性公网地址`(EIP)，装完集群解绑；也可以开通NAT网关，或者利用iptables自建上网网关等方式
+
+### 负载均衡
+
+一般云厂商会限制使用`keepalived+haproxy`自建负载均衡，你可以根据云厂商文档使用云负载均衡（内网）四层TCP负载模式；
+
+- kubeasz 2x 版本已无需依赖外部负载均衡实现apiserver的高可用，详见 [2x架构](https://github.com/easzlab/kubeasz/blob/dev2/docs/setup/00-planning_and_overall_intro.md#ha-architecture)
+- kubeasz 1x 及以前版本需要负载均衡实现apiserver高可用，详见 [1x架构](https://github.com/easzlab/kubeasz/blob/dev1/docs/setup/00-planning_and_overall_intro.md#ha-architecture)
+
+### 时间同步
+
+一般云厂商提供的虚机都已默认安装时间同步服务，无需自行安装。 
+
+### 访问 APISERVER
+
+在公有云上安装完集群后，需要在公网访问集群 apiserver，而我们在安装前可能没有规划公网IP或者公网域名；而 apiserver 肯定需要 https 方式访问，在证书创建时需要加入公网ip/域名；可以参考这里[修改 APISERVER（MASTER）证书](../op/ch_apiserver_cert.md)
 
 ## 在公有云上部署多主高可用集群
 
-- 单节点、单主多节点集群的规划及安装与自有环境没有差异
+处理好以上讨论的常见问题后，在公有云上使用 kubeasz 安装集群与自有环境没有差异。
 
-- 多主高可用集群不需要lb，节点规划可以参考 [example/hosts.cloud.example](../../example/hosts.cloud.example)
-
-- [阿里云部署 kubeasz 举例](kubeasz_on_aliyun.md)
-
-- [腾讯云部署 kubeasz 举例](kubeasz_on_tencent_cloud.md)
-
-- [百度云部署 kubeasz 举例](kubeasz_on_baidu_cloud.md)
-
-- [AWS 部署 kubeasz 举例](kubeasz_on_aws_cloud.md)
+- 使用 kubeasz 2x 版本安装单节点、单主多节点、多主多节点 k8s 集群，云上云下的预期安装体验完全一致
 
