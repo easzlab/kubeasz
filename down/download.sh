@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script describes where to download the official released binaries needed
-# It's suggested to download the entire *.tar.gz at https://pan.baidu.com/s/1c4RFaA
+# It's suggested to download using 'tools/easzup -D', everything needed will be ready in '/etc/ansible'
 
 # example releases
 K8S_VER=v1.13.7
@@ -11,8 +11,7 @@ DOCKER_COMPOSE_VER=1.23.2
 HARBOR_VER=v1.5.4
 CONTAINERD_VER=1.2.6
 
-echo -e "\nNote1: Before this script, please finish downloading binaries manually from following urls."
-echo -e "\nNote2：If binaries are not ready, use `Ctrl + C` to stop this script."
+echo -e "\nNote: It's suggested to download using 'tools/easzup -D', everything needed will be ready in '/etc/ansible'."
 
 echo -e "\n----download k8s binary at:"
 echo -e https://dl.k8s.io/${K8S_VER}/kubernetes-server-linux-amd64.tar.gz
