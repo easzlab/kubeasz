@@ -1,5 +1,10 @@
 # [可选]操作系统安全加固 https://github.com/dev-sec/ansible-os-hardening
-- hosts: all
+- hosts:
+  - kube-master
+  - kube-node
+  - etcd
+  - ex-lb
+  - chrony
   vars:
     os_security_users_allow: change_user
     os_auth_pam_passwdqc_enable: false

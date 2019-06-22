@@ -23,7 +23,10 @@
   - deploy
 
 # pre-tasks on all nodes
-- hosts: all
+- hosts:
+  - kube-master
+  - kube-node
+  - etcd
   roles:
   - prepare
 
