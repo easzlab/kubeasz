@@ -1,7 +1,5 @@
 ## 00-集群规划和基础参数设定
 
-多节点高可用集群部署步骤与[AllinOne部署](quickStart.md)基本一致，增加 node 节点安装 haproxy。
-
 ### HA architecture
 
 ![ha-2x](../../pics/ha-2x.gif)
@@ -13,15 +11,15 @@
 
 |角色|数量|描述|
 |:-|:-|:-|
-|管理节点|1|运行ansible/easzctl脚本，可以复用master节点，但如果需要[管理创建多个集群](easzctl_cmd.md#%E5%85%B8%E5%9E%8B-easzctl-%E5%88%9B%E5%BB%BA%E7%AE%A1%E7%90%86%E7%9A%84%E9%9B%86%E7%BE%A4%E6%8B%93%E6%89%91%E5%A6%82%E4%B8%8B)，建议使用独立节点（1c1g）|
+|管理节点|1|运行ansible/easzctl脚本，可以复用master，建议使用独立节点（1c1g）|
 |etcd节点|3|注意etcd集群需要1,3,5,7...奇数个节点，一般复用master节点|
 |master节点|2|高可用集群至少2个master节点|
 |node节点|3|运行应用负载的节点，可根据需要提升机器配置/增加节点数|
 
-项目预定义了2个例子，请修改后完成适合你的集群规划。
+在 kubeasz 2x 版本，多节点高可用集群安装可以使用2种方式
 
-- [单节点](../../example/hosts.allinone) ，在 ha-2x 架构下，单节点集群可以通过`add-master/add-node/add-etcd`扩容成高可用集群
-- [多主多节点](../../example/hosts.multi-node)
+- 1.先部署单节点集群 [AllinOne部署](quickStart.md)，然后通过 [节点添加](../op/op-index.md) 扩容成高可用集群
+- 2.按照如下步骤先规划准备，直接安装多节点高可用集群
 
 ## 部署步骤
 
@@ -49,8 +47,6 @@ CentOS 7 请执行以下脚本：
 
 ``` bash
 # 文档中脚本默认均以root用户执行
-# 安装 epel 源并更新
-yum install epel-release -y
 yum update
 # 安装python
 yum install python -y
@@ -58,7 +54,7 @@ yum install python -y
 
 ### 3.在ansible控制端安装及准备ansible
 
-- pip 安装 ansible（如果 Ubuntu pip报错，请看[附录](00-planning_and_overall_intro.md#Appendix)）
+- 3.1 pip 安装 ansible（如果 Ubuntu pip报错，请看[附录](00-planning_and_overall_intro.md#Appendix)）
 
 ``` bash
 # Ubuntu 16.04 
@@ -67,12 +63,12 @@ apt-get install git python-pip -y
 yum install git python-pip -y
 # pip安装ansible(国内如果安装太慢可以直接用pip阿里云加速)
 #pip install pip --upgrade
-#pip install ansible
+#pip install ansible==2.6.12
 pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install ansible==2.6.12 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
-- 在ansible控制端配置免密码登陆
+- 3.2 在ansible控制端配置免密码登陆
 
 ``` bash
 # 更安全 Ed25519 算法
@@ -85,27 +81,20 @@ ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 
 
 ### 4.在ansible控制端编排k8s安装
 
-- 4.1 下载项目源码
+- 4.0 下载项目源码
+- 4.1 下载二进制文件
+- 4.2 下载离线docker镜像
+
+推荐使用 easzup 脚本下载 4.0/4.1/4.2 所需文件；运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/ansilbe`
 
 ``` bash
-# 方式一：使用git clone
-git clone --depth=1 https://github.com/easzlab/kubeasz.git -b dev2 /etc/ansible
-
-# 方式二：从发布页面 https://github.com/easzlab/kubeasz/releases 下载源码解压到同样目录
+# 下载工具脚本easzup
+$ curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
+$ chmod +x ./easzup
+# 使用工具脚本下载
+$ ./easzup -D
 ```
-- 4.2a 下载二进制文件
-请从分享的[百度云链接](https://pan.baidu.com/s/1c4RFaA)，下载解压到/etc/ansible/bin目录，如果你有合适网络环境也可以按照/down/download.sh自行从官网下载各种tar包
 
-``` bash
-# 以安装k8s v1.13.5为例
-tar -xvf k8s.1-13-5.tar.gz -C /etc/ansible
-```
-- 4.2b [可选]下载离线docker镜像
-服务器使用内部yum源/apt源，但是无法访问公网情况下，请下载离线docker镜像完成集群安装；从百度云盘把`basic_images_kubeasz_x.y.tar.gz` 下载解压到`/etc/ansible/down` 目录
-
-``` bash
-tar xvf basic_images_kubeasz_1.0.tar.gz -C /etc/ansible/down
-```
 - 4.3 配置集群参数
   - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.multi-node hosts`, 然后实际情况修改此hosts文件
   - 4.3.2 可选配置，初次使用可以不做修改，详见[配置指南](config_guide.md)
