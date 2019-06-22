@@ -77,6 +77,12 @@ EOF
 }
 EOF
 
+  if [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
+    echo "[INFO] turn off selinux in CentOS/Redhat"
+    setenforce 0
+    echo "SELINUX=disabled" > /etc/selinux/config
+  fi
+
   echo "[INFO] enable and start docker"
   systemctl enable docker
   systemctl daemon-reload && systemctl restart docker
