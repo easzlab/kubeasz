@@ -30,12 +30,13 @@ function install_docker() {
     echo "[INFO] docker binaries already existed"
   else
     echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
-    wget -c -P /etc/ansible/down "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
+    curl -C- -O --retry 3 "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
   fi
 
-  tar zxf /etc/ansible/down/docker-${DOCKER_VER}.tgz -C /etc/ansible/down
-  mv /etc/ansible/down/docker/* /opt/kube/bin
-  ln -sf /opt/kube/bin/docker /bin/docker
+  tar zxf ./docker-${DOCKER_VER}.tgz -C /etc/ansible/down && \
+  mv ./docker-${DOCKER_VER}.tgz /etc/ansible/down && \
+  mv /etc/ansible/down/docker/* /opt/kube/bin && \
+  ln -sf /opt/kube/bin/docker /bin/docker 
 
   echo "[INFO] generate docker service file"
   cat > /etc/systemd/system/docker.service << EOF
@@ -136,6 +137,7 @@ function get_ext_bin() {
 }
 
 function get_offline_image() {
+  # images needed by k8s cluster
   calicoVer=v3.4.4
   corednsVer=1.5.0
   dashboardVer=v1.10.1
