@@ -86,7 +86,7 @@ EOF
 
   echo "[INFO] enable and start docker"
   systemctl enable docker
-  systemctl daemon-reload && systemctl restart docker
+  systemctl daemon-reload && systemctl restart docker && sleep 8
 }
 
 function get_kubeasz() {
