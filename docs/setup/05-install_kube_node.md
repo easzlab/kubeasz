@@ -5,8 +5,8 @@
 + docker：运行容器
 + kubelet： kube-node上最主要的组件
 + kube-proxy： 发布应用服务与负载均衡
-+ haproxy：用于请求转发到多个 apiserver，详见[HA 架构](00-planning_and_overall_intro.md)
-+ calico： 配置容器网络 (或者 flannel)
++ haproxy：用于请求转发到多个 apiserver，详见[HA-2x 架构](00-planning_and_overall_intro.md#ha-architecture)
++ calico： 配置容器网络 (或者其他网络组件)
 
 ``` bash
 roles/kube-node/
@@ -28,7 +28,7 @@ roles/kube-node/
 
 ### 变量配置文件
 
-详见 roles/kube-node/defaults/main.yml
+详见 roles/kube-node/defaults/main.yml，举例以下3个变量配置说明
 - 变量`PROXY_MODE`，配置 kube-proxy 服务代理模式 iptables or ipvs
 - 变量`KUBE_APISERVER`，根据不同的节点情况，它有三种取值方式
 - 变量`MASTER_CHG`，变更 master 节点时会根据它来重新配置 haproxy

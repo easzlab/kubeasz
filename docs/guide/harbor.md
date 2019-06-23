@@ -11,13 +11,9 @@ Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是�
 
 ### 安装步骤
 
-1. 在ansible控制端下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录下（百度云的二进制文件中已包含）
+1. 在ansible控制端下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录（已包含）
 
-``` bash
-wget https://github.com/docker/compose/releases/download/1.18.0/docker-compose-Linux-x86_64
-mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
-```
-2. 在ansible控制端下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `/etc/ansible/down` 目录下，也可以从分享的百度云盘下载
+2. 在ansible控制端下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `/etc/ansible/down` 目录
 
 3. 在ansible控制端编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
 

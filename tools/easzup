@@ -225,15 +225,15 @@ function clean_container() {
 
 function usage() {
   cat <<EOF
-Usage: $0 [options] [args]
+Usage: easzup [options] [args]
   option: -{DdekSz}
     -C         stop&clean all local containers
     -D         download all into /etc/ansible
     -S         start kubeasz in a container
-    -d <ver>   set docker-ce version, default 18.09.6 
-    -e <ver>   set kubeasz-ext-bin version, default 0.3.0
-    -k <ver>   set kubeasz-k8s-bin version, default v1.14.3
-    -z <ver>   set kubeasz version, default 1.3.0
+    -d <ver>   set docker-ce version, default "$DOCKER_VER"
+    -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
+    -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
+    -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
   
 see more at https://github.com/kubeasz/dockerfiles
 EOF
