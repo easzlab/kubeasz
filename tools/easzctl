@@ -76,7 +76,7 @@ function add-node() {
     [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 1; }
 
     # check if the new node already exsited
-    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1" && { echo "[ERROR] node $1 already existed!"; return 2; }
+    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] node $1 already existed!"; return 2; }
 
     # add a node into 'kube-node' group
     sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
@@ -94,7 +94,7 @@ function add-master() {
     [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # check if the new master already exsited
-    sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1" && { echo "[ERROR] master $1 already existed!"; return 2; }
+    sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] master $1 already existed!"; return 2; }
 
     # add a node into 'kube-master' group
     sed -i "/\[kube-master/a $1 NEW_MASTER=yes" $BASEPATH/hosts
@@ -115,7 +115,7 @@ function add-etcd() {
     [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
 
     # check if the new node already exsited
-    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1" && { echo "[ERROR] node $1 already existed!"; return 2; }
+    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] etcd $1 already existed!"; return 2; }
 
     # input an unique NODE_NAME of the node in etcd cluster
     echo "Please input an UNIQUE name(string) for the new node: "
