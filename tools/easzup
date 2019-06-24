@@ -201,7 +201,7 @@ function start_kubeasz_docker() {
 
   # get host's IP
   host_if=$(ip route|grep default|cut -d' ' -f5)
-  host_ip=$(ip a|grep "$host_if"|awk 'NR==2{print $2}'|cut -d'/' -f1)
+  host_ip=$(ip a|grep "$host_if$"|awk '{print $2}'|cut -d'/' -f1)
   echo "[INFO] get host IP: $host_ip"
   
   # run kubeasz docker container

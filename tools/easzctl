@@ -355,7 +355,7 @@ function start-aio(){
     if [[ -z $HOST_IP ]];then
         # easzctl runs in a host machine, get host's ip
         HOST_IF=$(ip route|grep default|cut -d' ' -f5)
-        HOST_IP=$(ip a|grep $HOST_IF|awk 'NR==2{print $2}'|cut -d'/' -f1)
+        HOST_IP=$(ip a|grep "$HOST_IF$"|awk '{print $2}'|cut -d'/' -f1)
     fi
     set -u
     cp -f $BASEPATH/example/hosts.allinone $BASEPATH/hosts
