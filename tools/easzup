@@ -15,7 +15,7 @@ set -o errexit
 
 # default version, can be overridden by cmd line options
 export DOCKER_VER=18.09.6
-export KUBEASZ_VER=1.3.0
+export KUBEASZ_VER=1.3.1
 export K8S_BIN_VER=v1.14.3
 export EXT_BIN_VER=0.3.0
 
@@ -30,12 +30,13 @@ function install_docker() {
     echo "[INFO] docker binaries already existed"
   else
     echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
-    wget -c -P /etc/ansible/down "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
+    curl -C- -O --retry 3 "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
   fi
 
-  tar zxf /etc/ansible/down/docker-${DOCKER_VER}.tgz -C /etc/ansible/down
-  mv /etc/ansible/down/docker/* /opt/kube/bin
-  ln -sf /opt/kube/bin/docker /bin/docker
+  tar zxf ./docker-${DOCKER_VER}.tgz -C /etc/ansible/down && \
+  mv ./docker-${DOCKER_VER}.tgz /etc/ansible/down && \
+  mv /etc/ansible/down/docker/* /opt/kube/bin && \
+  ln -sf /opt/kube/bin/docker /bin/docker 
 
   echo "[INFO] generate docker service file"
   cat > /etc/systemd/system/docker.service << EOF
@@ -77,9 +78,15 @@ EOF
 }
 EOF
 
+  if [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
+    echo "[INFO] turn off selinux in CentOS/Redhat"
+    setenforce 0
+    echo "SELINUX=disabled" > /etc/selinux/config
+  fi
+
   echo "[INFO] enable and start docker"
   systemctl enable docker
-  systemctl daemon-reload && systemctl restart docker
+  systemctl daemon-reload && systemctl restart docker && sleep 8
 }
 
 function get_kubeasz() {
@@ -130,6 +137,7 @@ function get_ext_bin() {
 }
 
 function get_offline_image() {
+  # images needed by k8s cluster
   calicoVer=v3.4.4
   corednsVer=1.5.0
   dashboardVer=v1.10.1
@@ -217,15 +225,15 @@ function clean_container() {
 
 function usage() {
   cat <<EOF
-Usage: $0 [options] [args]
+Usage: easzup [options] [args]
   option: -{DdekSz}
     -C         stop&clean all local containers
     -D         download all into /etc/ansible
     -S         start kubeasz in a container
-    -d <ver>   set docker-ce version, default 18.09.6 
-    -e <ver>   set kubeasz-ext-bin version, default 0.3.0
-    -k <ver>   set kubeasz-k8s-bin version, default v1.14.3
-    -z <ver>   set kubeasz version, default 1.3.0
+    -d <ver>   set docker-ce version, default "$DOCKER_VER"
+    -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
+    -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
+    -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
   
 see more at https://github.com/kubeasz/dockerfiles
 EOF

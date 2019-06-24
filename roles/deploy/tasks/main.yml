@@ -35,7 +35,7 @@
 
 #----------- 创建kubectl kubeconfig文件: /root/.kube/config
 - name: 删除原有kubeconfig
-  file: path=/root/.kube state=absent
+  file: path=/root/.kube/config state=absent
   tags: create_kctl_cfg
 
 - name: 下载 group:read rbac 文件

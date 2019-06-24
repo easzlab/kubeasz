@@ -4,7 +4,7 @@
 
 - 1.准备一台全新虚机（ansible控制端）
 ```
-$ wget https://github.com/easzlab/kubeasz/releases/download/1.3.0/easzup
+$ curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
 $ chmod +x ./easzup
 $ ./easzup -D
 ``` 
