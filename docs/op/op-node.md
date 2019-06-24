@@ -1,5 +1,10 @@
 # 管理 node 节点
 
+目录
+- 1.增加 kube-node 节点
+- 2.增加非标准ssh端口节点
+- 3.删除 kube-node 节点
+
 ## 1.增加 kube-node 节点
 
 新增`kube-node`节点大致流程为：tools/02.addnode.yml
@@ -29,7 +34,18 @@ $ kubectl get pod -n kube-system
 # 验证新建pod能否调度到新节点，略
 ```
 
-## 2.删除 kube-node 节点
+## 2.增加非标准ssh端口节点
+
+目前 easzctl 暂不支持自动添加非标准 ssh 端口的节点，可以手动操作如下：
+
+- 假设待添加节点192.168.2.1，ssh 端口 10022；配置免密登陆 ssh-copy-id -p 10022 192.168.2.1，按提示输入密码
+- 在 /etc/ansible/hosts文件 [kube-node] 组下添加一行：
+```
+192.168.2.1 ansible_ssh_port=10022
+```
+- 最后执行 `ansible-playbook /etc/ansible/tools/02.addnode.yml -e NODE_TO_ADD=192.168.2.1`
+
+## 3.删除 kube-node 节点
 
 删除 node 节点流程：tools/12.delnode.yml
 - 检测是否可以删除
