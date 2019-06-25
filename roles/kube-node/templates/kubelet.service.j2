@@ -4,7 +4,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
-{% if KUBE_RESERVED_ENABLED == "yes" %}
+{% if KUBE_RESERVED_ENABLED == "yes" or SYS_RESERVED_ENABLED == "yes" %}
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
@@ -38,10 +38,12 @@ ExecStart={{ bin_dir }}/kubelet \
   --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
   --cgroups-per-qos=true \
   --cgroup-driver=cgroupfs \
+  --enforce-node-allocatable=pods{% if KUBE_RESERVED_ENABLED == "yes" %},kube-reserved{% endif %}{% if SYS_RESERVED_ENABLED == "yes" %},system-reserved{% endif %} \
 {% if KUBE_RESERVED_ENABLED == "yes" %}
-  --enforce-node-allocatable=pods,kube-reserved,system-reserved \
   --kube-reserved={{ KUBE_RESERVED }} \
   --kube-reserved-cgroup=/system.slice/kubelet.service \
+{% endif %}
+{% if SYS_RESERVED_ENABLED == "yes" %}
   --system-reserved={{ SYS_RESERVED }} \
   --system-reserved-cgroup=/system.slice \
 {% endif %}
