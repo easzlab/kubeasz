@@ -31,10 +31,10 @@ function install_docker() {
   else
     echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
     curl -C- -O --retry 3 "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
+    mv ./docker-${DOCKER_VER}.tgz /etc/ansible/down
   fi
 
-  tar zxf ./docker-${DOCKER_VER}.tgz -C /etc/ansible/down && \
-  mv ./docker-${DOCKER_VER}.tgz /etc/ansible/down && \
+  tar zxf /etc/ansible/down/docker-${DOCKER_VER}.tgz -C /etc/ansible/down && \
   mv /etc/ansible/down/docker/* /opt/kube/bin && \
   ln -sf /opt/kube/bin/docker /bin/docker 
 
