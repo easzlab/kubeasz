@@ -49,8 +49,12 @@
   shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
   ignore_errors: true
 
+# 设置系统 ulimits
+- name: 创建 systemd 配置目录
+  file: name=/etc/systemd/system.conf.d state=directory
+
 - name: 设置系统 ulimits
-  template: src=30-k8s-ulimits.conf.j2 dest=/etc/security/limits.d/30-k8s-ulimits.conf
+  template: src=30-k8s-ulimits.conf.j2 dest=/etc/systemd/system.conf.d/30-k8s-ulimits.conf
 
 - name: 把SCTP列入内核模块黑名单
   copy: src=sctp.conf dest=/etc/modprobe.d/sctp.conf
