@@ -23,12 +23,6 @@
       - ipvsadm
     state: present
 
-- name: 设置 ulimits
-  lineinfile:
-    dest: /etc/profile
-    regexp: "ulimit -SHn"
-    line: "ulimit -SHn 65535"
-
 # 优化设置 journal 日志相关，避免日志重复搜集，浪费系统资源
 - name: 准备 journal 日志相关目录
   file: name={{ item }} state=directory
