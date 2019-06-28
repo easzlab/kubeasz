@@ -1,5 +1,5 @@
 # 系统基础软件环境
-- import_tasks: debian.yml
+- import_tasks: ubuntu.yml
   when: 'ansible_distribution in ["Ubuntu","Debian"]'
 
 - import_tasks: centos.yml
