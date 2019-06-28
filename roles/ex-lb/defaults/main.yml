@@ -13,3 +13,6 @@ BALANCE_ALG: "roundrobin"
 INGRESS_NODEPORT_LB: "yes"
 # 启用 ingress tls NodePort服务的负载均衡 (yes/no)
 INGRESS_TLS_NODEPORT_LB: "yes"
+
+# 离线安装 haproxy+keepalived (offline|online)
+INSTALL_SOURCE: "offline"

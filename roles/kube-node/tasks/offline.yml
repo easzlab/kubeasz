@@ -1,4 +1,4 @@
-# 离线安装基础系统包
+# 离线安装 haproxy
 - name: 准备离线安装包目录
   file: name=/opt/kube/packages/haproxy state=directory
 
