@@ -21,7 +21,7 @@
 
   - name: 安装 basic_centos7 离线包
     shell: 'cd /opt/kube/packages/basic && tar zxf basic_centos7.tar.gz && \
-           basic -Uvh --nodeps *.rpm > /tmp/install_basic.log 2>&1'
+           rpm -Uvh --nodeps *.rpm > /tmp/install_basic.log 2>&1'
   when:
   - 'ansible_distribution == "CentOS"'
   - 'ansible_distribution_major_version == "7"'

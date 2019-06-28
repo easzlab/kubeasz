@@ -42,3 +42,6 @@ KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
 
 # 增加/删除 master 节点时，node 节点需要重新配置 haproxy 等
 MASTER_CHG: "no"
+
+# 离线安装 haproxy (offline|online)
+INSTALL_SOURCE: "offline"

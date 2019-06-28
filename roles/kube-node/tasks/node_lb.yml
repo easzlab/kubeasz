@@ -6,6 +6,11 @@
 
 - name: 安装 haproxy
   package: name=haproxy state=present
+  when: 'INSTALL_SOURCE != "offline"'
+
+# 离线安装 haproxy
+- import_tasks: offline.yml
+  when: 'INSTALL_SOURCE == "offline"'
 
 - name: 创建haproxy配置目录
   file: name=/etc/haproxy state=directory
