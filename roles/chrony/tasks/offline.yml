@@ -1,0 +1,27 @@
+# 离线安装 chrony
+- name: 准备离线安装包目录
+  file: name=/opt/kube/packages/chrony state=directory
+
+- block:
+  - name: 分发 chrony_xenial 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_xenial.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_xenial.tar.gz"
+
+  - name: 安装 chrony_xenial 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_xenial.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "xenial"
+
+- block:
+  - name: 分发 chrony_centos7 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_centos7.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_centos7.tar.gz"
+
+  - name: 安装 chrony_centos7 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_centos7.tar.gz && \
+           rpm -Uvh --nodeps *.rpm > /tmp/install_chrony.log 2>&1'
+  when: 
+  - 'ansible_distribution_major_version == "7"'
+  - 'ansible_distribution == "CentOS"'

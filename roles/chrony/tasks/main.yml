@@ -1,6 +1,6 @@
 - name: apt更新缓存刷新
   apt: update_cache=yes cache_valid_time=72000
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16
+  when: ansible_distribution == "Ubuntu" and INSTALL_SOURCE != "offline"
   ignore_errors: true
 
 - name: 确保已卸载ntp
@@ -8,6 +8,11 @@
 
 - name: 安装 chrony
   package: name=chrony state=present
+  when: 'INSTALL_SOURCE != "offline"'
+
+# 离线安装 chrony
+- import_tasks: offline.yml
+  when: 'INSTALL_SOURCE == "offline"'
 
 - block:
   - name: 配置 chrony server 
