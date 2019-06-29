@@ -3,8 +3,15 @@
   when: ansible_distribution == "Ubuntu" and INSTALL_SOURCE != "offline"
   ignore_errors: true
 
-- name: 确保已卸载ntp
-  package: name=ntp state=absent
+- name: apt 卸载 ntp
+  shell: 'apt remove -y ntp'
+  when: ansible_distribution == "Ubuntu"
+  ignore_errors: true
+
+- name: yum 卸载 ntp
+  shell: 'yum remove -y ntp'
+  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+  ignore_errors: true
 
 - name: 安装 chrony
   package: name=chrony state=present

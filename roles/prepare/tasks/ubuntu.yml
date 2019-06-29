@@ -1,13 +1,13 @@
 # 删除默认安装
 - name: 删除ubuntu默认安装
-  apt: 
-    name: 
-      - ufw
-      - lxd
-      - lxd-client
-      - lxcfs
-      - lxc-common
-    state: absent
+  shell: "apt remove -y {{ item }}"
+  with_items:
+    - ufw
+    - lxd
+    - lxd-client
+    - lxcfs
+    - lxc-common
+  ignore_errors: true
 
 # Ubuntu 安装基础软件包
 - name: 安装 ubuntu基础软件

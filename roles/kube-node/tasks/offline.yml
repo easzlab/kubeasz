@@ -12,6 +12,7 @@
     shell: 'cd /opt/kube/packages/haproxy && tar zxf haproxy_xenial.tar.gz && \
            dpkg -i *.deb > /tmp/install_haproxy.log 2>&1'
   when: ansible_distribution_release == "xenial"
+  ignore_errors: true
 
 - block:
   - name: 分发 haproxy_centos7 离线包
@@ -21,7 +22,8 @@
 
   - name: 安装 haproxy_centos7 离线包
     shell: 'cd /opt/kube/packages/haproxy && tar zxf haproxy_centos7.tar.gz && \
-           rpm -Uvh --nodeps *.rpm > /tmp/install_haproxy.log 2>&1'
+           rpm -Uvh --force --nodeps *.rpm > /tmp/install_haproxy.log 2>&1'
   when:
   - 'ansible_distribution == "CentOS"'
   - 'ansible_distribution_major_version == "7"'
+  ignore_errors: true
