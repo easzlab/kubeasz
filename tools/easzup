@@ -186,6 +186,10 @@ function get_offline_image() {
     docker pull traefik:${traefikVer} && \
     docker save -o ${imageDir}/traefik_${traefikVer}.tar traefik:${traefikVer}
   fi
+  if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
+    docker pull easzlab/kubeasz:${KUBEASZ_VER} && \
+    docker save -o ${imageDir}/kubeasz_${KUBEASZ_VER}.tar easzlab/kubeasz:${KUBEASZ_VER}
+  fi
 }
 
 function download_all() {
@@ -203,6 +207,9 @@ function start_kubeasz_docker() {
   host_if=$(ip route|grep default|cut -d' ' -f5)
   host_ip=$(ip a|grep "$host_if$"|awk '{print $2}'|cut -d'/' -f1)
   echo "[INFO] get host IP: $host_ip"
+
+  # 
+  docker load -i /etc/ansible/down/kubeasz_${KUBEASZ_VER}.tar
   
   # run kubeasz docker container
   echo "[INFO] run kubeasz in a container"
