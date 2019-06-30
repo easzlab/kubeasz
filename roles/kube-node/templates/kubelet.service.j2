@@ -12,7 +12,9 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
   --address={{ inventory_hostname }} \
+{% if KUBE_VER|float < 1.15 %}
   --allow-privileged=true \
+{% endif %}
   --anonymous-auth=false \
   --authentication-token-webhook \
   --authorization-mode=Webhook \
