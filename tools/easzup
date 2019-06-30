@@ -208,9 +208,23 @@ function start_kubeasz_docker() {
   host_ip=$(ip a|grep "$host_if$"|awk '{print $2}'|cut -d'/' -f1)
   echo "[INFO] get host IP: $host_ip"
 
+  # allow ssh login using key locally
+  if [[ ! -e /root/.ssh/id_rsa ]]; then
+    echo "[INFO] generate ssh key pair"
+    ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa > /dev/null
+    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+    ssh-keyscan -t ecdsa -H "$host_ip" >> /root/.ssh/known_hosts
+  fi
+
+  # create a link '/usr/bin/python' in Ubuntu1604
+  if [[ ! -e /usr/bin/python && -e /etc/debian_version ]]; then
+    echo "[INFO] create a soft link '/usr/bin/python'"
+    ln -s /usr/bin/python3 /usr/bin/python
+  fi
+
   # 
   docker load -i /etc/ansible/down/kubeasz_${KUBEASZ_VER}.tar
-  
+
   # run kubeasz docker container
   echo "[INFO] run kubeasz in a container"
   docker run --detach \
