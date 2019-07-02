@@ -20,6 +20,23 @@
   ignore_errors: true
 
 - block:
+  - name: 分发 basic_bionic 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/basic_bionic.tar.gz"
+      dest: "/opt/kube/packages/basic/basic_bionic.tar.gz"
+
+  # 离线安装包可能需要安装多次才能成功
+  - name: 安装 basic_bionic 离线包
+    shell: 'cd /opt/kube/packages/basic && tar zxf basic_bionic.tar.gz && \
+           dpkg -i *.deb > /tmp/install_basic.log 2>&1'
+    register: install_info
+    until: not install_info.failed
+    retries: 3
+    delay: 1
+  when: ansible_distribution_release == "bionic"
+  ignore_errors: true
+
+- block:
   - name: 分发 basic_centos7 离线包
     copy:
       src: "{{ base_dir }}/down/packages/basic_centos7.tar.gz"

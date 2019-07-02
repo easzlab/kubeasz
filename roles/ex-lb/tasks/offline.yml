@@ -15,6 +15,18 @@
   ignore_errors: true
 
 - block:
+  - name: 分发 haproxy_bionic 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/haproxy_bionic.tar.gz"
+      dest: "/opt/kube/packages/haproxy/haproxy_bionic.tar.gz"
+
+  - name: 安装 haproxy_bionic 离线包
+    shell: 'cd /opt/kube/packages/haproxy && tar zxf haproxy_bionic.tar.gz && \
+           dpkg -i *.deb > /tmp/install_haproxy.log 2>&1'
+  when: ansible_distribution_release == "bionic"
+  ignore_errors: true
+
+- block:
   - name: 分发 haproxy_centos7 离线包
     copy:
       src: "{{ base_dir }}/down/packages/haproxy_centos7.tar.gz"
@@ -42,6 +54,18 @@
     shell: 'cd /opt/kube/packages/keepalived && tar zxf keepalived_xenial.tar.gz && \
            dpkg -i *.deb > /tmp/install_keepalived.log 2>&1'
   when: ansible_distribution_release == "xenial"
+  ignore_errors: true
+
+- block:
+  - name: 分发 keepalived_bionic 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/keepalived_bionic.tar.gz"
+      dest: "/opt/kube/packages/keepalived/keepalived_bionic.tar.gz"
+
+  - name: 安装 keepalived_bionic 离线包
+    shell: 'cd /opt/kube/packages/keepalived && tar zxf keepalived_bionic.tar.gz && \
+           dpkg -i *.deb > /tmp/install_keepalived.log 2>&1'
+  when: ansible_distribution_release == "bionic"
   ignore_errors: true
 
 - block:

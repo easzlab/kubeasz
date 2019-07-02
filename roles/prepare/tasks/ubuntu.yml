@@ -7,6 +7,7 @@
     - lxd-client
     - lxcfs
     - lxc-common
+  when: ansible_distribution == "Ubuntu"
   ignore_errors: true
 
 # Ubuntu 安装基础软件包

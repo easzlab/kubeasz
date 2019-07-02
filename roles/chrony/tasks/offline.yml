@@ -15,6 +15,18 @@
   ignore_errors: true
 
 - block:
+  - name: 分发 chrony_bionic 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_bionic.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_bionic.tar.gz"
+
+  - name: 安装 chrony_bionic 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_bionic.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "bionic"
+  ignore_errors: true
+
+- block:
   - name: 分发 chrony_centos7 离线包
     copy:
       src: "{{ base_dir }}/down/packages/chrony_centos7.tar.gz"
