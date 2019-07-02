@@ -18,6 +18,7 @@ export DOCKER_VER=18.09.6
 export KUBEASZ_VER=2.0.0
 export K8S_BIN_VER=v1.14.3
 export EXT_BIN_VER=0.3.0
+export SYS_PKG_VER=0.2.1
 
 function install_docker() {
   # check if a container runtime is already installed
@@ -136,6 +137,19 @@ function get_ext_bin() {
   rm -rf /extra_bin_tmp
 }
 
+function get_sys_pkg() {
+  [[ -f "/etc/ansible/down/packages/chrony_xenial.tar.gz" ]] && { echo "[WARN] system packages existed"; return 0; }
+
+  echo -e "[INFO] \033[33mdownloading system packages\033[0m kubeasz-sys-pkg:$SYS_PKG_VER"
+  docker pull easzlab/kubeasz-sys-pkg:${SYS_PKG_VER} && \
+  echo "[INFO] run a temporary container" && \
+  docker run -d --name temp_sys_pkg easzlab/kubeasz-sys-pkg:${SYS_PKG_VER} && \
+  echo "[INFO] cp system packages" && \
+  docker cp temp_sys_pkg:/packages /etc/ansible/down && \
+  echo "[INFO] stop&remove temporary container" && \
+  docker rm -f temp_sys_pkg
+}
+
 function get_offline_image() {
   # images needed by k8s cluster
   calicoVer=v3.4.4
@@ -197,6 +211,7 @@ function download_all() {
   get_kubeasz && \
   get_k8s_bin && \
   get_ext_bin && \
+  get_sys_pkg && \
   get_offline_image
 }
 
@@ -254,6 +269,7 @@ Usage: easzup [options] [args]
     -d <ver>   set docker-ce version, default "$DOCKER_VER"
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
+    -p <ver>   set kubeasz-sys-pkg version, default "$SYS_PKG_VER"
     -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
   
 see more at https://github.com/kubeasz/dockerfiles
@@ -270,7 +286,7 @@ function main() {
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
   
   ACTION=""
-  while getopts "CDSd:e:k:z:" OPTION; do
+  while getopts "CDSd:e:k:p:z:" OPTION; do
       case "$OPTION" in
         C)
           ACTION="clean_container"
@@ -289,6 +305,9 @@ function main() {
           ;;
         k)
           export K8S_BIN_VER="$OPTARG"
+          ;;
+        p)
+          export K8S_SYS_PKG="$OPTARG"
           ;;
         z)
           export KUBEASZ_VER="$OPTARG"
