@@ -13,7 +13,7 @@ dns_offline: "{%- if dns_backend == 'coredns' -%} \
 
 # metric server 自动安装
 metricsserver_install: "yes"
-metricsVer: "v0.3.2"
+metricsVer: "v0.3.3"
 metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 
 # dashboard 自动安装

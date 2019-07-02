@@ -157,7 +157,7 @@ function get_offline_image() {
   dashboardVer=v1.10.1
   flannelVer=v0.11.0-amd64
   heapsterVer=v1.5.4
-  metricsVer=v0.3.2
+  metricsVer=v0.3.3
   pauseVer=3.1
   traefikVer=v1.7.12
 

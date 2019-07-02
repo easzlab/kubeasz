@@ -12,7 +12,7 @@ easzlab/flannel:v0.11.0-amd64
  
 mirrorgooglecontainers/heapster-amd64:v1.5.4
 
-mirrorgooglecontainers/metrics-server-amd64:v0.3.2
+mirrorgooglecontainers/metrics-server-amd64:v0.3.3
  
 mirrorgooglecontainers/pause-amd64:3.1
 

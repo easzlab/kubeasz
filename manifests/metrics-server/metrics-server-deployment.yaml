@@ -29,8 +29,8 @@ spec:
         emptyDir: {}
       containers:
       - name: metrics-server
-        #image: k8s.gcr.io/metrics-server-amd64:v0.3.2
-        image: mirrorgooglecontainers/metrics-server-amd64:v0.3.2
+        #image: k8s.gcr.io/metrics-server-amd64:v0.3.3
+        image: mirrorgooglecontainers/metrics-server-amd64:v0.3.3
         imagePullPolicy: IfNotPresent 
         command:
         - /metrics-server
