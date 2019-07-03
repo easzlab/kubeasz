@@ -10,4 +10,4 @@ ntp_servers:
 local_network: "0.0.0.0/0"
 
 # 离线安装 chrony (offline|online)
-INSTALL_SOURCE: "offline"
+INSTALL_SOURCE: "online"

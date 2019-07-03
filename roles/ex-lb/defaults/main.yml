@@ -15,4 +15,4 @@ INGRESS_NODEPORT_LB: "yes"
 INGRESS_TLS_NODEPORT_LB: "yes"
 
 # 离线安装 haproxy+keepalived (offline|online)
-INSTALL_SOURCE: "offline"
+INSTALL_SOURCE: "online"

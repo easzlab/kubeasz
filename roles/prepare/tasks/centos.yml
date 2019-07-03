@@ -4,6 +4,8 @@
     - firewalld
     - python-firewall
     - firewalld-filesystem
+  args:
+      warn: false
   ignore_errors: true
 
 #- name: 添加EPEL仓库
