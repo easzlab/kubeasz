@@ -8,12 +8,14 @@
 
 ``` bash
 roles/calico/
+├── defaults
+│   └── main.yml
 ├── tasks
-│   └── main.yml
+│   └── main.yml
 └── templates
     ├── calico-csr.json.j2
     ├── calicoctl.cfg.j2
-    └── calico.yaml.j2
+    └── calico-vx.y.yaml.j2
 ```
 请在另外窗口打开`roles/calico/tasks/main.yml`文件，对照看以下讲解内容。
 
@@ -49,19 +51,17 @@ roles/calico/
 请对照 roles/calico/templates/calico.yaml.j2文件注释和以下注意内容
 
 + 详细配置参数请参考[calico官方文档](https://docs.projectcalico.org/v2.6/reference/node/configuration)
-+ calico-node是以docker容器运行在host上的，因此需要把之前的证书目录 /etc/calico/ssl挂载到容器中
 + 配置ETCD_ENDPOINTS 、CA、证书等，所有{{ }}变量与ansible hosts文件中设置对应
 + 配置集群POD网络 CALICO_IPV4POOL_CIDR={{ CLUSTER_CIDR }}
 + **重要**本K8S集群运行在同网段kvm虚机上，虚机间没有网络ACL限制，因此可以设置`CALICO_IPV4POOL_IPIP=off`，如果你的主机位于不同网段，或者运行在公有云上需要打开这个选项 `CALICO_IPV4POOL_IPIP=always`
 + 配置FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT 默认允许Pod到Node的网络流量，更多[felix配置选项](https://docs.projectcalico.org/v2.6/reference/felix/configuration)
-+ 多网卡服务器运行kube-controller可能会出现问题，本项目已通过增加设置环境变量`KUBERNETES_SERVICE_HOST`和`KUBERNETES_SERVICE_PORT`解决
 
 ### 安装calico 网络
 
 + 安装前检查主机名不能有大写字母，只能由`小写字母` `-` `.` 组成 (name must consist of lower case alphanumeric characters, '-' or '.' (regex: [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*))(calico-node v3.0.6以上已经解决主机大写字母问题)
 + **安装前必须确保各节点主机名不重复** ，calico node name 由节点主机名决定，如果重复，那么重复节点在etcd中只存储一份配置，BGP 邻居也不会建立。
 + 安装之前必须确保`kube-master`和`kube-node`节点已经成功部署
-+ 只需要在任意装有kubectl客户端的节点运行 `kubectl create `安装即可
++ 只需要在任意装有kubectl客户端的节点运行 `kubectl apply -f`安装即可
 + 等待15s后(视网络拉取calico相关镜像速度)，calico 网络插件安装完成，删除之前kube-node安装时默认cni网络配置
 
 ### [可选]配置calicoctl工具 [calicoctl.cfg.j2](roles/calico/templates/calicoctl.cfg.j2)
