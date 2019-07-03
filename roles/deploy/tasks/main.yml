@@ -2,6 +2,7 @@
   file: name={{ item }} state=directory
   with_items:
   - "{{ base_dir }}/.cluster/ssl"
+  - "{{ base_dir }}/.cluster/backup"
 
 - name: 本地设置 bin 目录权限
   file: path={{ base_dir }}/bin state=directory mode=0755 recurse=yes

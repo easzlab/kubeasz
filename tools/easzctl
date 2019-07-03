@@ -307,17 +307,17 @@ function list() {
     [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
     echo -e "\nlist of managed contexts (current: \033[33m$CLUSTER\033[0m)"
-    i=1; for Cluster in $(ls $BASEPATH/.cluster/ |grep -Ev "ssl|current_cluster|kubeconfig");
+    i=1; for c in $(ls $BASEPATH/.cluster/ |grep -Ev "backup|ssl|current_cluster|kubeconfig");
     do
-        echo -e "==> context $i:\t$Cluster"
+        echo -e "==> context $i:\t$c"
         let "i++"
     done
     echo -e "\nlist of installed clusters (current: \033[33m$CLUSTER\033[0m)"
-    i=1; for Cluster in $(ls $BASEPATH/.cluster/ |grep -Ev "ssl|current_cluster|kubeconfig");
+    i=1; for c in $(ls $BASEPATH/.cluster/ |grep -Ev "backup|ssl|current_cluster|kubeconfig");
     do
-        KUBECONF=$BASEPATH/.cluster/$Cluster/config
+        KUBECONF=$BASEPATH/.cluster/$c/config
         if [ -f "$KUBECONF" ]; then
-            echo -e "==> cluster $i:\t$Cluster"
+            echo -e "==> cluster $i:\t$c"
             $BASEPATH/bin/kubectl --kubeconfig=$KUBECONF get node
         fi
         let "i++"

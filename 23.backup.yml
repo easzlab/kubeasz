@@ -3,49 +3,34 @@
 
 - hosts:
   - etcd
-  roles:
-  - cluster-backup
+  tasks:
+  - name: 执行etcd 数据备份
+    shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
+        ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot.db"
+    args:
+      warn: false
+
+  - name: 获取etcd 数据备份
+    fetch:
+      src: /etcd_backup/snapshot.db
+      dest: "{{ base_dir }}/.cluster/backup/"
+      flat: yes
+    run_once: true
 
 - hosts:
-  - deploy
+  - localhost
   tasks:
-  - name: Creating backup dirs
-    file: name={{ item }} state=directory
-    with_items:
-    - "{{ base_dir }}/roles/cluster-backup/files/ca"    
-    - "{{ base_dir }}/roles/cluster-backup/files/hosts"   
-    - "{{ base_dir }}/roles/cluster-backup/files/snapshot"   
-
-  - name: Backing up CA sth
-    copy:
-      src: "{{ ca_dir }}/{{ item }}"
-      dest: "{{ base_dir }}/roles/cluster-backup/files/ca/{{ item }}"
-    with_items:
-    - ca.pem
-    - ca-key.pem
-    - ca.csr
-    - ca-csr.json
-    - ca-config.json
-
   - name: Backing up ansible hosts-1
     copy:
       src: "{{ base_dir }}/hosts"
-      dest: "{{ base_dir }}/roles/cluster-backup/files/hosts/hosts"
+      dest: "{{ base_dir }}/.cluster/backup/hosts"
     register: p
 
   - name: Backing up ansible hosts-2
-    shell: "cd {{ base_dir }}/roles/cluster-backup/files/hosts && \
+    shell: "cd {{ base_dir }}/.cluster/backup && \
 	cp -fp hosts hosts-$(date +'%Y%m%d%H%M')"
     when: 'p is changed'
 
-  - name: Backing up etcd snapshot-1
-    copy:
-      src: "{{ base_dir }}/roles/cluster-backup/files/snapshot.db"
-      dest: "{{ base_dir }}/roles/cluster-backup/files/snapshot/snapshot.db"
-    register: q
-
-  - name: Backing up etcd snapshot-2
-    shell: "cd {{ base_dir }}/roles/cluster-backup/files/ && \
-	mv -f snapshot.db snapshot/snapshot-$(date +'%Y%m%d%H%M').db"
-    when: 'q is changed'
-
+  - name: Backing up etcd snapshot with datetime
+    shell: "cd {{ base_dir }}/.cluster/backup && \
+	cp -fp snapshot.db snapshot-$(date +'%Y%m%d%H%M').db"
