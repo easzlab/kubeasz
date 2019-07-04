@@ -120,10 +120,10 @@
         ip link del ovs-system"
     ignore_errors: true
 
-  - name: cleanup networks2
-    shell: "systemctl restart networking; \
-        systemctl restart network"
-    ignore_errors: true
+  #- name: cleanup networks2
+  #  shell: "systemctl restart networking; \
+  #      systemctl restart network"
+  #  ignore_errors: true
 
   - name: cleanup 'calico' routes
     shell: "for rt in `ip route|grep bird|sed 's/blackhole //'|awk '{print $1}'`;do ip route del $rt;done;"

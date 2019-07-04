@@ -85,3 +85,6 @@ $ umount /var/run/docker/netns/default
 $ umount /var/lib/docker/overlay
 $ rm -rf /var/lib/docker /var/run/docker
 ```
+
+上述清理脚本执行成功后，建议重启节点，以确保清理残留的虚拟网卡、路由等信息。
+

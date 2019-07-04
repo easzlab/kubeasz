@@ -15,7 +15,7 @@ set -o errexit
 
 # default version, can be overridden by cmd line options
 export DOCKER_VER=18.09.6
-export KUBEASZ_VER=2.0.0
+export KUBEASZ_VER=2.0.1
 export K8S_BIN_VER=v1.14.3
 export EXT_BIN_VER=0.3.0
 export SYS_PKG_VER=0.2.1
