@@ -65,17 +65,17 @@
   - kube-apiserver.service
   - kube-controller-manager.service
   - kube-scheduler.service
-  tags: restart_master
+  tags: restart_master, upgrade_k8s
 
 # 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
 - name: 获取 k8s 版本信息
   shell: "{{ bin_dir }}/kube-apiserver --version"
   register: k8s_ver
-  tags: restart_master
+  tags: restart_master, upgrade_k8s
 
 - name: 创建kube-apiserver v1.8的systemd unit文件
   template: src=kube-apiserver-v1.8.service.j2 dest=/etc/systemd/system/kube-apiserver.service
-  tags: restart_master
+  tags: restart_master, upgrade_k8s
   when: "'v1.8' in k8s_ver.stdout"
 
 - name: enable master 服务

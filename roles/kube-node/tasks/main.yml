@@ -70,11 +70,11 @@
 - name: 注册变量 DNS_SVC_IP
   shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
   register: DNS_SVC_IP
-  tags: restart_node 
+  tags: upgrade_k8s, restart_node
 
 - name: 设置变量 CLUSTER_DNS_SVC_IP
   set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
-  tags: restart_node 
+  tags: upgrade_k8s, restart_node
 
 # 判断 kubernetes 版本
 - name: 注册变量 TMP_VER
@@ -82,19 +82,19 @@
   register: TMP_VER
   connection: local
   run_once: true
-  tags: restart_node
+  tags: upgrade_k8s, restart_node
 
 - name: 获取 kubernetes 主版本号
   set_fact:
     KUBE_VER: "{{ TMP_VER.stdout.split('.')[0]|int + TMP_VER.stdout.split('.')[1]|int/100 }}"
-  tags: restart_node
+  tags: upgrade_k8s, restart_node
 
 - name: debug info
   debug: var="KUBE_VER"
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
-  tags: restart_node 
+  tags: upgrade_k8s, restart_node
 
 - name: 开机启用kubelet 服务
   shell: systemctl enable kubelet
@@ -114,7 +114,7 @@
 
 - name: 创建kube-proxy 服务文件
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
-  tags: reload-kube-proxy, restart_node
+  tags: reload-kube-proxy, restart_node, upgrade_k8s
 
 - name: 开机启用kube-proxy 服务
   shell: systemctl enable kube-proxy
