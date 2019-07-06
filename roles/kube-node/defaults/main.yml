@@ -20,7 +20,7 @@ SYS_RESERVED_ENABLED: "no"
 SYS_RESERVED: "cpu=200m,memory=500Mi,ephemeral-storage=1Gi"
 
 # 配置kubelet的hard eviction条件
-HARD_EVICTION: "memory.available<500Mi,nodefs.available<10%"
+HARD_EVICTION: "imagefs.available<15%,memory.available<200Mi,nodefs.available<10%,nodefs.inodesFree<5%"
 
 # node 请求 apiserver 负载均衡算法，常见如下：
 # "roundrobin": 基于服务器权重的轮询

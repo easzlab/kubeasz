@@ -5,36 +5,29 @@ After=network.target
 
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
-  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook \
   --advertise-address={{ inventory_hostname }} \
-  --bind-address={{ inventory_hostname }} \
-  --insecure-bind-address=127.0.0.1 \
-  --authorization-mode=Node,RBAC \
-  --kubelet-https=true \
-  --kubelet-client-certificate={{ ca_dir }}/admin.pem \
-  --kubelet-client-key={{ ca_dir }}/admin-key.pem \
+  --allow-privileged=true \
   --anonymous-auth=false \
+  --authorization-mode=Node,RBAC \
 {% if BASIC_AUTH_ENABLE == "yes" %}
   --basic-auth-file={{ ca_dir }}/basic-auth.csv \
 {% endif %}
-  --service-cluster-ip-range={{ SERVICE_CIDR }} \
-  --service-node-port-range={{ NODE_PORT_RANGE }} \
-  --tls-cert-file={{ ca_dir }}/kubernetes.pem \
-  --tls-private-key-file={{ ca_dir }}/kubernetes-key.pem \
+  --bind-address={{ inventory_hostname }} \
   --client-ca-file={{ ca_dir }}/ca.pem \
-  --service-account-key-file={{ ca_dir }}/ca-key.pem \
+  --endpoint-reconciler-type=lease \
   --etcd-cafile={{ ca_dir }}/ca.pem \
   --etcd-certfile={{ ca_dir }}/kubernetes.pem \
   --etcd-keyfile={{ ca_dir }}/kubernetes-key.pem \
   --etcd-servers={{ ETCD_ENDPOINTS }} \
-  --enable-swagger-ui=true \
-  --endpoint-reconciler-type=lease \
-  --allow-privileged=true \
-  --audit-log-maxage=30 \
-  --audit-log-maxbackup=3 \
-  --audit-log-maxsize=100 \
-  --audit-log-path=/var/lib/audit.log \
-  --event-ttl=1h \
+  --insecure-bind-address=127.0.0.1 \
+  --kubelet-https=true \
+  --kubelet-client-certificate={{ ca_dir }}/admin.pem \
+  --kubelet-client-key={{ ca_dir }}/admin-key.pem \
+  --service-account-key-file={{ ca_dir }}/ca-key.pem \
+  --service-cluster-ip-range={{ SERVICE_CIDR }} \
+  --service-node-port-range={{ NODE_PORT_RANGE }} \
+  --tls-cert-file={{ ca_dir }}/kubernetes.pem \
+  --tls-private-key-file={{ ca_dir }}/kubernetes-key.pem \
   --requestheader-client-ca-file={{ ca_dir }}/ca.pem \
   --requestheader-allowed-names= \
   --requestheader-extra-headers-prefix=X-Remote-Extra- \
@@ -43,7 +36,6 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --proxy-client-cert-file={{ ca_dir }}/aggregator-proxy.pem \
   --proxy-client-key-file={{ ca_dir }}/aggregator-proxy-key.pem \
   --enable-aggregator-routing=true \
-  --runtime-config=batch/v2alpha1=true \
   --v=2
 Restart=on-failure
 RestartSec=5
