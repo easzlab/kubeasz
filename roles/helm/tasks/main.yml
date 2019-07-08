@@ -21,6 +21,11 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes {{ tiller_cert_cn }}-csr.json | {{ bin_dir }}/cfssljson -bare {{ tiller_cert_cn }}"
 
+- name: 获取当前集群所有 namespaces
+  shell: "{{ bin_dir }}/kubectl get ns"
+  register: current_ns
+  run_once: true
+
 - name: 准备rbac配置
   template: src=helm-rbac.yaml.j2 dest=/opt/kube/helm-rbac.yaml
 

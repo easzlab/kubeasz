@@ -1,10 +1,12 @@
 # 绑定helm sa到 cluster-admin，这样可以兼容现有需要集群特权的charts
-# 
+#
+{% if helm_namespace not in current_ns.stdout %} 
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ helm_namespace }}
+{% endif %}
 ---
 apiVersion: v1
 kind: ServiceAccount
