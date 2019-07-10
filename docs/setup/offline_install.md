@@ -28,9 +28,12 @@ $ ./easzup -D
 
 ## 离线安装
 
-上述下载完成后，执行
+上述下载完成后，把`/etc/ansible`整个目录复制到目标离线服务器，然后在离线服务器上运行：
 
 ``` bash
+# 离线安装 docker，检查本地文件等
+$ ./easzup -D
+
 # 启动 kubeasz 容器
 $ ./easzup -S
 
