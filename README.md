@@ -1,4 +1,4 @@
-# ![kubeasz](pics/kubeasz.png)
+# ![kubeasz](pics/logo_kubeasz.png)
 
 `kubeasz`致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据[指南](docs/setup/00-planning_and_overall_intro.md)分步执行安装各个组件。
 
