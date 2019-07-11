@@ -1,3 +1,3 @@
-- hosts: deploy
+- hosts: localhost 
   roles:
   - cluster-storage
