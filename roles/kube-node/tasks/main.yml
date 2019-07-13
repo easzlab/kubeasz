@@ -81,7 +81,6 @@
   shell: "{{ base_dir }}/bin/kube-apiserver --version|cut -d' ' -f2|cut -d'v' -f2"
   register: TMP_VER
   connection: local
-  run_once: true
   tags: upgrade_k8s, restart_node
 
 - name: 获取 kubernetes 主版本号
@@ -91,6 +90,10 @@
 
 - name: debug info
   debug: var="KUBE_VER"
+
+- name: 创建kubelet的配置文件
+  template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
+  tags: upgrade_k8s, restart_node
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service

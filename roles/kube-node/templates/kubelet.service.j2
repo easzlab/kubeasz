@@ -11,45 +11,21 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
-  --address={{ inventory_hostname }} \
-{% if KUBE_VER|float < 1.15 %}
+  --config=/var/lib/kubelet/config.yaml \
+{% if KUBE_VER|float < 1.13 %}
   --allow-privileged=true \
 {% endif %}
-  --anonymous-auth=false \
-  --authentication-token-webhook \
-  --authorization-mode=Webhook \
-  --client-ca-file={{ ca_dir }}/ca.pem \
-  --cluster-dns={{ CLUSTER_DNS_SVC_IP }} \
-  --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
   --cni-bin-dir={{ bin_dir }} \
   --cni-conf-dir=/etc/cni/net.d \
 {% if CONTAINER_RUNTIME == "containerd" %}
   --container-runtime=remote \
   --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
 {% endif %}
-  --fail-swap-on=false \
-  --hairpin-mode hairpin-veth \
   --hostname-override={{ inventory_hostname }} \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  --max-pods={{ MAX_PODS }} \
   --network-plugin=cni \
   --pod-infra-container-image={{ SANDBOX_IMAGE }} \
-  --register-node=true \
   --root-dir={{ KUBELET_ROOT_DIR }} \
-  --tls-cert-file={{ ca_dir }}/kubelet.pem \
-  --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
-  --cgroups-per-qos=true \
-  --cgroup-driver=cgroupfs \
-  --enforce-node-allocatable=pods{% if KUBE_RESERVED_ENABLED == "yes" %},kube-reserved{% endif %}{% if SYS_RESERVED_ENABLED == "yes" %},system-reserved{% endif %} \
-{% if KUBE_RESERVED_ENABLED == "yes" %}
-  --kube-reserved={{ KUBE_RESERVED }} \
-  --kube-reserved-cgroup=/system.slice/kubelet.service \
-{% endif %}
-{% if SYS_RESERVED_ENABLED == "yes" %}
-  --system-reserved={{ SYS_RESERVED }} \
-  --system-reserved-cgroup=/system.slice \
-{% endif %}
-  --eviction-hard={{ HARD_EVICTION }} \
   --v=2
 Restart=on-failure
 RestartSec=5
