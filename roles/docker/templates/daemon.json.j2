@@ -1,9 +1,10 @@
 {
-  "registry-mirrors": [
-    "https://dockerhub.azk8s.cn",
-    "https://docker.mirrors.ustc.edu.cn",
-    "http://hub-mirror.c.163.com"
-  ],
+{% if ENABLE_MIRROR_REGISTRY %}
+  "registry-mirrors": {{ REG_MIRRORS }}, 
+{% endif %}
+{% if ENABLE_REMOTE_API %}
+  "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
+{% endif %}
   "max-concurrent-downloads": 10,
   "log-driver": "{{ LOG_DRIVER }}",
   "log-level": "{{ LOG_LEVEL }}",
@@ -12,7 +13,4 @@
     "max-file": "{{ LOG_MAX_FILE }}"
     },
   "data-root": "{{ STORAGE_DIR }}"
-  {% if ENABLE_REMOTE_API %}
-  , "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"]
-  {% endif %}
 }

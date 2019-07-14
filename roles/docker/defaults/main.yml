@@ -10,3 +10,9 @@ STORAGE_DIR: "/var/lib/docker"
 
 # 开启Restful API
 ENABLE_REMOTE_API: false
+
+# 启用 docker 仓库镜像
+ENABLE_MIRROR_REGISTRY: true
+
+# 设置 docker 仓库镜像
+REG_MIRRORS: '["https://dockerhub.azk8s.cn", "https://docker.mirrors.ustc.edu.cn"]'
