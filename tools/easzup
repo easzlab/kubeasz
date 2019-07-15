@@ -60,8 +60,11 @@ KillMode=process
 WantedBy=multi-user.target
 EOF
 
+  # configuration for dockerd
   echo "[INFO] generate docker config file"
-  cat > /etc/docker/daemon.json << EOF
+  if [[ "$REGISTRY_MIRROR" == CN ]];then
+    echo "[INFO] prepare register mirror for $REGISTRY_MIRROR"
+    cat > /etc/docker/daemon.json << EOF
 {
   "registry-mirrors": [
     "https://dockerhub.azk8s.cn",
@@ -78,6 +81,21 @@ EOF
   "data-root": "/var/lib/docker"
 }
 EOF
+  else
+    echo "[INFO] standard config without registry mirrors"
+    cat > /etc/docker/daemon.json << EOF
+{
+  "max-concurrent-downloads": 10,
+  "log-driver": "json-file",
+  "log-level": "warn",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+    },
+  "data-root": "/var/lib/docker"
+}
+EOF
+  fi
 
   if [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
     echo "[INFO] turn off selinux in CentOS/Redhat"
@@ -272,6 +290,7 @@ Usage: easzup [options] [args]
     -d <ver>   set docker-ce version, default "$DOCKER_VER"
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
+    -m <str>   set docker registry mirrors, default "CN"(used in Mainland,China)
     -p <ver>   set kubeasz-sys-pkg version, default "$SYS_PKG_VER"
     -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
   
@@ -288,8 +307,9 @@ function main() {
   
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
   
+  export REGISTRY_MIRROR="CN"
   ACTION=""
-  while getopts "CDSd:e:k:p:z:" OPTION; do
+  while getopts "CDSd:e:k:m:p:z:" OPTION; do
       case "$OPTION" in
         C)
           ACTION="clean_container"
@@ -308,6 +328,9 @@ function main() {
           ;;
         k)
           export K8S_BIN_VER="$OPTARG"
+          ;;
+        m)
+          export REGISTRY_MIRROR="$OPTARG"
           ;;
         p)
           export K8S_SYS_PKG="$OPTARG"
