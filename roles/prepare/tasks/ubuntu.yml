@@ -10,8 +10,8 @@
   when: ansible_distribution == "Ubuntu"
   ignore_errors: true
 
-# Ubuntu 安装基础软件包
-- name: 安装 ubuntu基础软件
+# 安装基础软件包
+- name: 安装 ubuntu/debian基础软件
   apt: 
     name:
       - nfs-common          # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)

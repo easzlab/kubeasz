@@ -2,6 +2,7 @@
 - name: 准备离线安装包目录
   file: name=/opt/kube/packages/chrony state=directory
 
+# ubuntu 1604
 - block:
   - name: 分发 chrony_xenial 离线包
     copy:
@@ -14,6 +15,7 @@
   when: ansible_distribution_release == "xenial"
   ignore_errors: true
 
+# ubuntu 1804
 - block:
   - name: 分发 chrony_bionic 离线包
     copy:
@@ -26,6 +28,7 @@
   when: ansible_distribution_release == "bionic"
   ignore_errors: true
 
+# centos7
 - block:
   - name: 分发 chrony_centos7 离线包
     copy:
@@ -38,4 +41,17 @@
   when: 
   - 'ansible_distribution_major_version == "7"'
   - 'ansible_distribution == "CentOS"'
+  ignore_errors: true
+
+# debian9
+- block:
+  - name: 分发 chrony_stretch 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_stretch.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_stretch.tar.gz"
+
+  - name: 安装 chrony_stretch 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_stretch.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "stretch"
   ignore_errors: true
