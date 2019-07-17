@@ -12,14 +12,6 @@
   - "{{ bin_dir }}"
   - "/etc/containerd"
 
-- name: 安装 libseccomp2
-  package: name=libseccomp2 state=present
-  when: 'ansible_distribution in ["Ubuntu","Debian"]'
-  
-- name: 安装 libseccomp
-  package: name=libseccomp state=present
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
-
 - name: 加载内核模块 overlay
   modprobe: name=overlay state=present
 
