@@ -1,9 +1,11 @@
 global_defs {
     router_id lb-backup-{{ inventory_hostname }}
+    script_user root
+    enable_script_security
 }
 
 vrrp_script check-haproxy {
-    script "killall -0 haproxy"
+    script "/usr/bin/killall -0 haproxy"
     interval 5
     weight -60
 }
