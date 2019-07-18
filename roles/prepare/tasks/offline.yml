@@ -66,3 +66,20 @@
     delay: 1
   when: ansible_distribution_release == "stretch"
   ignore_errors: true
+
+- block:
+  - name: 分发 basic_buster 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/basic_buster.tar.gz"
+      dest: "/opt/kube/packages/basic/basic_buster.tar.gz"
+
+  # 离线安装包可能需要安装多次才能成功
+  - name: 安装 basic_buster 离线包
+    shell: 'cd /opt/kube/packages/basic && tar zxf basic_buster.tar.gz && \
+           dpkg -i *.deb > /tmp/install_basic.log 2>&1'
+    register: install_info
+    until: not install_info.failed
+    retries: 3
+    delay: 1
+  when: ansible_distribution_release == "buster"
+  ignore_errors: true

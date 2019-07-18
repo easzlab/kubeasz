@@ -55,3 +55,16 @@
            dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
   when: ansible_distribution_release == "stretch"
   ignore_errors: true
+
+# debian10
+- block:
+  - name: 分发 chrony_buster 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_buster.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_buster.tar.gz"
+
+  - name: 安装 chrony_buster 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_buster.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "buster"
+  ignore_errors: true

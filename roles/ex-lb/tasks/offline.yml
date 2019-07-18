@@ -52,6 +52,18 @@
   when: ansible_distribution_release == "stretch"
   ignore_errors: true
 
+- block:
+  - name: 分发 haproxy_buster 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/haproxy_buster.tar.gz"
+      dest: "/opt/kube/packages/haproxy/haproxy_buster.tar.gz"
+
+  - name: 安装 haproxy_buster 离线包
+    shell: 'cd /opt/kube/packages/haproxy && tar zxf haproxy_buster.tar.gz && \
+           dpkg -i *.deb > /tmp/install_haproxy.log 2>&1'
+  when: ansible_distribution_release == "buster"
+  ignore_errors: true
+
 # 离线安装 keepalived
 - name: 准备离线安装包目录
   file: name=/opt/kube/packages/keepalived state=directory
@@ -104,4 +116,16 @@
     shell: 'cd /opt/kube/packages/keepalived && tar zxf keepalived_stretch.tar.gz && \
            dpkg -i *.deb > /tmp/install_keepalived.log 2>&1'
   when: ansible_distribution_release == "stretch"
+  ignore_errors: true
+
+- block:
+  - name: 分发 keepalived_buster 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/keepalived_buster.tar.gz"
+      dest: "/opt/kube/packages/keepalived/keepalived_buster.tar.gz"
+
+  - name: 安装 keepalived_buster 离线包
+    shell: 'cd /opt/kube/packages/keepalived && tar zxf keepalived_buster.tar.gz && \
+           dpkg -i *.deb > /tmp/install_keepalived.log 2>&1'
+  when: ansible_distribution_release == "buster"
   ignore_errors: true

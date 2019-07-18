@@ -51,3 +51,15 @@
            dpkg -i *.deb > /tmp/install_haproxy.log 2>&1'
   when: ansible_distribution_release == "stretch"
   ignore_errors: true
+
+- block:
+  - name: 分发 haproxy_buster 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/haproxy_buster.tar.gz"
+      dest: "/opt/kube/packages/haproxy/haproxy_buster.tar.gz"
+
+  - name: 安装 haproxy_buster 离线包
+    shell: 'cd /opt/kube/packages/haproxy && tar zxf haproxy_buster.tar.gz && \
+           dpkg -i *.deb > /tmp/install_haproxy.log 2>&1'
+  when: ansible_distribution_release == "buster"
+  ignore_errors: true
