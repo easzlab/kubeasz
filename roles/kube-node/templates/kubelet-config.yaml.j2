@@ -63,7 +63,11 @@ oomScoreAdj: -999
 podPidsLimit: -1
 port: 10250
 readOnlyPort: 0
+{% if ansible_distribution_release == "bionic" %}
+resolvConf: /run/systemd/resolve/resolv.conf
+{% else %}
 resolvConf: /etc/resolv.conf
+{% endif %}
 runtimeRequestTimeout: 2m0s
 serializeImagePulls: true
 streamingConnectionIdleTimeout: 4h0m0s
