@@ -14,11 +14,11 @@ set -o errexit
 #set -o xtrace
 
 # default version, can be overridden by cmd line options
-export DOCKER_VER=18.09.6
+export DOCKER_VER=18.09.7
 export KUBEASZ_VER=2.0.1
-export K8S_BIN_VER=v1.14.3
+export K8S_BIN_VER=v1.15.0
 export EXT_BIN_VER=0.3.0
-export SYS_PKG_VER=0.2.1
+export SYS_PKG_VER=0.3.1
 
 function install_docker() {
   # check if a container runtime is already installed
@@ -36,7 +36,11 @@ function install_docker() {
     echo "[INFO] docker binaries already existed"
   else
     echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
-    curl -C- -O --retry 3 "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
+    if [[ -e /usr/bin/curl ]];then
+      curl -C- -O --retry 3 "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
+    else
+      wget -c "$DOCKER_URL" || { echo "[ERROR] downloading docker failed"; exit 1; }
+    fi
     mv ./docker-${DOCKER_VER}.tgz /etc/ansible/down
   fi
 
@@ -338,7 +342,7 @@ function main() {
           export REGISTRY_MIRROR="$OPTARG"
           ;;
         p)
-          export K8S_SYS_PKG="$OPTARG"
+          export SYS_PKG_VER="$OPTARG"
           ;;
         z)
           export KUBEASZ_VER="$OPTARG"
