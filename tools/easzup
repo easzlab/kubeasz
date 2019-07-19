@@ -281,7 +281,7 @@ function start_kubeasz_docker() {
       --volume /root/.ssh/id_rsa:/root/.ssh/id_rsa:ro \
       --volume /root/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub:ro \
       --volume /root/.ssh/known_hosts:/root/.ssh/known_hosts:ro \
-      easzlab/kubeasz:${KUBEASZ_VER}
+      easzlab/kubeasz:${KUBEASZ_VER} sleep 36000
 }
 
 function clean_container() {

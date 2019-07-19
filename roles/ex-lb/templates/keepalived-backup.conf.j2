@@ -1,7 +1,6 @@
 global_defs {
     router_id lb-backup-{{ inventory_hostname }}
     script_user root
-    enable_script_security
 }
 
 vrrp_script check-haproxy {
