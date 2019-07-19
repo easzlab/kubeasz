@@ -1,16 +1,18 @@
 # 离线安装集群
 
-kubeasz 2.0.1 开始支持完全离线安装，目前已测试 Ubuntu16.04/Ubuntu18.04/CentOS7 系统。
+kubeasz 2.0.1 开始支持**完全离线安装**，目前已测试 `Ubuntu1604|1804` `CentOS7` `Debian9|10` 系统。
 
 ## 离线文件准备
 
 在一台能够访问互联网的服务器上执行：
 
 ```
-$ curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/2.0.1/easzup
-$ chmod +x ./easzup
+# 下载工具脚本easzup，举例使用kubeasz版本2.0.2
+export release=2.0.2
+curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
+chmod +x ./easzup
 # 使用工具脚本下载
-$ ./easzup -D
+./easzup -D
 ```
 
 执行成功后，所有文件均已整理好放入目录`/etc/ansilbe`，只要把该目录整体复制到任何离线的机器上，即可开始安装集群，离线文件包括：

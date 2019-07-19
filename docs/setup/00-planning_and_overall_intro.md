@@ -89,11 +89,12 @@ ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 
 推荐使用 easzup 脚本下载 4.0/4.1/4.2 所需文件；运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/ansilbe`
 
 ``` bash
-# 下载工具脚本easzup
-$ curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
-$ chmod +x ./easzup
+# 下载工具脚本easzup，举例使用kubeasz版本2.0.2
+export release=2.0.2
+curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
+chmod +x ./easzup
 # 使用工具脚本下载
-$ ./easzup -D
+./easzup -D
 ```
 
 - 4.3 配置集群参数
