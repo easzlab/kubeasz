@@ -64,7 +64,7 @@ kubectl create namespace istio-system
 helm template install/kubernetes/helm/istio-init --name istio-init --namespace istio-system --set gateways.istio-ingressgateway.type=NodePort --set gateways.istio-egressgateway.type=NodePort | kubectl apply -f -
 
 # 稍等一会儿执行
-# 输出 53 或者 58 （若开启了 cert-manager）
+# 输出 23 或者 28 （若开启了 cert-manager）
 kubectl get crds | grep 'istio.io\|certmanager.k8s.io' | wc -l
 
 # 部署与你选择的配置文件相对应的 Istio 的核心组件
