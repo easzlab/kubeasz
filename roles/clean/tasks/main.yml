@@ -26,3 +26,8 @@
   - 'crictl completion'
   - 'HELM_TLS_ENABLE'
   when: 'DEL_ENV == "yes"'
+
+- name: 重启提示 WARNNING
+  debug:
+    msg: "[重要]: 请重启节点以确保清除系统残留的虚拟网卡、路由信息、iptalbes|ipvs规则等 \
+          [IMPORTANT]: please reboot nodes, makesure to clean out net interfaces, routes and iptables/ipvs rules"
