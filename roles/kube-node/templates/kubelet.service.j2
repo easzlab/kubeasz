@@ -28,7 +28,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --pod-infra-container-image={{ SANDBOX_IMAGE }} \
   --root-dir={{ KUBELET_ROOT_DIR }} \
   --v=2
-Restart=on-failure
+Restart=always
 RestartSec=5
 
 [Install]

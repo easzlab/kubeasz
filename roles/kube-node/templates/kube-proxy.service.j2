@@ -13,7 +13,7 @@ ExecStart={{ bin_dir }}/kube-proxy \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
   --logtostderr=true \
   --proxy-mode={{ PROXY_MODE }}
-Restart=on-failure
+Restart=always
 RestartSec=5
 LimitNOFILE=65536
 

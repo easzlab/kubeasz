@@ -18,7 +18,7 @@ ExecStart={{ bin_dir }}/kube-controller-manager \
   --horizontal-pod-autoscaler-use-rest-clients=true \
   --leader-elect=true \
   --v=2
-Restart=on-failure
+Restart=always
 RestartSec=5
 
 [Install]
