@@ -99,6 +99,21 @@
   set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
   tags: restart_node
 
+# 判断 kubernetes 版本
+- name: 注册变量 TMP_VER
+  shell: "{{ base_dir }}/bin/kube-apiserver --version|cut -d' ' -f2|cut -d'v' -f2"
+  register: TMP_VER
+  connection: local
+  tags: upgrade_k8s, restart_node
+
+- name: 获取 kubernetes 主版本号
+  set_fact:
+    KUBE_VER: "{{ TMP_VER.stdout.split('.')[0]|int + TMP_VER.stdout.split('.')[1]|int/100 }}"
+  tags: upgrade_k8s, restart_node
+
+- name: debug info
+  debug: var="KUBE_VER"
+
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
   tags: upgrade_k8s, restart_node 
