@@ -2,4 +2,4 @@
 OVN_DB_NODE: "{{ groups['kube-master'][0] }}"
 
 # 离线镜像tar包
-kube_ovn_offline: "kube_ovn_0.4.0.tar"
+kube_ovn_offline: "kube_ovn_0.6.0.tar"

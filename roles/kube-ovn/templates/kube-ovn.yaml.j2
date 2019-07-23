@@ -8,7 +8,7 @@ metadata:
     kubernetes.io/description: |
       kube-ovn controller
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: kube-ovn-controller
@@ -38,12 +38,13 @@ spec:
       hostNetwork: true
       containers:
         - name: kube-ovn-controller
-          image: "index.alauda.cn/alaudak8s/kube-ovn-controller:v0.4.0"
+          image: "index.alauda.cn/alaudak8s/kube-ovn-controller:v0.6.0"
           imagePullPolicy: IfNotPresent
           command:
           - /kube-ovn/start-controller.sh
           args:
           - --default-cidr=10.16.0.0/16
+          - --default-gateway=10.16.0.1
           - --node-switch-cidr=100.64.0.0/16
           env:
             - name: POD_NAME
@@ -54,6 +55,30 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          readinessProbe:
+            exec:
+              command:
+                - nc
+                - -z
+                - -w3
+                - 127.0.0.1
+                - "10660"
+            periodSeconds: 3
+          livenessProbe:
+            exec:
+              command:
+                - nc
+                - -z
+                - -w3
+                - 127.0.0.1
+                - "10660"
+            initialDelaySeconds: 30
+            periodSeconds: 7
+            failureThreshold: 5
       nodeSelector:
         beta.kubernetes.io/os: "linux"
 
@@ -87,7 +112,7 @@ spec:
       hostPID: true
       initContainers:
       - name: install-cni
-        image: "index.alauda.cn/alaudak8s/kube-ovn-cni:v0.4.0"
+        image: "index.alauda.cn/alaudak8s/kube-ovn-cni:v0.6.0"
         imagePullPolicy: IfNotPresent
         command: ["/kube-ovn/install-cni.sh"]
         volumeMounts:
@@ -97,8 +122,13 @@ spec:
             name: cni-bin
       containers:
       - name: cni-server
-        image: "index.alauda.cn/alaudak8s/kube-ovn-cni:v0.4.0"
+        image: "index.alauda.cn/alaudak8s/kube-ovn-cni:v0.6.0"
         imagePullPolicy: IfNotPresent
+        command:
+          - sh
+          - /kube-ovn/start-cniserver.sh
+        args:
+          - --enable-mirror=false
         securityContext:
           runAsUser: 0
           privileged: true
@@ -114,6 +144,26 @@ spec:
         volumeMounts:
           - mountPath: /run/openvswitch
             name: host-run-ovs
+        readinessProbe:
+          exec:
+            command:
+              - nc
+              - -z
+              - -w3
+              - 127.0.0.1
+              - "10665"
+          periodSeconds: 3
+        livenessProbe:
+          exec:
+            command:
+              - nc
+              - -z
+              - -w3
+              - 127.0.0.1
+              - "10665"
+          initialDelaySeconds: 30
+          periodSeconds: 7
+          failureThreshold: 5
       nodeSelector:
         beta.kubernetes.io/os: "linux"
       volumes:

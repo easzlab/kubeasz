@@ -23,24 +23,36 @@ kind: ClusterRole
 metadata:
   annotations:
     rbac.authorization.k8s.io/system-only: "true"
-  name: system:ovn-reader
+  name: system:ovn
 rules:
   - apiGroups:
+      - "kubeovn.io"
+    resources:
+      - subnets
+      - ips
+    verbs:
+      - "*"
+  - apiGroups:
       - ""
-      - extensions
     resources:
       - pods
       - namespaces
-      - networkpolicies
       - nodes
+      - configmaps
     verbs:
+      - create
       - get
       - list
       - watch
+      - patch
+      - update
   - apiGroups:
+      - ""
       - networking.k8s.io
     resources:
       - networkpolicies
+      - services
+      - endpoints
     verbs:
       - get
       - list
@@ -58,37 +70,9 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: ovn-cluster-reader
+  name: ovn
 roleRef:
-  name: cluster-reader
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-  - kind: ServiceAccount
-    name: ovn
-    namespace: kube-ovn
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: ovn-reader
-roleRef:
-  name: system:ovn-reader
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-  - kind: ServiceAccount
-    name: ovn
-    namespace: kube-ovn
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: cluster-admin-0
-roleRef:
-  name: cluster-admin
+  name: system:ovn
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
 subjects:
@@ -170,7 +154,7 @@ spec:
       hostNetwork: true
       containers:
         - name: ovn-central
-          image: "index.alauda.cn/alaudak8s/kube-ovn-db:v0.4.0"
+          image: "index.alauda.cn/alaudak8s/kube-ovn-db:v0.6.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_IP
@@ -257,7 +241,7 @@ spec:
       hostPID: true
       containers:
         - name: openvswitch
-          image: "index.alauda.cn/alaudak8s/kube-ovn-node:v0.4.0"
+          image: "index.alauda.cn/alaudak8s/kube-ovn-node:v0.6.0"
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 0
