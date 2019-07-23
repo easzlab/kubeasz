@@ -17,6 +17,7 @@
     when: "groups['etcd']|length < 2" 
 
   - block:
+    # 以下几个tasks是为寻找etcd集群中第一个健康节点
     - name: set NODE_IPS of the etcd cluster
       set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
 
@@ -39,6 +40,7 @@
 
     - debug: var="RUNNING_NODE.stdout"
 
+    # 在etcd健康节点上才能进行操作
     - name: get ID of etcd node to delete
       shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d',' -f1"
       register: ETCD_ID
@@ -54,21 +56,23 @@
       delegate_to: "{{ RUNNING_NODE.stdout }}"
       when: "ETCD_ID.stdout != ''"
   
+    #- name: remove data of the deleted etcd node if possible
+    #  file: name=/var/lib/etcd state=absent
+    #  delegate_to: "{{ ETCD_TO_DEL }}"
+    #  ignore_errors: true
+
     - name: remove data of the deleted etcd node if possible
-      file: name=/var/lib/etcd state=absent
-      delegate_to: "{{ ETCD_TO_DEL }}"
-      when: "ETCD_ID.stdout != ''"
+      shell: "ssh {{ ETCD_TO_DEL }} rm -rf /var/lib/etcd"
       ignore_errors: true
-   
+
+    # 在[etcd]组内删除node节点，lineinfile模块不好用，只能用sed
     - name: remove the etcd's node entry in hosts
-      lineinfile:
-        dest: "{{ base_dir }}/hosts"
-        state: absent
-        regexp: 'NODE_NAME={{ ETCD_NAME.stdout }}'
-      when: "ETCD_NAME.stdout != ''"
+      shell: 'sed -i "/^\[etcd/,/^\[kube-master/ {/^{{ ETCD_TO_DEL }}[^0-9]/d}" {{ base_dir }}/hosts'
+      args:
+        warn: false
 
     - name: reconfig and restart the etcd cluster
       shell: "ansible-playbook {{ base_dir }}/02.etcd.yml > /tmp/ansible-playbook.log 2>&1"
-      when: "ETCD_ID.stdout != ''"
+
     # 满足条件才进行删除
     when: "groups['etcd']|length > 1 and ETCD_TO_DEL in groups['etcd']" 
