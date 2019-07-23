@@ -2,20 +2,45 @@
 # read the guide: 'op/cluster_restore.md'
 
 - hosts:
-  - etcd
+  - localhost
   tasks:
+  # 寻找etcd集群中第一个健康节点
+  - name: set NODE_IPS of the etcd cluster
+    set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
+
+  - name: get etcd cluster status
+    shell: 'for ip in {{ NODE_IPS }};do \
+              ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
+              --endpoints=https://"$ip":2379 \
+              --cacert={{ base_dir }}/.cluster/ssl/ca.pem \
+              --cert={{ base_dir }}/.cluster/ssl/admin.pem \
+              --key={{ base_dir }}/.cluster/ssl/admin-key.pem \
+              endpoint health; \
+            done'
+    register: ETCD_CLUSTER_STATUS
+
+  - debug: var="ETCD_CLUSTER_STATUS.stdout"
+
+  - name: get a running ectd node
+    shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}"|grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+    register: RUNNING_NODE
+
+  - debug: var="RUNNING_NODE.stdout"
+
+  # 在健康etcd节点上执行数据备份
   - name: 执行etcd 数据备份
     shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
         ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot.db"
     args:
       warn: false
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
 
   - name: 获取etcd 数据备份
     fetch:
       src: /etcd_backup/snapshot.db
       dest: "{{ base_dir }}/.cluster/backup/"
       flat: yes
-    run_once: true
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
 
 - hosts:
   - localhost
