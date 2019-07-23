@@ -5,6 +5,9 @@
   - /opt/kube/images
   - /opt/kube/kube-ovn
 
+- name: 配置 crd.yaml 文件
+  template: src=crd.yaml.j2 dest=/opt/kube/kube-ovn/crd.yaml
+
 - name: 配置 kube-ovn.yaml 文件
   template: src=kube-ovn.yaml.j2 dest=/opt/kube/kube-ovn/kube-ovn.yaml
 
@@ -51,6 +54,7 @@
 # 只需单节点执行一次
 - name: 运行 kube-ovn网络
   shell: "{{ bin_dir }}/kubectl label node {{ OVN_DB_NODE }} kube-ovn/role=master --overwrite && \
+    {{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/crd.yaml && sleep 5 && \
 	{{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/ovn.yaml && sleep 5 && \
 	{{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/kube-ovn.yaml"
   run_once: true

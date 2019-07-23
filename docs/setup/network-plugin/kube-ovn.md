@@ -14,6 +14,9 @@ kube-ovn 提供了针对企业应用场景下容器网络实用功能，并为�
 - 3.动态QoS;
 - 4.分布式和集中式网关;
 - 5.内嵌 LoadBalancer;
+- 6.Pod IP对外直接暴露
+- 7.流量镜像
+- 8.IPv6
 
 ### kubeasz 集成安装 kube-ovn
 
@@ -31,8 +34,10 @@ roles/kube-ovn
 ├── tasks
 │   └── main.yml		# 安装执行文件
 └── templates
+    ├── crd.yaml.j2	        # crd 模板
     ├── kube-ovn.yaml.j2	# kube-ovn yaml 模板
-    └── ovn.yaml.j2		# ovn yaml 模板
+    └── ovn.yaml.j2		    # ovn yaml 模板
+    
 ```
 
 安装成功后，可以验证所有 k8s 集群功能正常，查看集群的 pod 网络如下：
@@ -63,7 +68,7 @@ kube-system   metrics-server-6c898b5b8b-zvct2         1/1     Running   0       
 
 ### 测试 namespace 子网分配
 
-新建一个 namespace 测试分配一个新的 pod 子网
+新建一个 subnet 并绑定 namespace 测试分配一个新的 pod 子网
 
 ```
 # 创建一个 namespace: test-ns
@@ -72,13 +77,27 @@ apiVersion: v1
 kind: Namespace
 metadata:
   annotations:
-    ovn.kubernetes.io/cidr: 10.17.0.0/24
-    ovn.kubernetes.io/gateway: 10.17.0.1
-    ovn.kubernetes.io/logical_switch: test-ns-subnet
-    ovn.kubernetes.io/exclude_ips: "10.17.0.1..10.17.0.10"
   name: test-ns
 EOF
 $ kubectl apply -f test-ns.yaml
+
+# 创建一个 subnet: test-subnet 并绑定 namespace test-ns
+$ cat > test-subnet.yaml << EOF
+apiVersion: kubeovn.io/v1
+kind: Subnet
+metadata:
+  name: test-subnet
+spec:
+  protocol: IPv4
+  default: false
+  namespaces:
+  - test-ns
+  cidrBlock: 10.17.0.0/24
+  gateway: 10.17.0.1
+  excludeIps:
+  - 10.17.0.1..10.17.0.10
+EOF
+$ kubectl apply -f test-subnet.yaml
 
 # 在 test-ns 中创建 nginx 部署
 $ kubectl run -n test-ns nginx --image=nginx --replicas=2 --port=80 --expose
