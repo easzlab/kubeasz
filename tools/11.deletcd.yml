@@ -17,36 +17,58 @@
     when: "groups['etcd']|length < 2" 
 
   - block:
+    - name: set NODE_IPS of the etcd cluster
+      set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
+
+    - name: get etcd cluster status
+      shell: 'for ip in {{ NODE_IPS }};do \
+                ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
+                --endpoints=https://"$ip":2379 \
+                --cacert={{ base_dir }}/.cluster/ssl/ca.pem \
+                --cert={{ base_dir }}/.cluster/ssl/admin.pem \
+                --key={{ base_dir }}/.cluster/ssl/admin-key.pem \
+                endpoint health; \
+              done'
+      register: ETCD_CLUSTER_STATUS
+
+    - debug: var="ETCD_CLUSTER_STATUS.stdout"
+
+    - name: get a running ectd node
+      shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}"|grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+      register: RUNNING_NODE
+
+    - debug: var="RUNNING_NODE.stdout"
+
     - name: get ID of etcd node to delete
       shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d',' -f1"
       register: ETCD_ID
-      delegate_to: "{{ groups.etcd[0] }}"
+      delegate_to: "{{ RUNNING_NODE.stdout }}"
   
     - name: get NAME of etcd node to delete
       shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d' ' -f3|cut -d',' -f1"
       register: ETCD_NAME
-      delegate_to: "{{ groups.etcd[0] }}"
-  
-    - name: rm etcd's node in hosts
-      lineinfile:
-        dest: "{{ base_dir }}/hosts"
-        state: absent
-        regexp: '{{ ETCD_NAME.stdout }}'
-      when: "ETCD_NAME.stdout != ''"
+      delegate_to: "{{ RUNNING_NODE.stdout }}"
   
     - name: delete a etcd member
       shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member remove {{ ETCD_ID.stdout }}"
-      delegate_to: "{{ groups.etcd[0] }}"
+      delegate_to: "{{ RUNNING_NODE.stdout }}"
       when: "ETCD_ID.stdout != ''"
   
-    - name: rm data of the deleted etcd node
+    - name: remove data of the deleted etcd node if possible
       file: name=/var/lib/etcd state=absent
       delegate_to: "{{ ETCD_TO_DEL }}"
       when: "ETCD_ID.stdout != ''"
+      ignore_errors: true
    
+    - name: remove the etcd's node entry in hosts
+      lineinfile:
+        dest: "{{ base_dir }}/hosts"
+        state: absent
+        regexp: 'NODE_NAME={{ ETCD_NAME.stdout }}'
+      when: "ETCD_NAME.stdout != ''"
+
     - name: reconfig and restart the etcd cluster
       shell: "ansible-playbook {{ base_dir }}/02.etcd.yml > /tmp/ansible-playbook.log 2>&1"
       when: "ETCD_ID.stdout != ''"
-    run_once: true
     # 满足条件才进行删除
     when: "groups['etcd']|length > 1 and ETCD_TO_DEL in groups['etcd']" 
