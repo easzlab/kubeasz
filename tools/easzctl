@@ -122,7 +122,7 @@ function add-etcd() {
     read -t15 NAME
     sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "$NAME" && { echo "[ERROR] name [$NAME] already existed!"; return 2; }
 
-    # add a node into 'kube-node' group
+    # add a node into 'etcd' group
     sed -i "/\[etcd/a $1 NODE_NAME=$NAME" $BASEPATH/hosts
 
     # check if playbook runs successfully
@@ -159,7 +159,7 @@ function del-node() {
     ansible-playbook $BASEPATH/tools/12.delnode.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-node': $1!"; return 2; }
 
     # remove node in ansible hosts
-    sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]*$/d}' $BASEPATH/hosts
+    sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]/d}' $BASEPATH/hosts
 
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
@@ -174,8 +174,8 @@ function del-master() {
     ansible-playbook $BASEPATH/tools/13.delmaster.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-master': $1!"; return 2; }
 
     # remove node in ansible hosts
-    sed -i '/^\[kube-master/,/^\[kube-node/{/^'"$1"'[^0-9]*$/d}' $BASEPATH/hosts
-    sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]*$/d}' $BASEPATH/hosts
+    sed -i '/^\[kube-master/,/^\[kube-node/{/^'"$1"'[^0-9]/d}' $BASEPATH/hosts
+    sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]/d}' $BASEPATH/hosts
 
     # reconfig kubeconfig in ansible manage node
     ansible-playbook $BASEPATH/01.prepare.yml -t create_kctl_cfg 
