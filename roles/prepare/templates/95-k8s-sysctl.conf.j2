@@ -2,7 +2,9 @@ net.ipv4.ip_forward = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-arptables = 1
+{% if ansible_distribution in ["CentOS","RedHat","Amazon"] %}
 net.ipv4.tcp_tw_recycle=0
+{% endif %}
 # disable ipv6
 net.ipv6.conf.all.disable_ipv6=1
 net.netfilter.nf_conntrack_max=1000000
