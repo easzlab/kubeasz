@@ -158,9 +158,6 @@ function del-node() {
     # 
     ansible-playbook $BASEPATH/tools/12.delnode.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-node': $1!"; return 2; }
 
-    # remove node in ansible hosts
-    sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]/d}' $BASEPATH/hosts
-
     # save current cluster context if needed
     [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
     return 0
@@ -172,10 +169,6 @@ function del-master() {
 
     # 
     ansible-playbook $BASEPATH/tools/13.delmaster.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-master': $1!"; return 2; }
-
-    # remove node in ansible hosts
-    sed -i '/^\[kube-master/,/^\[kube-node/{/^'"$1"'[^0-9]/d}' $BASEPATH/hosts
-    sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]/d}' $BASEPATH/hosts
 
     # reconfig kubeconfig in ansible manage node
     ansible-playbook $BASEPATH/roles/deploy/deploy.yml -t create_kctl_cfg

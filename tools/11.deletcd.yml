@@ -1,4 +1,4 @@
-# WARNNING:  this playbook will clean the etcd {{ NODE_TO_DEL }} 
+# WARNNING:  this playbook will clean the etcd {{ ETCD_TO_DEL }} 
 # USAGE:     easzctl del-etcd 1.1.1.1
 
 - hosts: localhost 
@@ -30,6 +30,7 @@
                 endpoint health; \
               done'
       register: ETCD_CLUSTER_STATUS
+      ignore_errors: true
 
     - debug: var="ETCD_CLUSTER_STATUS.stdout"
 
@@ -55,10 +56,10 @@
       delegate_to: "{{ RUNNING_NODE.stdout }}"
       when: "ETCD_ID.stdout != ''"
   
-    - name: clean etcd {{ NODE_TO_DEL }} if possible
+    - name: clean etcd {{ ETCD_TO_DEL }} if possible
       shell: "ansible-playbook {{ base_dir }}/roles/clean/clean_node.yml \
-                -e NODE_TO_CLEAN={{ NODE_TO_DEL }} \
-                -e DEL_ETCD=yes >> /tmp/ansible-playbook.log 2>&1 \
+                -e NODE_TO_CLEAN={{ ETCD_TO_DEL }} \
+                -e DEL_ETCD=yes >> /tmp/ansible-`date +'%Y%m%d%H%M%S'`.log 2>&1 \
               || echo 'data not cleaned on {{ ETCD_TO_DEL }}'"
       register: CLEAN_STATUS
 
@@ -71,5 +72,5 @@
         warn: false
 
     - name: reconfig and restart the etcd cluster
-      shell: "ansible-playbook {{ base_dir }}/02.etcd.yml > /tmp/ansible-playbook.log 2>&1"
+      shell: "ansible-playbook {{ base_dir }}/02.etcd.yml >> /tmp/ansible-`date +'%Y%m%d%H%M%S'`.log 2>&1"
     when: "groups['etcd']|length > 1 and ETCD_TO_DEL in groups['etcd']" 
