@@ -49,6 +49,12 @@ NODE_PORT_RANGE="20000-40000"
 # Cluster DNS Domain
 CLUSTER_DNS_DOMAIN="cluster.local."
 
+# Docker data ROOT.Default /var/lib/docker
+STORAGE_DIR="/data/docker"
+
+# Docker insecure registry
+ADD_REGISTRY='["127.0.0.1/8"]'
+
 # -------- Additional Variables (don't change the default value right now) ---
 # Binaries Directory
 bin_dir="/opt/kube/bin"
