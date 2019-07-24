@@ -1,5 +1,5 @@
-# 警告：此脚本将清理指定 etcd 节点
-# 使用：`easzctl del-etcd 1.1.1.1` 
+# WARNNING:  this playbook will clean the etcd {{ NODE_TO_DEL }} 
+# USAGE:     easzctl del-etcd 1.1.1.1
 
 - hosts: localhost 
   vars_prompt:
@@ -8,16 +8,15 @@
     private: no
     confirm: yes
   tasks:
-  - name: fail info1
-    fail: msg="{{ ETCD_TO_DEL }} is NOT a member of etcd cluster!"
+  # step0: run prechecks
+  - fail: msg="{{ ETCD_TO_DEL }} is NOT a member of etcd cluster!"
     when: "ETCD_TO_DEL not in groups['etcd']" 
 
-  - name: fail info2
-    fail: msg="you CAN NOT delete the last member of etcd cluster!"
+  - fail: msg="you CAN NOT delete the last member of etcd cluster!"
     when: "groups['etcd']|length < 2" 
 
   - block:
-    # 以下几个tasks是为寻找etcd集群中第一个健康节点
+    # step1: find a healthy member in the etcd cluster
     - name: set NODE_IPS of the etcd cluster
       set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
 
@@ -40,7 +39,7 @@
 
     - debug: var="RUNNING_NODE.stdout"
 
-    # 在etcd健康节点上才能进行操作
+    # step2: remove jobs run on the healthy member if needed
     - name: get ID of etcd node to delete
       shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d',' -f1"
       register: ETCD_ID
@@ -56,16 +55,16 @@
       delegate_to: "{{ RUNNING_NODE.stdout }}"
       when: "ETCD_ID.stdout != ''"
   
-    #- name: remove data of the deleted etcd node if possible
-    #  file: name=/var/lib/etcd state=absent
-    #  delegate_to: "{{ ETCD_TO_DEL }}"
-    #  ignore_errors: true
+    - name: clean etcd {{ NODE_TO_DEL }} if possible
+      shell: "ansible-playbook {{ base_dir }}/roles/clean/clean_node.yml \
+                -e NODE_TO_CLEAN={{ NODE_TO_DEL }} \
+                -e DEL_ETCD=yes >> /tmp/ansible-playbook.log 2>&1 \
+              || echo 'data not cleaned on {{ ETCD_TO_DEL }}'"
+      register: CLEAN_STATUS
 
-    - name: remove data of the deleted etcd node if possible
-      shell: "ssh {{ ETCD_TO_DEL }} rm -rf /var/lib/etcd"
-      ignore_errors: true
+    - debug: var="CLEAN_STATUS.stdout"
 
-    # 在[etcd]组内删除node节点，lineinfile模块不好用，只能用sed
+    # lineinfile is inadequate to delete lines between some specific line range
     - name: remove the etcd's node entry in hosts
       shell: 'sed -i "/^\[etcd/,/^\[kube-master/ {/^{{ ETCD_TO_DEL }}[^0-9]/d}" {{ base_dir }}/hosts'
       args:
@@ -73,6 +72,4 @@
 
     - name: reconfig and restart the etcd cluster
       shell: "ansible-playbook {{ base_dir }}/02.etcd.yml > /tmp/ansible-playbook.log 2>&1"
-
-    # 满足条件才进行删除
     when: "groups['etcd']|length > 1 and ETCD_TO_DEL in groups['etcd']" 

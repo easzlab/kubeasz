@@ -1,0 +1,3 @@
+- hosts: "{{ NODE_TO_CLEAN }}"
+  roles:
+  - clean

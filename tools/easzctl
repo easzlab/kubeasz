@@ -178,7 +178,7 @@ function del-master() {
     sed -i '/^\[kube-node/,/^\[harbor/{/^'"$1"'[^0-9]/d}' $BASEPATH/hosts
 
     # reconfig kubeconfig in ansible manage node
-    ansible-playbook $BASEPATH/01.prepare.yml -t create_kctl_cfg 
+    ansible-playbook $BASEPATH/roles/deploy/deploy.yml -t create_kctl_cfg
 
     # reconfigure and restart the haproxy service on 'kube-node' nodes
     ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb -e MASTER_CHG=yes || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
