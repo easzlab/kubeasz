@@ -4,7 +4,7 @@
 - hosts:
   - localhost
   tasks:
-  # 寻找etcd集群中第一个健康节点
+  # step1: find a healthy member in the etcd cluster 
   - name: set NODE_IPS of the etcd cluster
     set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
 
@@ -18,6 +18,7 @@
               endpoint health; \
             done'
     register: ETCD_CLUSTER_STATUS
+    ignore_errors: true
 
   - debug: var="ETCD_CLUSTER_STATUS.stdout"
 
@@ -27,15 +28,15 @@
 
   - debug: var="RUNNING_NODE.stdout"
 
-  # 在健康etcd节点上执行数据备份
-  - name: 执行etcd 数据备份
+  # step2: backup data on the healthy member
+  - name: make a backup on etcd node
     shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
         ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot.db"
     args:
       warn: false
     delegate_to: "{{ RUNNING_NODE.stdout }}"
 
-  - name: 获取etcd 数据备份
+  - name: fetch the backup data
     fetch:
       src: /etcd_backup/snapshot.db
       dest: "{{ base_dir }}/.cluster/backup/"
