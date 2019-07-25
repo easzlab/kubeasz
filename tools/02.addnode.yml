@@ -13,3 +13,14 @@
   - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
   - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
+  post_tasks:
+  - name: 推送所有离线镜像包
+    copy: src={{ base_dir }}/down dest=/tmp/
+  - name: 导入所有离线镜像
+    shell: ls /tmp/down/*.tar |while read n;do {{ bin_dir }}/docker load -i $n ;done
+    ignore_errors: true
+    when: "CONTAINER_RUNTIME == 'docker'"
+  - name: 导入所有离线镜像
+    shell: ls /tmp/down/*.tar |while read n;do {{ bin_dir }}/ctr -n=k8s.io images import $n ;done
+    ignore_errors: true
+    when: "CONTAINER_RUNTIME == 'containerd'"
