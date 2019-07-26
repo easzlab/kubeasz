@@ -46,10 +46,10 @@ NODE_PORT_RANGE="20000-40000"
 CLUSTER_DNS_DOMAIN="cluster.local."
 
 # Docker data ROOT
-STORAGE_DIR="/var/lib/docker"
+# STORAGE_DIR="/var/lib/docker"
 
 # Docker insecure registry
-INSECURE_REG='["127.0.0.1/8"]'
+# INSECURE_REG='["127.0.0.1/8"]'
 
 # -------- Additional Variables (don't change the default value right now)---
 # Binaries Directory
