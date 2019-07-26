@@ -16,7 +16,8 @@
   tasks:
   - name: 创建文件夹/opt/kube/images
     file: dest=/opt/kube/images state=directory
-  - name: 推送07.cluster-addon.yml中的镜像包
+
+  - name: 推送cluster-addon的离线镜像包
     copy: src={{ item }} dest=/opt/kube/images/
     with_fileglob:
     - "{{ base_dir }}/down/coredns*.tar"
@@ -24,10 +25,13 @@
     - "{{ base_dir }}/down/heapster*.tar"
     - "{{ base_dir }}/down/metrics*.tar"
     - "{{ base_dir }}/down/traefik*.tar"
+    ignore_errors: true
+
   - name: 导入离线镜像（若执行失败，可忽略）
     shell: ls /opt/kube/images/*.tar |while read n;do {{ bin_dir }}/docker load -i $n ;done
     ignore_errors: true
     when: "CONTAINER_RUNTIME == 'docker'"
+
   - name: 导入离线镜像（若执行失败，可忽略）
     shell: ls /opt/kube/images/*.tar |while read n;do {{ bin_dir }}/ctr -n=k8s.io images import $n ;done
     ignore_errors: true
