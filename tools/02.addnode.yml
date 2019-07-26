@@ -13,14 +13,22 @@
   - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
   - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
-  post_tasks:
-  - name: 推送所有离线镜像包
-    copy: src={{ base_dir }}/down/ dest=/opt/kube/images/
-  - name: 导入所有离线镜像
+  tasks:
+  - name: 创建文件夹/opt/kube/images
+    file: dest=/opt/kube/images state=directory
+  - name: 推送07.cluster-addon.yml中的镜像包
+    copy: src={{ item }} dest=/opt/kube/images/
+    with_fileglob:
+    - "{{ base_dir }}/down/coredns*.tar"
+    - "{{ base_dir }}/down/dashboard*.tar"
+    - "{{ base_dir }}/down/heapster*.tar"
+    - "{{ base_dir }}/down/metrics*.tar"
+    - "{{ base_dir }}/down/traefik*.tar"
+  - name: 导入离线镜像（若执行失败，可忽略）
     shell: ls /opt/kube/images/*.tar |while read n;do {{ bin_dir }}/docker load -i $n ;done
     ignore_errors: true
     when: "CONTAINER_RUNTIME == 'docker'"
-  - name: 导入所有离线镜像
+  - name: 导入离线镜像（若执行失败，可忽略）
     shell: ls /opt/kube/images/*.tar |while read n;do {{ bin_dir }}/ctr -n=k8s.io images import $n ;done
     ignore_errors: true
     when: "CONTAINER_RUNTIME == 'containerd'"
