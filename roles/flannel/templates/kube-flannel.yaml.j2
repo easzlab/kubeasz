@@ -75,6 +75,9 @@ data:
     {
       "Network": "{{ CLUSTER_CIDR }}",
       "Backend": {
+{% if FLANNEL_BACKEND == "vxlan" and DIRECT_ROUTING %}
+        "DirectRouting": true,
+{% endif %}
         "Type": "{{ FLANNEL_BACKEND }}"
       }
     }
