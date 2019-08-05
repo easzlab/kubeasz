@@ -3,14 +3,6 @@
   with_items:
   - /opt/kube/kube-system
 
-# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
-- name: 注册变量 DNS_SVC_IP
-  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
-  register: DNS_SVC_IP
-
-- name: 设置变量 CLUSTER_DNS_SVC_IP
-  set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
-
 # DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
 - name: 准备 DNS的部署文件
   template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}.yaml
