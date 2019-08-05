@@ -27,5 +27,5 @@ g.删除所有运行pod，然后等待自动重建
 
 ## 验证新网络插件
 
-参照[calico](../setup/calico.md) [cilium](../setup/cilium.md) [flannel](../setup/flannel.md) [kube-router](../setup/kube-router.md)
+参照[calico](../setup/network-plugin/calico.md) [cilium](../setup/network-plugin/cilium.md) [flannel](../setup/network-plugin/flannel.md) [kube-router](../setup/network-plugin/kube-router.md)
 

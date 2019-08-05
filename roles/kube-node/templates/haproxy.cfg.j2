@@ -1,0 +1,24 @@
+global
+        log /dev/log    local1 warning
+        chroot /var/lib/haproxy
+        user haproxy
+        group haproxy
+        daemon
+        nbproc 1
+
+defaults
+        log     global
+        timeout connect 5s
+        timeout client  10m
+        timeout server  10m
+
+listen kube-master
+        bind 127.0.0.1:6443
+        mode tcp
+        option tcplog
+        option dontlognull
+        option dontlog-normal
+        balance {{ BALANCE_ALG }} 
+{% for host in groups['kube-master'] %}
+        server {{ host }} {{ host }}:6443 check inter 10s fall 2 rise 2 weight 1
+{% endfor %}

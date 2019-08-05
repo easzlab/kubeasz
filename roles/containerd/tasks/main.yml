@@ -1,0 +1,61 @@
+- name: 获取是否已经安装docker
+  shell: 'systemctl status docker|grep Active || echo "NOT FOUND"'
+  register: docker_status
+
+- name: fail info1
+  fail: msg="Docker already installed!"
+  when: '"running" in docker_status.stdout'
+
+- name: 准备containerd相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - "{{ bin_dir }}"
+  - "/etc/containerd"
+
+- name: 加载内核模块 overlay
+  modprobe: name=overlay state=present
+
+- name: 下载 containerd 二进制文件
+  copy: src={{ base_dir }}/bin/containerd-bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - containerd
+  - containerd-shim
+  - containerd-shim-runc-v1
+  - crictl
+  - ctr
+  - runc
+  tags: upgrade
+
+- name: 创建 containerd 配置文件
+  template: src=config.toml.j2 dest=/etc/containerd/config.toml
+  tags: upgrade
+
+- name: 创建systemd unit文件
+  template: src=containerd.service.j2 dest=/etc/systemd/system/containerd.service
+  tags: upgrade
+
+- name: 创建 crictl 配置
+  template: src=crictl.yaml.j2 dest=/etc/crictl.yaml
+
+- name: 开机启用 containerd 服务
+  shell: systemctl enable containerd
+  ignore_errors: true
+
+- name: 开启 containerd 服务
+  shell: systemctl daemon-reload && systemctl restart containerd
+  tags: upgrade
+
+- name: 轮询等待containerd服务运行
+  shell: "systemctl status containerd.service|grep Active"
+  register: containerd_status
+  until: '"running" in containerd_status.stdout'
+  retries: 8
+  delay: 2
+  tags: upgrade
+
+- name: 添加 crictl 命令自动补全
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'crictl completion'
+    line: 'source <(crictl completion)'

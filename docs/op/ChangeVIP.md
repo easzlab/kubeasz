@@ -45,7 +45,7 @@ Kubernetes master is running at https://192.168.1.39:8443
 
 ## 变更操作
 
-- `ansible playbook`可以使用tags来控制只允许部分任务执行，这里为简化操作没有细化，在deploy节点具体操作如下：
+- `ansible playbook`可以使用tags来控制只允许部分任务执行，这里为简化操作没有细化，在ansible控制端具体操作如下：
 
 ``` bash
 # 1.修改/etc/ansible/hosts 配置项MASTER_IP，KUBE_APISERVER

@@ -20,3 +20,6 @@ roles/cluster-backup/files/*
 # role based variable settings, exclude roles/os-harden/vars/
 /roles/*/vars/*
 !/roles/os-harden/vars/
+
+# cluster backups
+.cluster/

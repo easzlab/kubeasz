@@ -1,27 +1,23 @@
 ## dashboard
 
-本文档基于 dashboard 1.6.3版本，目前 dashboard 已出 1.8.x版本，在安全控制方面已有很大改进，升级[dashboard 1.8.x](dashboard.md)。
+本文档基于 dashboard 1.6.3版本，从 1.7.x 版本以后，dashboard 默认开启自带的登陆验证界面，登陆流程差异详见[新版本](dashboard.md)。
 
-+ 注意：实际测试k8s版本<=1.9.1支持dashboard 1.6.3, 建议k8s 1.9.x使用[dashboard 1.8.x](dashboard.md)
++ 注意：实际测试k8s版本<=1.9.1支持dashboard 1.6.3, 建议k8s 1.9 以后使用 dashboard 新版本。
 
 ### 部署
-
-配置文件参考 `https://github.com/kubernetes/kubernetes` 项目目录 `kubernetes/cluster/addons/dashboard`
-
-安装部署
 
 ``` bash
 # 部署dashboard 主yaml配置文件
 $ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/kubernetes-dashboard.yaml
 # 部署基本密码认证配置[可选]，密码文件位于 /etc/kubernetes/ssl/basic-auth.csv
-$ kubectl create -f /etc/ansible/manifests/dashboard/ui-admin-rbac.yaml
-$ kubectl create -f /etc/ansible/manifests/dashboard/ui-read-rbac.yaml
+$ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/ui-admin-rbac.yaml
+$ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/ui-read-rbac.yaml
 ```
 
 请在另外窗口打开 [kubernetes-dashboard.yaml](../../manifests/dashboard/1.6.3/kubernetes-dashboard.yaml)
 
 + 由于 kube-apiserver 启用了 RBAC授权，dashboard使用的 ServiceAccount `kubernetes-dashboard` 必须有相应的权限去访问apiserver(在新版本1.8.0中，该访问权限已按最小化方式授权)，在1.6.3 版本，先粗放一点，把`kubernetes-dashboard` 与 集群角色 `cluster-admin` 绑定，这样dashboard就拥有了所有访问apiserver的权限。
-+ 开发测试环境为了方便配置dashboard-service时候，指定了 `NodePort`方式暴露服务，这样集群外部可以使用 `http://NodeIP:NodePort` 方式直接访问 dashboard，生产环境建议关闭该访问途径。
++ 开发测试环境为了方便配置dashboard-service时候，指定 `NodePort`方式暴露服务，这样集群外部可以使用 `http://NodeIP:NodePort` 方式直接访问 dashboard，生产环境建议关闭该访问途径。
 
 ### 验证
 

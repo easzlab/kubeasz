@@ -1,6 +1,6 @@
 ---
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: flannel
 rules:
@@ -25,7 +25,7 @@ rules:
       - patch
 ---
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
+apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: flannel
 roleRef:
@@ -75,6 +75,9 @@ data:
     {
       "Network": "{{ CLUSTER_CIDR }}",
       "Backend": {
+{% if FLANNEL_BACKEND == "vxlan" and DIRECT_ROUTING %}
+        "DirectRouting": true,
+{% endif %}
         "Type": "{{ FLANNEL_BACKEND }}"
       }
     }
@@ -82,7 +85,7 @@ data:
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: kube-flannel-ds
+  name: kube-flannel-ds-amd64
   namespace: kube-system
   labels:
     tier: node
@@ -98,13 +101,12 @@ spec:
       nodeSelector:
         beta.kubernetes.io/arch: amd64
       tolerations:
-      - key: node-role.kubernetes.io/master
-        operator: Exists
+      - operator: Exists
         effect: NoSchedule
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: {{ install_cni_image }} 
+        image: {{ flanneld_image }} 
         command:
         - cp
         args:
@@ -124,7 +126,6 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
-        #- --iface=eth1
         resources:
           requests:
             cpu: "100m"
@@ -143,14 +144,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-{% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
-        # if hosts have multiple net interfaces, set following two ENVs
-        - name: KUBERNETES_SERVICE_HOST
-          value: "{{ MASTER_IP }}"
-          #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
-        - name: KUBERNETES_SERVICE_PORT
-          value: "{{ KUBE_APISERVER.split(':')[2] }}"
-{% endif %}
         volumeMounts:
         - name: run
           mountPath: /run

@@ -3,4 +3,4 @@
   - kube-master
   - kube-node
   roles:
-  - docker
+  - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" } 

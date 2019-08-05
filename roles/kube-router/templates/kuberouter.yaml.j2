@@ -9,13 +9,19 @@ metadata:
 data:
   cni-conf.json: |
     {
-      "name":"kubernetes",
-      "type":"bridge",
-      "bridge":"kube-bridge",
-      "isDefaultGateway":true,
-      "ipam": {
-        "type":"host-local"
-      }
+       "cniVersion":"0.3.0",
+       "name":"mynet",
+       "plugins":[
+          {
+             "name":"kubernetes",
+             "type":"bridge",
+             "bridge":"kube-bridge",
+             "isDefaultGateway":true,
+             "ipam":{
+                "type":"host-local"
+             }
+          }
+       ]
     }
 
 ---
@@ -40,8 +46,10 @@ spec:
       containers:
       - name: kube-router
         image: cloudnativelabs/kube-router:{{ kube_router_ver }} 
-        imagePullPolicy: {{ PullPolicy }}
+        imagePullPolicy: IfNotPresent
         args:
+        - "--hostname-override=RT-{{ inventory_hostname }}"
+        - "--overlay-type={{ OVERLAY_TYPE }}"
         - "--run-router=true"
         - "--run-firewall={{ FIREWALL_ENABLE }}"
         - "--run-service-proxy=false"
@@ -50,14 +58,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-{% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
-        # if hosts have multiple net interfaces, set following two ENVs
-        - name: KUBERNETES_SERVICE_HOST
-          value: "{{ MASTER_IP }}"
-          #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
-        - name: KUBERNETES_SERVICE_PORT
-          value: "{{ KUBE_APISERVER.split(':')[2] }}"
-{% endif %}
+        - name: KUBE_ROUTER_CNI_CONF_FILE
+          value: /etc/cni/net.d/10-kuberouter.conflist
         livenessProbe:
           httpGet:
             path: /healthz
@@ -79,15 +81,18 @@ spec:
       initContainers:
       - name: install-cni
         image: busybox:{{ busybox_ver }}
-        imagePullPolicy: {{ PullPolicy }} 
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sh
         - -c
         - set -e -x;
-          if [ ! -f /etc/cni/net.d/10-kuberouter.conf ]; then
+          if [ ! -f /etc/cni/net.d/10-kuberouter.conflist ]; then
+            if [ -f /etc/cni/net.d/*.conf ]; then
+              rm -f /etc/cni/net.d/*.conf;
+            fi;
             TMP=/etc/cni/net.d/.tmp-kuberouter-cfg;
             cp /etc/kube-router/cni-conf.json ${TMP};
-            mv ${TMP} /etc/cni/net.d/10-kuberouter.conf;
+            mv ${TMP} /etc/cni/net.d/10-kuberouter.conflist;
           fi
         volumeMounts:
         - mountPath: /etc/cni/net.d
@@ -100,6 +105,9 @@ spec:
         operator: Exists
       - effect: NoSchedule
         key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoSchedule
+        key: node.kubernetes.io/not-ready
         operator: Exists
       volumes:
       - name: lib-modules

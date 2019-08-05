@@ -1,5 +1,11 @@
 {
-  "registry-mirrors": ["{{ REG_MIRROR_1 }}", "{{ REG_MIRROR_2 }}"], 
+{% if ENABLE_MIRROR_REGISTRY %}
+  "registry-mirrors": {{ REG_MIRRORS }}, 
+{% endif %}
+{% if ENABLE_REMOTE_API %}
+  "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
+{% endif %}
+  "insecure-registries": {{ INSECURE_REG }},
   "max-concurrent-downloads": 10,
   "log-driver": "{{ LOG_DRIVER }}",
   "log-level": "{{ LOG_LEVEL }}",
@@ -7,5 +13,5 @@
     "max-size": "{{ LOG_MAX_SIZE }}",
     "max-file": "{{ LOG_MAX_FILE }}"
     },
-  "graph": "{{ STORAGE_DIR }}"
+  "data-root": "{{ STORAGE_DIR }}"
 }

@@ -77,8 +77,8 @@ kube-system   nfs-provisioner-01-6b7fbbf9d4-bh8lh        1/1       Running   0  
 
 ``` bash
 $ cd /etc/ansible/manifests/es-cluster
-# 如果你的helm安装没有启用tls证书，请使用helm命令替换以下的helms命令
-$ helms install --name es-cluster --namespace elastic -f es-values.yaml elasticsearch
+# 如果你的helm安装没有启用tls证书，请忽略以下--tls参数
+$ helm install --tls --name es-cluster --namespace elastic -f es-values.yaml elasticsearch
 ```
 
 - 4.验证 es 集群  

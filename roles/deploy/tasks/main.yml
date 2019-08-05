@@ -1,111 +1,133 @@
 - name: prepare some dirs
   file: name={{ item }} state=directory
   with_items:
-  - "{{ bin_dir }}"
-  - "{{ ca_dir }}"
-  - "{{ base_dir }}"
-  - "/etc/kubernetes"
+  - "{{ base_dir }}/.cluster/ssl"
+  - "{{ base_dir }}/.cluster/backup"
 
-- name: 下载证书工具 CFSSL和 kubectl
-  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-  with_items:
-  - cfssl
-  - cfssl-certinfo
-  - cfssljson
-  - kubectl
+- name: 本地设置 bin 目录权限
+  file: path={{ base_dir }}/bin state=directory mode=0755 recurse=yes
 
 # 注册变量p，根据p的stat信息判断是否已经生成过ca证书，如果没有，下一步生成证书
 # 如果已经有ca证书，为了保证整个安装的幂等性，跳过证书生成的步骤
 - name: 读取ca证书stat信息
-  stat: path="{{ ca_dir }}/ca.pem"
+  stat: path="{{ base_dir }}/.cluster/ssl/ca.pem"
   register: p
 
-- name: 准备CA配置文件
-  template: src=ca-config.json.j2 dest={{ ca_dir }}/ca-config.json
-  when: p.stat.isreg is not defined
-
-- name: 准备CA签名请求
-  template: src=ca-csr.json.j2 dest={{ ca_dir }}/ca-csr.json
+- name: 准备CA配置文件和签名请求
+  template: src={{ item }}.j2 dest={{ base_dir }}/.cluster/ssl/{{ item }}
+  with_items:
+  - "ca-config.json"
+  - "ca-csr.json"
   when: p.stat.isreg is not defined
 
 - name: 生成 CA 证书和私钥
   when: p.stat.isreg is not defined
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert -initca ca-csr.json | {{ bin_dir }}/cfssljson -bare ca" 
+  shell: "cd {{ base_dir }}/.cluster/ssl && \
+	 {{ base_dir }}/bin/cfssl gencert -initca ca-csr.json | {{ base_dir }}/bin/cfssljson -bare ca" 
 
 #----------- 创建kubectl kubeconfig文件: /root/.kube/config
-- name: 准备kubectl使用的admin 证书签名请求
-  template: src=admin-csr.json.j2 dest={{ ca_dir }}/admin-csr.json
+- block:
+    - name: 删除原有kubeconfig
+      file: path=/root/.kube/config state=absent
+      ignore_errors: true
+    
+    - name: 下载 group:read rbac 文件
+      copy: src=read-group-rbac.yaml dest=/tmp/read-group-rbac.yaml
+      when: USER_NAME == "read"
+    
+    - name: 创建group:read rbac 绑定
+      shell: "{{ base_dir }}/bin/kubectl apply -f /tmp/read-group-rbac.yaml"
+      when: USER_NAME == "read"
+    
+    - name: 准备kubectl使用的{{ USER_NAME }}证书签名请求
+      template: src={{ USER_NAME }}-csr.json.j2 dest={{ base_dir }}/.cluster/ssl/{{ USER_NAME }}-csr.json
+    
+    - name: 创建{{ USER_NAME }}证书与私钥
+      shell: "cd {{ base_dir }}/.cluster/ssl && {{ base_dir }}/bin/cfssl gencert \
+            -ca=ca.pem \
+            -ca-key=ca-key.pem \
+            -config=ca-config.json \
+            -profile=kubernetes {{ USER_NAME }}-csr.json | {{ base_dir }}/bin/cfssljson -bare {{ USER_NAME }}"
+    
+    - name: 设置集群参数
+      shell: "{{ base_dir }}/bin/kubectl config set-cluster {{ CLUSTER_NAME }} \
+            --certificate-authority={{ base_dir }}/.cluster/ssl/ca.pem \
+            --embed-certs=true \
+            --server={{ KUBE_APISERVER }}"
+    
+    - name: 设置客户端认证参数
+      shell: "{{ base_dir }}/bin/kubectl config set-credentials {{ USER_NAME }} \
+            --client-certificate={{ base_dir }}/.cluster/ssl/{{ USER_NAME }}.pem \
+            --embed-certs=true \
+            --client-key={{ base_dir }}/.cluster/ssl/{{ USER_NAME }}-key.pem"
+    
+    - name: 设置上下文参数
+      shell: "{{ base_dir }}/bin/kubectl config set-context {{ CONTEXT_NAME }} \
+            --cluster={{ CLUSTER_NAME }} --user={{ USER_NAME }}"
+    
+    - name: 选择默认上下文
+      shell: "{{ base_dir }}/bin/kubectl config use-context {{ CONTEXT_NAME }}"
+  tags: create_kctl_cfg
 
-- name: 创建 admin证书与私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes admin-csr.json | {{ bin_dir }}/cfssljson -bare admin"
-# 设置集群参数，指定CA证书和apiserver地址
-- name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
-        --embed-certs=true \
-        --server={{ KUBE_APISERVER }}"
-# 设置客户端认证参数，指定使用admin证书和私钥
-- name: 设置客户端认证参数
-  shell: "{{ bin_dir }}/kubectl config set-credentials admin \
-        --client-certificate={{ ca_dir }}/admin.pem \
-        --embed-certs=true \
-        --client-key={{ ca_dir }}/admin-key.pem"
-# 设置上下文参数，说明使用cluster集群和用户admin
-- name: 设置上下文参数
-  shell: "{{ bin_dir }}/kubectl config set-context kubernetes \
-        --cluster=kubernetes --user=admin"
-# 选择默认上下文
-- name: 选择默认上下文
-  shell: "{{ bin_dir }}/kubectl config use-context kubernetes"
-
-#------------创建kube-proxy.kubeconfig配置文件: /root/kube-proxy.kubeconfig
+#------------创建kube-proxy配置文件: kube-proxy.kubeconfig
 - name: 准备kube-proxy 证书签名请求
-  template: src=kube-proxy-csr.json.j2 dest={{ ca_dir }}/kube-proxy-csr.json
+  template: src=kube-proxy-csr.json.j2 dest={{ base_dir }}/.cluster/ssl/kube-proxy-csr.json
 
 - name: 创建 kube-proxy证书与私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes kube-proxy-csr.json | {{ bin_dir }}/cfssljson -bare kube-proxy"
+  shell: "cd {{ base_dir }}/.cluster/ssl && {{ base_dir }}/bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes kube-proxy-csr.json | {{ base_dir }}/bin/cfssljson -bare kube-proxy"
 
 - name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
+  shell: "{{ base_dir }}/bin/kubectl config set-cluster kubernetes \
+        --certificate-authority={{ base_dir }}/.cluster/ssl/ca.pem \
         --embed-certs=true \
         --server={{ KUBE_APISERVER }} \
-        --kubeconfig=kube-proxy.kubeconfig"
+        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 - name: 设置客户端认证参数
-  shell: "{{ bin_dir }}/kubectl config set-credentials kube-proxy \
-        --client-certificate={{ ca_dir }}/kube-proxy.pem \
-        --client-key={{ ca_dir }}/kube-proxy-key.pem \
+  shell: "{{ base_dir }}/bin/kubectl config set-credentials kube-proxy \
+        --client-certificate={{ base_dir }}/.cluster/ssl/kube-proxy.pem \
+        --client-key={{ base_dir }}/.cluster/ssl/kube-proxy-key.pem \
         --embed-certs=true \
-        --kubeconfig=kube-proxy.kubeconfig"
+        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 - name: 设置上下文参数
-  shell: "{{ bin_dir }}/kubectl config set-context default \
+  shell: "{{ base_dir }}/bin/kubectl config set-context default \
         --cluster=kubernetes \
         --user=kube-proxy \
-        --kubeconfig=kube-proxy.kubeconfig"
+        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 - name: 选择默认上下文
-  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig"
+  shell: "{{ base_dir }}/bin/kubectl config use-context default \
+	--kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
 
-- name: 移动 kube-proxy.kubeconfig
-  shell: "mv /root/kube-proxy.kubeconfig /etc/kubernetes/"
+- name: 本地创建 easzctl 工具的软连接
+  file: src={{ base_dir }}/tools/easzctl dest=/usr/bin/easzctl state=link
 
-# --- 以下为兼容ansible执行节点与deploy节点分离情况-------
-- name: 复制 manifests至 deploy节点
-  #copy: src={{ base_dir }}/manifests dest={{ base_dir }}
-  synchronize: src={{ base_dir }}/manifests dest={{ base_dir }}
-  when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
+# ansible 控制端一些易用性配置
+# 注册变量以判断是否容器化运行ansible控制端，如果容器化运行那么进程数小于20
+- name: 注册变量以判断是否容器化运行ansible控制端
+  shell: "ps aux|wc -l"
+  register: procs
 
-- name: 推送 ssh 密钥对至 deploy节点
-  copy: src=~/.ssh/{{ item }} dest=~/.ssh/{{ item }} mode=0600
-  with_items:
-  - id_rsa
-  - id_rsa.pub
-  - known_hosts
-  when: "ansible_env['SSH_CLIENT'].split(' ')[0] != inventory_hostname"
+- name: ansible 控制端写入环境变量$PATH
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'kubeasz'
+    line: 'export PATH={{ base_dir }}/bin/:$PATH # generated by kubeasz'
+  when: "procs.stdout|int > 50"
+  ignore_errors: true
+
+- name: ansible 控制端添加 kubectl 自动补全
+  lineinfile:
+    dest: ~/.bashrc
+    state: present
+    regexp: 'kubectl completion'
+    line: 'source <(kubectl completion bash)'
+  when: "procs.stdout|int > 50"
+  ignore_errors: true
+
+- name: ansible 控制端创建 kubectl 软链接
+  file: src={{ base_dir }}/bin/kubectl dest=/usr/bin/kubectl state=link
+  ignore_errors: true

@@ -3,7 +3,7 @@
 
 - hosts: harbor
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes' and NEW_INSTALL == 'yes'" }
+  - { role: chrony, when: "NEW_INSTALL == 'yes' and groups['chrony']|length > 0" }
   - { role: prepare, when: "NEW_INSTALL == 'yes'" }
   - { role: docker, when: "NEW_INSTALL == 'yes'" }
   - { role: harbor, when: "NEW_INSTALL == 'yes'" }
@@ -16,22 +16,61 @@
 
 - hosts: 
   - kube-master
-  - new-master
   - kube-node
-  - new-node
-  vars:
-    harbor_domain: "{{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}"
   tasks:
-  - name: Creating cert dir of the HARBOR SERVER for the docker daemon
-    file: name=/etc/docker/certs.d/{{ harbor_domain }} state=directory
+  - name: Define 'harbor_host', a domain name
+    set_fact: harbor_host={{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}
+
+  - name: Define 'harbor_host', an IP Addr
+    set_fact: harbor_host={{ groups['harbor'][0] }}
+    when: hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] == ''
   
-  - name: Installing the HARBOR SERVER's cert on k8s nodes
-    copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_domain }}/ca.crt
+  - block:  
+      - name: Creating cert dir for the docker daemon
+        file: name=/etc/docker/certs.d/{{ harbor_host }} state=directory
+  
+      - name: Installing the HARBOR SERVER's CA cert for docker
+        copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_host }}/ca.crt
+    when: CONTAINER_RUNTIME == 'docker'
+
+  - block:  
+      - name: Installing the HARBOR SERVER's CA cert on k8s nodes
+        copy: src={{ base_dir }}/down/ca.pem dest=/usr/share/ca-certificates/harbor-ca.crt
+
+      - name: Add the HARBOR SERVER's CA cert 
+        lineinfile:
+          dest: /etc/ca-certificates.conf
+          state: present
+          regexp: 'harbor-ca'
+          line: 'harbor-ca.crt'
+
+      - name: Update the trusted ca-certificates
+        shell: 'update-ca-certificates'
+
+      - name: restart containerd
+        service: name=containerd state=restarted
+    when:
+    - 'CONTAINER_RUNTIME == "containerd"'
+    - 'ansible_distribution == "Ubuntu"'
+
+  - block:  
+      - name: Installing the HARBOR SERVER's CA cert on k8s nodes
+        copy: src={{ base_dir }}/down/ca.pem dest=/etc/pki/ca-trust/source/anchors/harbor-ca.crt
+
+      - name: Update the trusted ca-certificates
+        shell: 'update-ca-trust'
+
+      - name: restart containerd
+        service: name=containerd state=restarted
+    when:
+    - 'CONTAINER_RUNTIME == "containerd"'
+    - 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
 
   # [optional] if you have a DNS server, add an 'A record' instead
   - name: Adding an '/etc/hosts' entry for the HARBOR DOMAIN
     lineinfile:
       dest: /etc/hosts
       state: present
-      regexp: '{{ harbor_domain }}'
-      line: "{{ groups['harbor'][0] }} {{ harbor_domain }}"
+      regexp: '{{ harbor_host }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_host }}"
+    when: "hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] != ''"

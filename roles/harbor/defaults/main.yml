@@ -1,2 +1,6 @@
-# harbor version
-HARBOR_VER: "v1.5.2"
+# harbor version，完整版本号，目前支持 v1.5.x , v1.6.x, v1.7.x
+HARBOR_VER: "v1.7.4"
+
+# harbor 主版本号，目前支持主版本号 v1.5/v1.6/v1.7
+# 从完整版本号提取出主版本号 v1.5/v1.6/v1.7
+HARBOR_VER_MAIN: "{{ HARBOR_VER.split('.')[0] }}.{{ HARBOR_VER.split('.')[1] }}"
