@@ -128,7 +128,7 @@ spec:
           - sh
           - /kube-ovn/start-cniserver.sh
         args:
-          - --enable-mirror={{ kube_ovn_enable_mirror }}
+          - --enable-mirror={{ kube_ovn_enable_mirror|string|lower }}
           - --service-cluster-ip-range={{ SERVICE_CIDR }}
         securityContext:
           runAsUser: 0
