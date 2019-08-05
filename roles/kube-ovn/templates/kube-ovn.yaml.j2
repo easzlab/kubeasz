@@ -43,9 +43,9 @@ spec:
           command:
           - /kube-ovn/start-controller.sh
           args:
-          - --default-cidr=10.16.0.0/16
-          - --default-gateway=10.16.0.1
-          - --node-switch-cidr=100.64.0.0/16
+          - --default-cidr={{ kube_ovn_default_cidr }}
+          - --default-gateway={{ kube_ovn_default_gateway }}
+          - --node-switch-cidr={{ kube_ovn_node_switch_cidr }}
           env:
             - name: POD_NAME
               valueFrom:
@@ -128,7 +128,8 @@ spec:
           - sh
           - /kube-ovn/start-cniserver.sh
         args:
-          - --enable-mirror=false
+          - --enable-mirror={{ kube_ovn_enable_mirror }}
+          - --service-cluster-ip-range={{ SERVICE_CIDR }}
         securityContext:
           runAsUser: 0
           privileged: true
