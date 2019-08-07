@@ -2,7 +2,7 @@
 TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}" 
 # 设置 dns svc ip (这里选用 SERVICE_CIDR 中第1个IP)
-CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr(1) | ipaddr('address') }}"
+CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
 # k8s 集群 master 节点证书配置，可以添加多个ip和域名（比如增加公网ip和域名）
 MASTER_CERT_HOSTS:
   - "10.1.1.1"

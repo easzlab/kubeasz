@@ -2,7 +2,7 @@
 PROXY_MODE: "ipvs"
 
 # 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
-CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr(2) | ipaddr('address') }}"
+CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 
 # 基础容器镜像
 SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.1"
