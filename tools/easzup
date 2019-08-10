@@ -14,9 +14,9 @@ set -o errexit
 #set -o xtrace
 
 # default version, can be overridden by cmd line options
-export DOCKER_VER=18.09.7
-export KUBEASZ_VER=2.0.2
-export K8S_BIN_VER=v1.15.0
+export DOCKER_VER=18.09.8
+export KUBEASZ_VER=2.0.3
+export K8S_BIN_VER=v1.15.2
 export EXT_BIN_VER=0.3.0
 export SYS_PKG_VER=0.3.2
 
