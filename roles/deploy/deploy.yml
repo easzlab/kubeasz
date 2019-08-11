@@ -1,0 +1,4 @@
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc.
+- hosts: localhost
+  roles:
+  - deploy

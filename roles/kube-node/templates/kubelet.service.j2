@@ -1,40 +1,34 @@
 [Unit]
 Description=Kubernetes Kubelet
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-After=docker.service
-Requires=docker.service
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
+{% if KUBE_RESERVED_ENABLED == "yes" or SYS_RESERVED_ENABLED == "yes" %}
+ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
+{% endif %}
 ExecStart={{ bin_dir }}/kubelet \
-  --address={{ inventory_hostname }} \
+  --config=/var/lib/kubelet/config.yaml \
+{% if KUBE_VER|float < 1.13 %}
   --allow-privileged=true \
-  --anonymous-auth=false \
-  --authentication-token-webhook \
-  --authorization-mode=Webhook \
-  --client-ca-file={{ ca_dir }}/ca.pem \
-  --cluster-dns={{ CLUSTER_DNS_SVC_IP }} \
-  --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
+{% endif %}
   --cni-bin-dir={{ bin_dir }} \
   --cni-conf-dir=/etc/cni/net.d \
-  --fail-swap-on=false \
-  --hairpin-mode hairpin-veth \
+{% if CONTAINER_RUNTIME == "containerd" %}
+  --container-runtime=remote \
+  --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
+{% endif %}
   --hostname-override={{ inventory_hostname }} \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  --max-pods={{ MAX_PODS }} \
   --network-plugin=cni \
   --pod-infra-container-image={{ SANDBOX_IMAGE }} \
-  --register-node=true \
   --root-dir={{ KUBELET_ROOT_DIR }} \
-  --tls-cert-file={{ ca_dir }}/kubelet.pem \
-  --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
   --v=2
-#kubelet cAdvisor 默认在所有接口监听 4194 端口的请求, 以下iptables限制内网访问
-ExecStartPost=/sbin/iptables -A INPUT -s 10.0.0.0/8 -p tcp --dport 4194 -j ACCEPT
-ExecStartPost=/sbin/iptables -A INPUT -s 172.16.0.0/12 -p tcp --dport 4194 -j ACCEPT
-ExecStartPost=/sbin/iptables -A INPUT -s 192.168.0.0/16 -p tcp --dport 4194 -j ACCEPT
-ExecStartPost=/sbin/iptables -A INPUT -p tcp --dport 4194 -j DROP
-Restart=on-failure
+Restart=always
 RestartSec=5
 
 [Install]

@@ -75,6 +75,9 @@ data:
     {
       "Network": "{{ CLUSTER_CIDR }}",
       "Backend": {
+{% if FLANNEL_BACKEND == "vxlan" and DIRECT_ROUTING %}
+        "DirectRouting": true,
+{% endif %}
         "Type": "{{ FLANNEL_BACKEND }}"
       }
     }
@@ -141,14 +144,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-{% if NODE_WITH_MULTIPLE_NETWORKS == 'true' %}
-        # if hosts have multiple net interfaces, set following two ENVs
-        - name: KUBERNETES_SERVICE_HOST
-          value: "{{ MASTER_IP }}"
-          #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
-        - name: KUBERNETES_SERVICE_PORT
-          value: "{{ KUBE_APISERVER.split(':')[2] }}"
-{% endif %}
         volumeMounts:
         - name: run
           mountPath: /run

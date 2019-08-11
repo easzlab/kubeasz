@@ -1,0 +1,15 @@
+# to clean 'lb' service
+- block:
+  - name: rm service keepalived and haproxy
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - keepalived
+    - haproxy
+    ignore_errors: true
+
+  - name: remove files and dirs
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/haproxy"
+    - "/etc/keepalived"
+  when: "inventory_hostname in groups['kube-node'] or inventory_hostname in groups['ex-lb']"

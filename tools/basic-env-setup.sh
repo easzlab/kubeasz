@@ -68,12 +68,12 @@ setup_ansible_k8s() {
   pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
   pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
-  git clone --depth=1 https://github.com/gjmzj/kubeasz.git
+  git clone --depth=1 https://github.com/easzlab/kubeasz.git
   mv kubeasz /etc/ansible
 
   # Download from CDN & Move bin files
   curl -o k8s_download.tar.gz "$bin_resource_url"
-  tar zxvf k8s_download.tar.gz
+  tar xvf k8s_download.tar.gz
   mv -f bin/* /etc/ansible/bin
   rm -rf bin
   echo "Finish setup. Please config your hosts and run 'ansible-playbook' command at /etc/ansible."

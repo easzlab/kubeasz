@@ -21,15 +21,22 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes {{ tiller_cert_cn }}-csr.json | {{ bin_dir }}/cfssljson -bare {{ tiller_cert_cn }}"
 
+- name: 获取当前集群所有 namespaces
+  shell: "{{ bin_dir }}/kubectl get ns"
+  register: current_ns
+  run_once: true
+
 - name: 准备rbac配置
-  template: src=helm-rbac.yaml.j2 dest=./helm-rbac.yaml
+  template: src=helm-rbac.yaml.j2 dest=/opt/kube/helm-rbac.yaml
 
 - name: 在k8s上创建rbac
-  shell: "{{ bin_dir }}/kubectl apply -f ./helm-rbac.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/helm-rbac.yaml"
   ignore_errors: true
+  run_once: true
 
 - name: 安装tiller
   shell: "{{ bin_dir }}/helm init \
+        --history-max {{ history_max }} \
         --tiller-tls \
         --tiller-tls-verify \
         --tiller-tls-cert {{ ca_dir }}/{{ tiller_cert_cn }}.pem \
@@ -38,7 +45,8 @@
         --service-account {{ tiller_sa }} \
         --tiller-namespace {{ helm_namespace }} \
         --tiller-image {{ tiller_image }} \
-        --stable-repo-url {{ repo_url }}"
+        --stable-repo-url {{ repo_url }} \
+        --upgrade"
   ignore_errors: true
 
 - name: 配置helm客户端

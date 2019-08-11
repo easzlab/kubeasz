@@ -4,18 +4,8 @@
   - kube-apiserver
   - kube-controller-manager
   - kube-scheduler
+  - kubectl
   tags: upgrade_k8s
-
-- name: 分发证书相关
-  synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
-  with_items:
-  - admin.pem
-  - admin-key.pem
-  - ca.pem
-  - ca-key.pem
-  - ca.csr
-  - ca-config.json
-  delegate_to: "{{ groups.deploy[0] }}"
 
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
@@ -32,7 +22,6 @@
 # 创建aggregator proxy相关证书
 - name: 创建 aggregator proxy证书签名请求
   template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
-  tags: upgrade_k8s
 
 - name: 创建 aggregator-proxy证书和私钥
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
@@ -40,7 +29,6 @@
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
-  tags: upgrade_k8s
 
 - block:
   - name: 生成 basic-auth 随机密码
@@ -52,48 +40,33 @@
     run_once: true
     
   - name: 设置 basic-auth 随机密码
-    set_fact: BASIC_AUTH_PASS="{{ TMP_PASS.stdout }}"
+    set_fact: BASIC_AUTH_PASS={{ TMP_PASS.stdout }}
   when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
+  tags: restart_master
   
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
   when: 'BASIC_AUTH_ENABLE == "yes"'
+  tags: restart_master
 
-- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
-  template: src=admin-user-binding.yaml.j2 dest=/opt/kube/kube-system/admin-user-binding.yaml
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
-
-- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/admin-user-binding.yaml"
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
+- name: 创建 master 服务的 systemd unit 文件
+  template: src={{ item }}.j2 dest=/etc/systemd/system/{{ item }}
+  with_items:
+  - kube-apiserver.service
+  - kube-controller-manager.service
+  - kube-scheduler.service
+  tags: restart_master, upgrade_k8s
 
 # 为兼容v1.8版本，配置不同 kube-apiserver的systemd unit文件
 - name: 获取 k8s 版本信息
   shell: "{{ bin_dir }}/kube-apiserver --version"
   register: k8s_ver
-  tags: upgrade_k8s, restart_master
-
-- name: 创建kube-apiserver的systemd unit文件
-  template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
-  tags: upgrade_k8s, restart_master
-  when: "'v1.8' not in k8s_ver.stdout"
+  tags: restart_master, upgrade_k8s
 
 - name: 创建kube-apiserver v1.8的systemd unit文件
   template: src=kube-apiserver-v1.8.service.j2 dest=/etc/systemd/system/kube-apiserver.service
-  tags: upgrade_k8s, restart_master
+  tags: restart_master, upgrade_k8s
   when: "'v1.8' in k8s_ver.stdout"
-
-- name: 创建kube-controller-manager的systemd unit文件
-  template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service
-  tags: upgrade_k8s, restart_master
-
-- name: 创建kube-scheduler的systemd unit文件
-  template: src=kube-scheduler.service.j2 dest=/etc/systemd/system/kube-scheduler.service
-  tags: upgrade_k8s, restart_master
 
 - name: enable master 服务
   shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
@@ -104,12 +77,28 @@
 	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
   tags: upgrade_k8s, restart_master
 
+- name: 替换 kubeconfig 的 apiserver 地址
+  lineinfile:
+    dest: /root/.kube/config
+    regexp: "^    server"
+    line: "    server: https://{{ inventory_hostname }}:6443"
+  tags: upgrade_k8s, restart_master
+
 - name: 以轮询的方式等待master服务启动完成
   command: "{{ bin_dir }}/kubectl get node"
   register: result
   until:    result.rc == 0
   retries:  5
   delay: 6
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: True
   tags: upgrade_k8s, restart_master
+
+- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
+  template: src=basic-auth-rbac.yaml.j2 dest=/opt/kube/basic-auth-rbac.yaml
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  tags: restart_master
+
+- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/basic-auth-rbac.yaml"
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  run_once: true
+  tags: restart_master

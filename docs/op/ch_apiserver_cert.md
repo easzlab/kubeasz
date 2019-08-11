@@ -5,11 +5,13 @@
 ```
   "hosts": [
     "127.0.0.1",
-    "{{ MASTER_IP }}",
+{% if groups['ex-lb']|length > 0 %}
+    "{{ hostvars[groups['ex-lb'][0]]['EX_APISERVER_VIP'] }}",
+{% endif %}
     "{{ inventory_hostname }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
-{% for HOST in MASTER_CERT_HOSTS %}
-    "{{ HOST }}",
+{% for host in MASTER_CERT_HOSTS %}
+    "{{ host }}",
 {% endfor %}
     "kubernetes",
     "kubernetes.default",
@@ -36,6 +38,6 @@ MASTER_CERT_HOSTS:
 
 ``` bash
 $ ansible-playbook 04.kube-master.yml -t change_cert
+# 新证书生效需要重启kube-apiserver.service
+$ ansible-playbook 04.kube-master.yml -t restart_master
 ```
-
-- 注：新证书生效无需重启`kube-apiserver.service`服务

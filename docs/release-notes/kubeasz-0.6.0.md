@@ -12,20 +12,20 @@ CHANGELOG:
   - harbor 1.6.3
   - helm/tiller: v2.12.3
 - 集群安装：
-  - **增加添加/删除 etcd 节点**脚本和[文档](https://github.com/gjmzj/kubeasz/blob/master/docs/op/op-etcd.md)
+  - **增加添加/删除 etcd 节点**脚本和[文档](https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md)
   - **增加可选配置附加负载均衡节点（ex-lb）**，可用于负载均衡 NodePort 方式暴露的服务
-  - 更新删除节点脚本和[文档](https://github.com/gjmzj/kubeasz/blob/master/docs/op/del_one_node.md)
+  - 更新删除节点脚本和[文档](https://github.com/easzlab/kubeasz/blob/master/docs/op/del_one_node.md)
   - 优化增加 node 和增加 master 节点流程
   - 更新 harbor 安装流程和文档
   - 优化 prepare tasks，避免把证书和 kubeconfig 分发到不需要的节点
-  - 更新 prometheus 告警发送钉钉配置和[文档](https://github.com/gjmzj/kubeasz/blob/master/docs/guide/prometheus.md#%E5%8F%AF%E9%80%89-%E9%85%8D%E7%BD%AE%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6)
+  - 更新 prometheus 告警发送钉钉配置和[文档](https://github.com/easzlab/kubeasz/blob/master/docs/guide/prometheus.md#%E5%8F%AF%E9%80%89-%E9%85%8D%E7%BD%AE%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6)
   - 增加使用 helm 部署 mariadb 集群和文档
   - 增加 k8s 官方 mysql 集群示意配置
   - 增加使用 helm 部署 redis-ha 集群
   - 增加开机启动 k8s 相关内核模块配置
   - 更新 calico 3.4.1，并保留版本 3.3.x/3.2.x 可选
 - 文档更新：
-  - **增加 gitlab-ci 文档**, https://github.com/gjmzj/kubeasz/blob/master/docs/guide/gitlab/readme.md
+  - **增加 gitlab-ci 文档**, https://github.com/easzlab/kubeasz/blob/master/docs/guide/gitlab/readme.md
   - 部分文档更新（helm/dns/chrony）
 - 其他：
   - 修复为兼容k8s版本 <= 1.11，revert PR #440

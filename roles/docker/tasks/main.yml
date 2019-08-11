@@ -1,3 +1,11 @@
+- name: 获取是否已经安装containerd
+  shell: 'systemctl status containerd|grep Active || echo "NOT FOUND"'
+  register: containerd_status
+
+- name: fail info1
+  fail: msg="Containerd already installed!"
+  when: '"running" in containerd_status.stdout'
+
 - name: 获取是否运行名为'kubeasz'的容器
   shell: 'systemctl status docker|grep Active && docker ps|grep kubeasz || echo "NOT FOUND"'
   register: install_info
@@ -16,9 +24,9 @@
     DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
   tags: upgrade_docker, download_docker
 
-#- name: debug info
-#  debug: var="DOCKER_VER"
-#  tags: upgrade_docker, download_docker
+- name: debug info
+  debug: var="DOCKER_VER"
+  tags: upgrade_docker, download_docker
 
 - block:
     - name: 准备docker相关目录
@@ -39,7 +47,7 @@
       - dockerd
       - docker-proxy
       tags: upgrade_docker, download_docker
-      when: "DOCKER_VER < 18.09"
+      when: "DOCKER_VER|float < 18.09"
     
     - name: 下载 docker 二进制文件(>= 18.09.x)
       copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -53,7 +61,7 @@
       - dockerd
       - docker-proxy
       tags: upgrade_docker, download_docker
-      when: "DOCKER_VER >= 18.09"
+      when: "DOCKER_VER|float >= 18.09"
     
     - name: docker命令自动补全
       copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
@@ -96,4 +104,5 @@
     # 配置 docker 命令软链接，方便单独安装 docker
     - name: 配置 docker 命令软链接
       file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
+      ignore_errors: true
   when: "'kubeasz' not in install_info.stdout"

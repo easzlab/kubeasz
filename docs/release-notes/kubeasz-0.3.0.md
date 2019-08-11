@@ -6,11 +6,11 @@ CHANGELOG:
   - calico: v3.1.3
   - kube-router: v0.2.0-beta.9 
 - 功能更新：
-  - **增加集群备份与恢复** 功能与[说明](https://github.com/gjmzj/kubeasz/blob/master/docs/op/cluster_restore.md)
+  - **增加集群备份与恢复** 功能与[说明](https://github.com/easzlab/kubeasz/blob/master/docs/op/cluster_restore.md)
   - **增加cilium网络插件** ，文档待更新
-  - **增加cluster-storage角色** 与[文档说明](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/08-cluster-storage.md)
+  - **增加cluster-storage角色** 与[文档说明](https://github.com/easzlab/kubeasz/blob/master/docs/setup/08-cluster-storage.md)
   - 增加阿里云NAS存储支持
-  - 增加集群个性化[配置说明](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/config_guide.md)与生成脚本`tools/init_vars.yml` 
+  - 增加集群个性化[配置说明](https://github.com/easzlab/kubeasz/blob/master/docs/setup/config_guide.md)与生成脚本`tools/init_vars.yml` 
   - 支持deploy节点与ansible执行节点分离，为一份代码创建多个集群准备
 - 其他：
   - 更新 jenkins and plugins (#258)

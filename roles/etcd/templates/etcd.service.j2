@@ -24,7 +24,7 @@ ExecStart={{ bin_dir }}/etcd \
   --initial-cluster={{ ETCD_NODES }} \
   --initial-cluster-state={{ CLUSTER_STATE }} \
   --data-dir=/var/lib/etcd
-Restart=on-failure
+Restart=always
 RestartSec=5
 LimitNOFILE=65536
 

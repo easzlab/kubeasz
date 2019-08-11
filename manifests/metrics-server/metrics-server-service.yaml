@@ -6,6 +6,7 @@ metadata:
   namespace: kube-system
   labels:
     kubernetes.io/name: "Metrics-server"
+    kubernetes.io/cluster-service: "true"
 spec:
   selector:
     k8s-app: metrics-server

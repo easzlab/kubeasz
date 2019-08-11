@@ -20,7 +20,7 @@ docker run --detach \\
     --volume /srv/gitlab/config:/etc/gitlab \\
     --volume /srv/gitlab/logs:/var/log/gitlab \\
     --volume /srv/gitlab/data:/var/opt/gitlab \\
-    registry.docker-cn.com/gitlab/gitlab-ce:11.2.2-ce.0
+    docker.mirrors.ustc.edu.cn/gitlab/gitlab-ce:11.2.2-ce.0
 EOF
 ```
 执行启动脚本：`sh gitlab-setup.sh` 执行成功后，等待数分钟可以看到
@@ -28,7 +28,7 @@ EOF
 ```
 $ docker ps -a
 CONTAINER ID        IMAGE                                                 COMMAND             CREATED             STATUS                   PORTS                                                            NAMES
-4f9d5f97f494        registry.docker-cn.com/gitlab/gitlab-ce:11.2.2-ce.0   "/assets/wrapper"   9 minutes ago       Up 9 minutes (healthy)   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp, 0.0.0.0:6022->22/tcp   gitlab
+4f9d5f97f494        docker.mirrors.ustc.edu.cn/gitlab/gitlab-ce:11.2.2-ce.0   "/assets/wrapper"   9 minutes ago       Up 9 minutes (healthy)   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp, 0.0.0.0:6022->22/tcp   gitlab
 ```
 ## 配置 gitlab
 

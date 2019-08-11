@@ -1,0 +1,17 @@
+# 是否删除 kube-master 相关服务
+DEL_MASTER: "no"
+
+# 是否删除 kube-node 相关服务
+DEL_NODE: "no"
+
+# 是否删除 etc 相关服务
+DEL_ETCD: "no"
+
+# 是否删除 lb 相关服务
+DEL_LB: "no"
+
+# 是否删除 chrony 相关服务
+DEL_CHRONY: "no"
+
+# 是否删除 kubeasz 环境变量
+DEL_ENV: "no"

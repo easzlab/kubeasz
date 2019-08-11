@@ -1,34 +1,22 @@
-- name: 在deploy 节点创建cilium 相关目录
-  file: name=/opt/kube/kube-system/cilium state=directory
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
-    
-- name: 配置 cilium DaemonSet yaml文件
-  template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium/cilium.yaml
-  tags: reconf  
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
-
 - name: 转换内核版本为浮点数
   set_fact:
      KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
 
 - name: 检查内核版本>4.9
   fail: msg="kernel {{ ansible_kernel }} is too old for cilium installing"
-  when: "KERNEL_VER <= 4.09"
-  
-- name: 检查是否已下载离线cilium镜像
-  command: "ls {{ base_dir }}/down"
-  register: download_info
-  connection: local
-  run_once: true
+  when: "KERNEL_VER|float <= 4.09"
 
 - name: node 节点创建cilium 相关目录
   file: name={{ item }} state=directory
   with_items:
   - /etc/cni/net.d
   - /var/run/cilium
-  - /opt/kube/images 
+  - /opt/kube/images
+  - /opt/kube/kube-system
+    
+- name: 配置 cilium DaemonSet yaml文件
+  template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium.yaml
+  tags: reconf
 
 - name: Optional-Mount BPF FS
   mount:
@@ -38,31 +26,45 @@
     state: "mounted" 
 
 # 【可选】推送离线docker 镜像，可以忽略执行错误
-- name: 尝试推送离线docker 镜像（若执行失败，可忽略）
-  copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
-  when: 'item in download_info.stdout'
-  with_items:
-  - "pause_3.1.tar"
-  - "{{ cilium_offline }}"
-  ignore_errors: true
+- block:
+    - name: 检查是否已下载离线cilium镜像
+      command: "ls {{ base_dir }}/down"
+      register: download_info
+      connection: local
+      run_once: true
+    
+    - name: 尝试推送离线docker 镜像（若执行失败，可忽略）
+      copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
+      when: 'item in download_info.stdout'
+      with_items:
+      - "pause_3.1.tar"
+      - "{{ cilium_offline }}"
+      ignore_errors: true
+    
+    - name: 获取cilium离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info
+    
+    # 如果目录下有离线镜像，就把它导入到node节点上
+    - name: 导入 cilium的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
+      with_items:
+      - "pause_3.1.tar"
+      - "{{ cilium_offline }}"
+      ignore_errors: true
+      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'docker'"
 
-- name: 获取cilium离线镜像推送情况
-  command: "ls /opt/kube/images"
-  register: image_info
-
-# 如果目录下有离线镜像，就把它导入到node节点上
-- name: 导入 cilium的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
-  when: 'item in image_info.stdout'
-  with_items:
-  - "pause_3.1.tar"
-  - "{{ cilium_offline }}"
-  ignore_errors: true
+    - name: 导入 cilium的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
+      with_items:
+      - "pause_3.1.tar"
+      - "{{ cilium_offline }}"
+      ignore_errors: true
+      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
 # 只需单节点执行一次
 - name: 运行 cilium网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/cilium/ && sleep 5"
-  delegate_to: "{{ groups.deploy[0] }}"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/cilium.yaml"
   run_once: true
 
 # 删除原有cni配置
@@ -74,7 +76,6 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'cilium'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
-  delegate_to: "{{ groups.deploy[0] }}"
   retries: 15
   delay: 8
   ignore_errors: true

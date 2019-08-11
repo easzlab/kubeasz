@@ -154,11 +154,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: KUBERNETES_SERVICE_HOST
-          value: "{{ MASTER_IP }}"
-          #value: "{{ KUBE_APISERVER.split(':')[1].lstrip('/') }}"
-        - name: KUBERNETES_SERVICE_PORT
-          value: "{{ KUBE_APISERVER.split(':')[2] }}"
         ports:
         - name: monitoring
           containerPort: 7472

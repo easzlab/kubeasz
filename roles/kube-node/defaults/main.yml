@@ -1,5 +1,8 @@
 # 默认使用kube-proxy的 'iptables' 模式，可选 'ipvs' 模式(experimental)
-PROXY_MODE: "iptables"
+PROXY_MODE: "ipvs"
+
+# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
+CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 
 # 基础容器镜像
 SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.1"
@@ -10,3 +13,35 @@ KUBELET_ROOT_DIR: "/var/lib/kubelet"
 
 # node节点最大pod 数
 MAX_PODS: 110
+
+# 配置为kube组件（kubelet,kube-proxy,dockerd等）预留的资源量
+KUBE_RESERVED_ENABLED: "yes"
+KUBE_RESERVED: "{'cpu':'200m','memory':'500Mi','ephemeral-storage':'1Gi'}"
+# k8s 官方不建议草率开启 system-reserved, 除非你基于长期监控，了解系统的资源占用状况；并且随着系统运行时间，需要适当增加资源预留
+SYS_RESERVED_ENABLED: "no"
+# 以下系统预留设置基于 4c/8g 虚机，最小化安装系统服务，如果使用高性能物理机请适当增加数值
+SYS_RESERVED: "{'cpu':'200m','memory':'500Mi','ephemeral-storage':'1Gi'}"
+
+# node 请求 apiserver 负载均衡算法，常见如下：
+# "roundrobin": 基于服务器权重的轮询
+# "leastconn": 基于服务器最小连接数
+# "source": 基于请求源IP地址
+# "uri": 基于请求的URI
+BALANCE_ALG: "roundrobin"
+
+# 设置 APISERVER 地址
+KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
+                     https://{{ inventory_hostname }}:6443 \
+                 {%- else -%} \
+                     {%- if groups['kube-master']|length > 1 -%} \
+                         https://127.0.0.1:6443 \
+                     {%- else -%} \
+                         https://{{ groups['kube-master'][0] }}:6443 \
+                     {%- endif -%} \
+                 {%- endif -%}"
+
+# 增加/删除 master 节点时，node 节点需要重新配置 haproxy 等
+MASTER_CHG: "no"
+
+# 离线安装 haproxy (offline|online)
+INSTALL_SOURCE: "online"

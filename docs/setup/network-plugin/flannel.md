@@ -6,13 +6,15 @@
 
 ``` text
 roles/flannel/
+├── defaults
+│   └── main.yml
 ├── tasks
 │   └── main.yml
 └── templates
     └── kube-flannel.yaml.j2
 ```
 
-请在另外窗口打开[roles/flannel/tasks/main.yml](../roles/flannel/tasks/main.yml) 文件，对照看以下讲解内容。
+请在另外窗口打开`roles/flannel/tasks/main.yml`文件，对照看以下讲解内容。
 
 ### 下载基础cni 插件
 
@@ -57,7 +59,7 @@ FLANNEL_IPMASQ=true
 
 请阅读 `roles/flannel/templates/kube-flannel.yaml.j2` 内容，注意：
 
-+ 本安装方式，flannel使用apiserver 存储数据
++ 注意：本安装方式，flannel 通过 apiserver 接口读取 podCidr 信息，详见 https://github.com/coreos/flannel/issues/847；因此想要修改节点pod网段掩码，请前往`roles/kube-master/defaults/main.yml`设置 
 + 配置相关RBAC 权限和 `service account`
 + 配置`ConfigMap`包含 CNI配置和 flannel配置(指定backend等)，和`hosts`文件中相关设置对应
 + `DaemonSet Pod`包含两个容器，一个容器运行flannel本身，另一个init容器部署cni 配置文件

@@ -42,7 +42,7 @@ spec:
 
 项目中的 `role: cluster-storage`目前支持自建nfs 和aliyun_nas 的动态`provisioner`
 
-- 1.编辑自定义配置文件：上述命令执行后生成的roles/cluster-storage/defaults/main.yml
+- 1.编辑自定义配置文件：roles/cluster-storage/defaults/main.yml
 
 ``` bash
 # 比如创建nfs provisioner
@@ -54,7 +54,7 @@ storage:
     storage_class: "class-nfs-01"
     provisioner_name: "nfs-provisioner-01"
 ```
-- 3.创建 nfs provisioner
+- 2.创建 nfs provisioner
 
 ``` bash
 $ ansible-playbook /etc/ansible/roles/cluster-storage/cluster-storage.yml
@@ -62,7 +62,7 @@ $ ansible-playbook /etc/ansible/roles/cluster-storage/cluster-storage.yml
 $ kubectl get pod --all-namespaces |grep nfs-prov
 kube-system   nfs-provisioner-01-6b7fbbf9d4-bh8lh        1/1       Running   0          1d
 ```
-**注意** k8s集群可以使用多个nfs provisioner，重复上述步骤2 修改使用不同的`nfs server` `nfs_storage_class` `nfs_provisioner_name`后执行步骤3创建即可。
+**注意** k8s集群可以使用多个nfs provisioner，重复上述步骤1、2：修改使用不同的`nfs server` `nfs_storage_class` `nfs_provisioner_name`后执行创建即可。
 
 ## 验证使用动态 PV
 

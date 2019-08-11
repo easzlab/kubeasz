@@ -47,7 +47,7 @@ traefik-ingress-service   NodePort   10.68.69.170   <none>        80:23456/TCP,8
 + 首先创建测试用K8S应用，并且该应用服务不用nodePort暴露，而是用ingress方式让外部访问
 
 ``` bash
-kubectl run test-hello --image=nginx --expose --port=80
+kubectl run test-hello --image=nginx:alpine --expose --port=80
 ##
 # kubectl get deploy test-hello
 NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE

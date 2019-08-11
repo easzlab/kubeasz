@@ -18,8 +18,20 @@
     - ip_vs_rr
     - ip_vs_wrr
     - ip_vs_sh
-    - nf_conntrack_ipv4    # kernel < 4.19 
-    - nf_conntrack         # kernel >= 4.19
+  ignore_errors: true
+
+- name: 转换内核版本为浮点数
+  set_fact:
+     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
+
+- name: 加载内核模块 nf_conntrack
+  modprobe: name=nf_conntrack state=present
+  when: "KERNEL_VER|float >= 4.19"
+  ignore_errors: true
+
+- name: 加载内核模块 nf_conntrack_ipv4
+  modprobe: name=nf_conntrack_ipv4 state=present
+  when: "KERNEL_VER|float < 4.19"
   ignore_errors: true
 
 - name: 启用systemd自动加载模块服务
@@ -37,5 +49,12 @@
   shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
   ignore_errors: true
 
+# 设置系统 ulimits
+- name: 创建 systemd 配置目录
+  file: name=/etc/systemd/system.conf.d state=directory  
+
 - name: 设置系统 ulimits
-  template: src=30-k8s-ulimits.conf.j2 dest=/etc/security/limits.d/30-k8s-ulimits.conf
+  template: src=30-k8s-ulimits.conf.j2 dest=/etc/systemd/system.conf.d/30-k8s-ulimits.conf
+
+- name: 把SCTP列入内核模块黑名单
+  copy: src=sctp.conf dest=/etc/modprobe.d/sctp.conf

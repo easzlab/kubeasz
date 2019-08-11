@@ -1,0 +1,70 @@
+# 离线安装 chrony
+- name: 准备离线安装包目录
+  file: name=/opt/kube/packages/chrony state=directory
+
+# ubuntu 1604
+- block:
+  - name: 分发 chrony_xenial 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_xenial.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_xenial.tar.gz"
+
+  - name: 安装 chrony_xenial 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_xenial.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "xenial"
+  ignore_errors: true
+
+# ubuntu 1804
+- block:
+  - name: 分发 chrony_bionic 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_bionic.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_bionic.tar.gz"
+
+  - name: 安装 chrony_bionic 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_bionic.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "bionic"
+  ignore_errors: true
+
+# centos7
+- block:
+  - name: 分发 chrony_centos7 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_centos7.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_centos7.tar.gz"
+
+  - name: 安装 chrony_centos7 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_centos7.tar.gz && \
+           rpm -Uvh --force --nodeps *.rpm > /tmp/install_chrony.log 2>&1'
+  when: 
+  - 'ansible_distribution_major_version == "7"'
+  - 'ansible_distribution == "CentOS"'
+  ignore_errors: true
+
+# debian9
+- block:
+  - name: 分发 chrony_stretch 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_stretch.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_stretch.tar.gz"
+
+  - name: 安装 chrony_stretch 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_stretch.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "stretch"
+  ignore_errors: true
+
+# debian10
+- block:
+  - name: 分发 chrony_buster 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/chrony_buster.tar.gz"
+      dest: "/opt/kube/packages/chrony/chrony_buster.tar.gz"
+
+  - name: 安装 chrony_buster 离线包
+    shell: 'cd /opt/kube/packages/chrony && tar zxf chrony_buster.tar.gz && \
+           dpkg -i *.deb > /tmp/install_chrony.log 2>&1'
+  when: ansible_distribution_release == "buster"
+  ignore_errors: true

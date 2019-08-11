@@ -1,8 +1,10 @@
 {
   "CN": "etcd",
   "hosts": [
-    "127.0.0.1",
-    "{{ inventory_hostname }}"
+{% for host in groups['etcd'] %}
+    "{{ host }}",
+{% endfor %}
+    "127.0.0.1"
   ],
   "key": {
     "algo": "rsa",

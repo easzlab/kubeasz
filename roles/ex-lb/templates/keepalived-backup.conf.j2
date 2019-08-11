@@ -1,9 +1,10 @@
 global_defs {
     router_id lb-backup-{{ inventory_hostname }}
+    script_user root
 }
 
 vrrp_script check-haproxy {
-    script "killall -0 haproxy"
+    script "/usr/bin/killall -0 haproxy"
     interval 5
     weight -60
 }
@@ -25,6 +26,6 @@ vrrp_instance VI-kube-master {
         check-haproxy
     }
     virtual_ipaddress {
-        {{ EX_VIP }}
+        {{ EX_APISERVER_VIP }}
     }
 }
