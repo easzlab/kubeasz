@@ -2,7 +2,7 @@
 
 ## Kuboard 介绍
 
-Kuboard 是一款基于 Kubernetes 的微服务管理界面。官方文档请参考 https://www.kuboard.cn
+Kuboard 是一款免费的基于 Kubernetes 的微服务管理界面。官方文档请参考 https://www.kuboard.cn
 
 ## 前提
 
