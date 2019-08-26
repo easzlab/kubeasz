@@ -40,7 +40,7 @@
     <tr>
         <td><strong>常用插件</strong><a href="docs/guide/index.md">+</a></td>
         <td><a href="docs/guide/kubedns.md">DNS</a></td>
-        <td><a href="docs/guide/dashboard.md">dashboard</a></td>
+        <td><a href="docs/guide/dashboard.md">dashboard</a><br/><a href="docs/guide/kuboard.md">kuboard</a></td>
         <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
         <td><a href="docs/guide/prometheus.md">prometheus</a></td>
         <td><a href="docs/guide/efk.md">efk</a></td>
