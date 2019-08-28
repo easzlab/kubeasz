@@ -1,40 +1,45 @@
-## harbor
+# harbor 镜像仓库
 
 Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是在Docker Registry上进行了相应的企业级扩展，从而获得了更加广泛的应用，这些新的企业级特性包括：管理用户界面，基于角色的访问控制 ，水平扩展，同步，AD/LDAP集成以及审计日志等。本文档仅说明部署单个基础harbor服务的步骤。
 
+- 目录
+  - 安装步骤
+  - 安装讲解
+  - 配置docker/containerd信任harbor证书
+  - 在k8s集群使用harbor
+  - 管理维护
+
 ### 安装步骤
 
-1. 在deploy节点下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录下，后续版本会一起打包进百度云盘`k8s.xxx.tar.gz`文件中，可以省略该步骤
+1. 在ansible控制端下载最新的 [docker-compose](https://github.com/docker/compose/releases) 二进制文件，改名后把它放到项目 `/etc/ansible/bin`目录（已包含）
+
+2. 在ansible控制端下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `/etc/ansible/down` 目录
+
+3. 在ansible控制端编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
 
 ``` bash
-wget https://github.com/docker/compose/releases/download/1.18.0/docker-compose-Linux-x86_64
-mv docker-compose-Linux-x86_64 /etc/ansible/bin/docker-compose
-```
-2. 在deploy节点下载最新的 [harbor](https://github.com/vmware/harbor/releases) 离线安装包，把它放到项目 `/etc/ansible/down` 目录下，也可以从分享的百度云盘下载
-
-3. 在deploy节点编辑/etc/ansible/hosts文件，可以参考 `example`目录下的模板，修改部分举例如下
-
-``` bash
-# 如果启用harbor，请配置后面harbor相关参数
+# 参数 NEW_INSTALL=(yes/no)：yes表示新建 harbor，并配置k8s节点的docker可以使用harbor仓库
+# no 表示仅配置k8s节点的docker使用已有的harbor仓库
+# 如果不需要设置域名访问 harbor，可以配置参数 HARBOR_DOMAIN=""
 [harbor]
-192.168.1.8 NODE_IP="192.168.1.8"
-
-#私有仓库 harbor服务器 (域名或者IP)
-HARBOR_IP="192.168.1.8"
-HARBOR_DOMAIN="harbor.test.com"
+192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=yes
 ```
 
-4. 在deploy节点执行 `cd /etc/ansible && ansible-playbook 11.harbor.yml`，完成harbor安装
+4. 在ansible控制端执行 `ansible-playbook /etc/ansible/11.harbor.yml`，完成harbor安装和docker 客户端配置
+
+- 安装验证
+
+1. 在harbor节点使用`docker ps -a` 查看harbor容器组件运行情况
+1. 浏览器访问harbor节点的IP地址 `https://$NodeIP`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登陆系统
 
 ### 安装讲解
 
-根据 `11.harbor.yml`文件，harbor节点需要以下步骤：
+根据`11.harbor.yml`文件，harbor节点需要以下步骤：
 
-1. role `prepare` 基础系统环境准备
-1. role `docker` 安装docker
-1. role `harbor` 安装harbor
-
-`kube-node`节点在harbor部署完之后，需要配置harbor的证书，并可以在hosts里面添加harbor的域名解析，如果你的环境中有dns服务器，可以跳过hosts文件设置
+- role `prepare` 基础系统环境准备
+- role `docker` 安装docker
+- role `harbor` 安装harbor
+- 注意：`kube-node`节点在harbor部署完之后，需要配置harbor的证书（详见下节配置docker/containerd信任harbor证书），并可以在hosts里面添加harbor的域名解析，如果你的环境中有dns服务器，可以跳过hosts文件设置
 
 请在另外窗口打开 [roles/harbor/tasks/main.yml](../../roles/harbor/tasks/main.yml)，对照以下讲解
 
@@ -46,10 +51,43 @@ HARBOR_DOMAIN="harbor.test.com"
 1. 修改harbor.cfg配置文件
 1. 启动harbor安装脚本
 
-### 验证harbor
+### 配置docker/containerd信任harbor证书
 
-1. 在harbor节点使用`docker ps -a` 查看harbor容器组件运行情况
-1. 浏览器访问harbor节点的IP地址 `https://{{ NODE_IP }}`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登陆系统
+因为我们创建的harbor仓库使用了自签证书，所以当docker/containerd客户端拉取自建harbor仓库镜像前必须配置信任harbor证书，否则出现如下错误：
+
+```
+# docker
+$ docker pull harbor.test.lo/pub/hello:v0.1.4
+Error response from daemon: Get https://harbor.test.lo/v1/_ping: x509: certificate signed by unknown authority
+
+# containerd
+$ crictl pull harbor.test.lo/pub/hello:v0.1.4
+FATA[0000] pulling image failed: rpc error: code = Unknown desc = failed to resolve image "harbor.test.lo/pub/hello:v0.1.4": no available registry endpoint: failed to do request: Head https://harbor.test.lo/v2/pub/hello/manifests/v0.1.4: x509: certificate signed by unknown authority
+```
+
+项目脚本`11.harbor.yml`中已经自动为k8s集群的每个node节点配置 docker/containerd 信任自建 harbor 证书；如果你无法运行此脚本，可以参考下述手工配置
+
+#### docker配置信任harbor证书
+
+在集群每个 node 节点进行如下配置
+
+- 创建目录 /etc/docker/certs.d/harbor.test.lo/  (harbor.test.lo为你的harbor域名)
+- 复制 harbor 安装时的 CA 证书到上述目录，并改名 ca.crt 即可
+
+#### containerd配置信任harbor证书
+
+在集群每个 node 节点进行如下配置（假设ca.pem为自建harbor的CA证书）
+
+- ubuntu 1604:
+  - cp ca.pem /usr/share/ca-certificates/harbor-ca.crt
+  - echo harbor-ca.crt >> /etc/ca-certificates.conf
+  - update-ca-certificates
+
+- CentOS 7:
+  - cp ca.pem /etc/pki/ca-trust/source/anchors/harbor-ca.crt
+  - update-ca-trust
+
+上述配置完成后，重启 containerd 即可 `systemctl restart containerd`
 
 ### 在k8s集群使用harbor
 
@@ -101,7 +139,7 @@ spec:
     image: harbor.test.com/xxx/busybox:latest
     imagePullPolicy: Always
   imagePullSecrets:
-  - name: harborKey1
+  - name: harborkey1
 ```
 其中 `harborKey1`可以用以下两种方式生成：
 
@@ -121,12 +159,12 @@ type: kubernetes.io/dockerconfigjson
 ```
 前面docker login会在~/.docker下面创建一个config.json文件保存鉴权串，这里secret yaml的.dockerconfigjson后面的数据就是那个json文件的base64编码输出（-w 0让base64输出在单行上，避免折行）
 
-### 管理harbor
+### 管理维护
 
 + 日志目录 `/var/log/harbor`
 + 数据目录 `/data` ，其中最主要是 `/data/database` 和 `/data/registry` 目录，如果你要彻底重新安装harbor，删除这两个目录即可
 
-先进入harbor安装目录 `cd /root/local/harbor`，常规操作如下：
+先进入harbor安装目录 `cd /data/harbor`，常规操作如下：
 
 1. 暂停harbor `docker-compose stop` : docker容器stop，并不删除容器
 2. 恢复harbor `docker-compose start` : 恢复docker容器运行
@@ -151,7 +189,7 @@ type: kubernetes.io/dockerconfigjson
 
 ``` bash
 # 进入harbor解压缩后的目录，停止harbor
-cd /root/local/harbor
+cd /data/harbor
 docker-compose down
 
 # 备份这个目录
@@ -159,7 +197,7 @@ cd ..
 mkdir -p /backup && mv harbor /backup/harbor
 
 # 下载更新的离线安装包，并解压
-tar zxvf harbor-offline-installer-v1.2.2.tgz  -C /root/local
+tar xvf harbor-offline-installer-v1.2.2.tgz  -C /data
 
 # 使用官方数据库迁移工具，备份数据库，修改数据库连接用户和密码，创建数据库备份目录
 # 迁移工具使用docker镜像，镜像tag由待升级到目标harbor版本决定，这里由 1.1.2升级到1.2.2，所以使用 tag 1.2
@@ -171,8 +209,7 @@ docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mys
 docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mysql vmware/harbor-db-migrator:1.2 up head
 
 # 修改新版本 harbor.cfg配置，需要保持与老版本相关配置项保持一致，然后执行安装即可
-cd /root/local/harbor
+cd /data/harbor
 vi harbor.cfg
 ./install.sh
-
-[前一篇]() -- [目录](index.md) -- [后一篇]()
+```

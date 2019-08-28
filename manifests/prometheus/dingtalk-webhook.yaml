@@ -1,0 +1,42 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: dingtalk
+  name: webhook-dingtalk
+  namespace: monitoring
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: dingtalk
+    spec:
+      containers:
+      - name: dingtalk
+        image: timonwong/prometheus-webhook-dingtalk:v0.3.0
+        imagePullPolicy: IfNotPresent
+        # 设置钉钉群聊自定义机器人后，使用实际 access_token 替换下面 xxxxxx部分
+        args:
+          - --ding.profile=webhook1=https://oapi.dingtalk.com/robot/send?access_token=xxxxxx
+        ports:
+        - containerPort: 8060
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: dingtalk
+  name: webhook-dingtalk
+  namespace: monitoring
+spec:
+  ports:
+  - port: 8060
+    protocol: TCP
+    targetPort: 8060
+  selector:
+    run: dingtalk
+  sessionAffinity: None

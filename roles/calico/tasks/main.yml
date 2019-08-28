@@ -1,11 +1,10 @@
-- name: 创建calico 相关目录
+- name: 在节点创建相关目录
   file: name={{ item }} state=directory
   with_items:
   - /etc/calico/ssl
-  - /root/local/kube-system/calico 
-
-- name: 复制CA 证书到calico 证书目录
-  copy: src={{ ca_dir }}/ca.pem dest=/etc/calico/ssl/ca.pem
+  - /etc/cni/net.d
+  - /opt/kube/images 
+  - /opt/kube/kube-system
 
 - name: 创建calico 证书请求
   template: src=calico-csr.json.j2 dest=/etc/calico/ssl/calico-csr.json
@@ -17,26 +16,64 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes calico-csr.json | {{ bin_dir }}/cfssljson -bare calico"
 
-# 因官方calico.yaml文件中使用特定的证书名，所以要重命名
-- name: 重命名相关证书
-  shell: "cd /etc/calico/ssl && cp ca.pem etcd-ca && cp calico.pem etcd-cert && cp calico-key.pem etcd-key"
-
-- name: 准备 calico DaemonSet yaml文件
-  template: src=calico.yaml.j2 dest=/root/local/kube-system/calico/calico.yaml
-
-- name: 准备 calico rbac文件 
-  template: src=calico-rbac.yaml.j2 dest=/root/local/kube-system/calico/calico-rbac.yaml
-
-- name: 获取所有已经创建的POD信息
-  command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
-  register: pod_info
+- name: get calico-etcd-secrets info
+  shell: "{{ bin_dir }}/kubectl get secrets -n kube-system"
+  register: secrets_info
   run_once: true
+
+- name: 创建 calico-etcd-secrets
+  shell: "cd /etc/calico/ssl && \
+        {{ bin_dir }}/kubectl create secret generic -n kube-system calico-etcd-secrets \
+        --from-file=etcd-ca={{ ca_dir }}/ca.pem \
+        --from-file=etcd-key=calico-key.pem \
+        --from-file=etcd-cert=calico.pem"
+  when: '"calico-etcd-secrets" not in secrets_info.stdout'
+  run_once: true
+
+- name: 配置 calico DaemonSet yaml文件
+  template: src=calico-{{ calico_ver_main }}.yaml.j2 dest=/opt/kube/kube-system/calico.yaml
+    
+# 【可选】推送离线docker 镜像，可以忽略执行错误
+- block:
+    - name: 检查是否已下载离线calico镜像
+      command: "ls {{ base_dir }}/down"
+      register: download_info
+      connection: local
+      run_once: true
+    
+    - name: 尝试推送离线docker 镜像（若执行失败，可忽略）
+      copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
+      when: 'item in download_info.stdout'
+      with_items:
+      - "pause_3.1.tar"
+      - "{{ calico_offline }}"
+      ignore_errors: true
+    
+    - name: 获取calico离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info
+    
+    # 如果目录下有离线镜像，就把它导入到node节点上
+    - name: 导入 calico的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
+      with_items:
+      - "pause_3.1.tar"
+      - "{{ calico_offline }}"
+      ignore_errors: true
+      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'docker'" 
+
+    - name: 导入 calico的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
+      with_items:
+      - "pause_3.1.tar"
+      - "{{ calico_offline }}"
+      ignore_errors: true
+      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
 # 只需单节点执行一次
 - name: 运行 calico网络
-  shell: "{{ bin_dir }}/kubectl create -f /root/local/kube-system/calico/ && sleep 5"
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/calico.yaml"
   run_once: true
-  when: '"calico" not in pod_info.stdout'
 
 # 删除原有cni配置
 - name: 删除默认cni配置
@@ -50,6 +87,16 @@
   #- calico-ipam
   #- loopback
   - calicoctl
+  ignore_errors: true
 
 - name: 准备 calicoctl配置文件
   template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg
+
+# 等待网络插件部署成功，视下载镜像速度而定
+- name: 轮询等待calico-node 运行，视下载镜像速度而定
+  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'calico-node'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+  register: pod_status
+  until: pod_status.stdout == "Running"
+  retries: 15
+  delay: 15
+  ignore_errors: true

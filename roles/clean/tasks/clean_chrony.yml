@@ -1,0 +1,11 @@
+- block:
+    - name: stop and disable chrony in Ubuntu
+      service: name=chrony state=stopped enabled=no
+      ignore_errors: true
+      when: 'ansible_distribution in ["Ubuntu","Debian"]'
+
+    - name: stop and disable chronyd in CentOS/RedHat
+      service: name=chronyd state=stopped enabled=no
+      ignore_errors: true
+      when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
+  when: "groups['chrony']|length > 0"

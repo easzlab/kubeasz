@@ -1,0 +1,3 @@
+- hosts: "{{ groups['kube-master'][0] }}"
+  roles:
+  - helm

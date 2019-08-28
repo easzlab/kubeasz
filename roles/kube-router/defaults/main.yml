@@ -1,0 +1,18 @@
+# 更多设置，参考https://github.com/cloudnativelabs/kube-router/blob/master/docs/user-guide.md 
+
+# 因目前 kube-proxy 已提供 ipvs 模式，这里不使用 kube-router 的 service_proxy
+#SERVICE_PROXY: "false"
+
+# 公有云上存在限制，一般需要始终开启 ipinip；自有环境可以设置为 "subnet"
+OVERLAY_TYPE: "full"
+
+# NetworkPolicy 支持开关
+FIREWALL_ENABLE: "true"
+
+# kube-router 镜像版本
+kube_router_ver: "v0.3.1"
+busybox_ver: "1.28.4"
+
+# kube-router 离线镜像tar包
+kuberouter_offline: "kube-router_{{ kube_router_ver }}.tar"
+busybox_offline: "busybox_{{ busybox_ver }}.tar"

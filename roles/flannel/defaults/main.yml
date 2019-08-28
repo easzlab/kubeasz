@@ -1,0 +1,12 @@
+# 部分flannel配置，参考 docs/setup/network-plugin/flannel.md
+
+# 设置flannel 后端
+#FLANNEL_BACKEND: "host-gw"
+FLANNEL_BACKEND: "vxlan"
+DIRECT_ROUTING: false
+
+#flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
+flanneld_image: "easzlab/flannel:v0.11.0-amd64"
+
+# 离线镜像tar包
+flannel_offline: "flannel_v0.11.0-amd64.tar"

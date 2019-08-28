@@ -1,7 +1,7 @@
 ---
 - name: add pinerolo_profile.sh to profile.d
   template:
-    src: 'profile.conf.j2'
+    src: 'etc/profile.d/profile.conf.j2'
     dest: '/etc/profile.d/pinerolo_profile.sh'
     owner: 'root'
     group: 'root'

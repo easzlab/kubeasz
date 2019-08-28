@@ -1,0 +1,14 @@
+# 部分cilium相关配置, Note: cilium 需要Linux kernel >= 4.9.17
+
+# 如果 node 节点有多块网卡，请设置 true
+# 如果发现‘dial tcp 10.68.0.1:443: i/o timeout’的错误，请设置 true
+NODE_WITH_MULTIPLE_NETWORKS: "true"
+
+# 镜像版本
+cilium_ver: "v1.4.1"
+
+# 离线镜像tar包
+cilium_offline: "cilium_{{ cilium_ver }}.tar"
+
+# CILIUM_ETCD_OPERATOR 创建的 etcd 集群节点数 1,3,5,7...
+ETCD_CLUSTER_SIZE: 1

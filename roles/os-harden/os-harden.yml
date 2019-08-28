@@ -1,0 +1,51 @@
+# [可选]操作系统安全加固 https://github.com/dev-sec/ansible-os-hardening
+- hosts:
+  - kube-master
+  - kube-node
+  - etcd
+  - ex-lb
+  - chrony
+  vars:
+    os_security_users_allow: change_user
+    os_auth_pam_passwdqc_enable: false
+    os_security_suid_sgid_blacklist: ['/bin/umount']
+    os_security_suid_sgid_whitelist: ['/usr/bin/rlogin']
+    os_filesystem_whitelist: ['vfat']
+    sysctl_config:
+      net.ipv4.ip_forward: 1
+      net.ipv6.conf.all.forwarding: 1
+      net.ipv6.conf.all.accept_ra: 0
+      net.ipv6.conf.default.accept_ra: 0
+      net.ipv4.conf.all.rp_filter: 1
+      net.ipv4.conf.default.rp_filter: 1
+      net.ipv4.icmp_echo_ignore_broadcasts: 1
+      net.ipv4.icmp_ignore_bogus_error_responses: 1
+      net.ipv4.icmp_ratelimit: 100
+      net.ipv4.icmp_ratemask: 88089
+      net.ipv6.conf.all.disable_ipv6: 1
+      net.ipv4.conf.all.arp_ignore: 1
+      net.ipv4.conf.all.arp_announce: 2
+      net.ipv4.conf.all.shared_media: 1
+      net.ipv4.conf.default.shared_media: 1
+      net.ipv4.conf.all.accept_source_route: 0
+      net.ipv4.conf.default.accept_source_route: 0
+      net.ipv4.conf.default.accept_redirects: 0
+      net.ipv4.conf.all.accept_redirects: 0
+      net.ipv4.conf.all.secure_redirects: 0
+      net.ipv4.conf.default.secure_redirects: 0
+      net.ipv6.conf.default.accept_redirects: 0
+      net.ipv6.conf.all.accept_redirects: 0
+      net.ipv4.conf.all.send_redirects: 0
+      net.ipv4.conf.default.send_redirects: 0
+      net.ipv4.conf.all.log_martians: 1
+      net.ipv6.conf.default.router_solicitations: 0
+      net.ipv6.conf.default.accept_ra_rtr_pref: 0
+      net.ipv6.conf.default.accept_ra_pinfo: 0
+      net.ipv6.conf.default.accept_ra_defrtr: 0
+      net.ipv6.conf.default.autoconf: 0
+      net.ipv6.conf.default.dad_transmits: 0
+      net.ipv6.conf.default.max_addresses: 1
+  roles:
+  - os-harden 
+  #- { role: os-harden, when: "OS_HARDEN is defined and OS_HARDEN == 'yes'" }
+

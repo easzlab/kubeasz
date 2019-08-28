@@ -1,0 +1,85 @@
+# 离线安装基础系统包
+- name: 准备离线安装包目录
+  file: name=/opt/kube/packages/basic state=directory
+
+- block:
+  - name: 分发 basic_xenial 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/basic_xenial.tar.gz"
+      dest: "/opt/kube/packages/basic/basic_xenial.tar.gz"
+
+  # 离线安装包可能需要安装多次才能成功
+  - name: 安装 basic_xenial 离线包
+    shell: 'cd /opt/kube/packages/basic && tar zxf basic_xenial.tar.gz && \
+           dpkg -i *.deb > /tmp/install_basic.log 2>&1'
+    register: install_info
+    until: not install_info.failed
+    retries: 3
+    delay: 1
+  when: ansible_distribution_release == "xenial"
+  ignore_errors: true
+
+- block:
+  - name: 分发 basic_bionic 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/basic_bionic.tar.gz"
+      dest: "/opt/kube/packages/basic/basic_bionic.tar.gz"
+
+  # 离线安装包可能需要安装多次才能成功
+  - name: 安装 basic_bionic 离线包
+    shell: 'cd /opt/kube/packages/basic && tar zxf basic_bionic.tar.gz && \
+           dpkg -i *.deb > /tmp/install_basic.log 2>&1'
+    register: install_info
+    until: not install_info.failed
+    retries: 3
+    delay: 1
+  when: ansible_distribution_release == "bionic"
+  ignore_errors: true
+
+- block:
+  - name: 分发 basic_centos7 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/basic_centos7.tar.gz"
+      dest: "/opt/kube/packages/basic/basic_centos7.tar.gz"
+
+  - name: 安装 basic_centos7 离线包
+    shell: 'cd /opt/kube/packages/basic && tar zxf basic_centos7.tar.gz && \
+           rpm -Uvh --force --nodeps *.rpm > /tmp/install_basic.log 2>&1'
+  when:
+  - 'ansible_distribution == "CentOS"'
+  - 'ansible_distribution_major_version == "7"'
+  ignore_errors: true
+
+- block:
+  - name: 分发 basic_stretch 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/basic_stretch.tar.gz"
+      dest: "/opt/kube/packages/basic/basic_stretch.tar.gz"
+
+  # 离线安装包可能需要安装多次才能成功
+  - name: 安装 basic_stretch 离线包
+    shell: 'cd /opt/kube/packages/basic && tar zxf basic_stretch.tar.gz && \
+           dpkg -i *.deb > /tmp/install_basic.log 2>&1'
+    register: install_info
+    until: not install_info.failed
+    retries: 3
+    delay: 1
+  when: ansible_distribution_release == "stretch"
+  ignore_errors: true
+
+- block:
+  - name: 分发 basic_buster 离线包
+    copy:
+      src: "{{ base_dir }}/down/packages/basic_buster.tar.gz"
+      dest: "/opt/kube/packages/basic/basic_buster.tar.gz"
+
+  # 离线安装包可能需要安装多次才能成功
+  - name: 安装 basic_buster 离线包
+    shell: 'cd /opt/kube/packages/basic && tar zxf basic_buster.tar.gz && \
+           dpkg -i *.deb > /tmp/install_basic.log 2>&1'
+    register: install_info
+    until: not install_info.failed
+    retries: 3
+    delay: 1
+  when: ansible_distribution_release == "buster"
+  ignore_errors: true

@@ -1,0 +1,64 @@
+- name: 删除centos/redhat默认安装
+  shell: "yum remove -y {{ item }}"
+  with_items:
+    - firewalld
+    - python-firewall
+    - firewalld-filesystem
+  args:
+      warn: false
+  ignore_errors: true
+
+#- name: 添加EPEL仓库
+#  yum: name=epel-release state=present
+
+- name: 添加Amazon EPEL仓库
+  shell: "amazon-linux-extras install epel"
+  when: ansible_distribution == "Amazon"
+  ignore_errors: true
+
+- name: 安装基础软件包
+  yum: 
+    name: 
+      - bash-completion     # bash命令补全工具，需要重新登录服务器生效
+      - conntrack-tools     # ipvs 模式需要
+      - ipset               # ipvs 模式需要
+      - ipvsadm             # ipvs 模式需要
+      - libseccomp          # 安装containerd需要
+      - nfs-utils           # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
+      - psmisc              # 安装psmisc 才能使用命令killall，keepalive的监测脚本需要
+      - rsync               # 文件同步工具，分发证书等配置文件需要
+      - socat               # 用于port forwarding
+    state: present
+  when: 'INSTALL_SOURCE != "offline"'
+
+# 离线安装基础软件包
+- import_tasks: offline.yml
+  when: 'INSTALL_SOURCE == "offline"'
+
+- name: 临时关闭 selinux
+  shell: "setenforce 0"
+  failed_when: false
+
+- name: 永久关闭 selinux
+  lineinfile:
+    dest: /etc/selinux/config
+    regexp: "^SELINUX="
+    line: "SELINUX=disabled"
+
+# 优化设置 journal 日志相关，避免日志重复搜集，浪费系统资源
+- name: 禁止rsyslog获取journald日志1
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    state: present
+    regexp: 'ModLoad imjournal'
+    line: '#$ModLoad imjournal # provides access to the systemd journal'
+
+- name: 禁止rsyslog获取journald日志2
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    state: present
+    regexp: 'IMJournalStateFile'
+    line: '#$IMJournalStateFile imjournal.state'
+
+- name: 重启rsyslog服务
+  service: name=rsyslog state=restarted

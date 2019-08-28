@@ -1,0 +1,28 @@
+# 部分calico相关配置，更全配置可以去roles/calico/templates/calico.yaml.j2自定义
+
+# 如果 node 节点有多块网卡，请设置 true
+# 另外发现设置为 true 时能够解决v1.10使用ipvs偶尔出现pod内‘dial tcp 10.68.0.1:443: i/o timeout’的 bug
+NODE_WITH_MULTIPLE_NETWORKS: "true"
+
+# etcd 集群服务地址列表, 根据etcd组成员自动生成
+TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
+
+# 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
+CALICO_IPV4POOL_IPIP: "Always"
+
+# 设置 Felix 日志级别
+FELIX_LOG_LVL: "warning"
+
+# 设置 calico-node使用的host IP，bgp邻居通过该地址建立，可手工指定也可以自动发现
+#IP_AUTODETECTION_METHOD: "interface=eth0"
+IP_AUTODETECTION_METHOD: "can-reach={{ groups['kube-master'][0] }}"
+
+# 更新支持calico 版本: [v3.2.x] [v3.3.x] [v3.4.x]
+calico_ver: "v3.4.4"
+
+# calico 主版本
+calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
+
+# 离线镜像tar包
+calico_offline: "calico_{{ calico_ver }}.tar"

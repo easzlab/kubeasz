@@ -1,0 +1,9 @@
+helm_namespace: kube-system 
+helm_cert_cn: helm001
+tiller_sa: tiller
+tiller_cert_cn: tiller001
+tiller_image: easzlab/tiller:v2.14.1
+repo_url: https://kubernetes-charts.storage.googleapis.com
+history_max: 5
+# 如果默认官方repo 网络访问不稳定可以使用如下的阿里云镜像repo
+#repo_url: https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts

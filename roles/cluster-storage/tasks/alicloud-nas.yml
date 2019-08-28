@@ -1,0 +1,18 @@
+- name: 准备alicloud-nas配置目录
+  file: name=/opt/kube/kube-system/storage/alicloud-nas state=directory
+
+- name: 生成alicloud-nas动态存储配置
+  template:
+    src: alicloud-nas/alicloud-nas.yaml.j2
+    dest: "/opt/kube/kube-system/storage/alicloud-nas/{{ storage.aliyun_nas.controller_name }}.yaml"
+
+#- name: 复制alicloud-disk配置
+#  copy:
+#    src: alicloud-disk.yaml
+#    dest: "{{ base_dir }}/manifests/storage/alicloud-nas/alicloud-disk.yaml"
+
+#- name: 开始部署alicloud-disk存储
+#  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/alicloud-nas/alicloud-disk.yaml"
+
+- name: 开始部署alicloud-nas动态存储
+  shell: "{{ base_dir }}/bin/kubectl apply -f /opt/kube/kube-system/storage/alicloud-nas/{{ storage.aliyun_nas.controller_name }}.yaml"

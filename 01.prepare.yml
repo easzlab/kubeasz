@@ -1,19 +1,22 @@
-# 在deploy节点生成CA相关证书，以及kubedns.yaml配置文件
-- hosts: deploy
-  roles:
-  - deploy
-
-# 集群节点的公共配置任务
+# [optional] to synchronize system time of nodes with 'chrony' 
 - hosts:
   - kube-master
   - kube-node
-  - deploy
   - etcd
-  - lb
+  - ex-lb
+  - chrony
+  roles:
+  - { role: chrony, when: "groups['chrony']|length > 0" }
+
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc.
+- hosts: localhost
+  roles:
+  - deploy
+
+# prepare tasks for all nodes
+- hosts:
+  - kube-master
+  - kube-node
+  - etcd
   roles:
   - prepare
-
-# [可选]多master部署时的负载均衡配置
-- hosts: lb
-  roles:
-  - lb

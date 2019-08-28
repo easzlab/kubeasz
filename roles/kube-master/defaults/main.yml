@@ -1,0 +1,24 @@
+# etcd 集群服务地址列表, 根据etcd组成员自动生成
+TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}" 
+# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第1个IP)
+CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
+# k8s 集群 master 节点证书配置，可以添加多个ip和域名（比如增加公网ip和域名）
+MASTER_CERT_HOSTS:
+  - "10.1.1.1"
+  - "k8s.test.io"
+  #- "61.182.11.41"
+  #- "www.test.com"
+
+# apiserver 基础认证（用户名/密码）配置，详见 master 节点文件‘/etc/kubernetes/ssl/basic-auth.csv’
+# 是否启用基础认证 yes/no
+BASIC_AUTH_ENABLE: 'no'
+# 用户名：
+BASIC_AUTH_USER: 'admin'
+# 密码：初次运行时会生成随机密码
+BASIC_AUTH_PASS: '_pwd_'
+
+# node 节点上 pod 网段掩码长度（决定每个节点最多能分配的pod ip地址）
+# 如果flannel 使用 --kube-subnet-mgr 参数，那么它将读取该设置为每个节点分配pod网段
+# https://github.com/coreos/flannel/issues/847
+NODE_CIDR_LEN: 24

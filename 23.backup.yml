@@ -1,0 +1,62 @@
+# cluster-backup playbook
+# read the guide: 'op/cluster_restore.md'
+
+- hosts:
+  - localhost
+  tasks:
+  # step1: find a healthy member in the etcd cluster 
+  - name: set NODE_IPS of the etcd cluster
+    set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
+
+  - name: get etcd cluster status
+    shell: 'for ip in {{ NODE_IPS }};do \
+              ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
+              --endpoints=https://"$ip":2379 \
+              --cacert={{ base_dir }}/.cluster/ssl/ca.pem \
+              --cert={{ base_dir }}/.cluster/ssl/admin.pem \
+              --key={{ base_dir }}/.cluster/ssl/admin-key.pem \
+              endpoint health; \
+            done'
+    register: ETCD_CLUSTER_STATUS
+    ignore_errors: true
+
+  - debug: var="ETCD_CLUSTER_STATUS.stdout"
+
+  - name: get a running ectd node
+    shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}"|grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+    register: RUNNING_NODE
+
+  - debug: var="RUNNING_NODE.stdout"
+
+  # step2: backup data on the healthy member
+  - name: make a backup on etcd node
+    shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
+        ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot.db"
+    args:
+      warn: false
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
+
+  - name: fetch the backup data
+    fetch:
+      src: /etcd_backup/snapshot.db
+      dest: "{{ base_dir }}/.cluster/backup/"
+      flat: yes
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
+
+- hosts:
+  - localhost
+  tasks:
+  - name: Backing up ansible hosts-1
+    copy:
+      src: "{{ base_dir }}/hosts"
+      dest: "{{ base_dir }}/.cluster/backup/hosts"
+    register: p
+
+  - name: Backing up ansible hosts-2
+    shell: "cd {{ base_dir }}/.cluster/backup && \
+	cp -fp hosts hosts-$(date +'%Y%m%d%H%M')"
+    when: 'p is changed'
+
+  - name: Backing up etcd snapshot with datetime
+    shell: "cd {{ base_dir }}/.cluster/backup && \
+	cp -fp snapshot.db snapshot-$(date +'%Y%m%d%H%M').db"

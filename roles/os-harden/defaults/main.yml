@@ -219,7 +219,7 @@ sysctl_config:
   # example via package removal (e.g. wine, dosemu).  Therefore, this value
   # is reset to the secure default each time the sysctl values are loaded.
   vm.mmap_min_addr: 65536
-          
+
   # These settings eliminate an entire class of security vulnerability:
   # time-of-check-time-of-use cross-privilege attacks using guessable
   # filenames (generally seen as "/tmp file race" vulnerabilities).
@@ -243,3 +243,7 @@ os_unused_filesystems:
 
 # whitelist for used filesystems
 os_filesystem_whitelist: []
+
+# Set to false to turn the role into a no-op. Useful when using
+# the Ansible role dependency mechanism.
+os_hardening_enabled: true
