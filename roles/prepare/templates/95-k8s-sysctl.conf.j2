@@ -10,3 +10,8 @@ net.netfilter.nf_conntrack_max=1000000
 vm.swappiness = 0
 vm.max_map_count=655360
 fs.file-max=6553600
+{% if PROXY_MODE == "ipvs" %}
+net.ipv4.tcp_keepalive_time = 600
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_keepalive_probes = 10
+{% endif %}
