@@ -131,3 +131,7 @@
 - name: ansible 控制端创建 kubectl 软链接
   file: src={{ base_dir }}/bin/kubectl dest=/usr/bin/kubectl state=link
   ignore_errors: true
+
+- name: pip install netaddr
+  pip:
+    name: netaddr
