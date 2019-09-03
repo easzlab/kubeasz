@@ -89,6 +89,14 @@
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
   tags: upgrade_k8s, restart_node
 
+- name: 修改kubelet的--resolv.conf搜索路径 如果node的OS为 Ubuntu18.04     
+  lineinfile:
+    path: /etc/systemd/system/kubelet.service
+    line: '  --resolv-conf=/run/systemd/resolve/resolv.conf \'
+    insertafter: '  --root-dir=.*'
+  tags: upgrade_k8s, restart_node
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic'
+
 - name: 开机启用kubelet 服务
   shell: systemctl enable kubelet
   ignore_errors: true
