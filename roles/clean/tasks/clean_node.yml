@@ -22,7 +22,6 @@
     - "/etc/systemd/system/kube-proxy.service"
     - "/opt/kube/kube-system/"
     - "/etc/kubernetes/"
-    - "{{ ca_dir }}"
     - "/root/.kube/config"
 
 # to clean container runtime and networking

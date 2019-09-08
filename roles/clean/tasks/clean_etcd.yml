@@ -14,5 +14,4 @@
     - "/etc/etcd/"
     - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"
-    - "{{ ca_dir }}"
   when: "inventory_hostname in groups['etcd']"
