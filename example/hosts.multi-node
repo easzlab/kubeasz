@@ -37,6 +37,9 @@ CONTAINER_RUNTIME="docker"
 # Network plugins supported: calico, flannel, kube-router, cilium, kube-ovn
 CLUSTER_NETWORK="flannel"
 
+# Service proxy mode of kube-proxy: 'iptables' or 'ipvs'
+PROXY_MODE="ipvs"
+
 # K8S Service CIDR, not overlap with node(host) networking
 SERVICE_CIDR="10.68.0.0/16"
 

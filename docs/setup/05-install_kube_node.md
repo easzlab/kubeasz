@@ -31,7 +31,6 @@ roles/kube-node/
 ### 变量配置文件
 
 详见 roles/kube-node/defaults/main.yml，举例以下3个变量配置说明
-- 变量`PROXY_MODE`，配置 kube-proxy 服务代理模式 iptables or ipvs
 - 变量`KUBE_APISERVER`，根据不同的节点情况，它有三种取值方式
 - 变量`MASTER_CHG`，变更 master 节点时会根据它来重新配置 haproxy
 
