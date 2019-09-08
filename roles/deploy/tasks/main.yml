@@ -105,7 +105,7 @@
   file: src={{ base_dir }}/tools/easzctl dest=/usr/bin/easzctl state=link
 
 # ansible 控制端一些易用性配置
-# 注册变量以判断是否容器化运行ansible控制端，如果容器化运行那么进程数小于20
+# 注册变量以判断是否容器化运行ansible控制端，如果容器化运行那么进程数小于50
 - name: 注册变量以判断是否容器化运行ansible控制端
   shell: "ps aux|wc -l"
   register: procs
@@ -135,3 +135,5 @@
 - name: pip install netaddr
   pip:
     name: netaddr
+  when: "procs.stdout|int > 50"
+  ignore_errors: true
