@@ -82,6 +82,15 @@
         <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
+    <tr>
+        <td><strong>推荐工具</strong></td>
+        <td><a href="docs/guide/kuboard.md">kuboard</a></td>
+        <td><a href="https://github.com/derailed/k9s">k9s</a></td>
+        <td><a href="https://github.com/vmware-tanzu/octant">octant</a></td>
+        <td><a href=""></a></td>
+        <td><a href=""></a></td>
+        <td><a href=""></a></td>
+    </tr>
 </table>
 
 ## 沟通交流
