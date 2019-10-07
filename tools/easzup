@@ -14,7 +14,7 @@ set -o errexit
 #set -o xtrace
 
 # default version, can be overridden by cmd line options
-export DOCKER_VER=18.09.8
+export DOCKER_VER=18.09.9
 export KUBEASZ_VER=2.0.3
 export K8S_BIN_VER=v1.15.2
 export EXT_BIN_VER=0.3.0
@@ -183,11 +183,11 @@ function get_sys_pkg() {
 function get_offline_image() {
   # images needed by k8s cluster
   calicoVer=v3.4.4
-  corednsVer=1.5.0
+  corednsVer=1.6.2
   dashboardVer=v1.10.1
   flannelVer=v0.11.0-amd64
   heapsterVer=v1.5.4
-  metricsVer=v0.3.3
+  metricsVer=v0.3.4
   pauseVer=3.1
   traefikVer=v1.7.12
 

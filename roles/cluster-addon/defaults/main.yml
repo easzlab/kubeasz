@@ -4,7 +4,7 @@ dns_backend: "coredns"
 # 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 kubednsVer: "1.14.13"
-corednsVer: "1.5.0"
+corednsVer: "1.6.2"
 kubedns_offline: "kubedns_{{ kubednsVer }}.tar"
 coredns_offline: "coredns_{{ corednsVer }}.tar"
 dns_offline: "{%- if dns_backend == 'coredns' -%} \
@@ -15,7 +15,7 @@ dns_offline: "{%- if dns_backend == 'coredns' -%} \
 
 # metric server 自动安装
 metricsserver_install: "yes"
-metricsVer: "v0.3.3"
+metricsVer: "v0.3.4"
 metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 
 # dashboard 自动安装
