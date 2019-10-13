@@ -75,10 +75,10 @@
     </tr>
     <tr>
         <td><strong>应用实践</strong></td>
+        <td><a href="docs/practice/go_web_app/">go web应用部署</a></td>
         <td><a href="docs/practice/java_war_app.md">java应用部署</a></td>
         <td><a href="docs/practice/es_cluster.md">elasticsearch集群</a></td>
         <td><a href="docs/practice/mariadb_cluster.md">mariadb集群</a></td>
-        <td><a href=""></a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
