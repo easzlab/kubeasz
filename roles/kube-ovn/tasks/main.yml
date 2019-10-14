@@ -14,6 +14,9 @@
 - name: 配置 ovn.yaml 文件
   template: src=ovn.yaml.j2 dest=/opt/kube/kube-ovn/ovn.yaml
 
+- name: 配置 kubectl plugin
+  template: src=kubectl-ko.j2 dest=/usr/local/bin/kubectl-ko mode=0755
+
 # 【可选】推送离线镜像，可以忽略执行错误
 - block:
     - name: 检查是否已下载离线kube_ovn镜像

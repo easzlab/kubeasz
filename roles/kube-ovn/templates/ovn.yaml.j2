@@ -29,6 +29,7 @@ rules:
       - "kubeovn.io"
     resources:
       - subnets
+      - subnets/status
       - ips
     verbs:
       - "*"
@@ -49,10 +50,13 @@ rules:
   - apiGroups:
       - ""
       - networking.k8s.io
+      - apps
     resources:
       - networkpolicies
       - services
       - endpoints
+      - statefulsets
+      - daemonsets
     verbs:
       - get
       - list
@@ -154,7 +158,7 @@ spec:
       hostNetwork: true
       containers:
         - name: ovn-central
-          image: "index.alauda.cn/alaudak8s/kube-ovn-db:v0.6.0"
+          image: "index.alauda.cn/alaudak8s/kube-ovn-db:v0.8.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_IP
@@ -241,7 +245,7 @@ spec:
       hostPID: true
       containers:
         - name: openvswitch
-          image: "index.alauda.cn/alaudak8s/kube-ovn-node:v0.6.0"
+          image: "index.alauda.cn/alaudak8s/kube-ovn-node:v0.8.0"
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 0
