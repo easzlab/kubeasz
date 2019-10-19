@@ -15,10 +15,10 @@ set -o errexit
 
 # default version, can be overridden by cmd line options
 export DOCKER_VER=18.09.9
-export KUBEASZ_VER=2.0.3
-export K8S_BIN_VER=v1.15.2
-export EXT_BIN_VER=0.3.0
-export SYS_PKG_VER=0.3.2
+export KUBEASZ_VER=2.0.4
+export K8S_BIN_VER=v1.16.2
+export EXT_BIN_VER=0.3.1
+export SYS_PKG_VER=0.3.3
 
 function install_docker() {
   # check if a container runtime is already installed
