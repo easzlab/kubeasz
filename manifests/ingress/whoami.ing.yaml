@@ -1,5 +1,5 @@
 # kubectl run whoami --image=emilevauge/whoami --port=80 --expose
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1 
 kind: Ingress
 metadata:
   name: test-whoami
