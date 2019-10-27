@@ -29,15 +29,16 @@ rules:
   resources:
   - configmaps
   - endpoints
+  - nodes
+  - persistentvolumes
   - persistentvolumeclaims
+  - persistentvolumeclaims/status
   - pods
   - replicationcontrollers
   - replicationcontrollers/scale
   - serviceaccounts
   - services
-  - nodes
-  - persistentvolumeclaims
-  - persistentvolumes
+  - services/status
   verbs:
   - get
   - list
@@ -69,12 +70,18 @@ rules:
 - apiGroups:
   - apps
   resources:
+  - controllerrevisions
   - daemonsets
+  - daemonsets/status
   - deployments
   - deployments/scale
+  - deployments/status
   - replicasets
   - replicasets/scale
+  - replicasets/status
   - statefulsets
+  - statefulsets/scale
+  - statefulsets/status
   verbs:
   - get
   - list
@@ -83,6 +90,7 @@ rules:
   - autoscaling
   resources:
   - horizontalpodautoscalers
+  - horizontalpodautoscalers/status
   verbs:
   - get
   - list
@@ -91,7 +99,9 @@ rules:
   - batch
   resources:
   - cronjobs
+  - cronjobs/status
   - jobs
+  - jobs/status
   verbs:
   - get
   - list
@@ -100,12 +110,16 @@ rules:
   - extensions
   resources:
   - daemonsets
+  - daemonsets/status
   - deployments
   - deployments/scale
+  - deployments/status
   - ingresses
+  - ingresses/status
   - networkpolicies
   - replicasets
   - replicasets/scale
+  - replicasets/status
   - replicationcontrollers/scale
   verbs:
   - get
@@ -115,6 +129,7 @@ rules:
   - policy
   resources:
   - poddisruptionbudgets
+  - poddisruptionbudgets/status
   verbs:
   - get
   - list
@@ -122,6 +137,8 @@ rules:
 - apiGroups:
   - networking.k8s.io
   resources:
+  - ingresses
+  - ingresses/status
   - networkpolicies
   verbs:
   - get
