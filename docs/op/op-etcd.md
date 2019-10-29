@@ -19,7 +19,7 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
 
 ## etcd 集群节点操作
 
-首先确认配置 ssh 免密码登陆，然后执行 (假设待操作节点为 192.168.1.11)：
+首先确认配置 ssh 免密码登录，然后执行 (假设待操作节点为 192.168.1.11)：
 
 - 增加 etcd 节点：`$ easzctl add-etcd 192.168.1.11` (注意：增加 etcd 还需要根据提示输入集群内唯一的 NODE_NAME)
 - 删除 etcd 节点：`$ easzctl del-etcd 192.168.1.11`
@@ -27,7 +27,7 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
 ### 验证 etcd 集群
 
 ``` bash
-# 登陆任意etcd节点验证etcd集群状态
+# 登录任意etcd节点验证etcd集群状态
 $ export ETCDCTL_API=3 
 $ etcdctl member list
 

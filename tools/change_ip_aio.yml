@@ -3,7 +3,7 @@
 #
 # ------- 前提 ：一个运行正常的allinone部署在虚机，关机后复制给别人使用，新虚机开机后如果需要修改IP，请执行如下步骤
 # 1. 修改ansible hosts文件：sed -i 's/$OLD_IP/$NEW_IP/g' /etc/ansible/hosts
-# 2. 配置ssh免密码登陆：ssh-copy-id $NEW_IP 按提示完成
+# 2. 配置ssh免密码登录：ssh-copy-id $NEW_IP 按提示完成
 # 3. 检查下修改是否成功，并且能够成功执行 ansible all -m ping
 # 4. 运行本脚本 ansible-playbook /etc/ansible/tools/change_ip_aio.yml
 

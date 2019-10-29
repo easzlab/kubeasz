@@ -30,7 +30,7 @@ Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是�
 - 安装验证
 
 1. 在harbor节点使用`docker ps -a` 查看harbor容器组件运行情况
-1. 浏览器访问harbor节点的IP地址 `https://$NodeIP`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登陆系统
+1. 浏览器访问harbor节点的IP地址 `https://$NodeIP`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登录系统
 
 ### 安装讲解
 
@@ -91,13 +91,13 @@ FATA[0000] pulling image failed: rpc error: code = Unknown desc = failed to reso
 
 ### 在k8s集群使用harbor
 
-admin用户web登陆后可以方便的创建项目，并指定项目属性(公开或者私有)；然后创建用户，并在项目`成员`选项中选择用户和权限；
+admin用户web登录后可以方便的创建项目，并指定项目属性(公开或者私有)；然后创建用户，并在项目`成员`选项中选择用户和权限；
 
 #### 镜像上传
 
 在node上使用harbor私有镜像仓库首先需要在指定目录配置harbor的CA证书，详见 `11.harbor.yml`文件。
 
-使用docker客户端登陆`harbor.test.com`，然后把镜像tag成 `harbor.test.com/$项目名/$镜像名:$TAG` 之后，即可使用docker push 上传
+使用docker客户端登录`harbor.test.com`，然后把镜像tag成 `harbor.test.com/$项目名/$镜像名:$TAG` 之后，即可使用docker push 上传
 
 ``` bash
 docker login harbor.test.com

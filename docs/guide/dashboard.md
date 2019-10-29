@@ -1,9 +1,9 @@
 ## dashboard
 
-本文档基于 dashboard 1.10.1版本，k8s版本 1.13.x。因 dashboard 1.7 以后默认开启了自带的登陆验证机制，因此不同版本登陆有差异：
+本文档基于 dashboard 1.10.1版本，k8s版本 1.13.x。因 dashboard 1.7 以后默认开启了自带的登录验证机制，因此不同版本登录有差异：
 
 - 旧版（<= 1.6）建议通过apiserver访问，直接通过apiserver 认证授权机制去控制 dashboard权限，详见[旧版文档](dashboard.1.6.3.md)
-- 新版（>= 1.7）可以使用自带的登陆界面，使用不同Service Account Tokens 去控制访问 dashboard的权限
+- 新版（>= 1.7）可以使用自带的登录界面，使用不同Service Account Tokens 去控制访问 dashboard的权限
 
 ### 部署
 
@@ -52,21 +52,21 @@ kubectl logs kubernetes-dashboard-7c74685c48-9qdpn -n kube-system
 + 关闭匿名认证`--anonymous-auth=false`
 + 可选启用基本密码认证 `--basic-auth-file=/etc/kubernetes/ssl/basic-auth.csv`，[密码文件模板](../../roles/kube-master/templates/basic-auth.csv.j2)中按照每行(密码,用户名,序号)的格式，可以定义多个用户；kubeasz 1.0.0 版本以后默认关闭 basic-auth，可以在 roles/kube-master/defaults/main.yml 选择开启
 
-新版 dashboard可以有多层访问控制，首先与旧版一样可以使用apiserver 方式登陆控制：
+新版 dashboard可以有多层访问控制，首先与旧版一样可以使用apiserver 方式登录控制：
 
 - 第一步通过api-server本身安全认证流程，与之前[1.6.3版本](dashboard.1.6.3.md)相同，这里不再赘述
   - 如需（用户名/密码）认证，kubeasz 1.0.0以后使用 `easzctl basic-auth -s` 开启
-- 第二步通过dashboard自带的登陆流程，使用`Kubeconfig` `Token`等方式登陆
+- 第二步通过dashboard自带的登录流程，使用`Kubeconfig` `Token`等方式登录
 
 **注意：** 如果集群已启用 ingress tls的话，可以[配置ingress规则访问dashboard](ingress-tls.md#%E9%85%8D%E7%BD%AE-dashboard-ingress)
 
-### 演示新登陆方式
+### 演示新登录方式
 
 为演示方便这里使用 `https://NodeIP:NodePort` 方式访问 dashboard，支持两种登录方式：Kubeconfig、令牌(Token)
 
 - 令牌登录（admin）
 
-选择“令牌(Token)”方式登陆，复制下面输出的admin token 字段到输入框
+选择“令牌(Token)”方式登录，复制下面输出的admin token 字段到输入框
 
 ``` bash
 # 创建Service Account 和 ClusterRoleBinding
@@ -77,7 +77,7 @@ $ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | g
 
 - 令牌登录（只读）
 
-选择“令牌(Token)”方式登陆，复制下面输出的read token 字段到输入框
+选择“令牌(Token)”方式登录，复制下面输出的read token 字段到输入框
 
 ``` bash
 # 创建Service Account 和 ClusterRoleBinding
@@ -110,7 +110,7 @@ users:
     token: eyJhbGcixxxxxxxxxxxxxxxx
 ```
 
-- Kubeconfig登陆（只读）
+- Kubeconfig登录（只读）
 首先[创建只读权限 kubeconfig文件](../op/readonly_kubectl.md)，然后类似追加只读token到该文件，略。
 
 ### 参考

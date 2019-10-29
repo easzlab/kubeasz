@@ -6,7 +6,7 @@
 
 - 准备一台虚机配置内存2G/硬盘30G以上
 - 最小化安装`Ubuntu 16.04 server`或者`CentOS 7 Minimal`
-- 配置基础网络、更新源、SSH登陆等
+- 配置基础网络、更新源、SSH登录等
 
 ### 2.下载文件
 
@@ -26,7 +26,7 @@ chmod +x ./easzup
 - `/etc/ansible/down` 包含集群安装时需要的离线容器镜像
 - `/etc/ansible/down/packages` 包含集群安装时需要的系统基础软件
 
-### 3.配置 ssh 免密登陆
+### 3.配置 ssh 免密登录
 
 ``` bash
 ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa
@@ -49,7 +49,7 @@ docker exec -it kubeasz easzctl start-aio
 
 ### 5.验证安装
 
-如果提示kubectl: command not found，退出重新ssh登陆一下，环境变量生效即可
+如果提示kubectl: command not found，退出重新ssh登录一下，环境变量生效即可
 
 ``` bash
 $ kubectl version                   # 验证集群版本     
@@ -58,7 +58,7 @@ $ kubectl get node                  # 验证节点就绪 (Ready) 状态
 $ kubectl get pod --all-namespaces  # 验证集群pod状态，默认已安装网络插件、coredns、metrics-server等
 $ kubectl get svc --all-namespaces  # 验证集群服务状态
 ```
-- 登陆 `dashboard`可以查看和管理集群，更多内容请查阅[dashboard文档](../guide/dashboard.md)
+- 登录 `dashboard`可以查看和管理集群，更多内容请查阅[dashboard文档](../guide/dashboard.md)
 
 ### 6.清理
 
