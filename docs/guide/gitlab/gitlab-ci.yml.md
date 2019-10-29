@@ -40,7 +40,7 @@ job_beta_build:
   - mv example-web/target/*.jar dockerfiles/                             # 把mvn生成的xxx.jar移动到dockerfiles目录下
   - export IMAGE=`echo $IMAGE_NAME | sed 's/\//-/g'`                     # 转换镜像名，例：mygroup/java/example:172 >> mygroup-java-example:172
   - cd dockerfiles && docker build -t $BETA_HARBOR/example/$IMAGE .      # 创建 docker 镜像
-  - docker login -u $BETA_HARBOR_USR -p $BETA_HARBOR_PWD $BETA_HARBOR    # 登陆到内部镜像仓库 harbor，并推送
+  - docker login -u $BETA_HARBOR_USR -p $BETA_HARBOR_PWD $BETA_HARBOR    # 登录到内部镜像仓库 harbor，并推送
   - docker push $BETA_HARBOR/example/$IMAGE                                          
   - docker logout $BETA_HARBOR
 

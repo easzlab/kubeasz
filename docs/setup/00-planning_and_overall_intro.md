@@ -30,7 +30,7 @@
 
 + 推荐内存2G/硬盘30G以上
 + 最小化安装`Ubuntu 16.04 server`或者`CentOS 7 Minimal`
-+ 配置基础网络、更新源、SSH登陆等
++ 配置基础网络、更新源、SSH登录等
 
 ### 2.在每个节点安装依赖工具
 
@@ -69,7 +69,7 @@ pip install pip --upgrade -i https://mirrors.aliyun.com/pypi/simple/
 pip install ansible==2.6.12 netaddr==0.7.19 -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
-- 3.2 在ansible控制端配置免密码登陆
+- 3.2 在ansible控制端配置免密码登录
 
 ``` bash
 # 更安全 Ed25519 算法

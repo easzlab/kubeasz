@@ -7,7 +7,7 @@ $ git config --global user.email "you@example.com"
 $ git config --global user.name "Your Name"
 ```
 
-- 1.登陆github，在本项目页面点击`fork`到自己仓库
+- 1.登录github，在本项目页面点击`fork`到自己仓库
 - 2.clone 自己的仓库到本地：`git clone https://github.com/xxx/kubeasz.git`
 - 3.在 master 分支添加原始仓库为上游分支：`git remote add upstream https://github.com/easzlab/kubeasz.git`
 - 4.在本地新建开发分支：`git checkout -b dev`

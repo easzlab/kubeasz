@@ -14,7 +14,7 @@ Gitlab-ci 兼容 travis ci 格式，也是最流行的 CI 工具之一；本文�
 
 ## 1.准备测试项目代码
 
-假设你要开发一个 spring boot 项目；先登陆你的 gitlab 账号，创建项目，上传你的代码；项目根目录看起来如下：
+假设你要开发一个 spring boot 项目；先登录你的 gitlab 账号，创建项目，上传你的代码；项目根目录看起来如下：
 
 ```
 -rw-r--r-- 1 root root    44 Jan  2 16:38 eclipse.bat
@@ -53,7 +53,7 @@ EOF
 
 ## 3.准备 CI/CD 相关脚本和文件
 
-装完 gitlab 后使用浏览器登陆gitlab，很容易找到帮助文档，里面有介绍gitlab-ci的内容（文档权威、详细！请多多阅读~ 随着CI/CD流程的深入，部分内容也可以回来查阅），先看如下文档（假设你本地gitlab使用域名`gitlab.test.com`）
+装完 gitlab 后使用浏览器登录gitlab，很容易找到帮助文档，里面有介绍gitlab-ci的内容（文档权威、详细！请多多阅读~ 随着CI/CD流程的深入，部分内容也可以回来查阅），先看如下文档（假设你本地gitlab使用域名`gitlab.test.com`）
 
 - 文档首页 http://gitlab.test.com/help
 - gitlab-ci 基本概念 http://gitlab.test.com/help/ci/README.md
@@ -97,7 +97,7 @@ EOF
 
 ## 4.为项目配置 CI/CD 及创建 RUNNER
 
-使用浏览器访问gitlab，登陆后，在项目页面进行配置，如图：
+使用浏览器访问gitlab，登录后，在项目页面进行配置，如图：
 
 ![cicd-settings](pics/cicd-setting.jpg)
 
@@ -114,7 +114,7 @@ EOF
 
 ## 5.提交代码测试 CI/CD Pipelines
 
-终于经过 1~4 步骤把示例项目的CI/CD 流水线创建出来了，是时候试试提交代码测试下成果了；别担心，初次 CI/CD job执行一般都会失败的:) 好在现在你已经基本了解了所有CI/CD流程与配置，失败了就查看错误日志一一排除。另外因为采用虚机安装 Runner 执行 shell 脚本的方式执行 ci job，我们始终可以登陆虚机以手动执行 shell 脚本的方式调试，这对于初学来说很有帮助。查看 CI/CD 执行情况如图：
+终于经过 1~4 步骤把示例项目的CI/CD 流水线创建出来了，是时候试试提交代码测试下成果了；别担心，初次 CI/CD job执行一般都会失败的:) 好在现在你已经基本了解了所有CI/CD流程与配置，失败了就查看错误日志一一排除。另外因为采用虚机安装 Runner 执行 shell 脚本的方式执行 ci job，我们始终可以登录虚机以手动执行 shell 脚本的方式调试，这对于初学来说很有帮助。查看 CI/CD 执行情况如图：
 
 ![cicd-pipeline](pics/cicd-pipeline.jpg)
 

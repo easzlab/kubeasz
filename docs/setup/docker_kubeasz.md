@@ -29,7 +29,7 @@ kubeasz 容器启动脚本详见文件 tools/easzup 中函数`start_kubeasz_dock
 - --env HOST_IP="$host_ip" 传递这个参数是为了快速在本机安装aio集群
 - --volume /etc/ansible:/etc/ansible 挂载本地目录，这样可以在宿主机上修改集群配置，然后在容器内执行 ansible 安装
 - --volume /root/.kube:/root/.kube 容器内与主机共享 kubeconfig，这样都可以执行 kubectl 命令
-- --volume /root/.ssh/id_rsa:/root/.ssh/id_rsa:ro 等三个 volume 挂载保证：如果宿主机配置了免密码登陆所有集群节点，那么容器内也可以免密码登陆所有节点
+- --volume /root/.ssh/id_rsa:/root/.ssh/id_rsa:ro 等三个 volume 挂载保证：如果宿主机配置了免密码登录所有集群节点，那么容器内也可以免密码登录所有节点
 
 ## 容器化安装集群
 
@@ -41,7 +41,7 @@ kubeasz 容器启动脚本详见文件 tools/easzup 中函数`start_kubeasz_dock
 
 ## 清理
 
-登陆管理节点，按照如下步骤清理（清理后可以重新安装测试）
+登录管理节点，按照如下步骤清理（清理后可以重新安装测试）
 
 - 1.清理集群 `$ docker exec -it kubeasz easzctl destroy`
 - 2.清理管理节点

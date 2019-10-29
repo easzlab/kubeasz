@@ -147,7 +147,7 @@ tcp        0      0 192.168.1.66:179        192.168.1.63:48979      ESTABLISHED 
 
 因为这里calico网络使用etcd存储数据，所以可以在etcd集群中查看数据
 
-+ calico 3.x 版本默认使用 etcd v3存储，**登陆集群的一个etcd 节点**，查看命令：
++ calico 3.x 版本默认使用 etcd v3存储，**登录集群的一个etcd 节点**，查看命令：
 
 ``` bash
 # 查看所有calico相关数据
@@ -156,7 +156,7 @@ ETCDCTL_API=3 etcdctl --endpoints="http://127.0.0.1:2379" get --prefix /calico
 ETCDCTL_API=3 etcdctl --endpoints="http://127.0.0.1:2379" get --prefix /calico/ipam/v2/host
 ```
 
-+ calico 2.x 版本默认使用 etcd v2存储，**登陆集群的一个etcd 节点**，查看命令：
++ calico 2.x 版本默认使用 etcd v2存储，**登录集群的一个etcd 节点**，查看命令：
 
 ``` bash
 # 查看所有calico相关数据
