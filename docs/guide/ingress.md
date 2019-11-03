@@ -60,7 +60,7 @@ test-hello   ClusterIP   10.68.124.115   <none>        80/TCP    1m
 
 ``` bash
 # test-hello.ing.yaml内容
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1 
 kind: Ingress
 metadata:
   name: test-hello
@@ -84,7 +84,7 @@ spec:
 ``` bash
 # traefik-ui.ing.yaml内容
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1 
 kind: Ingress
 metadata:
   name: traefik-web-ui

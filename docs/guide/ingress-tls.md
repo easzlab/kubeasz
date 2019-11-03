@@ -28,7 +28,7 @@ $ kubectl apply -f /etc/ansible/manifests/ingress/traefik/tls/traefik-controller
 # 创建示例应用
 $ kubectl run test-hello --image=nginx:alpine --port=80 --expose
 # hello-tls-ingress 示例
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1 
 kind: Ingress
 metadata:
   name: hello-tls-ingress
@@ -81,7 +81,7 @@ kubernetes-dashboard      NodePort    10.68.211.168   <none>        443:39308/TC
 配置 dashboard ingress：`kubectl apply -f /etc/ansible/manifests/ingress/traefik/tls/k8s-dashboard.ing.yaml` 内容如下：
 
 ```
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1 
 kind: Ingress
 metadata:
   name:  kubernetes-dashboard
