@@ -19,12 +19,12 @@ metricsVer: "v0.3.6"
 metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 
 # dashboard 自动安装
-# 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
+# dashboard v2.0.0-beta5 不依赖于heapster
 dashboard_install: "yes"
-dashboardVer: "v1.10.1"
+dashboardVer: "v2.0.0-beta5"
 dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
-heapsterVer: "v1.5.4"
-heapster_offline: "heapster_{{ heapsterVer }}.tar"
+dashboardMetricsScraperVer: "v1.0.1"
+metricsscraper_offline: "metrics-scraper_{{ dashboardMetricsScraperVer }}.tar"
 
 # ingress 自动安装，可选 "traefik" 和 "nginx-ingress"
 ingress_install: "yes"

@@ -73,37 +73,36 @@
   when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
   ignore_errors: true
 
-# 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
+# dashboard v2.0.0-beta5 不依赖于heapster
 - block:
     - block:
-        - name: 尝试推送离线 dashboard heapster镜像（若执行失败，可忽略）
+        - name: 尝试推送离线 dashboard 镜像（若执行失败，可忽略）
           copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
           when: 'item in download_info.stdout'
           with_items:
           - "{{ dashboard_offline }}"
-          - "{{ heapster_offline }}"
+          - "{{ metricsscraper_offline }}"
 
         - name: 获取dashboard离线镜像推送情况
           command: "ls /opt/kube/images"
           register: image_info     
           
-        - name: 导入 dashboard heapster的离线镜像（docker）
+        - name: 导入 dashboard 的离线镜像（docker）
           shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
           with_items:
           - "{{ dashboard_offline }}"
-          - "{{ heapster_offline }}"
+          - "{{ metricsscraper_offline }}"
           when: "item in image_info.stdout and CONTAINER_RUNTIME == 'docker'"
 
-        - name: 导入 dashboard heapster的离线镜像（containerd）
+        - name: 导入 dashboard 的离线镜像（containerd）
           shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
           with_items:
           - "{{ dashboard_offline }}"
-          - "{{ heapster_offline }}"
+          - "{{ metricsscraper_offline }}"
           when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
     - name: 创建 dashboard部署
-      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
-	      {{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster-only"
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/dashboard"
       run_once: true
       connection: local
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'

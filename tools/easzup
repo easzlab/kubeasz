@@ -184,9 +184,9 @@ function get_offline_image() {
   # images needed by k8s cluster
   calicoVer=v3.4.4
   corednsVer=1.6.2
-  dashboardVer=v1.10.1
+  dashboardVer=v2.0.0-beta5
+  dashboardMetricsScraperVer=v1.0.1
   flannelVer=v0.11.0-amd64
-  heapsterVer=v1.5.4
   metricsVer=v0.3.6
   pauseVer=3.1
   traefikVer=v1.7.12
@@ -214,9 +214,9 @@ function get_offline_image() {
     docker pull easzlab/flannel:${flannelVer} && \
     docker save -o ${imageDir}/flannel_${flannelVer}.tar easzlab/flannel:${flannelVer}
   fi
-  if [[ ! -f "$imageDir/heapster_$heapsterVer.tar" ]];then
-    docker pull mirrorgooglecontainers/heapster-amd64:${heapsterVer} && \
-    docker save -o ${imageDir}/heapster_${heapsterVer}.tar mirrorgooglecontainers/heapster-amd64:${heapsterVer}
+  if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
+    docker pull kubernetesui/metrics-scraper:${dashboardMetricsScraperVer} && \
+    docker save -o ${imageDir}/metrics-scraper_${dashboardMetricsScraperVer}.tar kubernetesui/metrics-scraper:${dashboardMetricsScraperVer}
   fi
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
     docker pull mirrorgooglecontainers/metrics-server-amd64:${metricsVer} && \
