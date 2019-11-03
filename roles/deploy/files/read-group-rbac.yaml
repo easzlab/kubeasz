@@ -109,7 +109,6 @@ rules:
   - deployments/status
   - ingresses
   - ingresses/status
-  - networkpolicies
   - replicasets
   - replicasets/scale
   - replicasets/status
