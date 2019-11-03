@@ -25,7 +25,7 @@ data:
     }
 
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1 
 kind: DaemonSet
 metadata:
   labels:
@@ -39,9 +39,8 @@ spec:
       labels:
         k8s-app: kube-router
         tier: node
-      annotations:
-        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
+      priorityClassName: system-cluster-critical
       serviceAccountName: kube-router
       containers:
       - name: kube-router

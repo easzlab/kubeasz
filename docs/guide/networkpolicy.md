@@ -2,7 +2,6 @@
 
 `Network Policy`提供了基于策略的网络控制，用于隔离应用并减少攻击面。它使用标签选择器模拟传统的分段网络，并通过策略控制它们之间的流量以及来自外部的流量；目前基于`linux iptables`实现，使用类似`nf_conntrack`检查记录网络流量`session`从而决定流量是否阻断；因此它是`状态检测防火墙`。
 
-- `k8s v1.7`版本以后，Network Policy已经默认可用；`v1.6`以及之前版本需要在kube-apiserver中开启extensions/v1beta1/networkpolicies
 - 网络插件要支持 Network Policy，如 Calico、Romana、Weave Net
 
 ### 简单示例

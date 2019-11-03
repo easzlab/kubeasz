@@ -53,7 +53,7 @@ speaker-n79l4               1/1       Running   0          4h
 ``` bash
 # 创建测试应用
 $ cat > test-nginx.yaml << EOF
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx3

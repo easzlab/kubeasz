@@ -69,7 +69,7 @@ data:
 # as the Calico CNI plugins and network config on
 # each master and worker node in a Kubernetes cluster.
 kind: DaemonSet
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 metadata:
   name: calico-node
   namespace: kube-system
@@ -87,13 +87,8 @@ spec:
     metadata:
       labels:
         k8s-app: calico-node
-      annotations:
-        # This, along with the CriticalAddonsOnly toleration below,
-        # marks the pod as a critical add-on, ensuring it gets
-        # priority scheduling and that its resources are reserved
-        # if it ever gets evicted.
-        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
+      priorityClassName: system-cluster-critical
       nodeSelector:
         beta.kubernetes.io/os: linux
       hostNetwork: true
@@ -307,15 +302,13 @@ metadata:
 
 # This manifest deploys the Calico Kubernetes controllers.
 # See https://github.com/projectcalico/kube-controllers
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: calico-kube-controllers
   namespace: kube-system
   labels:
     k8s-app: calico-kube-controllers
-  annotations:
-    scheduler.alpha.kubernetes.io/critical-pod: ''
 spec:
   # The controllers can only have a single active instance.
   replicas: 1
@@ -331,6 +324,7 @@ spec:
       labels:
         k8s-app: calico-kube-controllers
     spec:
+      priorityClassName: system-cluster-critical
       nodeSelector:
         beta.kubernetes.io/os: linux
       # The controllers must run in the host network namespace so that
