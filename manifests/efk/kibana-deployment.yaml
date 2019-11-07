@@ -32,6 +32,9 @@ spec:
         env:
           - name: ELASTICSEARCH_URL
             value: http://elasticsearch-logging:9200
+         # if kibana service is exposed by nodePort, use lines commited out instead
+         #- name: SERVER_BASEPATH
+         #  value: ""
           - name: SERVER_BASEPATH
             value: /api/v1/namespaces/kube-system/services/kibana-logging/proxy
         ports:

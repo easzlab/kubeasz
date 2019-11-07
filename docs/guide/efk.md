@@ -1,6 +1,7 @@
 ### 第一部分：EFK
 
 `EFK` 插件是`k8s`项目的一个日志解决方案，它包括三个组件：[Elasticsearch](), [Fluentd](), [Kibana]()；Elasticsearch 是日志存储和日志搜索引擎，Fluentd 负责把`k8s`集群的日志发送给 Elasticsearch, Kibana 则是可视化界面查看和检索存储在 ES 中的数据。
+- 建议在熟悉本文档内容后使用[Log-Pilot + ES + Kibana 日志方案](log-pilot.md)
 
 ### 准备 
 
