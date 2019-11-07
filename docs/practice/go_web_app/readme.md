@@ -8,12 +8,14 @@ Golang 作为服务器端新兴热门语言同时也是容器技术的主要编�
 
 ## Dockerfile
 
-[Dockerfile 文件](Dockerfile)
+作为演示项目的Dockerfile比较简单，请看 [Dockerfile 文件](Dockerfile)
 
 - 采用 docker 多阶段编译，使生成的目标镜像最小
 - 使用 alpine 基础镜像
 - 安装 tzdata 做时间本地化
 - 安装信任根证书
+
+一个真实复杂go项目的Dockerfile可能如这个例子：[复杂 Dockerfile](Dockerfile-more)
 
 ## 制作镜像
 
