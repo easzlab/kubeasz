@@ -36,7 +36,6 @@ spec:
       containers:
       - name: APP_NAME
         image: ProjectImage
-        imagePullPolicy: Always
         env:
           # 设置java的时区
           - name: TZ

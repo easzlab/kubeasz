@@ -15,9 +15,9 @@ set -o errexit
 
 # default version, can be overridden by cmd line options
 export DOCKER_VER=18.09.9
-export KUBEASZ_VER=2.0.4
+export KUBEASZ_VER=2.1.0
 export K8S_BIN_VER=v1.16.2
-export EXT_BIN_VER=0.3.1
+export EXT_BIN_VER=0.3.2
 export SYS_PKG_VER=0.3.3
 
 function install_docker() {
@@ -207,8 +207,8 @@ function get_offline_image() {
     docker save -o ${imageDir}/coredns_${corednsVer}.tar coredns/coredns:${corednsVer}
   fi
   if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
-    docker pull mirrorgooglecontainers/kubernetes-dashboard-amd64:${dashboardVer} && \
-    docker save -o ${imageDir}/dashboard_${dashboardVer}.tar mirrorgooglecontainers/kubernetes-dashboard-amd64:${dashboardVer}
+    docker pull kubernetesui/dashboard:${dashboardVer} && \
+    docker save -o ${imageDir}/dashboard_${dashboardVer}.tar kubernetesui/dashboard:${dashboardVer}
   fi
   if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
     docker pull easzlab/flannel:${flannelVer} && \
