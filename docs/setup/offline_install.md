@@ -7,8 +7,8 @@ kubeasz 2.0.1 开始支持**完全离线安装**，目前已测试 `Ubuntu1604|1
 在一台能够访问互联网的服务器上执行：
 
 ```
-# 下载工具脚本easzup，举例使用kubeasz版本2.0.2
-export release=2.0.2
+# 下载工具脚本easzup，举例使用kubeasz版本2.0.3
+export release=2.0.3
 curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
 chmod +x ./easzup
 # 使用工具脚本下载
@@ -30,25 +30,24 @@ chmod +x ./easzup
 
 ## 离线安装
 
-上述下载完成后，把`/etc/ansible`整个目录复制到目标离线服务器，然后在离线服务器上运行：
+上述下载完成后，把`/etc/ansible`整个目录复制到目标离线服务器相同目录，然后在离线服务器上运行：
 
 ``` bash
-# 离线安装 docker，检查本地文件等
-$ ./easzup -D
+# 离线安装 docker，检查本地文件，正常会提示所有文件已经下载完成
+./easzup -D
 
 # 启动 kubeasz 容器
-$ ./easzup -S
+./easzup -S
 
-# 进入容器
-$ docker exec -it kubeasz sh
+# 设置参数，启用离线安装
+sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' /etc/ansible/roles/chrony/defaults/main.yml
+sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' /etc/ansible/roles/ex-lb/defaults/main.yml
+sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' /etc/ansible/roles/kube-node/defaults/main.yml
+sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' /etc/ansible/roles/prepare/defaults/main.yml
 
-# 设置参数启用离线安装
-$ cd /etc/ansible
-$ sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' roles/chrony/defaults/main.yml
-$ sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' roles/ex-lb/defaults/main.yml
-$ sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' roles/kube-node/defaults/main.yml
-$ sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' roles/prepare/defaults/main.yml
+# 进入容器执行安装，参考 https://github.com/easzlab/kubeasz/blob/master/docs/setup/quickStart.md
+docker exec -it kubeasz easzctl start-aio
 
-# 按照文档 https://github.com/easzlab/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md 集群规划后安装
-$ ansible-playbook 90.setup.yml
+# 或者按照文档 https://github.com/easzlab/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md 集群规划后安装
+#ansible-playbook 90.setup.yml
 ```
