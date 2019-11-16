@@ -73,7 +73,7 @@
   when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
   ignore_errors: true
 
-# dashboard v2.0.0-beta5 不依赖于heapster
+# dashboard v2.x.x 不依赖于heapster
 - block:
     - block:
         - name: 尝试推送离线 dashboard 镜像（若执行失败，可忽略）
