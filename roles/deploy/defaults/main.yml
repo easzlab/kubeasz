@@ -5,9 +5,6 @@ CERT_EXPIRY: "438000h"
 # apiserver 默认第一个master节点
 KUBE_APISERVER: "https://{{ groups['kube-master'][0] }}:6443"
 
-# kubeconfig 配置参数，注意权限根据‘USER_NAME’设置：
-# 'admin' 表示创建集群管理员（所有）权限的 kubeconfig 
-# 'read' 表示创建只读权限的 kubeconfig
 CLUSTER_NAME: "cluster1"
-USER_NAME: "admin"
-CONTEXT_NAME: "context-{{ CLUSTER_NAME }}-{{ USER_NAME }}"
+
+CREATE_READONLY_KUBECONFIG: false

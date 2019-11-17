@@ -4,12 +4,29 @@
 
 ## 创建
 
-- 备份下原先 admin 权限的 kubeconfig 文件：`mv ~/.kube ~/.kubeadmin`
-- 执行 `ansible-playbook /etc/ansible/01.prepare.yml -t create_kctl_cfg -e USER_NAME=read`，成功后查看~/.kube/config 即为只读权限
+- 执行如下命令成功后查看/root/.kube/read.config 即为只读权限
+
+```
+ansible-playbook /etc/ansible/roles/deploy/deploy.yml -t create_ro_kctl_cfg -e CREATE_READONLY_KUBECONFIG=true
+```
+
+- 验证只读权限
+
+```
+$ kubectl --kubeconfig=/root/.kube/read.config get deploy -n kube-system
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+coredns                      2/2     2            2           13d
+dashboard-metrics-scraper    1/1     1            1           13d
+kubernetes-dashboard         1/1     1            1           13d
+metrics-server               1/1     1            1           13d
+traefik-ingress-controller   1/1     1            1           13d
+$ kubectl --kubeconfig=/root/.kube/read.config delete deploy kubernetes-dashboard -n kube-system
+Error from server (Forbidden): deployments.apps "kubernetes-dashboard" is forbidden: User "read" cannot delete resource "deployments" in API group "apps" in the namespace "kube-system"
+```
 
 ## 讲解
 
-对照文件`/etc/ansible/roles/deploy/tasks/main.yml`，创建主要包括三个步骤：
+对照文件`/etc/ansible/roles/deploy/tasks/create-ro-kubeconfig.yml`，创建主要包括三个步骤：
 
 - 创建 group:read rbac 权限
 - 创建 read 用户证书和私钥
@@ -57,12 +74,9 @@ kubeconfig 为与apiserver交互使用的认证配置文件，如脚本步骤需
 - 设置上下文参数，指定使用cluster集群和用户read
 - 设置指定默认上下文
 
-创建完成后生成默认配置文件为 `~/.kube/config`
+创建完成后生成配置文件为`/root/.kube/read.config`，可以将该文件发给只读权限的普通用户
 
-## 恢复 admin 权限
-
-- 可以恢复之前备份的`~/.kubeadmin`文件：`mv ~/.kube ~/.kuberead && mv ~/.kubeadmin ~/.kube`
-- 或者直接执行 `ansible-playbook /etc/ansible/01.prepare.yml -t create_kctl_cfg`
+## 关联阅读[访问dashboard](../guide/dashboard.md)中的只读kubeconfig登陆相关内容
 
 ## 参考
 
