@@ -11,6 +11,7 @@
 - 2.注册变量pod_info，pod_info用来判断现有集群是否已经运行各种插件
 - 3.根据pod_info和`配置开关`逐个进行/跳过插件安装
 
+## 下一步
 
-
-[后一篇](08-cluster-storage.md)
+- [创建ex-lb节点组](ex-lb.md), 向集群外提供高可用apiserver
+- [创建集群持久化存储](08-cluster-storage.md)
