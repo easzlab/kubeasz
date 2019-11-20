@@ -118,7 +118,7 @@ metadata:
   name: peer-to-rrs
 spec:
   # 规则1：普通 bgp node 与 rr 建立连接
-  nodeSelector: !has(i-am-a-route-reflector)
+  nodeSelector: "!has(i-am-a-route-reflector)"
   peerSelector: has(i-am-a-route-reflector)
 
 ---
@@ -198,9 +198,9 @@ Calico process is running.
 
 IPv4 BGP status
 +--------------+-----------+-------+----------+-------------+
-| PEER ADDRESS | PEER TYPE | STATE |  SINCE   |    INFO     |
+| PEER ADDRESS |   PEER TYPE   | STATE |  SINCE   |    INFO     |
 +--------------+-----------+-------+----------+-------------+
-| 192.168.1.1 | global    | up    | 11:02:55 | Established |
+| 192.168.1.1 | node specific | up    | 11:02:55 | Established |
 +--------------+-----------+-------+----------+-------------+
 
 IPv6 BGP status
@@ -213,7 +213,7 @@ IPv4 BGP status
 +--------------+-----------+-------+----------+-------------+
 | PEER ADDRESS | PEER TYPE | STATE |  SINCE   |    INFO     |
 +--------------+-----------+-------+----------+-------------+
-| 192.168.1.1 | global    | up    | 11:02:55 | Established |
+| 192.168.1.1 | node specific | up    | 11:02:55 | Established |
 +--------------+-----------+-------+----------+-------------+
 
 IPv6 BGP status
@@ -241,7 +241,7 @@ IPv4 BGP status
 +--------------+-----------+-------+----------+-------------+
 | PEER ADDRESS | PEER TYPE | STATE |  SINCE   |    INFO     |
 +--------------+-----------+-------+----------+-------------+
-| 192.168.1.1 | global    | up    | 11:02:55 | Established |
+| 192.168.1.1 | node specific | up    | 11:02:55 | Established |
 +--------------+-----------+-------+----------+-------------+
 
 IPv6 BGP status
