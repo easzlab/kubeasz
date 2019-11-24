@@ -19,22 +19,6 @@
   - /etc/haproxy
   - /etc/keepalived 
 
-- name: 安装 haproxy+keepalived
-  package: name={{ item }} state=present
-  with_items:
-  - haproxy
-  - keepalived
-  when: 'INSTALL_SOURCE != "offline"'
-
-# 离线安装 haproxy+keepalived
-- import_tasks: offline.yml
-  when: 'INSTALL_SOURCE == "offline"'
-
-- name: 修改centos的haproxy.service
-  template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
-  tags: restart_lb
-
 - name: 配置 haproxy
   template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
   tags: restart_lb
@@ -47,6 +31,23 @@
 - name: 配置 keepalived 备节点
   template: src=keepalived-backup.conf.j2 dest=/etc/keepalived/keepalived.conf
   when: LB_ROLE == "backup"
+  tags: restart_lb
+
+- name: 安装 haproxy+keepalived
+  package: name={{ item }} state=present
+  with_items:
+  - haproxy
+  - keepalived
+  when: 'INSTALL_SOURCE != "offline"'
+  ignore_errors: true
+
+# 离线安装 haproxy+keepalived
+- import_tasks: offline.yml
+  when: 'INSTALL_SOURCE == "offline"'
+
+- name: 修改centos的haproxy.service
+  template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
+  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
   tags: restart_lb
 
 - name: daemon-reload for haproxy.service
