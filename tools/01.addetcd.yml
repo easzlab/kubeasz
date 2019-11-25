@@ -21,15 +21,20 @@
 
     - debug: var="ETCD_CLUSTER_STATUS.stdout"
 
+    - debug: var="ETCD_CLUSTER_STATUS.stderr"
+
     - name: get a running ectd node
-      shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}"|grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+      shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}" \
+               "{{ ETCD_CLUSTER_STATUS.stderr }}" \
+               |grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
       register: RUNNING_NODE
 
     - debug: var="RUNNING_NODE.stdout"
     connection: local
 
   - name: add a new etcd member
-    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add {{ NODE_NAME }} --peer-urls=https://{{ NODE_TO_ADD }}:2380"
+    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add {{ NODE_NAME }} \
+            --peer-urls=https://{{ NODE_TO_ADD }}:2380"
     delegate_to: "{{ RUNNING_NODE.stdout }}"
 
 # start the new-etcd node
