@@ -10,6 +10,18 @@
     state: absent
     backup: 'yes'
 
+- name: 转换内核版本为浮点数
+  set_fact:
+     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
+
+- name: 设置 nf_conntrack 模块名
+  set_fact: NF_CONNTRACK="nf_conntrack"
+  when: "KERNEL_VER|float >= 4.19"
+
+- name: 设置 nf_conntrack_ipv4 模块名
+  set_fact: NF_CONNTRACK="nf_conntrack_ipv4"
+  when: "KERNEL_VER|float < 4.19"
+
 - name: 加载内核模块
   modprobe: name={{ item }} state=present
   with_items:
@@ -18,20 +30,7 @@
     - ip_vs_rr
     - ip_vs_wrr
     - ip_vs_sh
-  ignore_errors: true
-
-- name: 转换内核版本为浮点数
-  set_fact:
-     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
-
-- name: 加载内核模块 nf_conntrack
-  modprobe: name=nf_conntrack state=present
-  when: "KERNEL_VER|float >= 4.19"
-  ignore_errors: true
-
-- name: 加载内核模块 nf_conntrack_ipv4
-  modprobe: name=nf_conntrack_ipv4 state=present
-  when: "KERNEL_VER|float < 4.19"
+    - "{{ NF_CONNTRACK }}"
   ignore_errors: true
 
 - name: 启用systemd自动加载模块服务

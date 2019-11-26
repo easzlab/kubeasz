@@ -22,7 +22,7 @@
     with_fileglob:
     - "{{ base_dir }}/down/coredns*.tar"
     - "{{ base_dir }}/down/dashboard*.tar"
-    - "{{ base_dir }}/down/heapster*.tar"
+    - "{{ base_dir }}/down/metrics-scraper*.tar"
     - "{{ base_dir }}/down/metrics*.tar"
     - "{{ base_dir }}/down/traefik*.tar"
     ignore_errors: true
