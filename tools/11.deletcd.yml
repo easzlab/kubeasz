@@ -34,20 +34,26 @@
 
     - debug: var="ETCD_CLUSTER_STATUS.stdout"
 
+    - debug: var="ETCD_CLUSTER_STATUS.stderr"
+
     - name: get a running ectd node
-      shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}"|grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+      shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}" \
+               "{{ ETCD_CLUSTER_STATUS.stderr }}" \
+               |grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
       register: RUNNING_NODE
 
     - debug: var="RUNNING_NODE.stdout"
 
     # step2: remove jobs run on the healthy member if needed
     - name: get ID of etcd node to delete
-      shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d',' -f1"
+      shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list \
+              |grep {{ ETCD_TO_DEL }}:2380|cut -d',' -f1"
       register: ETCD_ID
       delegate_to: "{{ RUNNING_NODE.stdout }}"
   
     - name: get NAME of etcd node to delete
-      shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list|grep {{ ETCD_TO_DEL }}:2380|cut -d' ' -f3|cut -d',' -f1"
+      shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list \
+              |grep {{ ETCD_TO_DEL }}:2380|cut -d' ' -f3|cut -d',' -f1"
       register: ETCD_NAME
       delegate_to: "{{ RUNNING_NODE.stdout }}"
   

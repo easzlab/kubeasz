@@ -21,6 +21,8 @@
 
   - debug: var="CLEAN_STATUS.stdout"
 
+  - debug: var="CLEAN_STATUS.stderr"
+
   - name: run kubectl delete node {{ NODE_TO_DEL }}
     shell: "{{ bin_dir }}/kubectl delete node {{ NODE_TO_DEL }}"
     ignore_errors: true
