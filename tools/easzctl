@@ -79,7 +79,7 @@ function add-node() {
     sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] node $1 already existed!"; return 2; }
 
     # add a node into 'kube-node' group
-    sed -i "/\[kube-node/a $1 NEW_NODE=yes" $BASEPATH/hosts
+    sed -i "/\[kube-node/a $1 NEW_NODE=yes ${@:2}" $BASEPATH/hosts
 
     # check if playbook runs successfully
     ansible-playbook $BASEPATH/tools/02.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; return 2; }
@@ -97,7 +97,7 @@ function add-master() {
     sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] master $1 already existed!"; return 2; }
 
     # add a node into 'kube-master' group
-    sed -i "/\[kube-master/a $1 NEW_MASTER=yes" $BASEPATH/hosts
+    sed -i "/\[kube-master/a $1 NEW_MASTER=yes ${@:2}" $BASEPATH/hosts
 
     # check if playbook runs successfully
     ansible-playbook $BASEPATH/tools/03.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; return 2; }
@@ -419,12 +419,12 @@ case "$1" in
     (add-master)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         ACTION="Action: add a k8s master node"
-        CMD="add-master $2" 
+        CMD="add-master $2 ${@:3}" 
         ;;
     (add-node)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
         ACTION="Action: add a k8s work node"
-        CMD="add-node $2" 
+        CMD="add-node $2 ${@:3}" 
         ;;
     (del-etcd)
         [ "$#" -gt 1 ] || { usage >&2; exit 2; }
