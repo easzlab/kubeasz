@@ -68,7 +68,7 @@
 
 # 判断 kubernetes 版本
 - name: 注册变量 TMP_VER
-  shell: "{{ base_dir }}/bin/kube-apiserver --version|cut -d' ' -f2|cut -d'v' -f2"
+  shell: "{{ bin_dir }}/kubelet --version|cut -d' ' -f2|cut -d'v' -f2"
   register: TMP_VER
   connection: local
   tags: upgrade_k8s, restart_node

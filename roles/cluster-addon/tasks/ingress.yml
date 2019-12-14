@@ -17,7 +17,7 @@
           when: 'traefik_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
 
     - name: 创建 traefik部署
-      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
       connection: local
       run_once: true
   when: 'ingress_backend == "traefik"'
