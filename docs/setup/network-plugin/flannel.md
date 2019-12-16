@@ -78,9 +78,9 @@ FLANNEL_IPMASQ=true
             fieldRef:
               fieldPath: metadata.namespace
         - name: KUBERNETES_SERVICE_HOST   # 指定apiserver的主机地址
-          value: {{ MASTER_IP }}
+          value: "{{ MASTER_IP }}"
         - name: KUBERNETES_SERVICE_PORT   # 指定apiserver的服务端口
-          value: {{ KUBE_APISERVER.split(':')[2] }}      
+          value: "{{ KUBE_APISERVER.split(':')[2] }}"
        ...
 ```
 ### 安装 flannel网络
