@@ -1,51 +1,74 @@
-- name: 创建data目录
+- name: 生成 harbor 随机密码
+  shell: < /dev/urandom tr -dc 0-9A-Za-z-_ | head -c 16
+  register: harbor_password_gen
+
+- name: 生成 DB 随机密码
+  shell: < /dev/urandom tr -dc 0-9A-Za-z-_ | head -c 16
+  register: db_password_gen
+
+- name: 创建 data 目录
   file:
     path: /data
     state: directory
     mode: 0755
 
-# 注册变量result，如果/data目录下存在registry目录说明已经安装过harbor，则不进行安装
-- name: 注册变量result
+# 注册变量 result，如果 /data 目录下存在 registry 目录说明已经安装过 harbor，则不进行安装
+- name: 注册变量 result
   command: ls /data
   register: result
 
 - block:
-    - name: 下发docker compose二进制文件
-      copy: src={{ base_dir }}/bin/docker-compose dest={{ bin_dir }}/docker-compose mode=0755
+  - name: 下发 docker compose 二进制文件
+    copy: src={{ base_dir }}/bin/docker-compose dest={{ bin_dir }}/docker-compose mode=0755
 
-    - name: 下发harbor离线安装包
-      copy:
-        src: "{{ base_dir }}/down/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
-        dest: "/data/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+  - name: 下发 harbor 离线安装包
+    copy:
+      src: "{{ base_dir }}/down/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+      dest: "/data/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
 
-    - name: 解压harbor离线安装包
-      shell: "cd /data && tar zxf harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+  - name: 解压 harbor 离线安装包
+    shell: "cd /data && tar zxf harbor-offline-installer-{{ HARBOR_VER }}.tgz"
 
-    - name: 导入harbor所需 docker images
-      shell: "{{ bin_dir }}/docker load -i /data/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
-    
-    - name: 分发证书相关
+  - name: 导入 harbor 所需 docker images
+    shell: "{{ bin_dir }}/docker load -i /data/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
+  
+  - block:
+    - name: 生成自签名证书相关
       copy: src={{ base_dir }}/.cluster/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
       with_items:
       - ca.pem
       - ca-key.pem
       - ca-config.json
     
-    - name: 创建harbor证书请求
+    - name: 创建 harbor 证书请求
       template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json
     
-    - name: 创建harbor证书和私钥
+    - name: 创建 harbor 证书和私钥
       shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
             -ca={{ ca_dir }}/ca.pem \
             -ca-key={{ ca_dir }}/ca-key.pem \
             -config={{ ca_dir }}/ca-config.json \
             -profile=kubernetes harbor-csr.json | {{ bin_dir }}/cfssljson -bare harbor"
-    
-    - name: 配置 harbor.cfg 文件
-      template: src=harbor-{{ HARBOR_VER_MAIN }}.cfg.j2 dest=/data/harbor/harbor.cfg
-    
-    - name: 安装 harbor
-      shell: "cd /data/harbor && \
-    	export PATH={{ bin_dir }}:$PATH && \
-    	 ./install.sh  --with-clair"
+    when: SELF_SIGNED_CERT == 'yes'
+
+  - name: 复制 down 目录下 harbor 证书
+    copy: src={{ base_dir }}/down/{{ item }} dest={{ ca_dir }}/{{ item }}
+    with_items: 
+    - harbor.pem
+    - harbor-key.pem  
+    when: SELF_SIGNED_CERT == 'no'
+  
+  - name: 配置 harbor.cfg 文件
+    template: src=harbor-{{ HARBOR_VER_MAIN }}.cfg.j2 dest=/data/harbor/harbor.cfg
+    when: HARBOR_VER_MAIN in ["v1.5", "v1.6", "v1.7"]
+
+  - name: 配置 harbor.yml 文件
+    template: src=harbor-{{ HARBOR_VER_MAIN }}.yml.j2 dest=/data/harbor/harbor.yml
+    when: HARBOR_VER_MAIN in ["v1.8", "v1.9", "v1.10"]
+  
+  
+  - name: 安装 harbor --with-clair
+    shell: "cd /data/harbor && \
+    export PATH={{ bin_dir }}:$PATH && \
+      ./install.sh  --with-clair"
   when: '"registry" not in result.stdout'

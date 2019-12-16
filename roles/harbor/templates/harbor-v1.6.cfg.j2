@@ -65,7 +65,7 @@ email_insecure = false
 ##The initial password of Harbor admin, only works for the first time when Harbor starts. 
 #It has no effect after the first launch of Harbor.
 #Change the admin password from UI after launching Harbor.
-harbor_admin_password = Harbor12345
+harbor_admin_password = {{ harbor_password_gen.stdout }}
 
 ##By default the auth mode is db_auth, i.e. the credentials are stored in a local database.
 #Set it to ldap_auth if you want to verify a user's credentials against an LDAP server.
@@ -130,7 +130,7 @@ project_creation_restriction = adminonly
 db_host = postgresql
 
 #The password for the root user of Harbor DB. Change this before any production use.
-db_password = root123
+db_password = {{ db_password_gen.stdout }}
 
 #The port of Harbor database host
 db_port = 5432

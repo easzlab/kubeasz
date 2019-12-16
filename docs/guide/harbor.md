@@ -20,9 +20,11 @@ Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是�
 ``` bash
 # 参数 NEW_INSTALL=(yes/no)：yes表示新建 harbor，并配置k8s节点的docker可以使用harbor仓库
 # no 表示仅配置k8s节点的docker使用已有的harbor仓库
+# 参数 SELF_SIGNED_CERT=(yes/no): yes表示使用自签名证书，即安装程序帮你做一个自己签名的证书（当然这样的证书是得不到浏览器直接认可的）
+# no 表示使用已有的证书，如 letsencrypt 或者其他证书颁发机构，如使用此参数，需把证书提前放在 down 目录下，文件名称分别为：harbor.pem 和 harbor-key.pem
 # 如果不需要设置域名访问 harbor，可以配置参数 HARBOR_DOMAIN=""
 [harbor]
-192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=yes
+192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=yes SELF_SIGNED_CERT=yes
 ```
 
 4. 在ansible控制端执行 `ansible-playbook /etc/ansible/11.harbor.yml`，完成harbor安装和docker 客户端配置
@@ -30,7 +32,7 @@ Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是�
 - 安装验证
 
 1. 在harbor节点使用`docker ps -a` 查看harbor容器组件运行情况
-1. 浏览器访问harbor节点的IP地址 `https://$NodeIP`，使用账号 admin 和 密码 Harbor12345 (harbor.cfg 配置文件中的默认)登录系统
+2. 浏览器访问harbor节点的IP地址 `https://$NodeIP`，管理员账号是 admin ，密码见 harbor.cfg(v1.5-v1.7) 或 harbor.yml(v1.8+) 文件 harbor_admin_password 对应值（默认密码 Harbor12345 已被随机生成的16位随机密码替换，不然存在安全隐患)
 
 ### 安装讲解
 
@@ -65,7 +67,7 @@ $ crictl pull harbor.test.lo/pub/hello:v0.1.4
 FATA[0000] pulling image failed: rpc error: code = Unknown desc = failed to resolve image "harbor.test.lo/pub/hello:v0.1.4": no available registry endpoint: failed to do request: Head https://harbor.test.lo/v2/pub/hello/manifests/v0.1.4: x509: certificate signed by unknown authority
 ```
 
-项目脚本`11.harbor.yml`中已经自动为k8s集群的每个node节点配置 docker/containerd 信任自建 harbor 证书；如果你无法运行此脚本，可以参考下述手工配置
+项目脚本`11.harbor.yml`中已经自动为k8s集群的每个node节点配置 docker/containerd 信任自建 harbor 证书；如果你无法运行此脚本，可以参考下述手工配置（使用受信任的正式证书 SELF_SIGNED_CERT=no 可忽略）
 
 #### docker配置信任harbor证书
 
@@ -208,7 +210,7 @@ docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mys
 # 因为新老版本数据库结构不一样，需要数据库migration
 docker run -it --rm -e DB_USR=root -e DB_PWD=xxxx -v /data/database:/var/lib/mysql vmware/harbor-db-migrator:1.2 up head
 
-# 修改新版本 harbor.cfg配置，需要保持与老版本相关配置项保持一致，然后执行安装即可
+# 修改新版本 harbor.cfg(v1.5-v1.7) 或 harbor.yml(v1.8+) 配置，需要保持与老版本相关配置项保持一致，然后执行安装即可
 cd /data/harbor
 vi harbor.cfg
 ./install.sh
