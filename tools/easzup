@@ -227,8 +227,8 @@ function get_offline_image() {
     docker save -o ${imageDir}/pause_${pauseVer}.tar dockerhub.azk8s.cn/mirrorgooglecontainers/pause-amd64:${pauseVer}
   fi
   if [[ ! -f "$imageDir/traefik_$traefikVer.tar" ]];then
-    docker pull dockerhub.azk8s.cn/traefik:${traefikVer} && \
-    docker save -o ${imageDir}/traefik_${traefikVer}.tar dockerhub.azk8s.cn/traefik:${traefikVer}
+    docker pull dockerhub.azk8s.cn/library/traefik:${traefikVer} && \
+    docker save -o ${imageDir}/traefik_${traefikVer}.tar dockerhub.azk8s.cn/library/traefik:${traefikVer}
   fi
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     docker pull dockerhub.azk8s.cn/easzlab/kubeasz:${KUBEASZ_VER} && \
