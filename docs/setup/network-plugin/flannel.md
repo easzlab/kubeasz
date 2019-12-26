@@ -65,6 +65,7 @@ FLANNEL_IPMASQ=true
 + `DaemonSet Pod`包含两个容器，一个容器运行flannel本身，另一个init容器部署cni 配置文件
 + 为方便国内加速使用镜像 `jmgao1983/flannel:v0.10.0-amd64` (官方镜像在docker-hub上的转存)
 + 特别注意：如果服务器是多网卡（例如vagrant环境），则需要在`roles/flannel/templates/kube-flannel.yaml.j2 `中增加指定环境变量，详见 [kubernetes ISSUE 39701](https://github.com/kubernetes/kubernetes/issues/39701)
++ 更新：多网卡情况下flannel问题，理论上已解决，一般已不需要如下配置，参考 #479 https://github.com/easzlab/kubeasz/issues/479
 
 ``` bash
       ...
