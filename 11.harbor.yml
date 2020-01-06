@@ -19,20 +19,20 @@
   - kube-master
   - kube-node
   tasks:
-  - name: Define 'harbor_host', a domain name
-    set_fact: harbor_host={{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}
+  - name: Define 'harbor_hostname', a domain name
+    set_fact: harbor_hostname={{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}
 
-  - name: Define 'harbor_host', an IP Addr
-    set_fact: harbor_host={{ groups['harbor'][0] }}
+  - name: Define 'harbor_hostname', an IP Addr
+    set_fact: harbor_hostname={{ groups['harbor'][0] }}
     when: hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] == ''
   
   - block:  
       - block:  
         - name: Creating cert dir for the docker daemon
-          file: name=/etc/docker/certs.d/{{ harbor_host }} state=directory
+          file: name=/etc/docker/certs.d/{{ harbor_hostname }} state=directory
     
         - name: Installing the HARBOR SERVER's CA cert for docker
-          copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_host }}/ca.crt
+          copy: src={{ base_dir }}/down/ca.pem dest=/etc/docker/certs.d/{{ harbor_hostname }}/ca.crt
         when: CONTAINER_RUNTIME == 'docker'
 
       - block:  
@@ -74,23 +74,23 @@
     lineinfile:
       dest: /etc/hosts
       state: present
-      regexp: '{{ harbor_host }}'
-      line: "{{ groups['harbor'][0] }} {{ harbor_host }}"
+      regexp: '{{ harbor_hostname }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
     when: "hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] != ''"
   
-  # [optional] 使用 cloud-init 初始化的虚拟机，hosts 后会重启时被替换，需修改对应的 hosts 模板文件 
+  # [optional] 使用 cloud-init 初始化的虚拟机，/etc/hosts 后会重启时被替换，需修改对应的模板文件 
   - name: Adding cloud-init hosts template (debian) entry for the HARBOR DOMAIN
     lineinfile:
       dest: /etc/cloud/templates/hosts.debian.tmpl
       state: present
-      regexp: '{{ harbor_host }}'
-      line: "{{ groups['harbor'][0] }} {{ harbor_host }}"
+      regexp: '{{ harbor_hostname }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
     when: 'ansible_distribution in ["Ubuntu","Debian"]'
 
   - name: Adding cloud-init hosts template (redhat) entry for the HARBOR DOMAIN
     lineinfile:
       dest: /etc/cloud/templates/hosts.redhat.tmpl
       state: present
-      regexp: '{{ harbor_host }}'
-      line: "{{ groups['harbor'][0] }} {{ harbor_host }}"
+      regexp: '{{ harbor_hostname }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
     when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 

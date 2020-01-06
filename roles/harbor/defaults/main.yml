@@ -1,6 +1,9 @@
-# harbor version，完整版本号，目前支持 v1.5.x , v1.6.x, v1.7.x
-HARBOR_VER: "v1.7.4"
+# harbor version，完整版本号，目前支持 v1.5.x , v1.6.x, v1.7.x, v1.8.x, v1.9.x, v1.10.x
+HARBOR_VER: "v1.9.4"
 
-# harbor 主版本号，目前支持主版本号 v1.5/v1.6/v1.7
-# 从完整版本号提取出主版本号 v1.5/v1.6/v1.7
+# harbor 主版本号，目前支持主版本号 v1.5/v1.6/v1.7/v1.8/v1.9/v.10
+# 从完整版本号提取出主版本号 v1.5/v1.6/v1.7/v1.8/v1.9/v.10
 HARBOR_VER_MAIN: "{{ HARBOR_VER.split('.')[0] }}.{{ HARBOR_VER.split('.')[1] }}"
+
+# HARBOR_HOSTNAME 值设置
+HARBOR_HOSTNAME: "{{ inventory_hostname if (HARBOR_DOMAIN == '') else HARBOR_DOMAIN }}"
