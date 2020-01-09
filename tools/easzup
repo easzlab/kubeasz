@@ -24,7 +24,9 @@ function install_docker() {
   # check if a container runtime is already installed
   systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
   systemctl status containerd|grep Active|grep -q running && { echo "[ERROR] containerd is running, unsupported."; exit 1; }
-  
+ 
+  which docker && { echo "[WARN] docker is installed."; systemctl restart docker; return 0; }
+
   if [[ "$REGISTRY_MIRROR" == CN ]];then
     DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/x86_64/docker-${DOCKER_VER}.tgz"
   else
@@ -108,13 +110,13 @@ EOF
 
   if [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
     echo "[INFO] turn off selinux in CentOS/Redhat"
-    setenforce 0
-    echo "SELINUX=disabled" > /etc/selinux/config
+    getenforce|grep Disabled || setenforce 0
+    sed -i 's/^SELINUX=.*$/SELINUX=disabled/g' /etc/selinux/config
   fi
 
   echo "[INFO] enable and start docker"
   systemctl enable docker
-  systemctl daemon-reload && systemctl restart docker && sleep 8
+  systemctl daemon-reload && systemctl restart docker && sleep 4
 }
 
 function get_kubeasz() {
