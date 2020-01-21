@@ -3,7 +3,7 @@
 对于刚接触项目者，如"快速指南"说明，只需要：
 
 - **1** 个配置：`/etc/ansible/hosts`
-- **1** 键安装：`ansible-playbook /etc/ansilbe/90.setup.yml`
+- **1** 键安装：`ansible-playbook /etc/ansible/90.setup.yml`
 
 具体来讲 `kubeasz`创建集群主要在以下两个地方进行配置：
 
