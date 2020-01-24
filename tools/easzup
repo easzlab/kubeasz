@@ -185,7 +185,7 @@ function get_sys_pkg() {
 function get_offline_image() {
   # images needed by k8s cluster
   calicoVer=v3.4.4
-  corednsVer=1.6.2
+  corednsVer=1.6.6
   dashboardVer=v2.0.0-beta6
   dashboardMetricsScraperVer=v1.0.2
   flannelVer=v0.11.0-amd64
