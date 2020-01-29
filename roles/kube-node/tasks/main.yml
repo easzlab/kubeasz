@@ -27,41 +27,8 @@
     line: "    server: {{ KUBE_APISERVER }}"
 
 ##----------kubelet 配置部分--------------
-
-- name: 准备kubelet 证书签名请求
-  template: src=kubelet-csr.json.j2 dest={{ ca_dir }}/kubelet-csr.json
-
-- name: 创建 kubelet 证书与私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes kubelet-csr.json | {{ bin_dir }}/cfssljson -bare kubelet"
-
-# 创建kubelet.kubeconfig 
-- name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
-        --embed-certs=true \
-        --server={{ KUBE_APISERVER }} \
-	--kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
-
-- name: 设置客户端认证参数
-  shell: "{{ bin_dir }}/kubectl config set-credentials system:node:{{ inventory_hostname }} \
-        --client-certificate={{ ca_dir }}/kubelet.pem \
-        --embed-certs=true \
-        --client-key={{ ca_dir }}/kubelet-key.pem \
-	--kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
-
-- name: 设置上下文参数
-  shell: "{{ bin_dir }}/kubectl config set-context default \
-        --cluster=kubernetes \
-	--user=system:node:{{ inventory_hostname }} \
-	--kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
-
-- name: 选择默认上下文
-  shell: "{{ bin_dir }}/kubectl config use-context default \
-	--kubeconfig=/etc/kubernetes/kubelet.kubeconfig"
+# 创建 kubelet 相关证书及 kubelet.kubeconfig
+- import_tasks: create-kubelet-kubeconfig.yml
 
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf

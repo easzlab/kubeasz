@@ -58,4 +58,12 @@
 
     - name: 分发 kube-proxy.kubeconfig配置文件
       copy: src={{ base_dir }}/.cluster/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
+
+    - name: 分发 kube-controller-manager.kubeconfig配置文件
+      copy: src={{ base_dir }}/.cluster/kube-controller-manager.kubeconfig dest=/etc/kubernetes/kube-controller-manager.kubeconfig
+      when: "inventory_hostname in groups['kube-master']"
+
+    - name: 分发 kube-scheduler.kubeconfig配置文件
+      copy: src={{ base_dir }}/.cluster/kube-scheduler.kubeconfig dest=/etc/kubernetes/kube-scheduler.kubeconfig
+      when: "inventory_hostname in groups['kube-master']"
   when: "inventory_hostname in groups['kube-master'] or inventory_hostname in groups['kube-node']"

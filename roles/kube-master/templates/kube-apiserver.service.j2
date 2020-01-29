@@ -19,7 +19,6 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --etcd-certfile={{ ca_dir }}/kubernetes.pem \
   --etcd-keyfile={{ ca_dir }}/kubernetes-key.pem \
   --etcd-servers={{ ETCD_ENDPOINTS }} \
-  --insecure-bind-address=127.0.0.1 \
   --kubelet-https=true \
   --kubelet-client-certificate={{ ca_dir }}/admin.pem \
   --kubelet-client-key={{ ca_dir }}/admin-key.pem \
