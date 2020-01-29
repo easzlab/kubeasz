@@ -26,81 +26,30 @@
 	 {{ base_dir }}/bin/cfssl gencert -initca ca-csr.json | {{ base_dir }}/bin/cfssljson -bare ca" 
 
 #----------- 创建admin kubectl kubeconfig文件: /root/.kube/config
-- block:
-    - name: 删除原有kubeconfig
-      file: path=/root/.kube/config state=absent
-      ignore_errors: true
-    
-    - name: 准备kubectl使用的admin证书签名请求
-      template: src=admin-csr.json.j2 dest={{ base_dir }}/.cluster/ssl/admin-csr.json
-    
-    - name: 创建admin证书与私钥
-      shell: "cd {{ base_dir }}/.cluster/ssl && {{ base_dir }}/bin/cfssl gencert \
-            -ca=ca.pem \
-            -ca-key=ca-key.pem \
-            -config=ca-config.json \
-            -profile=kubernetes admin-csr.json | {{ base_dir }}/bin/cfssljson -bare admin"
-    
-    - name: 设置集群参数
-      shell: "{{ base_dir }}/bin/kubectl config set-cluster {{ CLUSTER_NAME }} \
-            --certificate-authority={{ base_dir }}/.cluster/ssl/ca.pem \
-            --embed-certs=true \
-            --server={{ KUBE_APISERVER }}"
-    
-    - name: 设置客户端认证参数
-      shell: "{{ base_dir }}/bin/kubectl config set-credentials admin \
-            --client-certificate={{ base_dir }}/.cluster/ssl/admin.pem \
-            --embed-certs=true \
-            --client-key={{ base_dir }}/.cluster/ssl/admin-key.pem"
-    
-    - name: 设置上下文参数
-      shell: "{{ base_dir }}/bin/kubectl config set-context {{ CLUSTER_NAME }} \
-            --cluster={{ CLUSTER_NAME }} --user=admin"
-    
-    - name: 选择默认上下文
-      shell: "{{ base_dir }}/bin/kubectl config use-context {{ CLUSTER_NAME }}"
+- import_tasks: create-kubectl-kubeconfig.yml
   tags: create_kctl_cfg
 
 #-----------可选创建只读kubeconfig文件: /root/.kube/read.config
-- import_tasks: create-ro-kubeconfig.yml
+- import_tasks: create-kubectl-ro-kubeconfig.yml
   when: "CREATE_READONLY_KUBECONFIG"
 
-#------------创建kube-proxy配置文件: kube-proxy.kubeconfig
-- name: 准备kube-proxy 证书签名请求
-  template: src=kube-proxy-csr.json.j2 dest={{ base_dir }}/.cluster/ssl/kube-proxy-csr.json
+#------------创建配置文件: kube-proxy.kubeconfig
+- import_tasks: create-kube-proxy-kubeconfig.yml
 
-- name: 创建 kube-proxy证书与私钥
-  shell: "cd {{ base_dir }}/.cluster/ssl && {{ base_dir }}/bin/cfssl gencert \
-        -ca=ca.pem \
-        -ca-key=ca-key.pem \
-        -config=ca-config.json \
-        -profile=kubernetes kube-proxy-csr.json | {{ base_dir }}/bin/cfssljson -bare kube-proxy"
+#------------创建配置文件: kube-controller-manager.kubeconfig
+- import_tasks: create-kube-controller-manager-kubeconfig.yml
 
-- name: 设置集群参数
-  shell: "{{ base_dir }}/bin/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ base_dir }}/.cluster/ssl/ca.pem \
-        --embed-certs=true \
-        --server={{ KUBE_APISERVER }} \
-        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
-- name: 设置客户端认证参数
-  shell: "{{ base_dir }}/bin/kubectl config set-credentials kube-proxy \
-        --client-certificate={{ base_dir }}/.cluster/ssl/kube-proxy.pem \
-        --client-key={{ base_dir }}/.cluster/ssl/kube-proxy-key.pem \
-        --embed-certs=true \
-        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
-- name: 设置上下文参数
-  shell: "{{ base_dir }}/bin/kubectl config set-context default \
-        --cluster=kubernetes \
-        --user=kube-proxy \
-        --kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
-- name: 选择默认上下文
-  shell: "{{ base_dir }}/bin/kubectl config use-context default \
-	--kubeconfig={{ base_dir }}/.cluster/kube-proxy.kubeconfig"
+#------------创建配置文件: kube-scheduler.kubeconfig
+- import_tasks: create-kube-scheduler-kubeconfig.yml
 
+# ansible 控制端一些易用性配置
 - name: 本地创建 easzctl 工具的软连接
   file: src={{ base_dir }}/tools/easzctl dest=/usr/bin/easzctl state=link
 
-# ansible 控制端一些易用性配置
+- name: ansible 控制端创建 kubectl 软链接
+  file: src={{ base_dir }}/bin/kubectl dest=/usr/bin/kubectl state=link
+  ignore_errors: true
+
 # 注册变量以判断是否容器化运行ansible控制端，如果容器化运行那么进程数小于50
 - name: 注册变量以判断是否容器化运行ansible控制端
   shell: "ps aux|wc -l"
@@ -122,10 +71,6 @@
     regexp: 'kubectl completion'
     line: 'source <(kubectl completion bash)'
   when: "procs.stdout|int > 50"
-  ignore_errors: true
-
-- name: ansible 控制端创建 kubectl 软链接
-  file: src={{ base_dir }}/bin/kubectl dest=/usr/bin/kubectl state=link
   ignore_errors: true
 
 - name: pip install netaddr

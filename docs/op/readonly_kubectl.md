@@ -26,7 +26,7 @@ Error from server (Forbidden): deployments.apps "kubernetes-dashboard" is forbid
 
 ## 讲解
 
-对照文件`/etc/ansible/roles/deploy/tasks/create-ro-kubeconfig.yml`，创建主要包括三个步骤：
+对照文件`/etc/ansible/roles/deploy/tasks/create-kubectl-ro-kubeconfig.yml`，创建主要包括三个步骤：
 
 - 创建 group:read rbac 权限
 - 创建 read 用户证书和私钥
