@@ -14,17 +14,19 @@ set -o errexit
 #set -o xtrace
 
 # default version, can be overridden by cmd line options
-export DOCKER_VER=18.09.9
-export KUBEASZ_VER=2.1.0
-export K8S_BIN_VER=v1.16.2
-export EXT_BIN_VER=0.3.2
+export DOCKER_VER=19.03.5
+export KUBEASZ_VER=2.2.0
+export K8S_BIN_VER=v1.17.2
+export EXT_BIN_VER=0.4.0
 export SYS_PKG_VER=0.3.3
 
 function install_docker() {
   # check if a container runtime is already installed
   systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
   systemctl status containerd|grep Active|grep -q running && { echo "[ERROR] containerd is running, unsupported."; exit 1; }
-  
+ 
+  which docker && { echo "[WARN] docker is installed."; systemctl restart docker; return 0; }
+
   if [[ "$REGISTRY_MIRROR" == CN ]];then
     DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/x86_64/docker-${DOCKER_VER}.tgz"
   else
@@ -108,13 +110,13 @@ EOF
 
   if [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
     echo "[INFO] turn off selinux in CentOS/Redhat"
-    setenforce 0
-    echo "SELINUX=disabled" > /etc/selinux/config
+    getenforce|grep Disabled || setenforce 0
+    sed -i 's/^SELINUX=.*$/SELINUX=disabled/g' /etc/selinux/config
   fi
 
   echo "[INFO] enable and start docker"
   systemctl enable docker
-  systemctl daemon-reload && systemctl restart docker && sleep 8
+  systemctl daemon-reload && systemctl restart docker && sleep 4
 }
 
 function get_kubeasz() {
@@ -183,13 +185,13 @@ function get_sys_pkg() {
 function get_offline_image() {
   # images needed by k8s cluster
   calicoVer=v3.4.4
-  corednsVer=1.6.2
-  dashboardVer=v2.0.0-beta6
-  dashboardMetricsScraperVer=v1.0.2
+  corednsVer=1.6.6
+  dashboardVer=v2.0.0-rc3
+  dashboardMetricsScraperVer=v1.0.3
   flannelVer=v0.11.0-amd64
   metricsVer=v0.3.6
   pauseVer=3.1
-  traefikVer=v1.7.12
+  traefikVer=v1.7.20
 
   imageDir=/etc/ansible/down
   [[ -d "$imageDir" ]] || { echo "[ERROR] $imageDir not existed!"; exit 1; }

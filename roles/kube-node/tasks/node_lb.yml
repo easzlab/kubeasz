@@ -47,22 +47,14 @@
 - block:
   - name: 替换 kubeconfig 的 apiserver 地址
     lineinfile:
-      dest: /root/.kube/config
+      dest: "{{ item }}"
       regexp: "^    server"
       line: "    server: {{ KUBE_APISERVER }}"
+    with_items:
+    - "/root/.kube/config"
+    - "/etc/kubernetes/kubelet.kubeconfig"
+    - "/etc/kubernetes/kube-proxy.kubeconfig"
   
-  - name: 替换 kubelet.kubeconfig 的 apiserver 地址
-    lineinfile:
-      dest: /etc/kubernetes/kubelet.kubeconfig
-      regexp: "^    server"
-      line: "    server: {{ KUBE_APISERVER }}"
-  
-  - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
-    lineinfile:
-      dest: /etc/kubernetes/kube-proxy.kubeconfig
-      regexp: "^    server"
-      line: "    server: {{ KUBE_APISERVER }}"
-
   - name: restart kube-node service
     service: name={{ item }} state=restarted
     with_items:

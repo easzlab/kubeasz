@@ -54,7 +54,7 @@ spec:
       #nodeSelector:
       #  node-role.kubernetes.io/traefik: "true"
       containers:
-      - image: traefik:v1.7.12
+      - image: traefik:v1.7.20
         imagePullPolicy: IfNotPresent
         name: traefik-ingress-lb
         volumeMounts:

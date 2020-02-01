@@ -15,7 +15,7 @@ chmod +x ./easzup
 ./easzup -D
 ```
 
-执行成功后，所有文件均已整理好放入目录`/etc/ansilbe`，只要把该目录整体复制到任何离线的机器上，即可开始安装集群，离线文件包括：
+执行成功后，所有文件均已整理好放入目录`/etc/ansible`，只要把该目录整体复制到任何离线的机器上，即可开始安装集群，离线文件包括：
 
 - kubeasz 项目代码 --> /etc/ansible
 - kubernetes 集群组件二进制 --> /etc/ansible/bin

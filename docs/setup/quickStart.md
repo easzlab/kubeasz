@@ -19,7 +19,7 @@ chmod +x ./easzup
 ./easzup -D
 ```
 
-上述脚本运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/ansilbe`
+上述脚本运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/ansible`
 
 - `/etc/ansible` 包含 kubeasz 版本为 ${release} 的发布代码
 - `/etc/ansible/bin` 包含 k8s/etcd/docker/cni 等二进制文件
