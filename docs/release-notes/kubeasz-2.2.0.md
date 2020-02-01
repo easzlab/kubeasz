@@ -1,0 +1,31 @@
+## kubeasz-2.2.0 发布说明
+
+CHANGELOG:
+- 组件更新
+  - k8s: v1.17.2 v1.16.6 v1.15.9 v1.14.10
+  - etcd: v3.4.3
+  - docker: 19.03.5
+  - coredns: v1.6.6
+  - kube-ovn: 0.9.1
+  - dashboard: v2.0.0-rc3
+  - harbor: v1.8~v1.10
+  - traefik: v1.7.20
+  - easzlab/es-index-rotator: 0.2.1
+- 集群安装
+  - 安全性: 修改kube-controller-manager和kube-scheduler使用证书访问kube-apiserver
+  - 安全性: 关闭kubelet只读端口
+  - 增加清理脚本中对二进制文件和离线镜像文件的清理
+  - 增加对harbor v1.8-v1.10 安装支持
+  - 分离生成只读权限kubeconfig #727
+  - 调整 apiserver 少量启动参数
+- 工具脚本
+  - easzctl: 增加  ${@:3} 队列变量 以支持在 hosts 为 node 增加更多主机变量 #749 
+  - easzup: 修复安装 docker 逻辑 aa76da0f2ee2b01d47c28667feed36b6be778b17
+- 其他
+  - fix: dashboard生成cluster-service #739
+  - fix: ubuntu1804安装ex-lb失败问题
+  - fix: calico的BGP RR模式下的bgppeer的nodeSelector错误 #741
+  - fix: ectd集群有不正常节点时增/删etcd节点失败 #743
+  - fix: kube-router 安装报错 #783
+  - fix: typo “登陆”->“登录” #720
+  - fix: 部分文档路径等错误
