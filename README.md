@@ -87,6 +87,7 @@
         <td><a href="docs/guide/kuboard.md">kuboard</a></td>
         <td><a href="https://github.com/derailed/k9s">k9s</a></td>
         <td><a href="https://github.com/vmware-tanzu/octant">octant</a></td>
+        <td><a href="https://github.com/kubesphere/kubesphere">KubeSphere 容器平台</a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
