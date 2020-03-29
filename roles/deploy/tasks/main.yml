@@ -25,13 +25,9 @@
   shell: "cd {{ base_dir }}/.cluster/ssl && \
 	 {{ base_dir }}/bin/cfssl gencert -initca ca-csr.json | {{ base_dir }}/bin/cfssljson -bare ca" 
 
-#----------- 创建admin kubectl kubeconfig文件: /root/.kube/config
+#----------- 创建配置文件: /root/.kube/config
 - import_tasks: create-kubectl-kubeconfig.yml
   tags: create_kctl_cfg
-
-#-----------可选创建只读kubeconfig文件: /root/.kube/read.config
-- import_tasks: create-kubectl-ro-kubeconfig.yml
-  when: "CREATE_READONLY_KUBECONFIG"
 
 #------------创建配置文件: kube-proxy.kubeconfig
 - import_tasks: create-kube-proxy-kubeconfig.yml
