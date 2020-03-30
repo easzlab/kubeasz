@@ -154,7 +154,7 @@ $ kubectl get pv
 $ kubectl get pvc --all-namespaces
 ```
 
-+ 2.手动删除 `influxdb`，半小时后再次创建，登陆grafana 确认历史数据是否还在。
++ 2.手动删除 `influxdb`，半小时后再次创建，登录grafana 确认历史数据是否还在。
 
 ``` bash
 # 删除 influxdb deploy

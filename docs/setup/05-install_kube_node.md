@@ -1,23 +1,38 @@
 ## 05-安装kube-node节点
 
-`kube-node` 是集群中承载应用的节点，前置条件需要先部署好`kube-master`节点(因为需要操作`用户角色绑定`、`批准kubelet TLS 证书请求`等)，它需要部署如下组件：
+`kube-node` 是集群中运行工作负载的节点，前置条件需要先部署好`kube-master`节点，它需要部署如下组件：
 
 + docker：运行容器
-+ calico： 配置容器网络 (或者 flannel)
 + kubelet： kube-node上最主要的组件
 + kube-proxy： 发布应用服务与负载均衡
++ haproxy：用于请求转发到多个 apiserver，详见[HA-2x 架构](00-planning_and_overall_intro.md#ha-architecture)
++ calico： 配置容器网络 (或者其他网络组件)
 
 ``` bash
-roles/kube-node
+roles/kube-node/
+├── defaults
+│   └── main.yml		# 变量配置文件
 ├── tasks
-│   └── main.yml
+│   ├── main.yml		# 主执行文件
+│   ├── node_lb.yml		# haproxy 安装文件
+│   └── offline.yml             # 离线安装 haproxy
 └── templates
-    ├── cni-default.conf.j2
-    ├── kubelet.service.j2
-    └── kube-proxy.service.j2
+    ├── cni-default.conf.j2	# 默认cni插件配置模板
+    ├── haproxy.cfg.j2		# haproxy 配置模板
+    ├── haproxy.service.j2	# haproxy 服务模板
+    ├── kubelet-config.yaml.j2  # kubelet 独立配置文件
+    ├── kubelet-csr.json.j2	# 证书请求模板
+    ├── kubelet.service.j2	# kubelet 服务模板
+    └── kube-proxy.service.j2	# kube-proxy 服务模板
 ```
 
-请在另外窗口打开[roles/kube-node/tasks/main.yml](../roles/kube-node/tasks/main.yml) 文件，对照看以下讲解内容。
+请在另外窗口打开`roles/kube-node/tasks/main.yml`文件，对照看以下讲解内容。
+
+### 变量配置文件
+
+详见 roles/kube-node/defaults/main.yml，举例以下3个变量配置说明
+- 变量`KUBE_APISERVER`，根据不同的节点情况，它有三种取值方式
+- 变量`MASTER_CHG`，变更 master 节点时会根据它来重新配置 haproxy
 
 ### 创建cni 基础网络插件配置文件
 
@@ -25,45 +40,41 @@ roles/kube-node
 
 ### 创建 kubelet 的服务文件
 
++ 根据官方建议独立使用 kubelet 配置文件，详见roles/kube-node/templates/kubelet-config.yaml.j2
 + 必须先创建工作目录 `/var/lib/kubelet`
 
 ``` bash
 [Unit]
 Description=Kubernetes Kubelet
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-After=docker.service
-Requires=docker.service
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
-#--pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest
+{% if KUBE_RESERVED_ENABLED == "yes" or SYS_RESERVED_ENABLED == "yes" %}
+ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
+{% endif %}
 ExecStart={{ bin_dir }}/kubelet \
-  --address={{ inventory_hostname }} \
+  --config=/var/lib/kubelet/config.yaml \
+{% if KUBE_VER|float < 1.13 %}
   --allow-privileged=true \
-  --anonymous-auth=false \
-  --client-ca-file={{ ca_dir }}/ca.pem \
-  --cluster-dns={{ CLUSTER_DNS_SVC_IP }} \
-  --cluster-domain={{ CLUSTER_DNS_DOMAIN }} \
+{% endif %}
   --cni-bin-dir={{ bin_dir }} \
   --cni-conf-dir=/etc/cni/net.d \
-  --fail-swap-on=false \
-  --hairpin-mode hairpin-veth \
+{% if CONTAINER_RUNTIME == "containerd" %}
+  --container-runtime=remote \
+  --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
+{% endif %}
   --hostname-override={{ inventory_hostname }} \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  --max-pods={{ MAX_PODS }} \
   --network-plugin=cni \
-  --pod-infra-container-image=mirrorgooglecontainers/pause-amd64:3.1 \
-  --register-node=true \
+  --pod-infra-container-image={{ SANDBOX_IMAGE }} \
   --root-dir={{ KUBELET_ROOT_DIR }} \
-  --tls-cert-file={{ ca_dir }}/kubelet.pem \
-  --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
   --v=2
-#kubelet cAdvisor 默认在所有接口监听 4194 端口的请求, 以下iptables限制内网访问
-ExecStartPost=/sbin/iptables -A INPUT -s 10.0.0.0/8 -p tcp --dport 4194 -j ACCEPT
-ExecStartPost=/sbin/iptables -A INPUT -s 172.16.0.0/12 -p tcp --dport 4194 -j ACCEPT
-ExecStartPost=/sbin/iptables -A INPUT -s 192.168.0.0/16 -p tcp --dport 4194 -j ACCEPT
-ExecStartPost=/sbin/iptables -A INPUT -p tcp --dport 4194 -j DROP
-Restart=on-failure
+Restart=always
 RestartSec=5
 
 [Install]
@@ -74,10 +85,12 @@ WantedBy=multi-user.target
 + --network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir={{ bin_dir }} 为使用cni 网络，并调用calico管理网络所需的配置
 + --fail-swap-on=false K8S 1.8+需显示禁用这个，否则服务不能启动
 + --client-ca-file={{ ca_dir }}/ca.pem 和 --anonymous-auth=false 关闭kubelet的匿名访问，详见[匿名访问漏洞说明](mixes/01.fix_kubelet_annoymous_access.md)
++ --ExecStartPre=/bin/mkdir -p xxx 对于某些系统（centos7）cpuset和hugetlb 是默认没有初始化system.slice 的，需要手动创建，否则在启用--kube-reserved-cgroup 时会报错Failed to start ContainerManager Failed to enforce System Reserved Cgroup Limits
++ 关于kubelet资源预留相关配置请参考 https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/
 
 ### 创建 kube-proxy kubeconfig 文件
 
-该步骤已经在 deploy节点完成，[roles/deploy/tasks/main.yml](../roles/deploy/tasks/main.yml)
+该步骤已经在 deploy节点完成，[roles/deploy/tasks/main.yml](../../roles/deploy/tasks/main.yml)
 
 + 生成的kube-proxy.kubeconfig 配置文件需要移动到/etc/kubernetes/目录，后续kube-proxy服务启动参数里面需要指定
 
@@ -93,6 +106,7 @@ After=network.target
 WorkingDirectory=/var/lib/kube-proxy
 ExecStart={{ bin_dir }}/kube-proxy \
   --bind-address={{ inventory_hostname }} \
+  --cluster-cidr={{ CLUSTER_CIDR }} \
   --hostname-override={{ inventory_hostname }} \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
   --logtostderr=true \
@@ -106,16 +120,7 @@ WantedBy=multi-user.target
 ```
 
 + --hostname-override 参数值必须与 kubelet 的值一致，否则 kube-proxy 启动后会找不到该 Node，从而不会创建任何 iptables 规则
-+ 特别注意：kube-proxy 根据 --cluster-cidr 判断集群内部和外部流量，指定 --cluster-cidr 或 --masquerade-all 选项后 kube-proxy 才会对访问 Service IP 的请求做 SNAT；但是这个特性与calico 实现 network policy冲突，所以如果要用 network policy，这两个选项都不要指定。
-
-### 批准kubelet 的 TLS 证书请求
-
-``` bash
-sleep 15 && {{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| xargs {{ bin_dir }}/kubectl certificate approve
-```
-+ 增加15秒延时等待kubelet启动
-+ `kubectl get csr |grep 'Pending'` 找出待批准的 TLS请求
-+ `kubectl certificate approve` 批准请求
++ 特别注意：kube-proxy 根据 --cluster-cidr 判断集群内部和外部流量，指定 --cluster-cidr 或 --masquerade-all 选项后 kube-proxy 才会对访问 Service IP 的请求做 SNAT；
 
 ### 验证 node 状态
 

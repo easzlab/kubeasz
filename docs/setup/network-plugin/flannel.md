@@ -6,13 +6,15 @@
 
 ``` text
 roles/flannel/
+├── defaults
+│   └── main.yml
 ├── tasks
 │   └── main.yml
 └── templates
     └── kube-flannel.yaml.j2
 ```
 
-请在另外窗口打开[roles/flannel/tasks/main.yml](../roles/flannel/tasks/main.yml) 文件，对照看以下讲解内容。
+请在另外窗口打开`roles/flannel/tasks/main.yml`文件，对照看以下讲解内容。
 
 ### 下载基础cni 插件
 
@@ -57,12 +59,13 @@ FLANNEL_IPMASQ=true
 
 请阅读 `roles/flannel/templates/kube-flannel.yaml.j2` 内容，注意：
 
-+ 本安装方式，flannel使用apiserver 存储数据
++ 注意：本安装方式，flannel 通过 apiserver 接口读取 podCidr 信息，详见 https://github.com/coreos/flannel/issues/847；因此想要修改节点pod网段掩码，请前往`roles/kube-master/defaults/main.yml`设置 
 + 配置相关RBAC 权限和 `service account`
 + 配置`ConfigMap`包含 CNI配置和 flannel配置(指定backend等)，和`hosts`文件中相关设置对应
 + `DaemonSet Pod`包含两个容器，一个容器运行flannel本身，另一个init容器部署cni 配置文件
 + 为方便国内加速使用镜像 `jmgao1983/flannel:v0.10.0-amd64` (官方镜像在docker-hub上的转存)
 + 特别注意：如果服务器是多网卡（例如vagrant环境），则需要在`roles/flannel/templates/kube-flannel.yaml.j2 `中增加指定环境变量，详见 [kubernetes ISSUE 39701](https://github.com/kubernetes/kubernetes/issues/39701)
++ 更新：多网卡情况下flannel问题，理论上已解决，一般已不需要如下配置，参考 #479 https://github.com/easzlab/kubeasz/issues/479
 
 ``` bash
       ...
@@ -76,9 +79,9 @@ FLANNEL_IPMASQ=true
             fieldRef:
               fieldPath: metadata.namespace
         - name: KUBERNETES_SERVICE_HOST   # 指定apiserver的主机地址
-          value: {{ MASTER_IP }}
+          value: "{{ MASTER_IP }}"
         - name: KUBERNETES_SERVICE_PORT   # 指定apiserver的服务端口
-          value: {{ KUBE_APISERVER.split(':')[2] }}      
+          value: "{{ KUBE_APISERVER.split(':')[2] }}"
        ...
 ```
 ### 安装 flannel网络

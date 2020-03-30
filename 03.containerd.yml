@@ -1,0 +1,6 @@
+# to install containerd service
+- hosts:
+  - kube-master
+  - kube-node
+  roles:
+  - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" } 

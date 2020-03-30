@@ -1,4 +1,5 @@
-apiVersion: extensions/v1beta1
+# kubectl run test-hello --image=nginx --expose --port=80
+apiVersion: networking.k8s.io/v1beta1 
 kind: Ingress
 metadata:
   name: test-hello

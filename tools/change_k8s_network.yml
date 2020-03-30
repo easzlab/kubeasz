@@ -1,25 +1,21 @@
 # 重置k8s pod网络脚本，使用请仔细阅读 docs/op/change_k8s_network.md
 - hosts:
   - kube-master
-  - new-master
   - kube-node
-  - new-node
   tasks:
   - name: 获取所有已经创建的POD信息
     command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
     register: pod_info
-    delegate_to: "{{ groups.deploy[0] }}"
     run_once: true
 
   - name: 删除原network插件部署
-    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/{{ item }}/"
+    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/{{ item }}.yaml"
     with_items:
     - calico
     - cilium
     - flannel
     - kube-router
     when: 'item in pod_info.stdout'
-    delegate_to: "{{ groups.deploy[0] }}"
     run_once: true
     ignore_errors: true
 
@@ -82,25 +78,8 @@
     ignore_errors: true
 
 - hosts:
-  - lb
-  tasks:
-  - name: 重启lb的keepalived服务
-    service: name=keepalived state=restarted
- 
-  - name: 轮询等待apiserver服务恢复
-    command: "{{ bin_dir }}/kubectl get node"
-    register: result
-    until:    result.rc == 0
-    retries:  5
-    delay: 6
-    delegate_to: "{{ groups.deploy[0] }}"
-    run_once: true
-  
-- hosts:
   - kube-master
-  - new-master
   - kube-node
-  - new-node
   # 安装新的网络插件
   roles:
   - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
@@ -108,7 +87,7 @@
   - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
 
-- hosts: deploy
+- hosts: kube-node
   tasks:
   # 删除所有运行pod，由controller自动重建
   - name: 重启所有pod
@@ -116,4 +95,3 @@
                 do {{ bin_dir }}/kubectl delete pod --all -n $NS; done;"
     ignore_errors: true
     run_once: true
-

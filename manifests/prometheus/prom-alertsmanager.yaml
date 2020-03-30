@@ -11,11 +11,17 @@ alertmanagerFiles:
       group_by: ['alertname', 'pod_name']
       group_wait: 10s
       group_interval: 5m
-      receiver: AlertMail
+      #receiver: AlertMail
+      receiver: dingtalk
       repeat_interval: 3h
 
     receivers:
     - name: 'AlertMail'
       email_configs:
       - to: 'xxxx@163.com'
+    - name: dingtalk
+      webhook_configs:
+      - send_resolved: false
+        # 需要运行插件 dingtalk-webhook.yaml，详情阅读 docs/guide/prometheus.md
+        url: http://webhook-dingtalk.monitoring.svc.cluster.local:8060/dingtalk/webhook1/send
 

@@ -1,11 +1,3 @@
-- hosts: deploy
+- hosts: "{{ groups['kube-master'][0] }}"
   roles:
   - helm
-  vars:
-    helm_namespace: kube-system 
-    helm_cert_cn: helm001
-    tiller_sa: tiller
-    tiller_cert_cn: tiller001
-    tiller_image: jmgao1983/tiller:v2.9.1
-    # 如果默认官方repo 网络访问不稳定可以使用如下的阿里云镜像repo
-    #repo_url: https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts

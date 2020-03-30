@@ -14,8 +14,8 @@ CHANGELOG:
   - 调整部分安装步骤以兼容`ansible`执行节点与`deploy`节点分离
   - 更新节点的安全加固脚本[ansible-os-hardening 5.0.0](https://github.com/dev-sec/ansible-os-hardening)
 - 文档更新：
-  - 新增`elasticsearch`集群[部署实践](https://github.com/gjmzj/kubeasz/blob/master/docs/practice/es_cluster.md)
-  - 更新[kubeasz 公有云安装文档](https://github.com/gjmzj/kubeasz/blob/master/docs/setup/kubeasz_on_public_cloud.md)
+  - 新增`elasticsearch`集群[部署实践](https://github.com/easzlab/kubeasz/blob/master/docs/practice/es_cluster.md)
+  - 更新[kubeasz 公有云安装文档](https://github.com/easzlab/kubeasz/blob/master/docs/setup/kubeasz_on_public_cloud.md)
   - 调整集群安装步骤文档目录及修改使用英文文件名
   - 修改部分脚本内部注释为英文
 - 其他：

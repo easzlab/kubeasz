@@ -6,7 +6,7 @@ kube-proxy 组件监听 API server 中 service 和 endpoint 的变化情况，�
 
 ## 启用 ipvs
 
-k8s v1.11 版本启用 ipvs 十分方便，只要在 kube-proxy 启动参数（或者配置文件中）中增加 `--proxy-mode=ipvs`:
+建议 k8s 版本1.13 及以后启用 ipvs，只要在 kube-proxy 启动参数（或者配置文件中）中增加 `--proxy-mode=ipvs`:
 
 ``` bash
 [Unit]
@@ -28,8 +28,3 @@ LimitNOFILE=65536
 [Install]
 WantedBy=multi-user.target
 ```
-
-目前 kubeasz 0.2.2 支持两种方式集成使用 ipvs：一种是使用kube-proxy 自带的ipvs 实现；另一种是使用 kube-router网络插件带的ipvs service-proxy；
-
-- v1.11, v1.10 版本启用 kube-proxy的 ipvs 模式：只需要在 `roles/kube-node/defaults/main.yml` 配置 `PROXY_MODE: "ipvs"`
-- 启用 kube-router 的 ipvs service-proxy：需在 ansible hosts 配置选择 `CLUSTER_NETWORK="kube-router"`；另外在 `roles/kube-router/defaults/main.yml` 配置 `SERVICE_PROXY: "true"`

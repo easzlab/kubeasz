@@ -87,7 +87,7 @@ k8s精确地控制着整个发布过程，分批次有序地进行着滚动更�
 如果未指定这两个可选参数，则k8s会使用默认配置：  
 ``` bash
 root@kube-aio:~# kubectl get deploy busy -o yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1 
 kind: Deployment
 metadata:
   annotations:
@@ -99,7 +99,6 @@ metadata:
   name: busy
   namespace: default
   resourceVersion: "199461"
-  selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/busy
   uid: 93fde307-a359-11e8-a93b-525400c61543
 spec:
   progressDeadlineSeconds: 600

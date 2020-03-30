@@ -41,7 +41,7 @@ spec:
     protocol: TCP
 
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kube-dns
@@ -66,9 +66,8 @@ spec:
     metadata:
       labels:
         k8s-app: kube-dns
-      annotations:
-        scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
+      priorityClassName: system-cluster-critical
       tolerations:
       - key: "CriticalAddonsOnly"
         operator: "Exists"

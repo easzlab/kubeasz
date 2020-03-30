@@ -47,7 +47,7 @@ ssh_key_copy()
     spawn ssh-copy-id $username@$1
     expect {
     \"yes/no\"   { send \"yes\n\"; exp_continue; }
-    \"password\" { send \"$password\n\"; }
+    \"*assword\" { send \"$password\n\"; }
     \"already exist on the remote system\" { exit 1; }
     }
     expect eof

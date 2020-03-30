@@ -1,32 +1,11 @@
 # WARNING: Upgrade the k8s cluster can be risky. Make sure you know what you are doing.
 # Read the guide: 'op/upgrade.md' .
-
-# update kubectl binary
-- hosts:
-  - kube-master
-  - kube-node
-  - deploy
-  roles:
-  - prepare
-
-# update etcd 
-- hosts: etcd
-  roles:
-  - etcd
-
-# update docker binary
-- hosts:
-  - kube-master
-  - new-master
-  - kube-node
-  - new-node
-  roles:
-  - docker
+# Usage: `ansible-playbook /etc/ansible/22.upgrade.yml -t upgrade_k8s`
+#	or `easzctl upgrade`
 
 # update masters
 - hosts: 
   - kube-master
-  - new-master
   roles:
   - kube-master
   - kube-node
@@ -34,6 +13,5 @@
 # update nodes
 - hosts: 
   - kube-node
-  - new-node
   roles:
-  - { role: kube-node, when: "DEPLOY_MODE != 'allinone'" }
+  - { role: kube-node, when: "inventory_hostname not in groups['kube-master']" }

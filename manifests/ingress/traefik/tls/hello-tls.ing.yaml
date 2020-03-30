@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1beta1 
+kind: Ingress
+metadata:
+  name: hello-tls-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: hello.test.com
+    http:
+      paths:
+      - backend:
+          serviceName: test-hello
+          servicePort: 80
+  tls:
+  - secretName: traefik-cert

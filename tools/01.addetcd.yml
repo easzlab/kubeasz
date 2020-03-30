@@ -1,0 +1,54 @@
+# Note: this playbook cann't run independently
+# Usage: easzctl add-etcd 1.1.1.1
+
+# add new-etcd node, one at a time
+- hosts: "{{ NODE_TO_ADD }}"
+  tasks:
+  - block:
+    - name: set NODE_IPS of the etcd cluster
+      set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
+
+    - name: get etcd cluster status
+      shell: 'for ip in {{ NODE_IPS }};do \
+                ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
+                --endpoints=https://"$ip":2379 \
+                --cacert={{ base_dir }}/.cluster/ssl/ca.pem \
+                --cert={{ base_dir }}/.cluster/ssl/admin.pem \
+                --key={{ base_dir }}/.cluster/ssl/admin-key.pem \
+                endpoint health; \
+              done'
+      register: ETCD_CLUSTER_STATUS
+
+    - debug: var="ETCD_CLUSTER_STATUS.stdout"
+
+    - debug: var="ETCD_CLUSTER_STATUS.stderr"
+
+    - name: get a running ectd node
+      shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}" \
+               "{{ ETCD_CLUSTER_STATUS.stderr }}" \
+               |grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+      register: RUNNING_NODE
+
+    - debug: var="RUNNING_NODE.stdout"
+    connection: local
+
+  - name: add a new etcd member
+    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add {{ NODE_NAME }} \
+            --peer-urls=https://{{ NODE_TO_ADD }}:2380"
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
+
+# start the new-etcd node
+- hosts: "{{ NODE_TO_ADD }}"
+  vars:
+    CLUSTER_STATE: existing
+  roles:
+  - { role: chrony, when: "groups['chrony']|length > 0" }
+  - prepare
+  - etcd
+
+# restart the original etcd cluster with the new configuration
+- hosts: etcd
+  vars:
+    CLUSTER_STATE: existing
+  roles:
+  - etcd

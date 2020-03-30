@@ -22,12 +22,13 @@ ExecStart={{ bin_dir }}/etcd \
   --advertise-client-urls=https://{{ inventory_hostname }}:2379 \
   --initial-cluster-token=etcd-cluster-0 \
   --initial-cluster={{ ETCD_NODES }} \
-  --initial-cluster-state=new \
+  --initial-cluster-state={{ CLUSTER_STATE }} \
   --data-dir=/var/lib/etcd \
-  --auto-compaction-retention=12 \
+  --auto-compaction-retention=1 \
   --max-request-bytes=10485760 \
   --quota-backend-bytes=8589934592
 Restart=on-failure
+Restart=always
 RestartSec=5
 LimitNOFILE=65536
 

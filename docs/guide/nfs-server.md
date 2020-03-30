@@ -18,7 +18,7 @@ apt install nfs-kernel-server
 
 ``` bash
 /home *(ro,sync,insecure,no_root_squash)
-/share 192.168.1.*(rw,sync,insecure,no_subtree_check,no_root_squash)
+/share 192.168.1.0/24(rw,sync,insecure,no_subtree_check,no_root_squash)
 ```
 | 参数 | 说明 |
 | :- | :- |

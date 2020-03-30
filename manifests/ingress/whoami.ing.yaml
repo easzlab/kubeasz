@@ -1,0 +1,15 @@
+# kubectl run whoami --image=emilevauge/whoami --port=80 --expose
+apiVersion: networking.k8s.io/v1beta1 
+kind: Ingress
+metadata:
+  name: test-whoami
+spec:
+  rules:
+  - host: who.test.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: whoami
+          servicePort: 80
+

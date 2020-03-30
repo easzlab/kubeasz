@@ -10,7 +10,7 @@ metadata:
     release: {{ .Release.Name }}
 {{- if .Values.rbac.pspEnabled }}
 rules:
-- apiGroups:      ['extensions']
+- apiGroups:      ['policy']
   resources:      ['podsecuritypolicies']
   verbs:          ['use']
   resourceNames:  [{{ template "grafana.fullname" . }}]

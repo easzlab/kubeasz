@@ -3,7 +3,7 @@
 kube-router是一个简单、高效的网络插件，它提供一揽子解决方案：  
 - 基于GoBGP 提供Pod 网络互联（Routing）
 - 使用ipsets优化的iptables 提供网络策略支持（Firewall/NetworkPolicy）
-- 基于IPVS/LVS 提供高性能服务代理（Service Proxy）
+- 基于IPVS/LVS 提供高性能服务代理（Service Proxy）(注：由于 k8s 新版本中 ipvs 已可用，因此这里不选择启用kube-router基于ipvs的service proxy)
 
 更多介绍请前往`https://github.com/cloudnativelabs/kube-router`
 
@@ -56,7 +56,7 @@ tcp        0      0 192.168.1.3:179        192.168.1.2:43928      ESTABLISHED 18
 
 ```
 
-- 4.NetworkPolicy有效性，验证参照[这里](guide/networkpolicy.md)
+- 4.NetworkPolicy有效性，验证参照[这里](../../guide/networkpolicy.md)
 
 - 5.ipset列表查看
 
@@ -85,23 +85,4 @@ Members:
 192.168.1.2 timeout 0
 192.168.1.3 timeout 0
 ...
-```
-
-- 6.ipvs虚拟服务器查看 (roles/kube-router/defaults/main.yml 需配置`SERVICE_PROXY: "true"`)
-
-``` bash
-# 首先创建测试应用
-$ kubectl run nginx --image=nginx --replicas=3 --port=80 --expose
-
-# 查看ipvsadm输出
-$ ipvsadm
-IP Virtual Server version 1.2.1 (size=4096)
-Prot LocalAddress:Port Scheduler Flags
-  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
-TCP  10.68.0.1:https rr persistent 10800	# 这个kubernetes虚拟服务地址
-  -> 192.168.1.1:6443            Masq    1      0          0         
-TCP  10.68.199.39:http rr			# 这个是测试应用nginx的虚拟服务地址
-  -> 172.20.1.5:http              Masq    1      0          0         
-  -> 172.20.2.6:http              Masq    1      0          0         
-  -> 172.20.2.8:http              Masq    1      0          0         
 ```

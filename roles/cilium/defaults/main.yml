@@ -1,22 +1,14 @@
 # 部分cilium相关配置, Note: cilium 需要Linux kernel >= 4.9.17
 
 # 如果 node 节点有多块网卡，请设置 true
-# 另外发现设置为 true 时能够解决v1.10使用ipvs偶尔出现pod内‘dial tcp 10.68.0.1:443: i/o timeout’的 bug
+# 如果发现‘dial tcp 10.68.0.1:443: i/o timeout’的错误，请设置 true
 NODE_WITH_MULTIPLE_NETWORKS: "true"
 
-# debug mode
-Debug_Mode: "false"
-
-# Removes any Cilium state, e.g. BPF policy maps, before starting
-Clean_Start: "false"
-
-# If true, the policy with the entity 'reserved:host' allows traffic from 'world'
-Legacy_Host_Policy: "true"
-
 # 镜像版本
-busybox_ver: "1.28.4"
-cilium_ver: "v1.1.4"
+cilium_ver: "v1.4.1"
 
 # 离线镜像tar包
 cilium_offline: "cilium_{{ cilium_ver }}.tar"
-busybox_offline: "busybox_{{ busybox_ver }}.tar"
+
+# CILIUM_ETCD_OPERATOR 创建的 etcd 集群节点数 1,3,5,7...
+ETCD_CLUSTER_SIZE: 1

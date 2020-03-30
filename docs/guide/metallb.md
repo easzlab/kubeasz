@@ -53,7 +53,7 @@ speaker-n79l4               1/1       Running   0          4h
 ``` bash
 # 创建测试应用
 $ cat > test-nginx.yaml << EOF
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx3
@@ -101,9 +101,9 @@ nginx3       LoadBalancer   10.68.82.227   192.168.1.240   80:38702/TCP   1m
 
 ``` bash
 # 修改traefik-ingress 使用 LoadBalancer服务
-$ sed -i 's/NodePort$/LoadBalancer/g' /etc/ansible/manifests/ingress/traefik-ingress.yaml
+$ sed -i 's/NodePort$/LoadBalancer/g' /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
 # 创建traefik-ingress
-$ kubectl apply -f /etc/ansible/manifests/ingress/traefik-ingress.yaml
+$ kubectl apply -f /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
 # 验证
 $ kubectl get svc --all-namespaces |grep traefik
 kube-system   traefik-ingress-service   LoadBalancer   10.68.163.243   192.168.1.241   80:23456/TCP,8080:37088/TCP   1m

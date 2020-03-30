@@ -1,3 +1,5 @@
-# Binaries for installing k8s 
+# Binaries for k8s clusters
 
-Binaries can be downloaded at https://pan.baidu.com/s/1c4RFaA, alternatively they can be downloaded from official github repos separately.
+For kubeasz 2x and above, binaries are downloaded and managed by 'tools/easzup'.
+
+Alternatively, binaries can be downloaded from the official github repos by referring to the script 'down/download.sh'.

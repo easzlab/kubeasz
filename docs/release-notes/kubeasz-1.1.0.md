@@ -1,0 +1,32 @@
+## kubeasz-1.1.0 发布说明
+
+CHANGELOG:
+- 组件更新：
+  - k8s: v1.14.1 v1.12.8 v1.11.10
+  - coredns 1.5.0
+  - metrics-server 0.3.2
+- 集群安装：
+  - 更新docker国内镜像站点设置
+  - 增加kubelet资源预留设置
+  - 增加每个node节点pod网络掩码长度设置项
+  - feat(chrony): 增加授时源 #495
+  - 优化只读kubectl配置的创建流程 #537
+  - 删除cAdvisor 4194端口限制
+  - minor fix:提升系统安装包速度
+  - 增加腾讯云安装示例 by waitingsong
+- easzctl 命令行 
+  - 集成basic-auth配置 `easzctl help basic-auth`
+- 其他：
+  - 更新 basic-auth 相关文档
+  - 更新 DOCKER_VER 使用新版本格式 #488
+  - 更新 istio 文档 by waitingsong
+  - 移除 docker cn registry #514 by neatlife
+  - docs: 更改源码克隆方式 #495 by waitingsong
+  - docs: 更新 id_rsa 密钥生成命令等 #495 by waitingsong
+  - fix kernel>=4.19 加载nf_conntrack问题
+  - fix add-node告警信息 ISSUE #508
+  - fix download url for harbor v1.5.x #492
+  - fix 更正CNI plugins二进制文件下载名 #524
+  - fix 兼容新版openssh批量推送密钥 #522
+  - fix centos7 rsyslog服务启动错误 #538
+  - perf: 使用镜像 nginx:alpine 替代 nginx

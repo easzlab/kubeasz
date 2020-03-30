@@ -11,7 +11,7 @@
 本篇以介绍 **NFS存储** 为例，讲解k8s 众多存储方案中的一个实现。
 
 ## 静态 PV
-首先我们需要一个NFS服务器，用于提供底层存储。通过文档[nfs-server](nfs-server.md)，我们可以创建一个NFS服务器。
+首先我们需要一个NFS服务器，用于提供底层存储。通过文档[nfs-server](../guide/nfs-server.md)，我们可以创建一个NFS服务器。
 
 - 创建静态 pv，指定容量，访问模式，回收策略，存储类等；参考[这里](https://github.com/feiskyer/kubernetes-handbook/blob/master/zh/concepts/persistent-volume.md)
 
@@ -42,12 +42,7 @@ spec:
 
 项目中的 `role: cluster-storage`目前支持自建nfs 和aliyun_nas 的动态`provisioner`
 
-- 1.更新项目源码，生成自定义配置文件（该配置文件被.gitignore忽略）
-
-``` bash
-$ ansible-playbook /etc/ansible/tools/init_vars.yml
-```
-- 2.编辑自定义配置文件：上述命令执行后生成的roles/cluster-storage/vars/main.yml
+- 1.编辑自定义配置文件：roles/cluster-storage/defaults/main.yml
 
 ``` bash
 # 比如创建nfs provisioner
@@ -59,7 +54,7 @@ storage:
     storage_class: "class-nfs-01"
     provisioner_name: "nfs-provisioner-01"
 ```
-- 3.创建 nfs provisioner
+- 2.创建 nfs provisioner
 
 ``` bash
 $ ansible-playbook /etc/ansible/roles/cluster-storage/cluster-storage.yml
@@ -67,7 +62,7 @@ $ ansible-playbook /etc/ansible/roles/cluster-storage/cluster-storage.yml
 $ kubectl get pod --all-namespaces |grep nfs-prov
 kube-system   nfs-provisioner-01-6b7fbbf9d4-bh8lh        1/1       Running   0          1d
 ```
-**注意** k8s集群可以使用多个nfs provisioner，重复上述步骤2 修改使用不同的`nfs server` `nfs_storage_class` `nfs_provisioner_name`后执行步骤3创建即可。
+**注意** k8s集群可以使用多个nfs provisioner，重复上述步骤1、2：修改使用不同的`nfs server` `nfs_storage_class` `nfs_provisioner_name`后执行创建即可。
 
 ## 验证使用动态 PV
 

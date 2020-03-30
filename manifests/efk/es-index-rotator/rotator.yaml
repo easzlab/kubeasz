@@ -1,0 +1,24 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: es-index-rotator
+  namespace: kube-system
+spec:
+  # 每天1点3分执行
+  schedule: "3 1 */1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: es-index-rotator
+            image: easzlab/es-index-rotator:0.2.1
+            # 保留最近10天日志
+            command:
+            - /bin/rotate.sh
+            - "10"
+            - "logstash"  # fluented 默认创建的index形如'logstash-2020.01.01'
+          restartPolicy: OnFailure
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 1

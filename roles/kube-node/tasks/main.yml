@@ -1,4 +1,3 @@
-# 创建kubelet,kube-proxy工作目录和cni配置目录
 - name: 创建kube-node 相关目录
   file: name={{ item }} state=directory
   with_items:
@@ -9,6 +8,7 @@
 - name: 下载 kubelet,kube-proxy 二进制和基础 cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
+  - kubectl
   - kubelet
   - kube-proxy
   - bridge
@@ -16,51 +16,45 @@
   - loopback
   tags: upgrade_k8s
 
+# 每个 node 节点运行 haproxy 连接到多个 apiserver
+- import_tasks: node_lb.yml
+  when: "inventory_hostname not in groups['kube-master']"
+
+- name: 替换 kubeconfig 的 apiserver 地址
+  lineinfile:
+    dest: /root/.kube/config
+    regexp: "^    server"
+    line: "    server: {{ KUBE_APISERVER }}"
+
 ##----------kubelet 配置部分--------------
-- name: 准备kubelet 证书签名请求
-  template: src=kubelet-csr.json.j2 dest={{ ca_dir }}/kubelet-csr.json
-
-- name: 创建 kubelet 证书与私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes kubelet-csr.json | {{ bin_dir }}/cfssljson -bare kubelet"
-
-# 创建kubelet.kubeconfig 
-- name: 设置集群参数
-  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
-        --certificate-authority={{ ca_dir }}/ca.pem \
-        --embed-certs=true \
-        --server={{ KUBE_APISERVER }} \
-	--kubeconfig=kubelet.kubeconfig"
-
-- name: 设置客户端认证参数
-  shell: "{{ bin_dir }}/kubectl config set-credentials system:node:{{ inventory_hostname }} \
-        --client-certificate={{ ca_dir }}/kubelet.pem \
-        --embed-certs=true \
-        --client-key={{ ca_dir }}/kubelet-key.pem \
-	--kubeconfig=kubelet.kubeconfig"
-
-- name: 设置上下文参数
-  shell: "{{ bin_dir }}/kubectl config set-context default \
-        --cluster=kubernetes \
-	--user=system:node:{{ inventory_hostname }} \
-	--kubeconfig=kubelet.kubeconfig"
-
-- name: 选择默认上下文
-  shell: "{{ bin_dir }}/kubectl config use-context default \
-	--kubeconfig=kubelet.kubeconfig"
-
-- name: 移动 kubelet.kubeconfig
-  shell: "mv /root/kubelet.kubeconfig /etc/kubernetes/"
+# 创建 kubelet 相关证书及 kubelet.kubeconfig
+- import_tasks: create-kubelet-kubeconfig.yml
 
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
 
+# 判断 kubernetes 版本
+- name: 注册变量 TMP_VER
+  shell: "{{ base_dir }}/bin/kube-apiserver --version|cut -d' ' -f2|cut -d'v' -f2"
+  register: TMP_VER
+  connection: local
+  tags: upgrade_k8s, restart_node
+
+- name: 获取 kubernetes 主版本号
+  set_fact:
+    KUBE_VER: "{{ TMP_VER.stdout.split('.')[0]|int + TMP_VER.stdout.split('.')[1]|int/100 }}"
+  tags: upgrade_k8s, restart_node
+
+- name: debug info
+  debug: var="KUBE_VER"
+
+- name: 创建kubelet的配置文件
+  template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
+  tags: upgrade_k8s, restart_node
+
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
-  tags: upgrade_k8s, restart_node 
+  tags: upgrade_k8s, restart_node
 
 - name: 开机启用kubelet 服务
   shell: systemctl enable kubelet
@@ -71,13 +65,16 @@
   tags: upgrade_k8s, restart_node
 
 ##-------kube-proxy部分----------------
-- name: 安装kube-proxy.kubeconfig配置文件
-  synchronize: src=/etc/kubernetes/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
-  delegate_to: "{{ groups.deploy[0] }}"
+
+- name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
+  lineinfile:
+    dest: /etc/kubernetes/kube-proxy.kubeconfig
+    regexp: "^    server"
+    line: "    server: {{ KUBE_APISERVER }}"
 
 - name: 创建kube-proxy 服务文件
-  tags: reload-kube-proxy, upgrade_k8s, restart_node
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
+  tags: reload-kube-proxy, restart_node, upgrade_k8s
 
 - name: 开机启用kube-proxy 服务
   shell: systemctl enable kube-proxy
@@ -87,31 +84,18 @@
   shell: systemctl daemon-reload && systemctl restart kube-proxy
   tags: reload-kube-proxy, upgrade_k8s, restart_node
 
-# 批准 node 节点，首先轮询等待kubelet启动完成
+# 轮询等待kubelet启动完成
 - name: 轮询等待kubelet启动
   shell: "systemctl status kubelet.service|grep Active"
   register: kubelet_status
   until: '"running" in kubelet_status.stdout'
   retries: 8
   delay: 2
-
-- name: 获取csr 请求信息
-  shell: "sleep 3 && {{ bin_dir }}/kubectl get csr"
-  delegate_to: "{{ groups.deploy[0] }}"
-  register: csr_info
-  run_once: true
-
-- name: approve-kubelet-csr
-  shell: "{{ bin_dir }}/kubectl get csr|grep 'Pending' | awk 'NR>0{print $1}'| \
-        xargs {{ bin_dir }}/kubectl certificate approve"
-  when: '"Pending" in csr_info.stdout'
-  delegate_to: "{{ groups.deploy[0] }}"
-  run_once: true
+  tags: reload-kube-proxy, upgrade_k8s, restart_node
 
 - name: 轮询等待node达到Ready状态
   shell: "{{ bin_dir }}/kubectl get node {{ inventory_hostname }}|awk 'NR>1{print $2}'"
   register: node_status
-  delegate_to: "{{ groups.deploy[0] }}"
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
   retries: 8 
   delay: 8
@@ -120,4 +104,3 @@
 - name: 设置node节点role
   shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=node --overwrite"
   ignore_errors: true
-  delegate_to: "{{ groups.deploy[0] }}"

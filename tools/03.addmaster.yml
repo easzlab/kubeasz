@@ -1,0 +1,29 @@
+# Note: this playbook cann't run independently
+# Usage: easzctl add-master 1.1.1.1
+
+- hosts: "{{ NODE_TO_ADD }}" 
+  roles:
+  - { role: chrony, when: "groups['chrony']|length > 0" } 
+  - prepare
+  - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" }
+  - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" }
+  - kube-master
+  - kube-node
+  - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
+  - { role: cilium, when: "CLUSTER_NETWORK == 'cilium'" }
+  - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
+  - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
+  - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
+  # 
+  tasks:
+  - name: Making master nodes SchedulingDisabled
+    shell: "{{ bin_dir }}/kubectl cordon {{ NODE_TO_ADD }} "
+    when: "inventory_hostname not in groups['kube-node']"
+    ignore_errors: true
+
+  - name: Setting master role name
+    shell: "{{ bin_dir }}/kubectl label node {{ NODE_TO_ADD }} kubernetes.io/role=master --overwrite"
+    ignore_errors: true
+
+# reconfigure and restart the haproxy service on 'kube-node' nodes
+# refer to the function 'add-node()' in 'tools/easzctl'

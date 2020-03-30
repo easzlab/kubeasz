@@ -1,0 +1,18 @@
+# 区分多个instance的VRRP组播，同网段不能重复，取值在0-255之间
+# 因项目已设置vrrp报文单播模式，所以这个ROUTER_ID 即便同网段里面有重复也没关系
+ROUTER_ID: 222 
+
+# haproxy负载均衡算法，常见如下：
+# "roundrobin": 基于服务器权重的轮询
+# "leastconn": 基于服务器最小连接数
+# "source": 基于请求源IP地址
+# "uri": 基于请求的URI
+BALANCE_ALG: "roundrobin"
+
+# 启用 ingress NodePort服务的负载均衡 (yes/no)
+INGRESS_NODEPORT_LB: "yes"
+# 启用 ingress tls NodePort服务的负载均衡 (yes/no)
+INGRESS_TLS_NODEPORT_LB: "yes"
+
+# 离线安装 haproxy+keepalived (offline|online)
+INSTALL_SOURCE: "online"
