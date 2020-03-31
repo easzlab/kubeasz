@@ -92,9 +92,6 @@
     - name: 下载 docker-tag
       copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
 
-    - name: 下载 harbor-image-tag
-      copy: src=harbor-image-tag dest={{ bin_dir }}/harbor-image-tag mode=0755
-    
     - name: 轮询等待docker服务运行
       shell: "systemctl status docker.service|grep Active"
       register: docker_status
