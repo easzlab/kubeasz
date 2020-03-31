@@ -89,9 +89,11 @@
       tags: upgrade_docker
     
     ## 可选 ------安装docker查询镜像 tag的小工具----
-    # 先要安装轻量JSON处理程序‘jq’，已在 prepare 节点安装
     - name: 下载 docker-tag
       copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
+
+    - name: 下载 harbor-image-tag
+      copy: src=harbor-image-tag dest={{ bin_dir }}/harbor-image-tag mode=0755
     
     - name: 轮询等待docker服务运行
       shell: "systemctl status docker.service|grep Active"
