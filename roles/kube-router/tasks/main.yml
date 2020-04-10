@@ -28,7 +28,7 @@
       copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
       when: 'item in download_info.stdout'
       with_items:
-      - "pause_3.1.tar"
+      - "pause.tar"
       - "{{ kuberouter_offline }}"
       - "{{ busybox_offline }}"
       ignore_errors: true
@@ -41,7 +41,7 @@
     - name: 导入 kube-router的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
       with_items:
-      - "pause_3.1.tar"
+      - "pause.tar"
       - "{{ kuberouter_offline }}"
       - "{{ busybox_offline }}"
       ignore_errors: true
@@ -50,7 +50,7 @@
     - name: 导入 kube-router的离线镜像（若执行失败，可忽略）
       shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
       with_items:
-      - "pause_3.1.tar"
+      - "pause.tar"
       - "{{ kuberouter_offline }}"
       - "{{ busybox_offline }}"
       ignore_errors: true
