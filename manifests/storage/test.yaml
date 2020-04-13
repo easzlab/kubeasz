@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name: test-claim
 spec:
-  storageClassName: nfs-dynamic-class-01
+  storageClassName: nfs-dynamic-class
   accessModes:
     - ReadWriteMany
   resources:
