@@ -15,7 +15,7 @@ ENABLE_REMOTE_API: false
 ENABLE_MIRROR_REGISTRY: true
 
 # 设置 docker 仓库镜像
-REG_MIRRORS: '["https://dockerhub.azk8s.cn", "https://docker.mirrors.ustc.edu.cn"]'
+REG_MIRRORS: '["https://docker.mirrors.ustc.edu.cn", "http://hub-mirror.c.163.com"]'
 
 # 信任的HTTP仓库
 INSECURE_REG: '["127.0.0.1/8"]'
