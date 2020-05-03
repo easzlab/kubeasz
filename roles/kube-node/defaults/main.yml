@@ -2,7 +2,7 @@
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 
 # 基础容器镜像
-SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.2"
+SANDBOX_IMAGE: "easzlab/pause-amd64:3.2"
 #SANDBOX_IMAGE: "registry.access.redhat.com/rhel7/pod-infrastructure:latest"
 
 # Kubelet 根目录
