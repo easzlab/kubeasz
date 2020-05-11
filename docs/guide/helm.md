@@ -38,7 +38,7 @@ helm_namespace: kube-system
 helm_cert_cn: helm001
 tiller_sa: tiller
 tiller_cert_cn: tiller001
-tiller_image: jmgao1983/tiller:v2.9.1
+tiller_image: easzlab/tiller:v2.14.1
 #repo_url: https://kubernetes-charts.storage.googleapis.com
 repo_url: http://127.0.0.1:8879
 history_max: 5
@@ -46,7 +46,7 @@ history_max: 5
 #repo_url: https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
 EOF
 # 4.运行安全helm命令
-ansible-playbook /etc/ansible/role/helm/helm.yml 
+ansible-playbook /etc/ansible/roles/helm/helm.yml 
 ```
 ## 使用helm安装应用到k8s上
 
