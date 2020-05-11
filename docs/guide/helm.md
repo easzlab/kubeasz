@@ -32,8 +32,8 @@ mkdir -p /opt/helm-repo
 # 2.启动helm repo server,如果要其他服务器访问，改为本地IP
 nohup helm serve --address 127.0.0.1:8879 --repo-path /opt/helm-repo &
 # 3.更改helm 配置文件
-将/etc/ansible/role/helm/default/main.yml中repo的地址改为 http://127.0.0.1:8879
-cat <<EOF >/etc/ansible/role/helm/default/main.yml
+将/etc/ansible/roles/helm/defaults/main.yml中repo的地址改为 http://127.0.0.1:8879
+cat <<EOF >/etc/ansible/roles/helm/defaults/main.yml
 helm_namespace: kube-system 
 helm_cert_cn: helm001
 tiller_sa: tiller
@@ -41,6 +41,7 @@ tiller_cert_cn: tiller001
 tiller_image: jmgao1983/tiller:v2.9.1
 #repo_url: https://kubernetes-charts.storage.googleapis.com
 repo_url: http://127.0.0.1:8879
+history_max: 5
 # 如果默认官方repo 网络访问不稳定可以使用如下的阿里云镜像repo
 #repo_url: https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
 EOF
