@@ -24,8 +24,9 @@ $ ansible-playbook /etc/ansible/roles/helm/helm.yml
 - 6-配置helm客户端使用tls方式与tiller服务端通讯
 
 ## 安全安装 helm（离线）
-在内网环境中，由于不能访问互联网，无法连接repo地址，使用上述的在线安装helm的方式会报错。因此需要使用离线安装的方法来安装。
+在内网环境中，由于不能访问互联网，无法连接repo地址，使用上述的在线安装helm的方式会报错。因此需要使用离线安装的方法来安装。要注意的是tiller的镜像版本必须为v2.14.1，否则会不匹配。
 离线安装步骤：
+
 ```bash
 # 1.创建本地repo
 mkdir -p /opt/helm-repo
