@@ -19,7 +19,8 @@ FELIX_LOG_LVL: "warning"
 IP_AUTODETECTION_METHOD: "can-reach={{ groups['kube-master'][0] }}"
 
 # 更新支持calico 版本: [v3.2.x] [v3.3.x] [v3.4.x]
-calico_ver: "v3.4.4"
+calicoVer: "v3.8.8"
+calico_ver: "{{ calicoVer }}"
 
 # calico 主版本
 calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"

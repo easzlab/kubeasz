@@ -15,9 +15,9 @@ set -o errexit
 
 # default version, can be overridden by cmd line options
 export DOCKER_VER=19.03.8
-export KUBEASZ_VER=2.2.0
+export KUBEASZ_VER=2.3.0
 export K8S_BIN_VER=v1.18.2
-export EXT_BIN_VER=0.4.0
+export EXT_BIN_VER=0.5.0
 export SYS_PKG_VER=0.3.3
 
 function install_docker() {
@@ -190,7 +190,6 @@ function get_offline_image() {
   flannelVer=v0.12.0-amd64
   metricsVer=v0.3.6
   pauseVer=3.2
-  traefikVer=v1.7.20
 
   imageDir=/etc/ansible/down
   [[ -d "$imageDir" ]] || { echo "[ERROR] $imageDir not existed!"; exit 1; }
@@ -227,10 +226,6 @@ function get_offline_image() {
     docker pull easzlab/pause-amd64:${pauseVer} && \
     docker save -o ${imageDir}/pause_${pauseVer}.tar easzlab/pause-amd64:${pauseVer}
     /bin/cp -u "${imageDir}/pause_${pauseVer}.tar" "${imageDir}/pause.tar"
-  fi
-  if [[ ! -f "$imageDir/traefik_$traefikVer.tar" ]];then
-    docker pull traefik:${traefikVer} && \
-    docker save -o ${imageDir}/traefik_${traefikVer}.tar traefik:${traefikVer}
   fi
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     docker pull easzlab/kubeasz:${KUBEASZ_VER} && \
