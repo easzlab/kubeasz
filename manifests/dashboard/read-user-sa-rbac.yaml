@@ -39,6 +39,7 @@ rules:
   - serviceaccounts
   - services
   - services/status
+  - secrets
   verbs:
   - get
   - list
