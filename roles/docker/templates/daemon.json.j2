@@ -1,6 +1,6 @@
 {
   "data-root": "{{ STORAGE_DIR }}",
-  "exec-opts": ["native.cgroupdriver=systemd"],
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
 {% if ENABLE_MIRROR_REGISTRY %}
   "registry-mirrors": {{ REG_MIRRORS }}, 
 {% endif %}
