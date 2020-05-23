@@ -4,12 +4,23 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
+#ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
 {% if KUBE_RESERVED_ENABLED == "yes" or SYS_RESERVED_ENABLED == "yes" %}
-ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
-ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
-ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
-ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
-ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpu/podruntime.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuacct/podruntime.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/podruntime.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/podruntime.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/podruntime.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/podruntime.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/systemd/podruntime.slice
+
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpu/system.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuacct/system.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/systemd/system.slice
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
   --config=/var/lib/kubelet/config.yaml \

@@ -14,7 +14,7 @@ authorization:
   webhook:
     cacheAuthorizedTTL: 5m0s
     cacheUnauthorizedTTL: 30s
-cgroupDriver: cgroupfs
+cgroupDriver: systemd 
 cgroupsPerQOS: true
 clusterDNS:
 - {{ CLUSTER_DNS_SVC_IP }}
@@ -34,7 +34,7 @@ eventBurst: 10
 eventRecordQPS: 5
 evictionHard:
   imagefs.available: 15%
-  memory.available: 200Mi
+  memory.available: 300Mi
   nodefs.available: 10%
   nodefs.inodesFree: 5%
 evictionPressureTransitionPeriod: 5m0s
@@ -48,8 +48,9 @@ imageGCHighThresholdPercent: 85
 imageGCLowThresholdPercent: 80
 imageMinimumGCAge: 2m0s
 {% if KUBE_RESERVED_ENABLED == "yes" %}
-kubeReservedCgroup: /system.slice/kubelet.service
-kubeReserved: {{ KUBE_RESERVED }}
+kubeReservedCgroup: /podruntime.slice
+kubeReserved:
+  memory: 400Mi
 {% endif %}
 kubeAPIBurst: 100
 kubeAPIQPS: 50
@@ -75,7 +76,8 @@ streamingConnectionIdleTimeout: 4h0m0s
 syncFrequency: 1m0s
 {% if SYS_RESERVED_ENABLED == "yes" %}
 systemReservedCgroup: /system.slice
-systemReserved: {{ SYS_RESERVED }}
+systemReserved:
+  memory: 1000Mi
 {% endif %}
 tlsCertFile: {{ ca_dir }}/kubelet.pem
 tlsPrivateKeyFile: {{ ca_dir }}/kubelet-key.pem
