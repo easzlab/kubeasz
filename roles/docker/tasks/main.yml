@@ -82,10 +82,6 @@
     - name: 开启docker 服务
       shell: systemctl daemon-reload && systemctl restart docker
       tags: upgrade_docker
-    
-    ## 可选 ------安装docker查询镜像 tag的小工具----
-    - name: 下载 docker-tag
-      copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755
 
     - name: 轮询等待docker服务运行
       shell: "systemctl status docker.service|grep Active"
@@ -100,3 +96,7 @@
       file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
       ignore_errors: true
   when: "'running' not in containerd_svc.stdout and 'running' not in docker_svc.stdout"
+    
+## 可选 ------安装docker查询镜像 tag的小工具----
+- name: 下载 docker-tag
+  copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755

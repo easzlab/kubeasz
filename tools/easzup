@@ -53,8 +53,6 @@ function install_docker() {
   # check if a container runtime is already installed
   systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
  
-  which docker && { echo "[WARN] docker is installed."; systemctl restart docker; return 0; }
-
   echo "[INFO] generate docker service file"
   cat > /etc/systemd/system/docker.service << EOF
 [Unit]
@@ -204,10 +202,11 @@ function get_offline_image() {
   echo -e "[INFO] \033[33mdownloading offline images\033[0m"
 
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
-    docker pull calico/cni:${calicoVer} && \
-    docker pull calico/kube-controllers:${calicoVer} && \
-    docker pull calico/node:${calicoVer} && \
-    docker save -o ${imageDir}/calico_${calicoVer}.tar calico/cni:${calicoVer} calico/kube-controllers:${calicoVer} calico/node:${calicoVer}
+    docker pull "calico/cni:${calicoVer}-1" && \
+    docker pull "calico/pod2daemon-flexvol:${calicoVer}" && \
+    docker pull "calico/kube-controllers:${calicoVer}" && \
+    docker pull "calico/node:${calicoVer}-1" && \
+    docker save -o ${imageDir}/calico_${calicoVer}.tar calico/cni:${calicoVer}-1 calico/kube-controllers:${calicoVer} calico/node:${calicoVer}-1 calico/pod2daemon-flexvol:${calicoVer}
   fi
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
     docker pull coredns/coredns:${corednsVer} && \
