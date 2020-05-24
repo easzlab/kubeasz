@@ -1,15 +1,10 @@
+- name: 获取是否已经安装docker
+  shell: 'systemctl status docker|grep Active || echo "NoFound"'
+  register: docker_svc
+
 - name: 获取是否已经安装containerd
-  shell: 'systemctl status containerd|grep Active || echo "NOT FOUND"'
-  register: containerd_status
-
-- name: fail info1
-  fail: msg="Containerd already installed!"
-  when: '"running" in containerd_status.stdout'
-
-- name: 获取是否运行名为'kubeasz'的容器
-  shell: 'systemctl status docker|grep Active && docker ps|grep kubeasz || echo "NOT FOUND"'
-  register: install_info
-  tags: upgrade_docker, download_docker
+  shell: 'systemctl status containerd|grep Active || echo "NoFound"'
+  register: containerd_svc
 
 # 18.09.x 版本二进制名字有变化，需要做判断
 - name: 获取docker版本信息
@@ -104,4 +99,4 @@
     - name: 配置 docker 命令软链接
       file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
       ignore_errors: true
-  when: "'kubeasz' not in install_info.stdout"
+  when: "'running' not in containerd_svc.stdout and 'running' not in docker_svc.stdout"
