@@ -21,8 +21,6 @@ export EXT_BIN_VER=0.5.2
 export SYS_PKG_VER=0.3.3
 
 function download_docker() {
-  [[ -f "/etc/ansible/bin/dockerd" ]] && { echo "[WARN] docker is downloaded."; return 0; }
-   
   echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
   if [[ "$REGISTRY_MIRROR" == CN ]];then
     DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/x86_64/docker-${DOCKER_VER}.tgz"

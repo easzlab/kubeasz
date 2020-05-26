@@ -7,7 +7,7 @@
 - 下载 kubeasz 项目代码/k8s 二进制文件/其他所需二进制文件/离线docker镜像等
 - 【可选】容器化运行 kubeasz
 
-详见脚本内容
+详见脚本内容，使用命令`./easzup` 查看帮助信息
 
 ### 容器化运行 kubeasz
 
@@ -43,15 +43,15 @@ kubeasz 容器启动脚本详见文件 tools/easzup 中函数`start_kubeasz_dock
 
 登录管理节点，按照如下步骤清理（清理后可以重新安装测试）
 
-- 1.清理集群 `$ docker exec -it kubeasz easzctl destroy`
-- 2.清理管理节点
-  - 清理运行的容器 `$ easzup -C`
-  - 清理容器镜像 `$ docker system prune -a`
-  - 停止docker服务 `$ systemctl stop docker`
-  - 删除下载文件 `$ rm -rf /etc/ansible /etc/docker /opt/kube`
-  - 删除docker文件 
+- 清理集群 `docker exec -it kubeasz easzctl destroy`
+- 清理运行的容器 `./easzup -C`
+- 清理容器镜像 `docker system prune -a`
+- 停止docker服务 `systemctl stop docker`
+- 删除docker文件
 ```
-$ umount /var/run/docker/netns/default
-$ umount /var/lib/docker/overlay
-$ rm -rf /var/lib/docker /var/run/docker
+ umount /var/run/docker/netns/default
+ umount /var/lib/docker/overlay
+ rm -rf /var/lib/docker /var/run/docker
 ```
+
+上述清理脚本执行成功后，建议重启节点，以确保清理残留的虚拟网卡、路由等信息。
