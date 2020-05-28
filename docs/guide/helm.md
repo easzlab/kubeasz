@@ -2,53 +2,146 @@
 
 `Helm`致力于成为k8s集群的应用包管理工具，希望像linux 系统的`RPM` `DPKG`那样成功；确实在k8s上部署复杂一点的应用很麻烦，需要管理很多yaml文件（configmap,controller,service,rbac,pv,pvc等等），而helm能够整齐管理这些文档：版本控制，参数化安装，方便的打包与分享等。  
 - 建议积累一定k8s经验以后再去使用helm；对于初学者来说手工去配置那些yaml文件对于快速学习k8s的设计理念和运行原理非常有帮助，而不是直接去使用helm，面对又一层封装与复杂度。
-- 本文参考 helm 官网安全实践启用 TLS 认证，参考 https://docs.helm.sh/using_helm/#securing-your-helm-installation 
+- 本文基于helm 3（建议版本），helm 2 文档[请看这里](helm2.md)
 
-## 安全安装 helm（在线）
+## 安装 helm
 
-以下步骤以 helm/tiller 版本 v2.14.1 为例，在helm客户端和tiller服务器间建立安全的SSL/TLS认证机制；tiller服务器和helm客户端都是使用同一CA签发的`client cert`，然后互相识别对方身份。建议通过本项目提供的`ansible role`安装，符合官网上介绍的安全加固措施，在ansible控制端运行:  
+在官方repo下载[release版本](https://github.com/helm/helm/releases)中自带的二进制文件即可（以Linux amd64为例）
+
+```
+wget https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+mv ./linux-amd64/helm /usr/bin
+```
+
+- 启用官方 charts 仓库
+
+```
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+```
+
+## 使用 helm 安装应用
+
+helm3 安装命令与 helm2 稍有变化，个人习惯先下载对应charts到本地然后按照固定目录格式安装，以创建一个redis集群举例：
+
+- 创建 redis-cluster 目录
 ``` bash
-# 1.配置默认helm参数 vi  /etc/ansible/roles/helm/defaults/main.yml
-# 2.执行安装
-$ ansible-playbook /etc/ansible/roles/helm/helm.yml
+mkdir -p /opt/charts/redis-cluster
+cd /opt/charts/redis-cluster
 ```
-- 注意：默认仅在第一个master节点初始化helm客户端，如果需要在其他节点初始化helm客户端，请修改 roles/helm/helm.yml 文件的 hosts 定义，然后再次执行`ansible-playbook /etc/ansible/roles/helm/helm.yml`即可
 
-简单介绍下`/roles/helm/tasks/main.yml`中的步骤
+- 下载最新stalbe/redis-ha
+```
+helm repo update
+helm pull stable/redis-ha
+```
 
-- 1-下载最新release的helm客户端到/etc/ansible/bin目录下
-- 2-由集群CA签发helm客户端证书和私钥
-- 3-由集群CA签发tiller服务端证书和私钥
-- 4-创建tiller专用的RBAC配置，只允许helm在指定的namespace查看和安装应用
-- 5-安全安装tiller到集群，tiller服务启用tls验证
-- 6-配置helm客户端使用tls方式与tiller服务端通讯
+- 解压 charts，复制 values.yaml设置
+```
+tar zxvf redis-ha-*.tgz
+cp redis-ha/values.yaml .
+```
 
-## 安全安装 helm（离线）
-在内网环境中，由于不能访问互联网，无法连接repo地址，使用上述的在线安装helm的方式会报错。因此需要使用离线安装的方法来安装。要注意的是tiller的镜像版本必须为v2.14.1，否则会不匹配。
-离线安装步骤：
+- 创建 start.sh 脚本记录启动命令
+```
+cat > start.sh << EOF
+#!/bin/sh
+set -x
 
-```bash
-# 1.创建本地repo
-mkdir -p /opt/helm-repo
-# 2.启动helm repo server,如果要其他服务器访问，改为本地IP
-nohup helm serve --address 127.0.0.1:8879 --repo-path /opt/helm-repo &
-# 3.更改helm 配置文件
-将/etc/ansible/roles/helm/defaults/main.yml中repo的地址改为 http://127.0.0.1:8879
-cat <<EOF >/etc/ansible/roles/helm/defaults/main.yml
-helm_namespace: kube-system 
-helm_cert_cn: helm001
-tiller_sa: tiller
-tiller_cert_cn: tiller001
-tiller_image: easzlab/tiller:v2.14.1
-#repo_url: https://kubernetes-charts.storage.googleapis.com
-repo_url: http://127.0.0.1:8879
-history_max: 5
-# 如果默认官方repo 网络访问不稳定可以使用如下的阿里云镜像repo
-#repo_url: https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
+ROOT=$(cd `dirname $0`; pwd)
+cd $ROOT
+
+helm install redis \
+	--create-namespace \
+	--namespace dependency \
+	-f ./values.yaml \
+	./redis-ha
 EOF
-# 4.运行安全helm命令
-ansible-playbook /etc/ansible/roles/helm/helm.yml 
 ```
-## 使用helm安装应用到k8s上
 
-请阅读本项目文档[helm安装prometheus监控](prometheus.md)
+- 查看当前目录结构如下
+```
+tree .
+.
+├── redis-ha		# redis-ha 原始charts目录
+├── start.sh		# 启动命名脚本
+└── values.yaml		# 个性化参数配置
+```
+
+- 修改当前目录的 values.yaml 为你的个性化配置
+``` bash
+#举例values.yaml 配置如下，没有启用PV
+#cat values.yaml
+image:
+  repository: redis
+  tag: 5.0.6-alpine
+
+replicas: 2
+
+## Redis specific configuration options
+redis:
+  port: 6379
+  masterGroupName: "mymaster"       # must match ^[\\w-\\.]+$) and can be templated
+  config:
+    ## For all available options see http://download.redis.io/redis-stable/redis.conf
+    min-replicas-to-write: 1
+    min-replicas-max-lag: 5   # Value in seconds
+    maxmemory: "4g"       # Max memory to use for each redis instance. Default is unlimited.
+    maxmemory-policy: "allkeys-lru"  # Max memory policy to use for each redis instance. Default is volatile-lru.
+    repl-diskless-sync: "yes"
+    rdbcompression: "yes"
+    rdbchecksum: "yes"
+
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 4000Mi
+
+## Sentinel specific configuration options
+sentinel:
+  port: 26379
+  quorum: 1
+
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 200Mi
+
+hardAntiAffinity: true
+
+## Configures redis with AUTH (requirepass & masterauth conf params)
+auth: false
+
+persistentVolume:
+  enabled: false
+
+hostPath:
+  path: "/data/mcs-redis/{{ .Release.Name }}"
+```
+
+- 执行安装
+```
+bash ./start.sh
+```
+
+- 查看安装
+```
+helm ls -A
+NAME 	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+redis	dependency	1       	2020-05-28 20:57:31.166002853 +0800 CST	deployed	redis-ha-4.4.4	5.0.6
+
+# 查看k8s上资源
+kubectl get pod,svc -n dependency
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/redis-redis-ha-server-0   2/2     Running   0          119s
+pod/redis-redis-ha-server-1   2/2     Running   0          104s
+
+NAME                                TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)              AGE
+service/redis-redis-ha              ClusterIP   None          <none>        6379/TCP,26379/TCP   119s
+service/redis-redis-ha-announce-0   ClusterIP   10.68.41.65   <none>        6379/TCP,26379/TCP   119s
+service/redis-redis-ha-announce-1   ClusterIP   10.68.64.49   <none>        6379/TCP,26379/TCP   119s
+```
+
