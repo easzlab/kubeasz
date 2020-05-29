@@ -10,10 +10,10 @@
 
 ### 2.下载文件
 
-- 下载工具脚本easzup，举例使用kubeasz版本2.3.0
+- 下载工具脚本easzup，举例使用kubeasz版本2.2.1
 
 ``` bash
-export release=2.3.0
+export release=2.2.1
 curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
 chmod +x ./easzup
 ```

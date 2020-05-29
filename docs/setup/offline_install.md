@@ -6,10 +6,10 @@ kubeasz 2.0.1 开始支持**完全离线安装**，目前已测试 `Ubuntu1604|1
 
 在一台能够访问互联网的服务器上执行：
 
-- 下载工具脚本easzup，举例使用kubeasz版本2.3.0
+- 下载工具脚本easzup，举例使用kubeasz版本2.2.1
 
 ``` bash
-export release=2.3.0
+export release=2.2.1
 curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
 chmod +x ./easzup
 ```
