@@ -14,6 +14,10 @@
   run_once: true
   tags: upgrade_docker, download_docker
 
+- name: debug info
+  debug: var="docker_ver"
+  tags: upgrade_docker, download_docker
+
 - name: 转换docker版本信息为浮点数
   set_fact: 
     DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"

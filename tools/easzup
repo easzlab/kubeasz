@@ -129,6 +129,7 @@ function get_kubeasz() {
   docker run -d --name temp_easz easzlab/kubeasz:${KUBEASZ_VER} || { echo "[ERROR] download failed."; exit 1; }
 
   [[ -f "/etc/ansible/down/docker-${DOCKER_VER}.tgz" ]] && /bin/mv -f "/etc/ansible/down/docker-${DOCKER_VER}.tgz" /tmp
+  [[ -d "/etc/ansible/bin" ]] && /bin/mv -f /etc/ansible/bin /tmp
 
   rm -rf /etc/ansible && \
   echo "[INFO] cp kubeasz code from the temporary container" && \
@@ -137,7 +138,7 @@ function get_kubeasz() {
   docker rm -f temp_easz
 
  [[ -f "/tmp/docker-${DOCKER_VER}.tgz" ]] && /bin/mv -f "/tmp/docker-${DOCKER_VER}.tgz" /etc/ansible/down
- [[ -d "/opt/kube/bin" ]] && /bin/mv -f "/opt/kube/bin/*" /etc/ansible/bin
+ [[ -d "/tmp/bin" ]] && /bin/mv -f "/tmp/bin/*" /etc/ansible/bin
  return 0
 }
 

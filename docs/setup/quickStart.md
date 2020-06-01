@@ -8,6 +8,8 @@
 - 最小化安装`Ubuntu 16.04 server`或者`CentOS 7 Minimal`
 - 配置基础网络、更新源、SSH登录等
 
+**注意:** 确保在干净的系统上开始安装，不能使用曾经装过kubeadm或其他k8s发行版的环境
+
 ### 2.下载文件
 
 - 下载工具脚本easzup，举例使用kubeasz版本2.2.1
