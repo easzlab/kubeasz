@@ -138,7 +138,7 @@ function get_kubeasz() {
   docker rm -f temp_easz
 
  [[ -f "/tmp/docker-${DOCKER_VER}.tgz" ]] && /bin/mv -f "/tmp/docker-${DOCKER_VER}.tgz" /etc/ansible/down
- [[ -d "/tmp/bin" ]] && /bin/mv -f "/tmp/bin/*" /etc/ansible/bin
+ [[ -d "/tmp/bin" ]] && /bin/mv -f /tmp/bin/* /etc/ansible/bin
  return 0
 }
 
