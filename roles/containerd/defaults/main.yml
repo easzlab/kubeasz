@@ -2,7 +2,7 @@
 STORAGE_DIR: "/var/lib/containerd"
 
 # 基础容器镜像
-SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.1"
+SANDBOX_IMAGE: "easzlab/pause-amd64:3.2"
 
 # 启用容器仓库镜像
 ENABLE_MIRROR_REGISTRY: true

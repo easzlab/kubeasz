@@ -25,7 +25,7 @@ fi
 # 各Linux版本安装python/pip
 # ---------------------------
 
-# debian 默认的apt源在国内访问很慢, 可手动修改/etc/apt/source.list修改为其他源
+# debian 默认的apt源在国内访问很慢, 可手动修改/etc/apt/sources.list修改为其他源
 # 以 debian 9 为例, source.list可修改为如下内容, ubuntu修改方法类似, 找到相应系统和版本的镜像源替换即可
 # deb http://mirrors.163.com/debian/  stretch main non-free contrib
 # deb http://mirrors.163.com/debian/  stretch-updates main non-free contrib

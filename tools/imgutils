@@ -88,8 +88,7 @@ function pull_any_image() {
   F=$(echo "$1"|awk -F/ '{print NF}')
   case "$F" in
     1)
-      HUB="dockerhub.azk8s.cn"
-      #HUB="docker.mirrors.ustc.edu.cn"
+      HUB="docker.mirrors.ustc.edu.cn"
       GRP="library"
       IMG="$1"
       ;;
@@ -97,12 +96,11 @@ function pull_any_image() {
       F1=$(echo "$1"|awk -F/ '{print $1}')
       F2=$(echo "$1"|awk -F/ '{print $2}')
       if [[ "$F1" == k8s.gcr.io ]];then
-        HUB="gcr.azk8s.cn"
-        #HUB="gcr.mirrors.ustc.edu.cn"
+        HUB="gcr.mirrors.ustc.edu.cn"
         GRP="google-containers"
         IMG="$F2"
       else
-        HUB="dockerhub.azk8s.cn"
+        HUB="docker.mirrors.ustc.edu.cn"
         GRP="$F1"
         IMG="$F2"
       fi
@@ -112,11 +110,9 @@ function pull_any_image() {
       F2=$(echo "$1"|awk -F/ '{print $2}')
       F3=$(echo "$1"|awk -F/ '{print $3}')
       if [[ "$F1" == quay.io ]];then
-        HUB="quay.azk8s.cn"
-        #HUB="quay.mirrors.ustc.edu.cn"
+        HUB="quay.mirrors.ustc.edu.cn"
       elif [[ "$F1" == gcr.io ]];then
-        HUB="gcr.azk8s.cn"
-        #HUB="gcr.mirrors.ustc.edu.cn"
+        HUB="gcr.mirrors.ustc.edu.cn"
       else
         logger warn "no mirror image for $1"
         HUB="$F1"

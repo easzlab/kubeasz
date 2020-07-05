@@ -1,16 +1,16 @@
-# 01-创建证书和环境配置
+# 01-创建证书和环境准备
 
 本步骤[01.prepare.yml](../../01.prepare.yml)主要完成:
 
 - [chrony role](../guide/chrony.md): 集群节点时间同步[可选]
-- deploy role: 创建CA证书、kubeconfig、kube-proxy.kubeconfig
-- prepare role: 分发CA证书、kubectl客户端安装、环境配置
+- deploy role: 创建CA证书、集群组件访问apiserver所需的各种kubeconfig
+- prepare role: 系统基础环境配置、分发CA证书、kubectl客户端安装
 
 ## deploy 角色
 
 请在另外窗口打开[roles/deploy/tasks/main.yml](../../roles/deploy/tasks/main.yml) 文件，对照看以下讲解内容。
 
-### 创建 CA 证书和
+### 创建 CA 证书
 
 ``` bash
 roles/deploy/

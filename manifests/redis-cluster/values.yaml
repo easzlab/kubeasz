@@ -1,0 +1,49 @@
+image:
+  repository: redis
+  tag: 5.0.6-alpine
+
+replicas: 2
+
+## Redis specific configuration options
+redis:
+  port: 6379
+  masterGroupName: "mymaster"       # must match ^[\\w-\\.]+$) and can be templated
+  config:
+    ## For all available options see http://download.redis.io/redis-stable/redis.conf
+    min-replicas-to-write: 1
+    min-replicas-max-lag: 5   # Value in seconds
+    maxmemory: "4g"       # Max memory to use for each redis instance. Default is unlimited.
+    maxmemory-policy: "allkeys-lru"  # Max memory policy to use for each redis instance. Default is volatile-lru.
+    repl-diskless-sync: "yes"
+    rdbcompression: "yes"
+    rdbchecksum: "yes"
+
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 4000Mi
+
+## Sentinel specific configuration options
+sentinel:
+  port: 26379
+  quorum: 1
+
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 200Mi
+
+hardAntiAffinity: true
+
+## Configures redis with AUTH (requirepass & masterauth conf params)
+auth: false
+
+persistentVolume:
+  enabled: false
+
+hostPath:
+  path: "/data/mcs-redis/{{ .Release.Name }}"

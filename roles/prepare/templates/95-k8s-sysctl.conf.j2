@@ -6,6 +6,7 @@ net.bridge.bridge-nf-call-arptables = 1
 net.ipv4.tcp_tw_recycle = 0
 {% endif %}
 net.ipv4.tcp_tw_reuse = 0
+net.core.somaxconn = 32768
 net.netfilter.nf_conntrack_max=1000000
 vm.swappiness = 0
 vm.max_map_count=655360

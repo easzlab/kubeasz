@@ -1,4 +1,6 @@
 {
+  "data-root": "{{ STORAGE_DIR }}",
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
 {% if ENABLE_MIRROR_REGISTRY %}
   "registry-mirrors": {{ REG_MIRRORS }}, 
 {% endif %}
@@ -7,11 +9,11 @@
 {% endif %}
   "insecure-registries": {{ INSECURE_REG }},
   "max-concurrent-downloads": 10,
-  "log-driver": "{{ LOG_DRIVER }}",
-  "log-level": "{{ LOG_LEVEL }}",
+  "log-driver": "json-file",
+  "log-level": "warn",
   "log-opts": {
-    "max-size": "{{ LOG_MAX_SIZE }}",
-    "max-file": "{{ LOG_MAX_FILE }}"
+    "max-size": "15m",
+    "max-file": "3"
     },
-  "data-root": "{{ STORAGE_DIR }}"
+  "storage-driver": "overlay2"
 }

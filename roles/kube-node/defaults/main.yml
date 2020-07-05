@@ -2,8 +2,7 @@
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 
 # 基础容器镜像
-SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.1"
-#SANDBOX_IMAGE: "registry.access.redhat.com/rhel7/pod-infrastructure:latest"
+SANDBOX_IMAGE: "easzlab/pause-amd64:3.2"
 
 # Kubelet 根目录
 KUBELET_ROOT_DIR: "/var/lib/kubelet"
@@ -12,18 +11,16 @@ KUBELET_ROOT_DIR: "/var/lib/kubelet"
 MAX_PODS: 110
 
 # 配置为kube组件（kubelet,kube-proxy,dockerd等）预留的资源量
+# 数值设置详见templates/kubelet-config.yaml.j2
 KUBE_RESERVED_ENABLED: "yes"
-KUBE_RESERVED: "{'cpu':'200m','memory':'500Mi','ephemeral-storage':'1Gi'}"
-# k8s 官方不建议草率开启 system-reserved, 除非你基于长期监控，了解系统的资源占用状况；并且随着系统运行时间，需要适当增加资源预留
-SYS_RESERVED_ENABLED: "no"
-# 以下系统预留设置基于 4c/8g 虚机，最小化安装系统服务，如果使用高性能物理机请适当增加数值
-SYS_RESERVED: "{'cpu':'200m','memory':'500Mi','ephemeral-storage':'1Gi'}"
 
-# node 请求 apiserver 负载均衡算法，常见如下：
-# "roundrobin": 基于服务器权重的轮询
-# "leastconn": 基于服务器最小连接数
-# "source": 基于请求源IP地址
-# "uri": 基于请求的URI
+# k8s 官方不建议草率开启 system-reserved, 除非你基于长期监控，了解系统的资源占用状况；
+# 并且随着系统运行时间，需要适当增加资源预留，数值设置详见templates/kubelet-config.yaml.j2
+# 系统预留设置基于 4c/8g 虚机，最小化安装系统服务，如果使用高性能物理机可以适当增加预留
+# 另外，集群安装时候apiserver等资源占用会短时较大，建议至少预留1g内存
+SYS_RESERVED_ENABLED: "no"
+
+# haproxy balance mode 
 BALANCE_ALG: "roundrobin"
 
 # 设置 APISERVER 地址
