@@ -194,7 +194,7 @@ function get_offline_image() {
   flannelVer=v0.12.0-amd64
   metricsVer=v0.3.6
   pauseVer=3.2
-  metallbVer=0.9.3
+  metallbVer=v0.9.3
 
   imageDir=/etc/ansible/down
   [[ -d "$imageDir" ]] || { echo "[ERROR] $imageDir not existed!"; exit 1; }
