@@ -144,7 +144,7 @@ spec:
         node-role.kubernetes.io/metallb-speaker: "true"
       containers:
       - name: speaker
-        image: metallb/speaker:v0.7.3
+        image: metallb/speaker:{{ metallbVer }}
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -161,7 +161,7 @@ spec:
           limits:
             cpu: 100m
             memory: 100Mi
-          
+
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -202,7 +202,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: controller
-        image: metallb/controller:v0.7.3
+        image: metallb/controller:{{ metallbVer }}
         imagePullPolicy: IfNotPresent
         args:
         - --port=7472
@@ -214,7 +214,7 @@ spec:
           limits:
             cpu: 100m
             memory: 100Mi
-          
+
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:

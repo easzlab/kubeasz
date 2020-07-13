@@ -1,6 +1,6 @@
 #!/bin/bash
 #--------------------------------------------------
-# This script is for: 
+# This script is for:
 # 1. to download the scripts/binaries/images needed for installing a k8s cluster with kubeasz
 # 2. to run kubeasz in a container
 # @author:   gjmzj
@@ -44,13 +44,13 @@ function download_docker() {
   tar zxf /etc/ansible/down/docker-${DOCKER_VER}.tgz -C /etc/ansible/down && \
   /bin/cp -f /etc/ansible/down/docker/* /etc/ansible/bin && \
   /bin/mv -f /etc/ansible/down/docker/* /opt/kube/bin && \
-  ln -sf /opt/kube/bin/docker /bin/docker 
+  ln -sf /opt/kube/bin/docker /bin/docker
 }
 
 function install_docker() {
   # check if a container runtime is already installed
   systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
- 
+
   echo "[INFO] generate docker service file"
   cat > /etc/systemd/system/docker.service << EOF
 [Unit]
@@ -144,7 +144,7 @@ function get_kubeasz() {
 
 function get_k8s_bin() {
   [[ -f "/etc/ansible/bin/kubelet" ]] && { echo "[WARN] kubernetes binaries existed"; return 0; }
-  
+
   echo -e "[INFO] \033[33mdownloading kubernetes\033[0m $K8S_BIN_VER binaries"
   docker pull easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
   echo "[INFO] run a temporary container" && \
@@ -194,10 +194,11 @@ function get_offline_image() {
   flannelVer=v0.12.0-amd64
   metricsVer=v0.3.6
   pauseVer=3.2
+  metallbVer=0.9.3
 
   imageDir=/etc/ansible/down
   [[ -d "$imageDir" ]] || { echo "[ERROR] $imageDir not existed!"; exit 1; }
-  
+
   echo -e "[INFO] \033[33mdownloading offline images\033[0m"
 
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
@@ -236,6 +237,11 @@ function get_offline_image() {
     docker pull easzlab/kubeasz:${KUBEASZ_VER} && \
     docker save -o ${imageDir}/kubeasz_${KUBEASZ_VER}.tar easzlab/kubeasz:${KUBEASZ_VER}
   fi
+  if [[ ! -f "$imageDir/metallb_$metallbVer.tar" ]];then
+    docker pull "metallb/controller:${metallbVer}" && \
+    docker pull "metallb/speaker:${metallbVer}" && \
+    docker save -o ${imageDir}/metallb_${metallbVer}.tar metallb/controller:${metallbVer} metallb/speaker:${metallbVer}
+  fi
 }
 
 function download_all() {
@@ -269,7 +275,7 @@ function start_kubeasz_docker() {
     ln -s /usr/bin/python3 /usr/bin/python
   fi
 
-  # 
+  #
   docker load -i /etc/ansible/down/kubeasz_${KUBEASZ_VER}.tar
 
   # run kubeasz docker container
@@ -288,8 +294,8 @@ function start_kubeasz_docker() {
 
 function clean_container() {
  echo "[INFO] clean all running containers"
- docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f 
-} 
+ docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f
+}
 
 function usage() {
   cat <<EOF
@@ -305,10 +311,10 @@ Usage: easzup [options] [args]
     -m <str>   set docker registry mirrors, default "CN"(used in Mainland,China)
     -p <ver>   set kubeasz-sys-pkg version, default "$SYS_PKG_VER"
     -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
-  
+
 see more at https://github.com/kubeasz/dockerfiles
 EOF
-} 
+}
 
 ### Main Lines ##################################################
 function main() {
@@ -316,9 +322,9 @@ function main() {
   readlink /proc/$$/exe|grep -q "dash" && { echo "[ERROR] you should use bash shell, not sh"; exit 1; }
   # check if use with root
   [[ "$EUID" -ne 0 ]] && { echo "[ERROR] you should run this script as root"; exit 1; }
-  
+
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
-  
+
   export REGISTRY_MIRROR="CN"
   ACTION=""
   while getopts "CDPSd:e:k:m:p:z:" OPTION; do
@@ -359,10 +365,10 @@ function main() {
           ;;
       esac
   done
-  
+
   [[ "$ACTION" == "" ]] && { echo "[ERROR] illegal option"; usage; exit 1; }
-  
-  # excute cmd "$ACTION" 
+
+  # excute cmd "$ACTION"
   echo -e "[INFO] \033[33mAction begin\033[0m : $ACTION"
   ${ACTION} || { echo -e "[ERROR] \033[31mAction failed\033[0m : $ACTION"; return 1; }
   echo -e "[INFO] \033[32mAction successed\033[0m : $ACTION"

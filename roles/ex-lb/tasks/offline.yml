@@ -2,6 +2,17 @@
 - name: 准备离线安装包目录
   file: name=/opt/kube/packages/haproxy state=directory
 
+- name: 创建haproxy group
+  group:
+    name: haproxy
+
+- name: 创建haproxy user
+  user:
+    name: haproxy
+    group: haproxy
+    password: '!'
+    create_home: false
+
 - block:
   - name: 分发 haproxy_xenial 离线包
     copy:
