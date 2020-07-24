@@ -6,13 +6,13 @@ CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(1) | ipaddr
 # k8s 集群 master 节点证书配置，可以添加多个ip和域名（比如增加公网ip和域名）
 MASTER_CERT_HOSTS:
   - "10.1.1.1"
-  - "k8s.test.io"
+  - "k8s.deepmap.io"
   #- "61.182.11.41"
   #- "www.test.com"
 
 # apiserver 基础认证（用户名/密码）配置，详见 master 节点文件‘/etc/kubernetes/ssl/basic-auth.csv’
 # 是否启用基础认证 yes/no
-BASIC_AUTH_ENABLE: 'no'
+BASIC_AUTH_ENABLE: 'yes'
 # 用户名：
 BASIC_AUTH_USER: 'admin'
 # 密码：初次运行时会生成随机密码
