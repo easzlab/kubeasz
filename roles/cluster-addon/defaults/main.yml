@@ -14,13 +14,13 @@ dns_offline: "{%- if dns_backend == 'coredns' -%} \
               {%- endif -%}"
 
 # metric server 自动安装
-metricsserver_install: "yes"
+metricsserver_install: "false"
 metricsVer: "v0.3.6"
 metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 
 # dashboard 自动安装
 # dashboard v2.x.x 不依赖于heapster
-dashboard_install: "yes"
+dashboard_install: "false"
 dashboardVer: "v2.0.1"
 dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
 dashboardMetricsScraperVer: "v1.0.4"
@@ -30,12 +30,12 @@ metricsscraper_offline: "metrics-scraper_{{ dashboardMetricsScraperVer }}.tar"
 #ingress_install: "no"
 
 # metallb 自动安装
-#metallb_install: "no"
-#metallbVer: "v0.9.3"
+# metallb_install: "false"
+# metallbVer: "v0.9.3"
 # 模式选择: 二层 "layer2" 或者三层 "bgp"
-#metallb_protocol: "layer2"
-#metallb_offline: "metallb_{{ metallbVer }}.tar"
-#metallb_vip_pool: "192.168.1.240/29"
+# metallb_protocol: "layer2"
+# metallb_offline: "metallb_{{ metallbVer }}.tar"
+# metallb_vip_pool: "192.168.122.240/29"
 
 # efk 自动安装
 #efk_install: "no"
