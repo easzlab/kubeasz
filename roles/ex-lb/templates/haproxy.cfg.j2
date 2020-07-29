@@ -1,0 +1,63 @@
+global
+        log /dev/log    local1 warning
+        chroot /var/lib/haproxy
+        user haproxy
+        group haproxy
+        daemon
+        maxconn 50000
+        nbproc 1
+
+defaults
+        log     global
+        timeout connect 5s
+        timeout client  10m
+        timeout server  10m
+
+listen kube-master
+        bind 0.0.0.0:{{ EX_APISERVER_PORT }}
+        mode tcp
+        option tcplog
+        option dontlognull
+        option dontlog-normal
+        balance {{ BALANCE_ALG }}
+{% for host in groups['kube-master'] %}
+        server {{ host }} {{ host }}:6443 check inter 5s fall 2 rise 2 weight 1
+{% endfor %}
+
+{% if INGRESS_NODEPORT_LB == "yes" %}
+listen ingress-node
+	bind 0.0.0.0:80
+	mode tcp
+        option tcplog
+        option dontlognull
+        option dontlog-normal
+        balance {{ BALANCE_ALG }}
+{% if groups['kube-node']|length > 3 %}
+        server {{ groups['kube-node'][0] }} {{ groups['kube-node'][0] }}:23456 check inter 5s fall 2 rise 2 weight 1
+        server {{ groups['kube-node'][1] }} {{ groups['kube-node'][1] }}:23456 check inter 5s fall 2 rise 2 weight 1
+        server {{ groups['kube-node'][2] }} {{ groups['kube-node'][2] }}:23456 check inter 5s fall 2 rise 2 weight 1
+{% else %}
+{% for host in groups['kube-node'] %}
+        server {{ host }} {{ host }}:23456 check inter 5s fall 2 rise 2 weight 1
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if INGRESS_TLS_NODEPORT_LB == "yes" %}
+listen ingress-node-tls
+	bind 0.0.0.0:443
+	mode tcp
+        option tcplog
+        option dontlognull
+        option dontlog-normal
+        balance {{ BALANCE_ALG }}
+{% if groups['kube-node']|length > 3 %}
+        server {{ groups['kube-node'][0] }} {{ groups['kube-node'][0] }}:23457 check inter 5s fall 2 rise 2 weight 1
+        server {{ groups['kube-node'][1] }} {{ groups['kube-node'][1] }}:23457 check inter 5s fall 2 rise 2 weight 1
+        server {{ groups['kube-node'][2] }} {{ groups['kube-node'][2] }}:23457 check inter 5s fall 2 rise 2 weight 1
+{% else %}
+{% for host in groups['kube-node'] %}
+        server {{ host }} {{ host }}:23457 check inter 5s fall 2 rise 2 weight 1
+{% endfor %}
+{% endif %}
+{% endif %}

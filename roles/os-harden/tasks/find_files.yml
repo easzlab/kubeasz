@@ -1,0 +1,12 @@
+- name: find directories for minimizing access
+  find:
+    paths: '{{ outer_item }}'
+    recurse: yes
+  register: minimize_access_directories
+
+- name: minimize access on found files
+  file:
+    path: '{{ item.path }}'
+    mode: 'go-w'
+    state: file
+  with_items: '{{ minimize_access_directories.files }}'

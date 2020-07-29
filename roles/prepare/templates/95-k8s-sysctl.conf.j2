@@ -1,0 +1,18 @@
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-arptables = 1
+{% if KERNEL_VER|float < 4.12 %}
+net.ipv4.tcp_tw_recycle = 0
+{% endif %}
+net.ipv4.tcp_tw_reuse = 0
+net.core.somaxconn = 32768
+net.netfilter.nf_conntrack_max=1000000
+vm.swappiness = 0
+vm.max_map_count=655360
+fs.file-max=6553600
+{% if PROXY_MODE == "ipvs" %}
+net.ipv4.tcp_keepalive_time = 600
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_keepalive_probes = 10
+{% endif %}

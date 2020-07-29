@@ -1,0 +1,182 @@
+#!/bin/bash
+set -euo pipefail
+
+KUBE_OVN_NS=kube-ovn
+CENTRAL_POD=
+
+showHelp(){
+  echo "kubectl ko {subcommand} [option...]"
+  echo "Available Subcommands:"
+  echo "  nbctl [ovn-nbctl options ...]    invoke ovn-nbctl"
+  echo "  sbctl [ovn-sbctl options ...]    invoke ovn-sbctl"
+  echo "  tcpdump {namespace/podname} [tcpdump options ...]     capture pod traffic"
+  echo "  trace {namespace/podname} {target ip address} {icmp|tcp|udp} [target tcp or udp port]    trace ovn microflow of specific packet"
+  echo "  diagnose {all|node} [nodename]    diagnose connectivity of all nodes or a specific node"
+}
+
+tcpdump(){
+  namespacedPod="$1"; shift
+  namespace=$(echo "$namespacedPod" | cut -d "/" -f1)
+  podName=$(echo "$namespacedPod" | cut -d "/" -f2)
+  if [ "$podName" = "$namespacedPod" ]; then
+    nodeName=$(kubectl get pod "$podName" -o jsonpath={.spec.nodeName})
+    mac=$(kubectl get pod "$podName" -o jsonpath={.metadata.annotations.ovn\\.kubernetes\\.io/mac_address})
+    hostNetwork=$(kubectl get pod "$podName" -o jsonpath={.spec.hostNetwork})
+  else
+    nodeName=$(kubectl get pod "$podName" -n "$namespace" -o jsonpath={.spec.nodeName})
+    mac=$(kubectl get pod "$podName" -n "$namespace" -o jsonpath={.metadata.annotations.ovn\\.kubernetes\\.io/mac_address})
+    hostNetwork=$(kubectl get pod "$podName" -n "$namespace" -o jsonpath={.spec.hostNetwork})
+  fi
+
+  if [ -z "$nodeName" ]; then
+    echo "Pod $namespacedPod not exists on any node"
+    exit 1
+  fi
+
+  if [ -z "$mac" ] && [ "$hostNetwork" != "true" ]; then
+     echo "pod mac address not ready"
+     exit 1
+  fi
+
+  ovnCni=$(kubectl get pod -n $KUBE_OVN_NS -o wide| grep kube-ovn-cni| grep " $nodeName " | awk '{print $1}')
+  if [ -z "$ovnCni" ]; then
+    echo "kube-ovn-cni not exist on node $nodeName"
+    exit 1
+  fi
+
+  if [ "$hostNetwork" = "true" ]; then
+    set -x
+    kubectl exec -it "$ovnCni" -n $KUBE_OVN_NS -- tcpdump -nn "$@"
+  else
+    nicName=$(kubectl exec -it "$ovnCni" -n $KUBE_OVN_NS -- ovs-vsctl --data=bare --no-heading --columns=name find interface mac_in_use="${mac//:/\\:}" | tr -d '\r')
+    if [ -z "$nicName" ]; then
+      echo "nic doesn't exist on node $nodeName"
+      exit 1
+    fi
+    set -x
+    kubectl exec -it "$ovnCni" -n $KUBE_OVN_NS -- tcpdump -nn -i "$nicName" "$@"
+  fi
+}
+
+trace(){
+  namespacedPod="$1"
+  namespace=$(echo "$1" | cut -d "/" -f1)
+  podName=$(echo "$1" | cut -d "/" -f2)
+  if [ "$podName" = "$1" ]; then
+    echo "namespace is required"
+    exit 1
+  fi
+
+  podIP=$(kubectl get pod "$podName" -n "$namespace" -o jsonpath={.metadata.annotations.ovn\\.kubernetes\\.io/ip_address})
+  mac=$(kubectl get pod "$podName" -n "$namespace" -o jsonpath={.metadata.annotations.ovn\\.kubernetes\\.io/mac_address})
+  ls=$(kubectl get pod "$podName" -n "$namespace" -o jsonpath={.metadata.annotations.ovn\\.kubernetes\\.io/logical_switch})
+  hostNetwork=$(kubectl get pod "$podName" -n "$namespace" -o jsonpath={.spec.hostNetwork})
+
+  if [ "$hostNetwork" = "true" ]; then
+    echo "Can not trace host network pod"
+    exit 1
+  fi
+
+  if [ -z "$ls" ]; then
+    echo "pod address not ready"
+    exit 1
+  fi
+
+  gwMac=$(kubectl exec -it $CENTRAL_POD -n $KUBE_OVN_NS -- ovn-nbctl --data=bare --no-heading --columns=mac find logical_router_port name=ovn-cluster-"$ls" | tr -d '\r')
+
+  if [ -z "$gwMac" ]; then
+    echo "get gw mac failed"
+    exit 1
+  fi
+
+  dst="$2"
+  if [ -z "$dst" ]; then
+    echo "need a target ip address"
+    exit 1
+  fi
+
+  type="$3"
+
+  case $type in
+    icmp)
+      set -x
+      kubectl exec "$CENTRAL_POD" -n $KUBE_OVN_NS -- ovn-trace --ct=new "$ls" "inport == \"$podName.$namespace\" && ip.ttl == 64 && icmp && eth.src == $mac && ip4.src == $podIP && eth.dst == $gwMac && ip4.dst == $dst"
+      ;;
+    tcp|udp)
+      set -x
+      kubectl exec "$CENTRAL_POD" -n $KUBE_OVN_NS -- ovn-trace --ct=new "$ls" "inport == \"$podName.$namespace\" && ip.ttl == 64 && eth.src == $mac && ip4.src == $podIP && eth.dst == $gwMac && ip4.dst == $dst && $type.src == 10000 && $type.dst == $4"
+      ;;
+    *)
+      echo "type $type not supported"
+      echo "kubectl ko trace {namespace/podname} {target ip address} {icmp|tcp|udp} [target tcp or udp port]"
+      ;;
+  esac
+}
+
+diagnose(){
+  type="$1"
+  case $type in
+    all)
+      pingers=$(kubectl get pod -n $KUBE_OVN_NS | grep kube-ovn-pinger | awk '{print $1}')
+      for pinger in $pingers
+      do
+        nodeName=$(kubectl get pod "$pinger" -n "$KUBE_OVN_NS" -o jsonpath={.spec.nodeName})
+        echo "### start to diagnose node $nodeName"
+        kubectl exec -n $KUBE_OVN_NS -it "$pinger" -- /kube-ovn/kube-ovn-pinger --mode=job
+        echo "### finish diagnose node $nodeName"
+        echo ""
+      done
+      ;;
+    node)
+      node="$2"
+      pinger=$(kubectl get pod -n $KUBE_OVN_NS -o wide | grep kube-ovn-pinger | grep " $node " | awk '{print $1}')
+      echo "### start to diagnose node $node"
+      kubectl exec -n $KUBE_OVN_NS -it "$pinger" -- /kube-ovn/kube-ovn-pinger --mode=job
+      echo "### finish diagnose node $node"
+      echo ""
+      ;;
+    *)
+      echo "type $type not supported"
+      echo "kubectl ko diagnose {all|node} [nodename]"
+      ;;
+    esac
+}
+
+getOvnCentralPod(){
+    centralPod=$(kubectl get pod -n $KUBE_OVN_NS | grep ovn-central | head -n 1 | awk '{print $1}')
+    if [ -z "$centralPod" ]; then
+      echo "ovn-central not exists"
+      exit 1
+    fi
+    CENTRAL_POD=$centralPod
+}
+
+if [ $# -lt 1 ]; then
+  showHelp
+  exit 0
+else
+  subcommand="$1"; shift
+fi
+
+getOvnCentralPod
+
+case $subcommand in
+  nbctl)
+    kubectl exec "$CENTRAL_POD" -n $KUBE_OVN_NS -- ovn-nbctl "$@"
+    ;;
+  sbctl)
+    kubectl exec "$CENTRAL_POD" -n $KUBE_OVN_NS -- ovn-sbctl "$@"
+    ;;
+  tcpdump)
+    tcpdump "$@"
+    ;;
+  trace)
+    trace "$@"
+    ;;
+  diagnose)
+    diagnose "$@"
+    ;;
+  *)
+    showHelp
+    ;;
+esac

@@ -1,0 +1,143 @@
+- name: 在 node 节点创建相关目录
+  file: path={{ item }} state=directory
+  with_items:
+  - /opt/kube/kube-system
+
+# DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+- name: 准备 DNS的部署文件
+  template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}.yaml
+  with_items:
+  - kubedns
+  - coredns
+
+- name: 获取所有已经创建的POD信息
+  command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
+  register: pod_info
+  run_once: true
+
+- name: 获取已下载离线镜像信息
+  command: "ls {{ base_dir }}/down"
+  register: download_info
+  connection: local
+  run_once: true
+
+- block:
+    - block:
+        - name: 尝试推送离线{{ dns_backend }}镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ dns_offline }} dest=/opt/kube/images/{{ dns_offline }}
+          when: 'dns_offline in download_info.stdout'
+    
+        - name: 获取{{ dns_backend }}离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+     
+        - name: 导入{{ dns_backend }}的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dns_offline }}"
+          when: 'dns_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+    
+        - name: 导入{{ dns_backend }}的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ dns_offline }}"
+          when: 'dns_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
+    
+    - name: 创建{{ dns_backend }}部署
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}.yaml"
+      run_once: true
+  when: 
+  - '"kube-dns" not in pod_info.stdout'
+  - '"coredns" not in pod_info.stdout'
+  - 'dns_install == "yes"'
+  ignore_errors: true
+
+- block:
+    - block:
+        - name: 尝试推送离线 metrics-server镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ metricsserver_offline }} dest=/opt/kube/images/{{ metricsserver_offline }}
+          when: 'metricsserver_offline in download_info.stdout'
+        
+        - name: 获取metrics-server离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+     
+        - name: 导入 metrics-server的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metricsserver_offline }}"
+          when: 'metricsserver_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+    
+        - name: 导入 metrics-server的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ metricsserver_offline }}"
+          when: 'metricsserver_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
+    
+    - name: 创建 metrics-server部署
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
+      run_once: true
+      connection: local
+  when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
+  ignore_errors: true
+
+# dashboard v2.x.x 不依赖于heapster
+- block:
+    - block:
+        - name: 尝试推送离线 dashboard 镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
+          when: 'item in download_info.stdout'
+          with_items:
+          - "{{ dashboard_offline }}"
+          - "{{ metricsscraper_offline }}"
+
+        - name: 获取dashboard离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info     
+          
+        - name: 导入 dashboard 的离线镜像（docker）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
+          with_items:
+          - "{{ dashboard_offline }}"
+          - "{{ metricsscraper_offline }}"
+          when: "item in image_info.stdout and CONTAINER_RUNTIME == 'docker'"
+
+        - name: 导入 dashboard 的离线镜像（containerd）
+          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
+          with_items:
+          - "{{ dashboard_offline }}"
+          - "{{ metricsscraper_offline }}"
+          when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
+
+    - name: 创建 dashboard部署
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/dashboard"
+      run_once: true
+      connection: local
+  when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
+  ignore_errors: true
+
+#- import_tasks: ingress.yml
+#  when: '"ingress-controller" not in pod_info.stdout and ingress_install == "yes"'
+
+#- block:
+#    - block:
+#        - name: 尝试推送离线 metallb镜像（若执行失败，可忽略）
+#          copy: src={{ base_dir }}/down/{{ metallb_offline }} dest=/opt/kube/images/{{ metallb_offline }}
+#          when: 'metallb_offline in download_info.stdout'
+#        
+#        - name: 获取metallb离线镜像推送情况
+#          command: "ls /opt/kube/images"
+#          register: image_info     
+#          
+#        - name: 导入 metallb的离线镜像（若执行失败，可忽略）
+#          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metallb_offline }}"
+#          when: 'metallb_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+#
+#        - name: 导入 metallb的离线镜像（若执行失败，可忽略）
+#          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ metallb_offline }}"
+#          when: 'metallb_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
+#
+#    - name: 生成 metallb 相关 manifests
+#      template: src=metallb/{{ item }}.j2 dest=/opt/kube/kube-system/{{ item }}
+#      with_items:
+#      - "metallb.yaml"
+#      - "{{ metallb_protocol }}.yaml"
+#
+#    - name: 创建 metallb controller 部署
+#      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/metallb.yaml && \
+#	      {{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ metallb_protocol }}.yaml"
+#      run_once: true
+#  when: '"metallb" not in pod_info.stdout and metallb_install == "yes"'
+#  ignore_errors: true

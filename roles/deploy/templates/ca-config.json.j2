@@ -1,7 +1,7 @@
 {
   "signing": {
     "default": {
-      "expiry": "87600h"
+      "expiry": "{{ CERT_EXPIRY }}"
     },
     "profiles": {
       "kubernetes": {
@@ -11,7 +11,7 @@
             "server auth",
             "client auth"
         ],
-        "expiry": "87600h"
+        "expiry": "{{ CERT_EXPIRY }}"
       }
     }
   }

@@ -1,0 +1,65 @@
+# kube-node 节点成员不能同时是 ex-lb 节点，因为它们都需要安装 haproxy
+- name: fail info1
+  fail: msg="an 'kube-node' node CAN NOT be a 'ex-lb' node at the same time"
+  when: "inventory_hostname in groups['ex-lb']"
+  tags: restart_lb
+
+- name: 安装 haproxy
+  package: name=haproxy state=present
+  when: 'INSTALL_SOURCE != "offline"'
+
+# 离线安装 haproxy
+- import_tasks: offline.yml
+  when: 'INSTALL_SOURCE == "offline"'
+
+- name: 创建haproxy配置目录
+  file: name=/etc/haproxy state=directory
+
+- name: 修改centos的haproxy.service
+  template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
+  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+  tags: restart_lb
+
+- name: 配置 haproxy
+  template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+  tags: restart_lb
+
+- name: daemon-reload for haproxy.service
+  shell: systemctl daemon-reload
+  tags: restart_lb
+
+- name: 开机启用haproxy服务
+  shell: systemctl enable haproxy
+  ignore_errors: true
+
+- name: 停止haproxy服务
+  shell: systemctl stop haproxy
+  tags: restart_lb
+
+# 仅 master 节点数大于1时才启动haproxy
+- name: 开启haproxy服务
+  shell: systemctl start haproxy
+  when: "groups['kube-master']|length > 1"
+  tags: restart_lb
+
+# master 节点从1个增加到2个时候，需要修改如下配置
+# master 节点从2个减少到1个时候，也需要修改
+- block:
+  - name: 替换 kubeconfig 的 apiserver 地址
+    lineinfile:
+      dest: "{{ item }}"
+      regexp: "^    server"
+      line: "    server: {{ KUBE_APISERVER }}"
+    with_items:
+    - "/root/.kube/config"
+    - "/etc/kubernetes/kubelet.kubeconfig"
+    - "/etc/kubernetes/kube-proxy.kubeconfig"
+  
+  - name: restart kube-node service
+    service: name={{ item }} state=restarted
+    with_items:
+    - kubelet
+    - kube-proxy
+    ignore_errors: true
+  when: "MASTER_CHG == 'yes' and groups['kube-master']|length < 3"
+  tags: restart_lb

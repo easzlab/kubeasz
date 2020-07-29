@@ -1,0 +1,6 @@
+# etcd 集群间通信的IP和端口, 根据etcd组成员自动生成
+TMP_NODES: "{% for h in groups['etcd'] %}{{ hostvars[h]['NODE_NAME'] }}=https://{{ h }}:2380,{% endfor %}"
+ETCD_NODES: "{{ TMP_NODES.rstrip(',') }}"
+
+# etcd 集群初始状态 new/existing
+CLUSTER_STATE: "new"

@@ -1,0 +1,76 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ storage.aliyun_nas.storage_class }}
+provisioner: alicloud/nas
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alicloud-nas-controller
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: alicloud-disk-controller-runner
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["list", "watch", "create", "update", "patch"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: run-alicloud-nas-controller
+subjects:
+  - kind: ServiceAccount
+    name: alicloud-nas-controller
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: alicloud-disk-controller-runner
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ storage.aliyun_nas.controller_name }}
+  namespace: kube-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ storage.aliyun_nas.controller_name }}
+    spec:
+      serviceAccount: alicloud-nas-controller
+      containers:
+        - name: alicloud-nas-controller
+          image: registry.cn-hangzhou.aliyuncs.com/acs/alicloud-nas-controller:v1.8.4
+          volumeMounts:
+          - mountPath: /persistentvolumes
+            name: nfs-client-root
+          env:
+            - name: PROVISIONER_NAME
+              value: alicloud/nas
+            - name: NFS_SERVER
+              value: {{ storage.aliyun_nas.server }}
+            - name: NFS_PATH
+              value: {{ storage.aliyun_nas.server_path }}
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: {{ storage.aliyun_nas.server }}
+            path: {{ storage.aliyun_nas.server_path }}

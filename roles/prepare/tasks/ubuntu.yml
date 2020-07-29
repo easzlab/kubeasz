@@ -1,0 +1,45 @@
+# 删除默认安装
+- name: 删除ubuntu默认安装
+  shell: "apt remove -y {{ item }}"
+  with_items:
+    - ufw
+    - lxd
+    - lxd-client
+    - lxcfs
+    - lxc-common
+  when: ansible_distribution == "Ubuntu"
+  ignore_errors: true
+
+# 安装基础软件包
+- name: 安装 ubuntu/debian基础软件
+  apt: 
+    name:
+      - bash-completion     # bash命令补全工具，需要重新登录服务器生效
+      - conntrack           # network connection cleanup 用到
+      - ipset               # ipvs 模式需要
+      - ipvsadm             # ipvs 模式需要
+      - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
+      - libseccomp2         # 安装containerd需要
+      - nfs-common          # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
+      - psmisc              # 安装psmisc 才能使用命令killall，keepalive的监测脚本需要
+      - rsync               # 文件同步工具，分发证书等配置文件需要
+      - socat               # 用于port forwarding
+    state: present
+  when: 'INSTALL_SOURCE != "offline"'
+
+# 离线安装基础软件包
+- import_tasks: offline.yml
+  when: 'INSTALL_SOURCE == "offline"'
+
+# 优化设置 journal 日志相关，避免日志重复搜集，浪费系统资源
+- name: 准备 journal 日志相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - "/etc/systemd/journald.conf.d"
+  - "/var/log/journal"
+
+- name: 优化设置 journal 日志
+  template: src=95-k8s-journald.conf.j2 dest=/etc/systemd/journald.conf.d/95-k8s-journald.conf
+
+- name: 重启 journald 服务
+  service: name=systemd-journald state=restarted

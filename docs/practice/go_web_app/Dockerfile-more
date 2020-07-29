@@ -1,0 +1,44 @@
+# build stage
+FROM golang:1.13 as builder
+
+# ENV GOPROXY=https://goproxy.cn
+# 设置 GOPROXY 是为编译时能够通过代理下载Qiang外的包
+# 设置 GOPRIVATE 是为编译时下载本地gitlab上的包时候不使用代理
+ENV GOPROXY=https://goproxy.io
+ENV GOPRIVATE=gitlab.yourdomain.com/*
+
+WORKDIR /root
+
+COPY ./ .
+
+# 本地 gitlab 上的项目非公开，编译时需要用 ssh key 的方式下载本地 gitlab 包
+# 提前把 ssh key 中的公钥上传到gitlab 个人profile中的 SSH KEY 中
+# 在 docker build 时通过命令行参数用--build-arg 'SSH_PKEY=${KEY_TXT}' 传入
+# 在 CICD 流水线中，${KEY_TXT} 可以是jenkins中的secret-text参数，也可以是gitlab-ci中的secret variables
+ARG SSH_PKEY
+
+# 设置 git config 是为了拉区项目时使用ssh方式 git@gitlab.yourdomain.com:xxx/yyy.git
+# 
+
+RUN git config --global url."git@gitlab.yourdomain.com:".insteadof "https://gitlab.yourdomain.com/" && \
+   mkdir -p /root/.ssh && \
+   echo "-----BEGIN RSA PRIVATE KEY-----" > /root/.ssh/id_rsa && \
+   echo "${SSH_PKEY}" >> /root/.ssh/id_rsa && \
+   echo "-----END RSA PRIVATE KEY-----" >> /root/.ssh/id_rsa && \
+   sed -i "2s/ /\\n/g" /root/.ssh/id_rsa && \
+   echo "StrictHostKeyChecking no" > /root/.ssh/config && \
+   chmod 600 /root/.ssh/id_rsa
+
+RUN go mod tidy && \
+    go mod download
+
+RUN CGO_ENABLED=0 GOOS=linux go build -installsuffix cgo -o main cmd/main.go
+
+# final stage
+FROM alpine:3.10
+
+WORKDIR /home/admin/bin
+
+COPY --from=builder /root/main .
+
+CMD ["./main"]

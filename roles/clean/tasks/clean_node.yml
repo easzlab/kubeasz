@@ -1,0 +1,138 @@
+# to clean 'kube-node' nodes
+- block:
+  - name: stop and disable kube-node service
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - kubelet
+    - kube-proxy
+    ignore_errors: true
+
+  - name: umount kubelet filesystems
+    shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount || exit 0"
+    args:
+      warn: false
+    ignore_errors: true
+
+  - name: remove files and dirs of 'kube-node' nodes
+    file: name={{ item }} state=absent
+    with_items:
+    - "/var/lib/kubelet/"
+    - "/var/lib/kube-proxy/"
+    - "/etc/systemd/system/kubelet.service"
+    - "/etc/systemd/system/kube-proxy.service"
+    - "/opt/kube/kube-system/"
+    - "/etc/kubernetes/"
+    - "/root/.kube/config"
+
+# to clean container runtime and networking
+  - block:
+      - name: to check if container 'kubeasz' is running
+        shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
+        register: install_info
+
+      - block:
+        - name: stop and disable docker service
+          service:
+            name: docker
+            state: stopped
+            enabled: no
+          ignore_errors: true
+  
+        # as k8s-network-plugins use host-network, '/var/run/docker/netns/default' must be umounted
+        - name: unmount docker filesystem-1
+          mount: path=/var/run/docker/netns/default state=unmounted
+  
+        - name: unmount docker filesystem-2
+          mount: path=/var/lib/docker/overlay state=unmounted
+  
+        - name: remove files and dirs
+          file: name={{ item }} state=absent
+          with_items:
+          - "/var/lib/docker/"
+          - "/var/run/docker/"
+          - "/etc/docker/"
+          - "/etc/systemd/system/docker.service"
+          - "/etc/systemd/system/docker.service.requires/"
+          - "/etc/systemd/system/docker.service.d/"
+          - "/etc/bash_completion.d/docker"
+          - "/usr/bin/docker"
+        when: "'kubeasz' not in install_info.stdout"
+    when: CONTAINER_RUNTIME == 'docker'
+
+  - block:
+      - name: stop and disable containerd service
+        service:
+          name: containerd
+          state: stopped
+          enabled: no
+        ignore_errors: true
+
+      - name: umount containerd filesystems
+        shell: "mount | grep 'containerd/io.containerd'| awk '{print $3}'|xargs umount || exit 0"
+        args:
+          warn: false
+        ignore_errors: true
+
+      - name: remove files and dirs
+        file: name={{ item }} state=absent
+        with_items:
+        - "/etc/containerd/"
+        - "/etc/crictl.yaml"
+        - "/etc/systemd/system/containerd.service"
+        - "/opt/containerd/"
+        - "/var/lib/containerd/"
+        - "/var/run/containerd/"
+    when: CONTAINER_RUNTIME == 'containerd'
+
+  - name: remove files and dirs2
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/cni/"
+    - "/run/flannel/"
+    - "/etc/calico/"
+    - "/var/run/calico/"
+    - "/var/lib/calico/"
+    - "/var/log/calico/"
+    - "/etc/cilium/"
+    - "/var/run/cilium/"
+    - "/sys/fs/bpf/tc/"
+    - "/var/lib/cni/"
+    - "/var/lib/kube-router/"
+    - "/opt/kube/kube-ovn/"
+    - "/opt/kube/kube-system/"
+    - "/var/run/openvswitch/"
+    - "/etc/origin/openvswitch/"
+    - "/etc/openvswitch/"
+    - "/var/log/openvswitch/"
+
+#  - name: cleanup networks1
+#    shell: "ip link del tunl0; \
+#        ip link del flannel.1; \
+#        ip link del cni0; \
+#        ip link del mynet0; \
+#        ip link del kube-bridge; \
+#        ip link del dummy0; \
+#        ip link del kube-ipvs0; \
+#        ip link del cilium_net; \
+#        ip link del cilium_vxlan; \
+#        ip link del ovn0; \
+#        ip link del ovs-system"
+#    ignore_errors: true
+#
+#  - name: cleanup networks2
+#    shell: "systemctl restart networking; \
+#        systemctl restart network"
+#    ignore_errors: true
+#
+#  - name: cleanup 'calico' routes
+#    shell: "for rt in `ip route|grep bird|sed 's/blackhole //'|awk '{print $1}'`;do ip route del $rt;done;"
+#    when: "CLUSTER_NETWORK == 'calico'"
+#    ignore_errors: true
+#
+#  - name: cleanup iptables
+#    shell: "iptables -F && iptables -X \
+#        && iptables -F -t nat && iptables -X -t nat \
+#        && iptables -F -t raw && iptables -X -t raw \
+#        && iptables -F -t mangle && iptables -X -t mangle"
+
+  when: "inventory_hostname in groups['kube-master'] or inventory_hostname in groups['kube-node']"

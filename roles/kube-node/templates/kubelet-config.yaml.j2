@@ -1,0 +1,83 @@
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+address: {{ inventory_hostname }}
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    cacheTTL: 2m0s
+    enabled: true
+  x509:
+    clientCAFile: {{ ca_dir }}/ca.pem
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 5m0s
+    cacheUnauthorizedTTL: 30s
+cgroupDriver: cgroupfs 
+cgroupsPerQOS: true
+clusterDNS:
+- {{ CLUSTER_DNS_SVC_IP }}
+clusterDomain: {{ CLUSTER_DNS_DOMAIN }}
+configMapAndSecretChangeDetectionStrategy: Watch
+containerLogMaxFiles: 3 
+containerLogMaxSize: 10Mi
+enforceNodeAllocatable:
+- pods
+{% if KUBE_RESERVED_ENABLED == "yes" %}
+- kube-reserved
+{% endif %}
+{% if SYS_RESERVED_ENABLED == "yes" %}
+- system-reserved
+{% endif %}
+eventBurst: 10
+eventRecordQPS: 5
+evictionHard:
+  imagefs.available: 15%
+  memory.available: 300Mi
+  nodefs.available: 10%
+  nodefs.inodesFree: 5%
+evictionPressureTransitionPeriod: 5m0s
+failSwapOn: true
+fileCheckFrequency: 40s
+hairpinMode: hairpin-veth 
+healthzBindAddress: {{ inventory_hostname }}
+healthzPort: 10248
+httpCheckFrequency: 40s
+imageGCHighThresholdPercent: 85
+imageGCLowThresholdPercent: 80
+imageMinimumGCAge: 2m0s
+{% if KUBE_RESERVED_ENABLED == "yes" %}
+kubeReservedCgroup: /podruntime.slice
+kubeReserved:
+  memory: 400Mi
+{% endif %}
+kubeAPIBurst: 100
+kubeAPIQPS: 50
+makeIPTablesUtilChains: true
+maxOpenFiles: 1000000
+maxPods: {{ MAX_PODS }}
+nodeLeaseDurationSeconds: 40
+nodeStatusReportFrequency: 1m0s
+nodeStatusUpdateFrequency: 10s
+oomScoreAdj: -999
+podPidsLimit: -1
+port: 10250
+# disable readOnlyPort 
+readOnlyPort: 0
+{% if ansible_distribution_release == "bionic" %}
+resolvConf: /run/systemd/resolve/resolv.conf
+{% else %}
+resolvConf: /etc/resolv.conf
+{% endif %}
+runtimeRequestTimeout: 2m0s
+serializeImagePulls: true
+streamingConnectionIdleTimeout: 4h0m0s
+syncFrequency: 1m0s
+{% if SYS_RESERVED_ENABLED == "yes" %}
+systemReservedCgroup: /system.slice
+systemReserved:
+  memory: 1000Mi
+{% endif %}
+tlsCertFile: {{ ca_dir }}/kubelet.pem
+tlsPrivateKeyFile: {{ ca_dir }}/kubelet-key.pem

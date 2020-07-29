@@ -1,0 +1,17 @@
+# 动态存储类型, 目前支持自建nfs和aliyun_nas
+storage:
+  # nfs server 参数
+  nfs:
+    enabled: "no"
+    server: "172.16.3.86"
+    server_path: "/data/nfs"
+    storage_class: "nfs-dynamic-class"
+    provisioner_name: "nfs-provisioner-01"
+
+  # aliyun_nas 参数
+  aliyun_nas:
+    enabled: "no"
+    server: "xxxxxxxxxxx.cn-hangzhou.nas.aliyuncs.com"
+    server_path: "/"
+    storage_class: "class-aliyun-nas-01"
+    controller_name: "aliyun-nas-controller-01"

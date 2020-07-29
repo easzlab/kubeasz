@@ -8,7 +8,7 @@
 
 - name: set Daemon umask, do config for rhel-family | NSA 2.2.4.1
   template:
-    src: 'rhel_sysconfig_init.j2'
+    src: 'etc/sysconfig/rhel_sysconfig_init.j2'
     dest: '/etc/sysconfig/init'
     owner: 'root'
     group: 'root'
@@ -24,7 +24,7 @@
 
 - name: rebuild initramfs with starting pack of modules, if module loading at runtime is disabled
   template:
-    src: 'modules.j2'
+    src: 'etc/initramfs-tools/modules.j2'
     dest: '/etc/initramfs-tools/modules'
     owner: 'root'
     group: 'root'
@@ -63,7 +63,7 @@
 
 - name: Apply ufw defaults
   template:
-    src: 'ufw.j2'
+    src: 'etc/default/ufw.j2'
     dest: '/etc/default/ufw'
   when: ufw_manage_defaults and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
   tags: ufw

@@ -1,0 +1,178 @@
+#!/bin/bash
+#------------------------------------------------------------
+# - Save docker images to disk or load images from disk
+# - Pull docker images from 'gcr.io|k8s.gcr.io|quay.io'
+#
+# @author:  gjmzj
+# @usage:   ./imgutils
+# @ref:     https://github.com/easzlab/kubeasz/tree/master/tools/imgutils
+
+set -o nounset
+set -o errexit
+#set -o xtrace
+
+function usage() {
+  cat <<EOF
+Usage: imgutils [options] [args]
+  option: -{LPSdr}
+    -L         to load images from the disk
+    -P         to pull images from CN mirrors of 'docker.io|gcr.io|k8s.gcr.io|quay.io'
+    -S         to save images to the disk 
+    -d <dir>   working directory to hold images, default '/tmp/docker/images'
+    -r <str>   limit to images who's repo have a pattern <str>
+
+Example:
+$ ./imgutils -S -d /opt/docker/images -r gcr.io
+  - to save all images of repo 'gcr.io' into '/opt/docker/images/'
+$ ./imgutils -P k8s.gcr.io/addon-resizer:1.8.3
+  - to pull images from k8s.gcr.io
+EOF
+}
+
+function logger() {
+  case "$1" in
+    debug)
+      echo -e "[debug] \033[36m$2\033[0m"
+      ;;
+    info)
+      echo -e "[info] \033[32m$2\033[0m"
+      ;;  
+    warn)
+      echo -e "[warn] \033[33m$2\033[0m"
+      ;;  
+    error)
+      echo -e "[error] \033[31m$2\033[0m"
+      ;; 
+    *)
+      ;;
+  esac 
+}
+
+function save_to_disk() {
+  if [[ "$REPO_PATTERN" == "" ]];then
+    DOCKER_IMAGES=$(docker images|grep -v "^REPOSITORY"|awk '{print $1":"$2}')
+  else
+    DOCKER_IMAGES=$(docker images|grep "$REPO_PATTERN"|awk '{print $1":"$2}')
+  fi
+  
+  # trim the last '/' in "$IMAGE_DIR"
+  IMAGE_DIR=$(echo "$IMAGE_DIR"|sed 's/\/$//g')
+  mkdir -p "$IMAGE_DIR"
+
+  for image in ${DOCKER_IMAGES};do
+    name=$(echo "$image"|sed 's/\//_/g'|sed 's/:/_/g')
+    name="$IMAGE_DIR/$name.tar"
+    logger info "packing $name..."
+    docker save -o "$name" "$image"
+  done
+}
+
+function load_from_disk() {
+  [[ -d "$IMAGE_DIR" ]] || { logger error "Invald directory $IMAGE_DIR"; exit 1; }
+  # trim the last '/' in "$IMAGE_DIR"
+  IMAGE_DIR=$(echo "$IMAGE_DIR"|sed 's/\/$//g')
+  
+  if [[ "$REPO_PATTERN" == "" ]];then
+    DOCKER_PACKS="$IMAGE_DIR/*.tar"
+  else
+    DOCKER_PACKS="$IMAGE_DIR/*$REPO_PATTERN*.tar"
+  fi
+ 
+  for pack in ${DOCKER_PACKS};do
+    logger info "loading $pack..."
+    docker load -i "$pack"
+  done
+}
+
+function pull_any_image() {
+  F=$(echo "$1"|awk -F/ '{print NF}')
+  case "$F" in
+    1)
+      HUB="docker.mirrors.ustc.edu.cn"
+      GRP="library"
+      IMG="$1"
+      ;;
+    2)
+      F1=$(echo "$1"|awk -F/ '{print $1}')
+      F2=$(echo "$1"|awk -F/ '{print $2}')
+      if [[ "$F1" == k8s.gcr.io ]];then
+        HUB="gcr.mirrors.ustc.edu.cn"
+        GRP="google-containers"
+        IMG="$F2"
+      else
+        HUB="docker.mirrors.ustc.edu.cn"
+        GRP="$F1"
+        IMG="$F2"
+      fi
+      ;;
+    3)
+      F1=$(echo "$1"|awk -F/ '{print $1}')
+      F2=$(echo "$1"|awk -F/ '{print $2}')
+      F3=$(echo "$1"|awk -F/ '{print $3}')
+      if [[ "$F1" == quay.io ]];then
+        HUB="quay.mirrors.ustc.edu.cn"
+      elif [[ "$F1" == gcr.io ]];then
+        HUB="gcr.mirrors.ustc.edu.cn"
+      else
+        logger warn "no mirror image for $1"
+        HUB="$F1"
+      fi
+      GRP="$F2"
+      IMG="$F3"
+      ;;
+    *)
+      logger error "Invald image $1"
+      exit 1
+      ;;
+  esac
+  logger info "Using mirror $HUB/$GRP/$IMG"
+  docker pull "$HUB/$GRP/$IMG" && \
+  docker tag "$HUB/$GRP/$IMG" "$1" && \
+  docker rmi "$HUB/$GRP/$IMG"
+}
+
+function main() {
+  # check if use bash shell
+  readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell, not sh"; exit 1; }
+  # check if use with root
+  [[ "$EUID" -ne 0 ]] && { logger error "you should run this script as root"; exit 1; }
+  # check num of args
+  [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
+  
+  export IMAGE_DIR="/tmp/docker/images"
+  export REPO_PATTERN=""
+  export ACTION=""
+
+  while getopts "LP:Sd:r:" OPTION; do
+      case "$OPTION" in
+        L)
+          ACTION="load_from_disk"
+          ;;
+        P)
+          ACTION="pull_any_image $OPTARG"
+          ;;
+        S)
+          ACTION="save_to_disk"
+          ;;
+        d)
+          export IMAGE_DIR="$OPTARG"
+          ;;
+        r)
+          export REPO_PATTERN="$OPTARG"
+          ;;
+        ?)
+          usage
+          exit 1
+          ;;
+      esac
+  done
+  
+  [[ "$ACTION" == "" ]] && { logger error "illegal option"; usage; exit 1; }
+  
+  # excute cmd "$ACTION" 
+  logger debug "Action begin: $ACTION"
+  ${ACTION} || { logger error "Action failed: $ACTION"; return 1; }
+  logger debug "Action successed: $ACTION"
+}
+
+main "$@"

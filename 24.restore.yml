@@ -1,0 +1,6 @@
+# cluster-restore playbook
+# read the guide: 'op/cluster_restore.md'
+
+- hosts: etcd
+  roles:
+  - cluster-restore

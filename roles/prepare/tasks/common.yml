@@ -1,0 +1,60 @@
+# 禁用系统swap
+- name: 禁用系统 swap
+  shell: "swapoff -a && sysctl -w vm.swappiness=0"
+  ignore_errors: true
+
+- name: 删除fstab swap 相关配置
+  lineinfile:
+    path: /etc/fstab
+    regexp: 'swap'
+    state: absent
+    backup: 'yes'
+
+- name: 转换内核版本为浮点数
+  set_fact:
+     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
+
+- name: 设置 nf_conntrack 模块名
+  set_fact: NF_CONNTRACK="nf_conntrack"
+  when: "KERNEL_VER|float >= 4.19"
+
+- name: 设置 nf_conntrack_ipv4 模块名
+  set_fact: NF_CONNTRACK="nf_conntrack_ipv4"
+  when: "KERNEL_VER|float < 4.19"
+
+- name: 加载内核模块
+  modprobe: name={{ item }} state=present
+  with_items:
+    - br_netfilter
+    - ip_vs
+    - ip_vs_rr
+    - ip_vs_wrr
+    - ip_vs_sh
+    - "{{ NF_CONNTRACK }}"
+  ignore_errors: true
+
+- name: 启用systemd自动加载模块服务
+  service: name=systemd-modules-load enabled=yes
+
+- name: 增加内核模块开机加载配置
+  template: src=10-k8s-modules.conf.j2 dest=/etc/modules-load.d/10-k8s-modules.conf
+
+# 设置系统参数for k8s
+# 消除docker info 警告WARNING: bridge-nf-call-ip[6]tables is disabled
+# https://success.docker.com/article/ipvs-connection-timeout-issue 缩短keepalive_time超时时间为600s
+- name: 设置系统参数
+  template: src=95-k8s-sysctl.conf.j2 dest=/etc/sysctl.d/95-k8s-sysctl.conf
+
+- name: 生效系统参数
+  shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
+  ignore_errors: true
+
+# 设置系统 ulimits
+- name: 创建 systemd 配置目录
+  file: name=/etc/systemd/system.conf.d state=directory  
+
+- name: 设置系统 ulimits
+  template: src=30-k8s-ulimits.conf.j2 dest=/etc/systemd/system.conf.d/30-k8s-ulimits.conf
+
+- name: 把SCTP列入内核模块黑名单
+  copy: src=sctp.conf dest=/etc/modprobe.d/sctp.conf

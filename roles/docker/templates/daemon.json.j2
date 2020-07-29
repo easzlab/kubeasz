@@ -1,0 +1,19 @@
+{
+  "data-root": "{{ STORAGE_DIR }}",
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
+{% if ENABLE_MIRROR_REGISTRY %}
+  "registry-mirrors": {{ REG_MIRRORS }}, 
+{% endif %}
+{% if ENABLE_REMOTE_API %}
+  "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
+{% endif %}
+  "insecure-registries": {{ INSECURE_REG }},
+  "max-concurrent-downloads": 10,
+  "log-driver": "json-file",
+  "log-level": "warn",
+  "log-opts": {
+    "max-size": "15m",
+    "max-file": "3"
+    },
+  "storage-driver": "overlay2"
+}

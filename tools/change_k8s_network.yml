@@ -1,0 +1,97 @@
+# 重置k8s pod网络脚本，使用请仔细阅读 docs/op/change_k8s_network.md
+- hosts:
+  - kube-master
+  - kube-node
+  tasks:
+  - name: 获取所有已经创建的POD信息
+    command: "{{ bin_dir }}/kubectl get daemonset -n kube-system"
+    register: pod_info
+    run_once: true
+
+  - name: 删除原network插件部署
+    shell: "{{ bin_dir }}/kubectl delete -f /opt/kube/kube-system/{{ item }}.yaml"
+    with_items:
+    - calico
+    - cilium
+    - flannel
+    - kube-router
+    when: 'item in pod_info.stdout'
+    run_once: true
+    ignore_errors: true
+
+  - name: 清理kube-router相关
+    shell: "{{ bin_dir }}/docker run --privileged --net=host cloudnativelabs/kube-router --cleanup-config"
+    ignore_errors: true
+    when: '"kube-router" in pod_info.stdout'
+
+  - name: 停止 kube-node 相关服务
+    service: name={{ item }} state=stopped
+    with_items:
+    - kubelet
+    - kube-proxy
+    ignore_errors: true
+
+  - name: 清理calico残留路由
+    shell: "for rt in `ip route|grep bird|sed 's/blackhole//'|awk '{print $1}'`;do ip route del $rt;done;"
+    when: '"calico" in pod_info.stdout'
+    ignore_errors: true
+
+  - name: 清理 kube-proxy产生的iptables规则
+    shell: "{{ bin_dir }}/kube-proxy --cleanup"
+    ignore_errors: true
+
+  - name: 清理目录和文件
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/cni/"
+    - "/run/flannel/"
+    - "/etc/calico/"
+    - "/var/run/calico/"
+    - "/var/lib/calico/"
+    - "/var/log/calico/"
+    - "/etc/cilium/"
+    - "/var/run/cilium/"
+    - "/sys/fs/bpf/tc/"
+    - "/var/lib/cni/"
+    - "/var/lib/kube-router/"
+    - "/opt/kube/kube-system/"
+
+  - name: 清理网络
+    shell: "ip link del tunl0; \
+        ip link del flannel.1; \
+        ip link del cni0; \
+        ip link del mynet0; \
+        ip link del kube-bridge; \
+        ip link del dummy0; \
+        ip link del kube-ipvs0; \
+        ip link del cilium_net; \
+        ip link del cilium_vxlan; \
+        systemctl restart networking; \
+        systemctl restart network"
+    ignore_errors: true
+
+  - name: 开启 kube-node 相关服务
+    service: name={{ item }} state=started enabled=yes
+    with_items:
+    - kubelet
+    - kube-proxy
+    ignore_errors: true
+
+- hosts:
+  - kube-master
+  - kube-node
+  # 安装新的网络插件
+  roles:
+  - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
+  - { role: cilium, when: "CLUSTER_NETWORK == 'cilium'" }
+  - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
+  - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
+
+- hosts: kube-node
+  tasks:
+  # 删除所有运行pod，由controller自动重建
+  - name: 重启所有pod
+    shell: "for NS in $({{ bin_dir }}/kubectl get ns|awk 'NR>1{print $1}'); \
+                do {{ bin_dir }}/kubectl delete pod --all -n $NS; done;"
+    ignore_errors: true
+    run_once: true

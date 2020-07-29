@@ -1,0 +1,44 @@
+# dns 自动安装，'dns_backend'可选"coredns"和“kubedns”
+dns_install: "yes"
+dns_backend: "coredns"
+# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
+CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
+kubednsVer: "1.14.13"
+corednsVer: "1.6.7"
+kubedns_offline: "kubedns_{{ kubednsVer }}.tar"
+coredns_offline: "coredns_{{ corednsVer }}.tar"
+dns_offline: "{%- if dns_backend == 'coredns' -%} \
+                {{ coredns_offline }} \
+              {%- else -%} \
+                {{ kubedns_offline }} \
+              {%- endif -%}"
+
+# metric server 自动安装
+metricsserver_install: "yes"
+metricsVer: "v0.3.6"
+metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
+
+# dashboard 自动安装
+# dashboard v2.x.x 不依赖于heapster
+dashboard_install: "yes"
+dashboardVer: "v2.0.1"
+dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
+dashboardMetricsScraperVer: "v1.0.4"
+metricsscraper_offline: "metrics-scraper_{{ dashboardMetricsScraperVer }}.tar"
+
+# ingress 自动安装，可选 "traefik" 和 "nginx-ingress"
+#ingress_install: "no"
+
+# metallb 自动安装
+#metallb_install: "no"
+#metallbVer: "v0.7.3"
+# 模式选择: 二层 "layer2" 或者三层 "bgp"
+#metallb_protocol: "layer2"
+#metallb_offline: "metallb_{{ metallbVer }}.tar"
+#metallb_vip_pool: "192.168.1.240/29"
+
+# efk 自动安装
+#efk_install: "no"
+
+# prometheus 自动安装
+#prometheus_install: "no"

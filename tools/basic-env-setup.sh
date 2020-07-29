@@ -25,7 +25,7 @@ fi
 # 各Linux版本安装python/pip
 # ---------------------------
 
-# debian 默认的apt源在国内访问很慢, 可手动修改/etc/apt/source.list修改为其他源
+# debian 默认的apt源在国内访问很慢, 可手动修改/etc/apt/sources.list修改为其他源
 # 以 debian 9 为例, source.list可修改为如下内容, ubuntu修改方法类似, 找到相应系统和版本的镜像源替换即可
 # deb http://mirrors.163.com/debian/  stretch main non-free contrib
 # deb http://mirrors.163.com/debian/  stretch-updates main non-free contrib
@@ -68,12 +68,12 @@ setup_ansible_k8s() {
   pip install pip --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
   pip install --no-cache-dir ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
-  git clone https://github.com/gjmzj/kubeasz.git
+  git clone --depth=1 https://github.com/easzlab/kubeasz.git
   mv kubeasz /etc/ansible
 
   # Download from CDN & Move bin files
   curl -o k8s_download.tar.gz "$bin_resource_url"
-  tar zxvf k8s_download.tar.gz
+  tar xvf k8s_download.tar.gz
   mv -f bin/* /etc/ansible/bin
   rm -rf bin
   echo "Finish setup. Please config your hosts and run 'ansible-playbook' command at /etc/ansible."

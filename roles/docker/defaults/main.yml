@@ -1,0 +1,14 @@
+# docker容器存储目录
+STORAGE_DIR: "/var/lib/docker"
+
+# 开启Restful API
+ENABLE_REMOTE_API: false
+
+# 启用 docker 仓库镜像
+ENABLE_MIRROR_REGISTRY: true
+
+# 设置 docker 仓库镜像
+REG_MIRRORS: '["https://docker.mirrors.ustc.edu.cn", "http://hub-mirror.c.163.com"]'
+
+# 信任的HTTP仓库
+INSECURE_REG: '["127.0.0.1/8"]'

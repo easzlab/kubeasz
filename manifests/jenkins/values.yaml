@@ -1,0 +1,209 @@
+# Default values for jenkins.
+# This is a YAML-formatted file.
+# Declare name/value pairs to be passed into your templates.
+# name: value
+
+## Overrides for generated resource names
+# See templates/_helpers.tpl
+# nameOverride:
+# fullnameOverride:
+
+Master:
+  Name: jenkins-master
+  Image: "jenkins/jenkins"
+  ImageTag: "2.138.2-alpine"
+  ImagePullPolicy: "IfNotPresent"
+# ImagePullSecret: jenkins
+  Component: "jenkins-master"
+  UseSecurity: true
+  AdminUser: admin
+  AdminPassword: admin
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+    limits:
+      cpu: "2000m"
+      memory: "2048Mi"
+  # Environment variables that get added to the init container (useful for e.g. http_proxy)
+  # InitContainerEnv:
+  #   - name: http_proxy
+  #     value: "http://192.168.64.1:3128"
+  # ContainerEnv:
+  #   - name: http_proxy
+  #     value: "http://192.168.64.1:3128"
+  # Set min/max heap here if needed with:
+  # JavaOpts: "-Xms512m -Xmx512m"
+  # JenkinsOpts: ""
+  # JenkinsUriPrefix: "/jenkins"
+
+  # Enable pod security context (must be `true` if RunAsUser or FsGroup are set)
+  # UsePodSecurityContext: true
+
+  # Set RunAsUser to 1000 to let Jenkins run as non-root user 'jenkins' which exists in 'jenkins/jenkins' docker image.
+  # When setting RunAsUser to a different value than 0 also set FsGroup to the same value:
+  # RunAsUser: <defaults to 0>
+  # FsGroup: <will be omitted in deployment if RunAsUser is 0>
+  ServicePort: 8080
+  # For minikube, set this to NodePort, elsewhere use LoadBalancer
+  # Use ClusterIP if your setup includes ingress controller
+  ServiceType: ClusterIP
+  # Master Service annotations
+  ServiceAnnotations: {}
+  #   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
+  # Used to create Ingress record (should used with ServiceType: ClusterIP)
+  HostName: jenkins.local.com
+  # NodePort: <to set explicitly, choose port between 30000-32767
+  ContainerPort: 8080
+  # Enable Kubernetes Liveness and Readiness Probes
+  # ~ 2 minutes to allow Jenkins to restart when upgrading plugins. Set ReadinessTimeout to be shorter than LivenessTimeout.
+  HealthProbes: true
+  HealthProbesLivenessTimeout: 90
+  HealthProbesReadinessTimeout: 60
+  HealthProbeLivenessFailureThreshold: 12
+  SlaveListenerPort: 50000
+  DisabledAgentProtocols:
+    - JNLP-connect
+    - JNLP2-connect
+  CSRF:
+    DefaultCrumbIssuer:
+      Enabled: true
+      ProxyCompatability: true
+  CLI: false
+  # Kubernetes service type for the JNLP slave service
+  # SETTING THIS TO "LoadBalancer" IS A HUGE SECURITY RISK: https://github.com/kubernetes/charts/issues/1341
+  SlaveListenerServiceType: ClusterIP
+  SlaveListenerServiceAnnotations: {}
+  LoadBalancerSourceRanges:
+  - 0.0.0.0/0
+  # Optionally assign a known public LB IP
+  # LoadBalancerIP: 1.2.3.4
+  # Optionally configure a JMX port
+  # requires additional JavaOpts, ie
+  JavaOpts: >
+    -Djava.awt.headless=true
+    -Dorg.apache.commons.jelly.tags.fmt.timeZone=Asia/Shanghai
+    -Dfile.encoding=UTF-8
+  #   -Dcom.sun.management.jmxremote.port=4000
+  #   -Dcom.sun.management.jmxremote.authenticate=false
+  #   -Dcom.sun.management.jmxremote.ssl=false
+  # JMXPort: 4000
+
+  # 插件镜像地址
+  UpdateCenter: https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/current/update-center.json
+
+  # List of plugins to be install during Jenkins master start
+  InstallPlugins:
+    - kubernetes:1.13.5
+    - workflow-aggregator:2.5
+    - workflow-job:2.25
+    - credentials-binding:1.17
+    - git:3.9.1
+    - gitlab:1.5.10
+  # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
+  # ScriptApproval:
+  #   - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
+  #   - "new groovy.json.JsonSlurperClassic"
+  # List of groovy init scripts to be executed during Jenkins master start
+  InitScripts:
+  #  - |
+  #    print 'adding global pipeline libraries, register properties, bootstrap jobs...'
+  # Kubernetes secret that contains a 'credentials.xml' for Jenkins
+  # CredentialsXmlSecret: jenkins-credentials
+  # Kubernetes secret that contains files to be put in the Jenkins 'secrets' directory,
+  # useful to manage encryption keys used for credentials.xml for instance (such as
+  # master.key and hudson.util.Secret)
+  # SecretsFilesSecret: jenkins-secrets
+  # Jenkins XML job configs to provision
+  # Jobs: |-
+  #   test: |-
+  #     <<xml here>>
+  CustomConfigMap: false
+  # Node labels and tolerations for pod assignment
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  NodeSelector: {}
+
+  Tolerations: {}
+  PodAnnotations: {}
+
+  Ingress:
+    ApiVersion: networking.k8s.io/v1beta1 
+    Annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+    TLS:
+    # - secretName: jenkins.cluster.local
+    #   hosts:
+    #     - jenkins.cluster.local
+
+Agent:
+  Enabled: true
+  Image: jenkinsci/jnlp-slave
+  ImageTag: alpine
+# ImagePullSecret: jenkins
+  Component: "jenkins-slave"
+  Privileged: false
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+  # You may want to change this to true while testing a new image
+  AlwaysPullImage: false
+  # You can define the volumes that you want to mount for this container
+  # Allowed types are: ConfigMap, EmptyDir, HostPath, Nfs, Pod, Secret
+  # Configure the attributes as they appear in the corresponding Java class for that type
+  # https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes/volumes
+  volumes:
+  # - type: Secret
+  #   secretName: mysecret
+  #   mountPath: /var/myapp/mysecret
+  NodeSelector: {}
+  # Key Value selectors. Ex:
+  # jenkins-agent: v1
+
+Persistence:
+  Enabled: true
+  ## A manually managed Persistent Volume and Claim
+  ## Requires Persistence.Enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  # ExistingClaim:
+
+  ## jenkins data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  StorageClass: "nfs-dynamic-class"
+
+  Annotations: {}
+  AccessMode: ReadWriteOnce
+  Size: 8Gi
+  volumes:
+  #  - name: nothing
+  #    emptyDir: {}
+  mounts:
+  #  - mountPath: /var/nothing
+  #    name: nothing
+  #    readOnly: true
+
+NetworkPolicy:
+  # Enable creation of NetworkPolicy resources.
+  Enabled: false
+  # For Kubernetes v1.7, use 'networking.k8s.io/v1'
+  ApiVersion: networking.k8s.io/v1 
+
+## Install Default RBAC roles and bindings
+rbac:
+  install: true
+  serviceAccountName: default
+  # RBAC api version (currently either v1beta1 or v1alpha1 or v1)
+  apiVersion: v1
+  # Cluster role reference
+  roleRef: cluster-admin

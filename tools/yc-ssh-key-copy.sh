@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 此脚本为批量部署服务器ssh key使用
+
 #set -x
 
 # check args count
@@ -45,7 +47,7 @@ ssh_key_copy()
     spawn ssh-copy-id $username@$1
     expect {
     \"yes/no\"   { send \"yes\n\"; exp_continue; }
-    \"password\" { send \"$password\n\"; }
+    \"*assword\" { send \"$password\n\"; }
     \"already exist on the remote system\" { exit 1; }
     }
     expect eof

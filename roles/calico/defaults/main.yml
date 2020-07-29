@@ -1,0 +1,25 @@
+# 部分calico相关配置，更全配置可以去roles/calico/templates/calico.yaml.j2自定义
+
+# etcd 集群服务地址列表, 根据etcd组成员自动生成
+TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
+
+# 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
+CALICO_IPV4POOL_IPIP: "Always"
+
+# 设置 Felix 日志级别
+FELIX_LOG_LVL: "warning"
+
+# 设置 calico-node使用的host IP，bgp邻居通过该地址建立，可手工指定也可以自动发现
+#IP_AUTODETECTION_METHOD: "interface=eth0"
+IP_AUTODETECTION_METHOD: "can-reach={{ groups['kube-master'][0] }}"
+
+# 更新支持calico 版本: [v3.3.x] [v3.4.x] [v3.8.x]
+calicoVer: "v3.8.8"
+calico_ver: "{{ calicoVer }}"
+
+# calico 主版本
+calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
+
+# 离线镜像tar包
+calico_offline: "calico_{{ calico_ver }}.tar"

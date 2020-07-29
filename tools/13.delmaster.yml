@@ -1,0 +1,34 @@
+# WARNNING:  this playbook will clean the kube-master node {{ NODE_TO_DEL }}
+# USAGE:     easzctl del-master 1.1.1.1
+
+- hosts: localhost
+  tasks:
+  - fail: msg="you CAN NOT delete the last member of kube-master!"
+    when: "groups['kube-master']|length < 2 and NODE_TO_DEL in groups['kube-master']"
+
+  - name: run kubectl drain @{{ NODE_TO_DEL }}
+    shell: "{{ bin_dir }}/kubectl drain {{ NODE_TO_DEL }} --ignore-daemonsets --delete-local-data"
+    ignore_errors: true
+
+  - name: clean node {{ NODE_TO_DEL }} if possible
+    shell: "ansible-playbook {{ base_dir }}/roles/clean/clean_node.yml \
+              -e NODE_TO_CLEAN={{ NODE_TO_DEL }} \
+              -e DEL_MASTER=yes \
+              -e DEL_NODE=yes \
+              -e DEL_LB=yes >> /tmp/ansible-`date +'%Y%m%d%H%M%S'`.log 2>&1 \
+            || echo 'data not cleaned on {{ NODE_TO_DEL }}'"
+    register: CLEAN_STATUS
+
+  - debug: var="CLEAN_STATUS.stdout"
+
+  - debug: var="CLEAN_STATUS.stderr"
+
+  - name: run kubectl delete node {{ NODE_TO_DEL }}
+    shell: "{{ bin_dir }}/kubectl delete node {{ NODE_TO_DEL }}"
+    ignore_errors: true
+
+  # lineinfile is inadequate to delete lines between some specific line range
+  - name: remove the master's entry in hosts
+    shell: 'sed -i "/^\[kube-master/,/^\[harbor/ {/^{{ NODE_TO_DEL }}[^0-9]*$/d}" {{ base_dir }}/hosts'
+    args:
+      warn: false

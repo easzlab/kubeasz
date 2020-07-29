@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-pilot
+  labels:
+    app: log-pilot
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: log-pilot
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: log-pilot
+    spec:
+      # 是否允许部署到Master节点上
+      #tolerations:
+      #- key: node-role.kubernetes.io/master
+      #  effect: NoSchedule
+      # priorityClassName: system-cluster-critical
+      containers:
+      - name: log-pilot
+        # 版本请参考https://github.com/AliyunContainerService/log-pilot/releases
+        image: registry.cn-hangzhou.aliyuncs.com/acs/log-pilot:0.9.7-filebeat
+        resources:
+          limits:
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        env:
+          - name: "NODE_NAME"
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: "LOGGING_OUTPUT"
+            value: "elasticsearch"
+          # 请确保集群到ES网络可达
+          - name: "ELASTICSEARCH_HOSTS"
+            value: "elasticsearch-logging:9200"
+          # 配置ES访问权限
+          - name: "ELASTICSEARCH_USER"
+            value: ""
+          - name: "ELASTICSEARCH_PASSWORD"
+            value: ""
+        volumeMounts:
+        - name: sock
+          mountPath: /var/run/docker.sock
+        - name: root
+          mountPath: /host
+          readOnly: true
+        - name: varlib
+          mountPath: /var/lib/filebeat
+        - name: varlog
+          mountPath: /var/log/filebeat
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        livenessProbe:
+          failureThreshold: 3
+          exec:
+            command:
+            - /pilot/healthz
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+        securityContext:
+          capabilities:
+            add:
+            - SYS_ADMIN
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+      - name: ydy-test-key
+      volumes:
+      - name: sock
+        hostPath:
+          path: /var/run/docker.sock
+      - name: root
+        hostPath:
+          path: /
+      - name: varlib
+        hostPath:
+          path: /var/lib/filebeat
+          type: DirectoryOrCreate
+      - name: varlog
+        hostPath:
+          path: /var/log/filebeat
+          type: DirectoryOrCreate
+      - name: localtime
+        hostPath:
+          path: /etc/localtime

@@ -1,0 +1,10 @@
+# 选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
+OVN_DB_NODE: "{{ groups['kube-master'][0] }}"
+
+kube_ovn_default_cidr: "{{ CLUSTER_CIDR }}"
+kube_ovn_default_gateway: "{{ CLUSTER_CIDR | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
+kube_ovn_node_switch_cidr: 100.64.0.0/16
+kube_ovn_enable_mirror: true
+
+# 离线镜像tar包
+kube_ovn_offline: "kube_ovn_0.9.1.tar"

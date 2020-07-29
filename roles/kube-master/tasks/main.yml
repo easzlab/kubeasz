@@ -4,43 +4,69 @@
   - kube-apiserver
   - kube-controller-manager
   - kube-scheduler
+  - kubectl
   tags: upgrade_k8s
-
-# 注册变量p，根据p的stat信息判断是否已经生成过kubernetes证书，如果没有，下一步生成证书
-# 如果已经有证书，为了保证整个安装的幂等性，跳过证书生成的步骤
-- name: 读取kubernetes证书stat信息
-  stat: path="/etc/kubernetes/ssl/kubernetes.pem"
-  register: p
 
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
-  when: p.stat.isreg is not defined
+  tags: change_cert
 
 - name: 创建 kubernetes 证书和私钥
-  when: p.stat.isreg is not defined
   shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
         -ca={{ ca_dir }}/ca.pem \
         -ca-key={{ ca_dir }}/ca-key.pem \
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
+  tags: change_cert
 
-- name: 创建 token.csv
-  template: src=token.csv.j2 dest={{ ca_dir }}/token.csv
+# 创建aggregator proxy相关证书
+- name: 创建 aggregator proxy证书签名请求
+  template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
 
+- name: 创建 aggregator-proxy证书和私钥
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
+
+- block:
+  - name: 生成 basic-auth 随机密码
+    shell: 'PWD=`date +%s%N|md5sum|head -c16`; \
+	sed -i "s/_pwd_/$PWD/g" {{ base_dir }}/roles/kube-master/defaults/main.yml; \
+	echo $PWD;'
+    connection: local
+    register: TMP_PASS
+    run_once: true
+    
+  - name: 设置 basic-auth 随机密码
+    set_fact: BASIC_AUTH_PASS={{ TMP_PASS.stdout }}
+  when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
+  tags: restart_master
+  
 - name: 创建 basic-auth.csv
   template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  tags: restart_master
 
-- name: 创建kube-apiserver的systemd unit文件
-  template: src=kube-apiserver.service.j2 dest=/etc/systemd/system/kube-apiserver.service
-  tags: upgrade_k8s
+- name: 替换 kubeconfig 的 apiserver 地址
+  lineinfile:
+    dest: "{{ item }}"
+    regexp: "^    server"
+    line: "    server: https://{{ inventory_hostname }}:6443"
+  with_items:
+  - "/root/.kube/config"
+  - "/etc/kubernetes/kube-controller-manager.kubeconfig"
+  - "/etc/kubernetes/kube-scheduler.kubeconfig"
+  tags: upgrade_k8s, restart_master
 
-- name: 创建kube-controller-manager的systemd unit文件
-  template: src=kube-controller-manager.service.j2 dest=/etc/systemd/system/kube-controller-manager.service
-  tags: upgrade_k8s
-
-- name: 创建kube-scheduler的systemd unit文件
-  template: src=kube-scheduler.service.j2 dest=/etc/systemd/system/kube-scheduler.service
-  tags: upgrade_k8s
+- name: 创建 master 服务的 systemd unit 文件
+  template: src={{ item }}.j2 dest=/etc/systemd/system/{{ item }}
+  with_items:
+  - kube-apiserver.service
+  - kube-controller-manager.service
+  - kube-scheduler.service
+  tags: restart_master, upgrade_k8s
 
 - name: enable master 服务
   shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
@@ -49,7 +75,7 @@
 - name: 启动 master 服务
   shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
 	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
-  tags: upgrade_k8s
+  tags: upgrade_k8s, restart_master
 
 - name: 以轮询的方式等待master服务启动完成
   command: "{{ bin_dir }}/kubectl get node"
@@ -57,5 +83,15 @@
   until:    result.rc == 0
   retries:  5
   delay: 6
-  run_once: True
-  tags: upgrade_k8s
+  tags: upgrade_k8s, restart_master
+
+- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
+  template: src=basic-auth-rbac.yaml.j2 dest=/opt/kube/basic-auth-rbac.yaml
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  tags: restart_master
+
+- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/basic-auth-rbac.yaml"
+  when: 'BASIC_AUTH_ENABLE == "yes"'
+  run_once: true
+  tags: restart_master

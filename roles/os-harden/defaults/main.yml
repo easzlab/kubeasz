@@ -1,6 +1,6 @@
 os_desktop_enable: false
 os_env_extra_user_paths: []
-os_auth_pw_max_age: 99999 # 密码过期天数 
+os_auth_pw_max_age: 60
 os_auth_pw_min_age: 7 # discourage password cycling
 os_auth_retries: 5
 os_auth_lockout_time: 600 # 10min
@@ -35,7 +35,7 @@ os_security_init_prompt: true
 os_security_init_single: false
 
 # Apply ufw defaults
-ufw_manage_defaults: false 
+ufw_manage_defaults: true
 
 # Empty variable disables IPT_SYSCTL in /etc/default/ufw
 # by default in Ubuntu it set to: /etc/ufw/sysctl.conf
@@ -219,7 +219,7 @@ sysctl_config:
   # example via package removal (e.g. wine, dosemu).  Therefore, this value
   # is reset to the secure default each time the sysctl values are loaded.
   vm.mmap_min_addr: 65536
-          
+
   # These settings eliminate an entire class of security vulnerability:
   # time-of-check-time-of-use cross-privilege attacks using guessable
   # filenames (generally seen as "/tmp file race" vulnerabilities).
@@ -243,3 +243,7 @@ os_unused_filesystems:
 
 # whitelist for used filesystems
 os_filesystem_whitelist: []
+
+# Set to false to turn the role into a no-op. Useful when using
+# the Ansible role dependency mechanism.
+os_hardening_enabled: true

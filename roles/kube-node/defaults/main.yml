@@ -1,0 +1,41 @@
+# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
+CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
+
+# 基础容器镜像
+SANDBOX_IMAGE: "easzlab/pause-amd64:3.2"
+
+# Kubelet 根目录
+KUBELET_ROOT_DIR: "/var/lib/kubelet"
+
+# node节点最大pod 数
+MAX_PODS: 110
+
+# 配置为kube组件（kubelet,kube-proxy,dockerd等）预留的资源量
+# 数值设置详见templates/kubelet-config.yaml.j2
+KUBE_RESERVED_ENABLED: "yes"
+
+# k8s 官方不建议草率开启 system-reserved, 除非你基于长期监控，了解系统的资源占用状况；
+# 并且随着系统运行时间，需要适当增加资源预留，数值设置详见templates/kubelet-config.yaml.j2
+# 系统预留设置基于 4c/8g 虚机，最小化安装系统服务，如果使用高性能物理机可以适当增加预留
+# 另外，集群安装时候apiserver等资源占用会短时较大，建议至少预留1g内存
+SYS_RESERVED_ENABLED: "no"
+
+# haproxy balance mode 
+BALANCE_ALG: "roundrobin"
+
+# 设置 APISERVER 地址
+KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
+                     https://{{ inventory_hostname }}:6443 \
+                 {%- else -%} \
+                     {%- if groups['kube-master']|length > 1 -%} \
+                         https://127.0.0.1:6443 \
+                     {%- else -%} \
+                         https://{{ groups['kube-master'][0] }}:6443 \
+                     {%- endif -%} \
+                 {%- endif -%}"
+
+# 增加/删除 master 节点时，node 节点需要重新配置 haproxy 等
+MASTER_CHG: "no"
+
+# 离线安装 haproxy (offline|online)
+INSTALL_SOURCE: "online"
