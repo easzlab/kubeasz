@@ -244,7 +244,8 @@ function download_all() {
   get_kubeasz && \
   get_k8s_bin && \
   get_ext_bin && \
-  get_offline_image
+  get_offline_image && \
+  get_sys_pkg
 }
 
 function start_kubeasz_docker() {
