@@ -21,7 +21,7 @@ data:
   etcd_cert: "/calico-secrets/etcd-cert"
   etcd_key: "/calico-secrets/etcd-key"
   # Configure the Calico backend to use.
-  calico_backend: "bird"
+  calico_backend: "{{ CALICO_NETWORKING_BACKEND }}"
 
   # Configure the MTU to use
   veth_mtu: "1440"
