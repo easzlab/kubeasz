@@ -22,7 +22,7 @@ data:
   # Typha is disabled.
   typha_service_name: "none"
   # Configure the backend to use.
-  calico_backend: "bird"
+  calico_backend: "{{ CALICO_NETWORKING_BACKEND }}"
 
   # Configure the MTU to use
   veth_mtu: "1440"
