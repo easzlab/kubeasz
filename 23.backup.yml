@@ -28,10 +28,13 @@
 
   - debug: var="RUNNING_NODE.stdout"
 
+  - name: get current time
+    set_fact: temp="{{lookup('pipe','date \"+%Y%m%d_%H%M\"')}}"
+
   # step2: backup data on the healthy member
   - name: make a backup on etcd node
     shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
-        ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot.db"
+        ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot_{{ temp }}.db"
     args:
       warn: false
     delegate_to: "{{ RUNNING_NODE.stdout }}"
