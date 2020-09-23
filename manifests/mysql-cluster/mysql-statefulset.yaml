@@ -71,7 +71,6 @@ spec:
         ports:
         - name: mysql
           containerPort: 3306
-          hostPort: 3306
         volumeMounts:
         - name: data
           mountPath: /var/lib/mysql
@@ -107,7 +106,6 @@ spec:
         - |
           set -ex
           cd /var/lib/mysql
-
           # Determine binlog position of cloned data, if any.
           if [[ -f xtrabackup_slave_info ]]; then
             # XtraBackup already generated a partial "CHANGE MASTER TO" query
@@ -122,12 +120,10 @@ spec:
             echo "CHANGE MASTER TO MASTER_LOG_FILE='${BASH_REMATCH[1]}',\
                   MASTER_LOG_POS=${BASH_REMATCH[2]}" > change_master_to.sql.in
           fi
-
           # Check if we need to complete a clone by starting replication.
           if [[ -f change_master_to.sql.in ]]; then
             echo "Waiting for mysqld to be ready (accepting connections)"
             until mysql -h 127.0.0.1 -e "SELECT 1"; do sleep 1; done
-
             echo "Initializing replication from clone position"
             # In case of container restart, attempt this at-most-once.
             mv change_master_to.sql.in change_master_to.sql.orig
@@ -140,7 +136,6 @@ spec:
           START SLAVE;
           EOF
           fi
-
           # Start a server to send backups when requested by peers.
           exec ncat --listen --keep-open --send-only --max-conns=1 3307 -c \
             "xtrabackup --backup --slave-info --stream=xbstream --host=127.0.0.1 --user=root"
