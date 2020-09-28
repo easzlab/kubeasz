@@ -383,8 +383,8 @@ function main() {
         z)
           export KUBEASZ_VER="$OPTARG"
           ;;
-		c)
-		  export CONTAINERD_VER="$OPTARG"
+        c)
+          export CONTAINERD_VER="$OPTARG"
           ;;
         ?)
           usage
