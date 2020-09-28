@@ -19,6 +19,7 @@ export KUBEASZ_VER=2.2.1
 export K8S_BIN_VER=v1.18.3
 export EXT_BIN_VER=0.5.2
 export SYS_PKG_VER=0.3.3
+export CONTAINERD_VER=1.2.6
 
 function download_docker() {
   echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
@@ -238,12 +239,40 @@ function get_offline_image() {
   fi
 }
 
+function get_containerd_bin() {
+  echo -e "[INFO] \033[33mdownloading Containerd binaries\033[0m $CONTAINERD_VER"
+  if [[ "$REGISTRY_MIRROR" == CN ]];then
+    CONTAINERD_URL="https://storage.googleapis.com.cnpmjs.org/cri-containerd-release/cri-containerd-${CONTAINERD_VER}.linux-amd64.tar.gz"
+  else
+    CONTAINERD_URL="https://storage.googleapis.com/cri-containerd-release/cri-containerd-${CONTAINERD_VER}.linux-amd64.tar.gz"
+  fi
+  
+  mkdir -p /etc/ansible/bin/containerd-bin /etc/ansible/down/containerd
+  if [[ -f "/etc/ansible/down/cri-containerd-${CONTAINERD_VER}.linux-amd64.tar.gz" ]];then
+    echo "[INFO] containerd binaries already existed"
+  else
+    echo -e "[INFO] \033[33mdownloading containerd binaries\033[0m $CONTAINERD_VER"
+    if [[ -e /usr/bin/curl ]];then
+      curl -C- -O --retry 3 "$CONTAINERD_URL" || { echo "[ERROR] downloading containerd failed"; exit 1; }
+    else
+      wget -c "$CONTAINERD_URL" || { echo "[ERROR] downloading containerd failed"; exit 1; }
+    fi
+    /bin/mv -f ./cri-containerd-${CONTAINERD_VER}.linux-amd64.tar.gz /etc/ansible/down
+  fi
+
+  tar zxf /etc/ansible/down/cri-containerd-${CONTAINERD_VER}.linux-amd64.tar.gz -C /etc/ansible/down/containerd && \
+  /bin/cp -f /etc/ansible/down/containerd/usr/local/bin/{containerd,containerd-shim,containerd-shim-runc-v1,crictl,ctr} /etc/ansible/bin/containerd-bin && \
+  /bin/cp -f /etc/ansible/down/containerd/usr/local/sbin/runc /etc/ansible/bin/containerd-bin && \
+  rm -rf /etc/ansible/down/containerd
+}
+
 function download_all() {
   download_docker && \
   install_docker && \
   get_kubeasz && \
   get_k8s_bin && \
   get_ext_bin && \
+  get_containerd_bin && \
   get_offline_image
 }
 
@@ -305,6 +334,7 @@ Usage: easzup [options] [args]
     -m <str>   set docker registry mirrors, default "CN"(used in Mainland,China)
     -p <ver>   set kubeasz-sys-pkg version, default "$SYS_PKG_VER"
     -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
+    -c <ver>   set containerd version, default "$CONTAINERD_VER"
   
 see more at https://github.com/kubeasz/dockerfiles
 EOF
@@ -352,6 +382,9 @@ function main() {
           ;;
         z)
           export KUBEASZ_VER="$OPTARG"
+          ;;
+		c)
+		  export CONTAINERD_VER="$OPTARG"
           ;;
         ?)
           usage
