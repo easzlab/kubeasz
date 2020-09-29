@@ -261,7 +261,7 @@ function get_containerd_bin() {
   fi
 
   tar zxf /etc/ansible/down/cri-containerd-${CONTAINERD_VER}.linux-amd64.tar.gz -C /etc/ansible/down/containerd && \
-  /bin/cp -f /etc/ansible/down/containerd/usr/local/bin/{containerd,containerd-shim,containerd-shim-runc-v1,crictl,ctr} /etc/ansible/bin/containerd-bin && \
+  /bin/cp -f /etc/ansible/down/containerd/usr/local/bin/{containerd,containerd-shim,containerd-shim-runc-v1,containerd-shim-runc-v2,crictl,ctr} /etc/ansible/bin/containerd-bin && \
   /bin/cp -f /etc/ansible/down/containerd/usr/local/sbin/runc /etc/ansible/bin/containerd-bin && \
   rm -rf /etc/ansible/down/containerd
 }
