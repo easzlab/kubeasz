@@ -11,6 +11,11 @@ MASTER_CERT_HOSTS:
   #- "www.test.com"
 
 # apiserver 基础认证（用户名/密码）配置，详见 master 节点文件‘/etc/kubernetes/ssl/basic-auth.csv’
+# the first three values can be anything;
+# These tokens are arbitrary but should represent at least 128 bits of entropy derived from
+# a secure random number generator, for example:
+# head -c 16 /dev/urandom | od -An -t x | tr -d ' '
+# 例子： 02b50b05283e98dd0fd71db496ef01e8,kubelet-bootstrap,10001,"system:bootstrappers"
 # 是否启用基础认证 yes/no
 BASIC_AUTH_ENABLE: 'no'
 # 用户名：
