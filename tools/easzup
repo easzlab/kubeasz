@@ -14,12 +14,21 @@ set -o errexit
 #set -o xtrace
 
 # default version, can be overridden by cmd line options
-export DOCKER_VER=19.03.8
-export KUBEASZ_VER=2.2.1
-export K8S_BIN_VER=v1.18.3
-export EXT_BIN_VER=0.5.2
+export DOCKER_VER=19.03.13
+export KUBEASZ_VER=2.2.2
+export K8S_BIN_VER=v1.19.3
+export EXT_BIN_VER=0.6.0
 export SYS_PKG_VER=0.3.3
 export CONTAINERD_VER=1.2.6
+
+# images needed by k8s cluster
+export calicoVer=v3.8.8
+export corednsVer=1.7.1
+export dashboardVer=v2.0.4
+export dashboardMetricsScraperVer=v1.0.4
+export flannelVer=v0.13.0-amd64
+export metricsVer=v0.3.6
+export pauseVer=3.2
 
 function download_docker() {
   echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
@@ -187,14 +196,6 @@ function get_sys_pkg() {
 }
 
 function get_offline_image() {
-  # images needed by k8s cluster
-  calicoVer=v3.8.8
-  corednsVer=1.6.7
-  dashboardVer=v2.0.1
-  dashboardMetricsScraperVer=v1.0.4
-  flannelVer=v0.12.0-amd64
-  metricsVer=v0.3.6
-  pauseVer=3.2
 
   imageDir=/etc/ansible/down
   [[ -d "$imageDir" ]] || { echo "[ERROR] $imageDir not existed!"; exit 1; }
@@ -261,7 +262,7 @@ function get_containerd_bin() {
   fi
 
   tar zxf /etc/ansible/down/cri-containerd-${CONTAINERD_VER}.linux-amd64.tar.gz -C /etc/ansible/down/containerd && \
-  /bin/cp -f /etc/ansible/down/containerd/usr/local/bin/{containerd,containerd-shim,containerd-shim-runc-v1,containerd-shim-runc-v2,crictl,ctr} /etc/ansible/bin/containerd-bin && \
+  /bin/cp -f /etc/ansible/down/containerd/usr/local/bin/{containerd,containerd-shim,containerd-shim-runc-v1,crictl,ctr} /etc/ansible/bin/containerd-bin && \
   /bin/cp -f /etc/ansible/down/containerd/usr/local/sbin/runc /etc/ansible/bin/containerd-bin && \
   rm -rf /etc/ansible/down/containerd
 }
