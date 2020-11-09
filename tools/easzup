@@ -13,6 +13,10 @@ set -o nounset
 set -o errexit
 #set -o xtrace
 
+DOWNLOAD_ONLY=0
+# download only on MAC
+uname -a | grep Darwin && DOWNLOAD_ONLY=1
+
 # default version, can be overridden by cmd line options
 export DOCKER_VER=19.03.8
 export KUBEASZ_VER=2.2.1
@@ -41,17 +45,21 @@ function download_docker() {
     fi
     /bin/mv -f ./docker-${DOCKER_VER}.tgz /etc/ansible/down
   fi
+}
 
+function install_docker() {
+  if [[ $DOWNLOAD_ONLY ]];then
+    return 0
+  fi
+
+  # check if a container runtime is already installed
+  systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
+ 
   tar zxf /etc/ansible/down/docker-${DOCKER_VER}.tgz -C /etc/ansible/down && \
   /bin/cp -f /etc/ansible/down/docker/* /etc/ansible/bin && \
   /bin/mv -f /etc/ansible/down/docker/* /opt/kube/bin && \
   ln -sf /opt/kube/bin/docker /bin/docker 
-}
 
-function install_docker() {
-  # check if a container runtime is already installed
-  systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
- 
   echo "[INFO] generate docker service file"
   cat > /etc/systemd/system/docker.service << EOF
 [Unit]
@@ -151,11 +159,11 @@ function get_k8s_bin() {
   echo "[INFO] run a temporary container" && \
   docker run -d --name temp_k8s_bin easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
   echo "[INFO] cp k8s binaries" && \
-  docker cp temp_k8s_bin:/k8s /k8s_bin_tmp && \
-  /bin/mv -f /k8s_bin_tmp/* /etc/ansible/bin && \
+  docker cp temp_k8s_bin:/k8s /etc/ansible/k8s_bin_tmp && \
+  /bin/mv -f /etc/ansible/k8s_bin_tmp/* /etc/ansible/bin && \
   echo "[INFO] stop&remove temporary container" && \
   docker rm -f temp_k8s_bin && \
-  rm -rf /k8s_bin_tmp
+  rm -rf /etc/ansible/k8s_bin_tmp
 }
 
 function get_ext_bin() {
@@ -166,11 +174,11 @@ function get_ext_bin() {
   echo "[INFO] run a temporary container" && \
   docker run -d --name temp_ext_bin easzlab/kubeasz-ext-bin:${EXT_BIN_VER} && \
   echo "[INFO] cp extral binaries" && \
-  docker cp temp_ext_bin:/extra /extra_bin_tmp && \
-  /bin/mv -f /extra_bin_tmp/* /etc/ansible/bin && \
+  docker cp temp_ext_bin:/extra /etc/ansible/extra_bin_tmp && \
+  /bin/mv -f /etc/ansible/extra_bin_tmp/* /etc/ansible/bin && \
   echo "[INFO] stop&remove temporary container" && \
   docker rm -f temp_ext_bin && \
-  rm -rf /extra_bin_tmp
+  rm -rf /etc/ansible/extra_bin_tmp
 }
 
 function get_sys_pkg() {
