@@ -4,7 +4,7 @@
 - hosts:
   - localhost
   tasks:
-  # step1: find a healthy member in the etcd cluster 
+  # step1: find a healthy member in the etcd cluster
   - name: set NODE_IPS of the etcd cluster
     set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
 
@@ -41,7 +41,7 @@
 
   - name: fetch the backup data
     fetch:
-      src: /etcd_backup/snapshot.db
+      src: /etcd_backup/snapshot_{{ temp }}.db
       dest: "{{ base_dir }}/.cluster/backup/"
       flat: yes
     delegate_to: "{{ RUNNING_NODE.stdout }}"
@@ -60,6 +60,6 @@
 	cp -fp hosts hosts-$(date +'%Y%m%d%H%M')"
     when: 'p is changed'
 
-  - name: Backing up etcd snapshot with datetime
-    shell: "cd {{ base_dir }}/.cluster/backup && \
-	cp -fp snapshot.db snapshot-$(date +'%Y%m%d%H%M').db"
+  #- name: Backing up etcd snapshot with datetime
+  #  shell: "cd {{ base_dir }}/.cluster/backup && \
+  #	cp -fp snapshot.db snapshot-$(date +'%Y%m%d%H%M').db"
