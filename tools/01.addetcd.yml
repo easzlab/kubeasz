@@ -19,9 +19,7 @@
               done'
       register: ETCD_CLUSTER_STATUS
 
-    - debug: var="ETCD_CLUSTER_STATUS.stdout"
-
-    - debug: var="ETCD_CLUSTER_STATUS.stderr"
+    - debug: var="ETCD_CLUSTER_STATUS"
 
     - name: get a running ectd node
       shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}" \
