@@ -19,4 +19,4 @@ CHANGELOG:
 - 文档
   - Update kuboard.md #861
 - 其他
-  - 调整etcd备份文件名称 #902 #932
+  - 调整etcd备份文件 #902 #932 #933

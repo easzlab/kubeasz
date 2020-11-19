@@ -189,7 +189,7 @@ spec:
     spec:
       containers:
         - name: kubernetes-dashboard
-          image: kubernetesui/dashboard:v2.0.1
+          image: kubernetesui/dashboard:v2.0.4
           ports:
             - containerPort: 8443
               protocol: TCP
@@ -290,6 +290,8 @@ spec:
             runAsUser: 1001
             runAsGroup: 2001
       serviceAccountName: kubernetes-dashboard
+      nodeSelector:
+        "kubernetes.io/os": linux
       # Comment the following tolerations if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master
