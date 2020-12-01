@@ -2,8 +2,8 @@
   shell: 'systemctl status docker|grep Active || echo "NOT FOUND"'
   register: docker_status
 
-- name: fail info1
-  fail: msg="Docker already installed!"
+- name: 停止docker
+  shell: 'systemctl stop docker'
   when: '"running" in docker_status.stdout'
 
 - name: 准备containerd相关目录
@@ -21,6 +21,7 @@
   - containerd
   - containerd-shim
   - containerd-shim-runc-v1
+  - containerd-shim-runc-v2
   - crictl
   - ctr
   - runc
