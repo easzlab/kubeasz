@@ -27,6 +27,7 @@ ExecStart={{ bin_dir }}/etcd \
   --snapshot-count=50000 \
   --auto-compaction-retention=1 \
   --max-request-bytes=10485760 \
+  --auto-compaction-mode=periodic \
   --quota-backend-bytes=8589934592
 Restart=always
 RestartSec=15
