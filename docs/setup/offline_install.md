@@ -68,7 +68,7 @@ sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' /etc/ansible/roles/pre
 docker exec -it kubeasz easzctl start-aio
 ```
 
-- 多节点集群，进入kubeasz 容器内 `kubectl exec -it kubeasz bash`，参考https://github.com/easzlab/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md 进行集群规划和设置后安装
+- 多节点集群，进入kubeasz 容器内 `docker exec -it kubeasz bash`，参考https://github.com/easzlab/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md 进行集群规划和设置后安装
 
 ```
 #ansible-playbook 90.setup.yml
