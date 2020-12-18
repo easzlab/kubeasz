@@ -13,10 +13,10 @@ set -o errexit
 #set -o xtrace
 
 # default version, can be overridden by cmd line options, see ./easzup
-DOCKER_VER=19.03.13
+DOCKER_VER=19.03.14
 KUBEASZ_VER=2.2.2
-K8S_BIN_VER=v1.19.4
-EXT_BIN_VER=0.7.0
+K8S_BIN_VER=v1.20.0
+EXT_BIN_VER=0.8.1
 SYS_PKG_VER=0.3.3
 
 # images needed by k8s cluster
@@ -48,16 +48,16 @@ function download_docker() {
     fi
     /bin/mv -f ./docker-${DOCKER_VER}.tgz /etc/ansible/down
   fi
-}
-
-function install_docker() {
-  # check if a container runtime is already installed
-  systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
 
   tar zxf /etc/ansible/down/docker-${DOCKER_VER}.tgz -C /etc/ansible/down && \
   /bin/cp -f /etc/ansible/down/docker/* /etc/ansible/bin && \
   /bin/mv -f /etc/ansible/down/docker/* /opt/kube/bin && \
   ln -sf /opt/kube/bin/docker /bin/docker 
+}
+
+function install_docker() {
+  # check if a container runtime is already installed
+  systemctl status docker|grep Active|grep -q running && { echo "[WARN] docker is already running."; return 0; }
  
   echo "[INFO] generate docker service file"
   cat > /etc/systemd/system/docker.service << EOF

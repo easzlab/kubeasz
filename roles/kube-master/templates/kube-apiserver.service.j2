@@ -8,6 +8,7 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --advertise-address={{ inventory_hostname }} \
   --allow-privileged=true \
   --anonymous-auth=false \
+  --api-audiences=api,istio-ca \
   --authorization-mode=Node,RBAC \
 {% if BASIC_AUTH_ENABLE == "yes" %}
   --token-auth-file={{ ca_dir }}/basic-auth.csv \
@@ -22,7 +23,8 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --kubelet-certificate-authority={{ ca_dir }}/ca.pem \
   --kubelet-client-certificate={{ ca_dir }}/admin.pem \
   --kubelet-client-key={{ ca_dir }}/admin-key.pem \
-  --kubelet-https=true \
+  --service-account-issuer=kubernetes.default.svc \
+  --service-account-signing-key-file={{ ca_dir }}/ca-key.pem \
   --service-account-key-file={{ ca_dir }}/ca.pem \
   --service-cluster-ip-range={{ SERVICE_CIDR }} \
   --service-node-port-range={{ NODE_PORT_RANGE }} \
