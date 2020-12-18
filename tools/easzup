@@ -27,6 +27,7 @@ dashboardMetricsScraperVer=v1.0.4
 flannelVer=v0.13.0-amd64
 metricsVer=v0.3.6
 pauseVer=3.2
+traefikVer=v2.4
 
 function download_docker() {
   echo -e "[INFO] \033[33mdownloading docker binaries\033[0m $DOCKER_VER"
@@ -235,6 +236,10 @@ function get_offline_image() {
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     docker pull easzlab/kubeasz:${KUBEASZ_VER} && \
     docker save -o ${imageDir}/kubeasz_${KUBEASZ_VER}.tar easzlab/kubeasz:${KUBEASZ_VER}
+  fi
+  if [[ ! -f "$imageDir/kubeasz_$traefikVer.tar" ]];then
+    docker pull traefik:${traefikVer} && \
+    docker save -o ${imageDir}/traefik_${traefikVer}.tar traefik:${traefikVer}
   fi
 }
 

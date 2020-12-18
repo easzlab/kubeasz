@@ -27,7 +27,10 @@ dashboardMetricsScraperVer: "v1.0.4"
 metricsscraper_offline: "metrics-scraper_{{ dashboardMetricsScraperVer }}.tar"
 
 # ingress 自动安装，可选 "traefik" 和 "nginx-ingress"
-#ingress_install: "no"
+ingress_install: "no"
+ingress_backend: "traefik_v2"
+traefikVer: "v2.4"
+traefik_v2_offline: "traefik_{{ traefikVer }}.tar"
 
 # metallb 自动安装
 #metallb_install: "no"

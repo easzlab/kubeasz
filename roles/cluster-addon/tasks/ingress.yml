@@ -3,11 +3,11 @@
         - name: 尝试推送离线 traefik镜像（若执行失败，可忽略）
           copy: src={{ base_dir }}/down/{{ traefik_offline }} dest=/opt/kube/images/{{ traefik_offline }}
           when: 'traefik_offline in download_info.stdout'
-    
+
         - name: 获取traefik离线镜像推送情况
           command: "ls /opt/kube/images"
           register: image_info
-    
+
         - name: 导入 traefik的离线镜像（若执行失败，可忽略）
           shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ traefik_offline }}"
           when: 'traefik_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
@@ -21,6 +21,32 @@
       connection: local
       run_once: true
   when: 'ingress_backend == "traefik"'
+  ignore_errors: true
+
+# Traefik v2
+- block:
+    - block:
+        - name: 尝试推送离线 traefik v2 镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ traefik_v2_offline }} dest=/opt/kube/images/{{ traefik_v2_offline }}
+          when: 'traefik_offline in download_info.stdout'
+    
+        - name: 获取traefik离线镜像推送情况
+          command: "ls /opt/kube/images"
+          register: image_info
+    
+        - name: 导入 traefik的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ traefik_v2_offline }}"
+          when: 'traefik_v2_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+
+        - name: 导入 traefik的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ traefik_v2_offline }}"
+          when: 'traefik_v2_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
+
+    - name: 创建 traefik部署
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress-v2.yaml"
+      connection: local
+      run_once: true
+  when: 'ingress_backend == "traefik_v2"'
   ignore_errors: true
 
 - block:
