@@ -20,10 +20,10 @@ EXT_BIN_VER=0.8.1
 SYS_PKG_VER=0.3.3
 
 # images needed by k8s cluster
-calicoVer=v3.8.8
+calicoVer=v3.15.3
 corednsVer=1.7.1
-dashboardVer=v2.0.4
-dashboardMetricsScraperVer=v1.0.4
+dashboardVer=v2.1.0
+dashboardMetricsScraperVer=v1.0.6
 flannelVer=v0.13.0-amd64
 metricsVer=v0.3.6
 pauseVer=3.2
@@ -201,10 +201,10 @@ function get_offline_image() {
   echo -e "[INFO] \033[33mdownloading offline images\033[0m"
 
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
-    docker pull "calico/cni:${calicoVer}-1" && \
+    docker pull "calico/cni:${calicoVer}" && \
     docker pull "calico/pod2daemon-flexvol:${calicoVer}" && \
     docker pull "calico/kube-controllers:${calicoVer}" && \
-    docker pull "calico/node:${calicoVer}-1" && \
+    docker pull "calico/node:${calicoVer}" && \
     docker save -o ${imageDir}/calico_${calicoVer}.tar calico/cni:${calicoVer}-1 calico/kube-controllers:${calicoVer} calico/node:${calicoVer}-1 calico/pod2daemon-flexvol:${calicoVer}
   fi
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
