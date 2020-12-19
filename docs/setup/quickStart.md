@@ -2,6 +2,14 @@
 
 以下为快速体验k8s集群的测试、开发环境--单节点部署(aio)，国内环境下比官方的minikube方便、简单很多。
 
+### TL;DR;
+
+先上懒人一键下载并启动脚本，等待下载/安装过程中可以详细了解具体流程
+
+``` bash
+curl -C- -fLO https://github.com/easzlab/kubeasz/releases/download/2.2.3/start-aio && chmod +x ./start-aio && ./start-aio 2.2.3
+```
+
 ### 1.基础系统配置
 
 - 准备一台虚机配置内存2G/硬盘30G以上
@@ -12,10 +20,11 @@
 
 ### 2.下载文件
 
-- 下载工具脚本easzup，举例使用kubeasz版本2.2.1
+- 下载工具脚本easzup，举例使用kubeasz版本2.2.3
+- 关于easzup的启动参数，可以运行 ./easzup 详细查看
 
 ``` bash
-export release=2.2.1
+export release=2.2.3
 curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
 chmod +x ./easzup
 ```
@@ -25,8 +34,8 @@ chmod +x ./easzup
 默认下载最新推荐k8s/docker等版本，使用命令`./easzup` 查看工具脚本的帮助信息
 
 ``` bash
-# 举例使用 k8s 版本 v1.18.2，docker 19.03.5
-./easzup -D -d 19.03.5 -k v1.18.2
+# 举例使用 k8s 版本 v1.20.1，docker 19.03.14
+./easzup -D -d 19.03.14 -k v1.20.1
 ```
 
 - 可选下载离线系统包 (适用于无法使用yum/apt仓库情形)
