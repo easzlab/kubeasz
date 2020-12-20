@@ -12,6 +12,9 @@ EOF
 
 [[ "$#" -eq 1 ]] || { usage >&2; exit 1; }
 
+# 
+rm -f easzup
+
 # tool
 echo "[INFO] get the tool script: easzup"
 if [[ -e /usr/bin/curl ]];then

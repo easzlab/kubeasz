@@ -7,7 +7,9 @@
 先上懒人一键下载并启动脚本，等待下载/安装过程中可以详细了解具体流程
 
 ``` bash
-curl -C- -fLO https://github.com/easzlab/kubeasz/releases/download/2.2.3/start-aio && chmod +x ./start-aio && ./start-aio 2.2.3
+curl -C- -fLO https://github.com/easzlab/kubeasz/releases/download/2.2.3/start-aio
+chmod +x ./start-aio
+./start-aio 2.2.3
 ```
 
 ### 1.基础系统配置
