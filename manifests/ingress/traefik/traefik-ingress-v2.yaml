@@ -220,13 +220,14 @@ data:
 ## Deploy Traefik DaemonSet
 ---
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: traefik-ingress-controller
   namespace: kube-system
   labels:
     app: traefik
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: traefik
