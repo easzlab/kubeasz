@@ -145,6 +145,7 @@ function get_kubeasz() {
   echo "[INFO] stop&remove temporary container" && \
   docker rm -f temp_easz
 
+ mkdir -p /etc/ansible/bin
  [[ -f "/tmp/docker-${DOCKER_VER}.tgz" ]] && /bin/mv -f "/tmp/docker-${DOCKER_VER}.tgz" /etc/ansible/down
  [[ -d "/tmp/bin" ]] && /bin/mv -f /tmp/bin/* /etc/ansible/bin
  return 0
