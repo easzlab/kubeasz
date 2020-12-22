@@ -28,7 +28,7 @@
     - block:
         - name: 尝试推送离线 traefik v2 镜像（若执行失败，可忽略）
           copy: src={{ base_dir }}/down/{{ traefik_v2_offline }} dest=/opt/kube/images/{{ traefik_v2_offline }}
-          when: 'traefik_offline in download_info.stdout'
+          when: 'traefik_v2_offline in download_info.stdout'
     
         - name: 获取traefik离线镜像推送情况
           command: "ls /opt/kube/images"

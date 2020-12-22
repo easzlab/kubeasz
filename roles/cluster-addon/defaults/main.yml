@@ -21,13 +21,13 @@ metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 # dashboard 自动安装
 # dashboard v2.x.x 不依赖于heapster
 dashboard_install: "yes"
-dashboardVer: "v2.0.4"
+dashboardVer: "v2.1.0"
 dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
-dashboardMetricsScraperVer: "v1.0.4"
+dashboardMetricsScraperVer: "v1.0.6"
 metricsscraper_offline: "metrics-scraper_{{ dashboardMetricsScraperVer }}.tar"
 
 # ingress 自动安装，可选 "traefik" 和 "nginx-ingress"
-ingress_install: "no"
+ingress_install: "yes"
 ingress_backend: "traefik_v2"
 traefikVer: "v2.4"
 traefik_v2_offline: "traefik_{{ traefikVer }}.tar"
