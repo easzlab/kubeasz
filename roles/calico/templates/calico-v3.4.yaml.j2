@@ -244,8 +244,10 @@ spec:
             exec:
               command:
               - /bin/calico-node
-              - -bird-ready
               - -felix-ready
+{% if CALICO_NETWORKING_BACKEND == "brid" %}
+              - -bird-ready
+{% endif %}
             periodSeconds: 10
           volumeMounts:
             - mountPath: /lib/modules
