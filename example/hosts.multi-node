@@ -61,4 +61,7 @@ bin_dir="/opt/kube/bin"
 ca_dir="/etc/kubernetes/ssl"
 
 # Deploy Directory (kubeasz workspace)
-base_dir="/etc/ansible"
+base_dir="/etc/kubeasz"
+
+# Directory for a specific cluster
+cluster_dir="{{ base_dir }}/clusters/_cluster_name_"

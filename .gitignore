@@ -2,12 +2,8 @@ down/*
 !down/download.sh
 !down/offline_images
 
-# k8s binaries directory
+# binaries directory
 bin/*
-!bin/readme.md
-
-# ansible hosts
-hosts
 
 # k8s storage manifests 
 manifests/storage/*
@@ -18,8 +14,8 @@ roles/cluster-backup/files/*
 !roles/cluster-backup/files/readme.md
 
 # role based variable settings, exclude roles/os-harden/vars/
-/roles/*/vars/*
-!/roles/os-harden/vars/
+#/roles/*/vars/*
+#!/roles/os-harden/vars/
 
 # cluster backups
 .cluster/

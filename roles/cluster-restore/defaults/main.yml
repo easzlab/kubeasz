@@ -1,5 +1,5 @@
 # 指定需要恢复的 etcd 数据备份，默认使用最近的一次备份
-# 在ansible 控制端查看备份目录：/etc/ansible/.cluster/backup
+# 在ansible 控制端查看备份目录：/etc/kubeasz/clusters/_cluster_name_/backup
 db_to_restore: "snapshot.db"
 
 # etcd 集群间通信的IP和端口, 根据etcd组成员自动生成

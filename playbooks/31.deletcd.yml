@@ -24,9 +24,9 @@
       shell: 'for ip in {{ NODE_IPS }};do \
                 ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
                 --endpoints=https://"$ip":2379 \
-                --cacert={{ base_dir }}/.cluster/ssl/ca.pem \
-                --cert={{ base_dir }}/.cluster/ssl/admin.pem \
-                --key={{ base_dir }}/.cluster/ssl/admin-key.pem \
+                --cacert={{ cluster_dir }}/ssl/ca.pem \
+                --cert={{ cluster_dir }}/ssl/admin.pem \
+                --key={{ cluster_dir }}/ssl/admin-key.pem \
                 endpoint health; \
               done'
       register: ETCD_CLUSTER_STATUS

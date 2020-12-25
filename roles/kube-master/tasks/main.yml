@@ -30,25 +30,6 @@
         -config={{ ca_dir }}/ca-config.json \
         -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
 
-- block:
-  - name: 生成 basic-auth 随机密码
-    shell: 'PWD=`head -c 16 /dev/urandom | od -An -t x | tr -d " "`; \
-	sed -i "s/_pwd_/$PWD/g" {{ base_dir }}/roles/kube-master/defaults/main.yml; \
-	echo $PWD;'
-    connection: local
-    register: TMP_PASS
-    run_once: true
-    
-  - name: 设置 basic-auth 随机密码
-    set_fact: BASIC_AUTH_PASS={{ TMP_PASS.stdout }}
-  when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
-  tags: restart_master
-  
-- name: 创建 basic-auth.csv
-  template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  tags: restart_master
-
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:
     dest: "{{ item }}"
@@ -84,14 +65,3 @@
   retries:  5
   delay: 6
   tags: upgrade_k8s, restart_master
-
-- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
-  template: src=basic-auth-rbac.yaml.j2 dest=/opt/kube/basic-auth-rbac.yaml
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  tags: restart_master
-
-- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/basic-auth-rbac.yaml"
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  run_once: true
-  tags: restart_master

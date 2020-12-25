@@ -1,7 +1,6 @@
 # WARNING: Upgrade the k8s cluster can be risky. Make sure you know what you are doing.
 # Read the guide: 'op/upgrade.md' .
-# Usage: `ansible-playbook /etc/ansible/22.upgrade.yml -t upgrade_k8s`
-#	or `easzctl upgrade`
+# Usage: ezctl <cluster_name> upgrade 
 
 # update masters
 - hosts: 

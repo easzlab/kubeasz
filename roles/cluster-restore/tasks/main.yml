@@ -9,7 +9,7 @@
 
 - name: 准备指定的备份etcd 数据
   copy: 
-    src: "{{ base_dir }}/.cluster/backup/{{ db_to_restore }}"
+    src: "{{ cluster_dir }}/backup/{{ db_to_restore }}"
     dest: "/etcd_backup/snapshot.db"
 
 - name: 清理上次备份恢复数据

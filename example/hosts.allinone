@@ -53,8 +53,11 @@ CLUSTER_DNS_DOMAIN="cluster.local."
 # Binaries Directory
 bin_dir="/opt/kube/bin"
 
-# CA and other components cert/key Directory
-ca_dir="/etc/kubernetes/ssl"
-
 # Deploy Directory (kubeasz workspace)
-base_dir="/etc/ansible"
+base_dir="/etc/kubeasz"
+
+# Directory for a specific cluster
+cluster_dir="{{ base_dir }}/clusters/_cluster_name_"
+
+# CA and other components cert/key Directory
+ca_dir="{{ cluster_dir }}/ssl"

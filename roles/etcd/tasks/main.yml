@@ -14,7 +14,7 @@
   tags: upgrade_etcd
 
 - name: 分发证书相关
-  copy: src={{ base_dir }}/.cluster/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
+  copy: src={{ cluster_dir }}/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
   with_items:
   - ca.pem
   - ca-key.pem

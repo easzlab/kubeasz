@@ -38,7 +38,7 @@
 
 - block:
     - name: 分发证书相关
-      copy: src={{ base_dir }}/.cluster/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
+      copy: src={{ cluster_dir }}/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
       with_items:
       - admin.pem
       - admin-key.pem
@@ -57,13 +57,13 @@
       copy: src=/root/.kube/config dest=/root/.kube/config
 
     - name: 分发 kube-proxy.kubeconfig配置文件
-      copy: src={{ base_dir }}/.cluster/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
+      copy: src={{ cluster_dir }}/kube-proxy.kubeconfig dest={{ cluster_dir }}/kube-proxy.kubeconfig
 
     - name: 分发 kube-controller-manager.kubeconfig配置文件
-      copy: src={{ base_dir }}/.cluster/kube-controller-manager.kubeconfig dest=/etc/kubernetes/kube-controller-manager.kubeconfig
+      copy: src={{ cluster_dir }}/kube-controller-manager.kubeconfig dest={{ cluster_dir }}/kube-controller-manager.kubeconfig
       when: "inventory_hostname in groups['kube-master']"
 
     - name: 分发 kube-scheduler.kubeconfig配置文件
-      copy: src={{ base_dir }}/.cluster/kube-scheduler.kubeconfig dest=/etc/kubernetes/kube-scheduler.kubeconfig
+      copy: src={{ cluster_dir }}/kube-scheduler.kubeconfig dest={{ cluster_dir }}/kube-scheduler.kubeconfig
       when: "inventory_hostname in groups['kube-master']"
   when: "inventory_hostname in groups['kube-master'] or inventory_hostname in groups['kube-node']"

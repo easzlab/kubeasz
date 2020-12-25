@@ -1,8 +1,11 @@
 {
-  "data-root": "{{ STORAGE_DIR }}",
+  "data-root": "{{ DOCKER_STORAGE_DIR }}",
   "exec-opts": ["native.cgroupdriver=cgroupfs"],
 {% if ENABLE_MIRROR_REGISTRY %}
-  "registry-mirrors": {{ REG_MIRRORS }}, 
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn",
+    "http://hub-mirror.c.163.com"
+  ], 
 {% endif %}
 {% if ENABLE_REMOTE_API %}
   "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
