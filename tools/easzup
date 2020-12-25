@@ -207,7 +207,7 @@ function get_offline_image() {
     docker pull "calico/pod2daemon-flexvol:${calicoVer}" && \
     docker pull "calico/kube-controllers:${calicoVer}" && \
     docker pull "calico/node:${calicoVer}" && \
-    docker save -o ${imageDir}/calico_${calicoVer}.tar calico/cni:${calicoVer}-1 calico/kube-controllers:${calicoVer} calico/node:${calicoVer}-1 calico/pod2daemon-flexvol:${calicoVer}
+    docker save -o ${imageDir}/calico_${calicoVer}.tar calico/cni:${calicoVer} calico/kube-controllers:${calicoVer} calico/node:${calicoVer} calico/pod2daemon-flexvol:${calicoVer}
   fi
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
     docker pull coredns/coredns:${corednsVer} && \
