@@ -14,8 +14,11 @@ FELIX_LOG_LVL: "warning"
 #IP_AUTODETECTION_METHOD: "interface=eth0"
 IP_AUTODETECTION_METHOD: "can-reach={{ groups['kube-master'][0] }}"
 
-# 更新支持calico 版本: [v3.3.x] [v3.4.x] [v3.8.x]
-calicoVer: "v3.8.8"
+# 设置calico 网络 backend: brid, vxlan, none
+CALICO_NETWORKING_BACKEND: "brid"
+
+# 更新支持calico 版本: [v3.3.x] [v3.4.x] [v3.8.x] [v3.15.x]
+calicoVer: "v3.15.3"
 calico_ver: "{{ calicoVer }}"
 
 # calico 主版本

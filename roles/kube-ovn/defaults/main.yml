@@ -7,4 +7,4 @@ kube_ovn_node_switch_cidr: 100.64.0.0/16
 kube_ovn_enable_mirror: true
 
 # 离线镜像tar包
-kube_ovn_offline: "kube_ovn_0.9.1.tar"
+kube_ovn_offline: "kube_ovn_1.5.3.tar"

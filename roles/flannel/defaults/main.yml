@@ -6,7 +6,7 @@ FLANNEL_BACKEND: "vxlan"
 DIRECT_ROUTING: false
 
 #flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
-flannelVer: "v0.12.0-amd64"
+flannelVer: "v0.13.0-amd64"
 flanneld_image: "easzlab/flannel:{{ flannelVer }}"
 
 # 离线镜像tar包

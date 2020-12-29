@@ -32,7 +32,7 @@
 
 - block:
   - name: 生成 basic-auth 随机密码
-    shell: 'PWD=`date +%s%N|md5sum|head -c16`; \
+    shell: 'PWD=`head -c 16 /dev/urandom | od -An -t x | tr -d " "`; \
 	sed -i "s/_pwd_/$PWD/g" {{ base_dir }}/roles/kube-master/defaults/main.yml; \
 	echo $PWD;'
     connection: local

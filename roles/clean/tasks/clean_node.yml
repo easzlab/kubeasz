@@ -104,6 +104,10 @@
     - "/etc/origin/openvswitch/"
     - "/etc/openvswitch/"
     - "/var/log/openvswitch/"
+    - "/var/run/ovn/"
+    - "/etc/origin/ovn/"
+    - "/etc/ovn/"
+    - "/var/log/ovn/"
 
 #  - name: cleanup networks1
 #    shell: "ip link del tunl0; \

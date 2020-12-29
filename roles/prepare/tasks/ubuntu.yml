@@ -43,3 +43,11 @@
 
 - name: 重启 journald 服务
   service: name=systemd-journald state=restarted
+
+- name: Configuration iptables
+  shell: 'iptables -F \
+    && iptables -t nat -F \
+    && iptables -t mangle -F \
+    && iptables -X \
+    && update-alternatives --set iptables /usr/sbin/iptables-legacy'
+  when: ansible_distribution == "Debian" and ansible_distribution_version|int >= 10

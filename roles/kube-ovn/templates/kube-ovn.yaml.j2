@@ -3,7 +3,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: kube-ovn-controller
-  namespace: kube-ovn
+  namespace:  kube-system
   annotations:
     kubernetes.io/description: |
       kube-ovn controller
@@ -25,8 +25,7 @@ spec:
         type: infra
     spec:
       tolerations:
-      - operator: Exists
-        effect: NoSchedule
+        - operator: Exists
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -34,19 +33,25 @@ spec:
                 matchLabels:
                   app: kube-ovn-controller
               topologyKey: kubernetes.io/hostname
+      priorityClassName: system-cluster-critical
       serviceAccountName: ovn
       hostNetwork: true
       containers:
         - name: kube-ovn-controller
-          image: "index.alauda.cn/alaudak8s/kube-ovn-controller:v0.9.1"
+          image: "kubeovn/kube-ovn:v1.5.3"
           imagePullPolicy: IfNotPresent
           command:
-          - /kube-ovn/start-controller.sh
+            - /kube-ovn/start-controller.sh
           args:
-          - --default-cidr={{ kube_ovn_default_cidr }}
-          - --default-gateway={{ kube_ovn_default_gateway }}
-          - --node-switch-cidr={{ kube_ovn_node_switch_cidr }}
+            - --default-cidr={{ kube_ovn_default_cidr }}
+            - --default-gateway={{ kube_ovn_default_gateway }}
+            - --node-switch-cidr={{ kube_ovn_node_switch_cidr }}
+            - --network-type=geneve
+            - --default-interface-name=
+            - --default-vlan-id=100
           env:
+            - name: ENABLE_SSL
+              value: "false"
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -59,35 +64,46 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+          volumeMounts:
+            - mountPath: /var/run/tls
+              name: kube-ovn-tls
           readinessProbe:
             exec:
               command:
-                - nc
-                - -z
-                - -w3
-                - 127.0.0.1
-                - "10660"
+                - sh
+                - /kube-ovn/kube-ovn-controller-healthcheck.sh
             periodSeconds: 3
+            timeoutSeconds: 45
           livenessProbe:
             exec:
               command:
-                - nc
-                - -z
-                - -w3
-                - 127.0.0.1
-                - "10660"
-            initialDelaySeconds: 30
+                - sh
+                - /kube-ovn/kube-ovn-controller-healthcheck.sh
+            initialDelaySeconds: 300
             periodSeconds: 7
             failureThreshold: 5
+            timeoutSeconds: 45
+          resources:
+            requests:
+              cpu: 200m
+              memory: 200Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
       nodeSelector:
-        beta.kubernetes.io/os: "linux"
+        kubernetes.io/os: "linux"
+      volumes:
+        - name: kube-ovn-tls
+          secret:
+            optional: true
+            secretName: kube-ovn-tls
 
 ---
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
   name: kube-ovn-cni
-  namespace: kube-ovn
+  namespace:  kube-system
   annotations:
     kubernetes.io/description: |
       This daemon set launches the kube-ovn cni daemon.
@@ -95,8 +111,6 @@ spec:
   selector:
     matchLabels:
       app: kube-ovn-cni
-  updateStrategy:
-    type: OnDelete
   template:
     metadata:
       labels:
@@ -105,88 +119,115 @@ spec:
         type: infra
     spec:
       tolerations:
-      - operator: Exists
-        effect: NoSchedule
+        - operator: Exists
+      priorityClassName: system-cluster-critical
       serviceAccountName: ovn
       hostNetwork: true
       hostPID: true
       initContainers:
-      - name: install-cni
-        image: "index.alauda.cn/alaudak8s/kube-ovn-cni:v0.9.1"
-        imagePullPolicy: IfNotPresent
-        command: ["/kube-ovn/install-cni.sh"]
-        securityContext:
-          runAsUser: 0
-          privileged: true
-        volumeMounts:
-          - mountPath: /etc/cni/net.d
-            name: cni-conf
-          - mountPath: /opt/cni/bin
-            name: cni-bin
+        - name: install-cni
+          image: "kubeovn/kube-ovn:v1.5.3"
+          imagePullPolicy: IfNotPresent
+          command: ["/kube-ovn/install-cni.sh"]
+          securityContext:
+            runAsUser: 0
+            privileged: true
+          volumeMounts:
+            - mountPath: /opt/cni/bin
+              name: cni-bin
       containers:
-      - name: cni-server
-        image: "index.alauda.cn/alaudak8s/kube-ovn-cni:v0.9.1"
-        imagePullPolicy: IfNotPresent
-        command:
-          - sh
-          - /kube-ovn/start-cniserver.sh
-        args:
-          - --enable-mirror={{ kube_ovn_enable_mirror|string|lower }}
-          - --service-cluster-ip-range={{ SERVICE_CIDR }}
-        securityContext:
-          runAsUser: 0
-          privileged: true
-        env:
-          - name: POD_IP
-            valueFrom:
-              fieldRef:
-                fieldPath: status.podIP
-          - name: KUBE_NODE_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-        volumeMounts:
-          - mountPath: /run/openvswitch
-            name: host-run-ovs
-        readinessProbe:
-          exec:
-            command:
-              - nc
-              - -z
-              - -w3
-              - 127.0.0.1
-              - "10665"
-          periodSeconds: 3
-        livenessProbe:
-          exec:
-            command:
-              - nc
-              - -z
-              - -w3
-              - 127.0.0.1
-              - "10665"
-          initialDelaySeconds: 30
-          periodSeconds: 7
-          failureThreshold: 5
+        - name: cni-server
+          image: "kubeovn/kube-ovn:v1.5.3"
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - /kube-ovn/start-cniserver.sh
+          args:
+            - --enable-mirror={{ kube_ovn_enable_mirror|string|lower }}
+            - --service-cluster-ip-range={{ SERVICE_CIDR }}
+            - --encap-checksum=true
+            - --iface=
+            - --network-type=geneve
+            - --default-interface-name=
+          securityContext:
+            runAsUser: 0
+            privileged: true
+          env:
+            - name: ENABLE_SSL
+              value: "false"
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - mountPath: /etc/cni/net.d
+              name: cni-conf
+            - mountPath: /run/openvswitch
+              name: host-run-ovs
+            - mountPath: /run/ovn
+              name: host-run-ovn
+            - mountPath: /var/run/netns
+              name: host-ns
+              mountPropagation: HostToContainer
+          readinessProbe:
+            exec:
+              command:
+                - nc
+                - -z
+                - -w3
+                - 127.0.0.1
+                - "10665"
+            periodSeconds: 3
+          livenessProbe:
+            exec:
+              command:
+                - nc
+                - -z
+                - -w3
+                - 127.0.0.1
+                - "10665"
+            initialDelaySeconds: 30
+            periodSeconds: 7
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 200m
+              memory: 200Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
       nodeSelector:
-        beta.kubernetes.io/os: "linux"
+        kubernetes.io/os: "linux"
       volumes:
         - name: host-run-ovs
           hostPath:
             path: /run/openvswitch
+        - name: host-run-ovn
+          hostPath:
+            path: /run/ovn
         - name: cni-conf
           hostPath:
             path: /etc/cni/net.d
         - name: cni-bin
           hostPath:
             path: {{ bin_dir }}
+        - name: host-ns
+          hostPath:
+            path: /var/run/netns
 
 ---
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
   name: kube-ovn-pinger
-  namespace: kube-ovn
+  namespace:  kube-system
+  annotations:
+    kubernetes.io/description: |
+      This daemon set launches the openvswitch daemon.
 spec:
   selector:
     matchLabels:
@@ -202,17 +243,19 @@ spec:
     spec:
       tolerations:
         - operator: Exists
-          effect: NoSchedule
       serviceAccountName: ovn
       hostPID: true
       containers:
         - name: pinger
-          image: "index.alauda.cn/alaudak8s/kube-ovn-pinger:v0.9.1"
+          image: "kubeovn/kube-ovn:v1.5.3"
+          command: ["/kube-ovn/kube-ovn-pinger", "--external-address=114.114.114.114", "--external-dns=alauda.cn"]
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 0
             privileged: false
           env:
+            - name: ENABLE_SSL
+              value: "false"
             - name: POD_IP
               valueFrom:
                 fieldRef:
@@ -237,22 +280,28 @@ spec:
               name: host-run-ovs
             - mountPath: /var/run/openvswitch
               name: host-run-ovs
+            - mountPath: /var/run/ovn
+              name: host-run-ovn
             - mountPath: /sys
               name: host-sys
               readOnly: true
             - mountPath: /etc/openvswitch
               name: host-config-openvswitch
             - mountPath: /var/log/openvswitch
-              name: host-log
+              name: host-log-ovs
+            - mountPath: /var/log/ovn
+              name: host-log-ovn
+            - mountPath: /var/run/tls
+              name: kube-ovn-tls
           resources:
             requests:
               cpu: 100m
-              memory: 300Mi
+              memory: 200Mi
             limits:
               cpu: 200m
               memory: 400Mi
       nodeSelector:
-        beta.kubernetes.io/os: "linux"
+        kubernetes.io/os: "linux"
       volumes:
         - name: host-modules
           hostPath:
@@ -260,21 +309,31 @@ spec:
         - name: host-run-ovs
           hostPath:
             path: /run/openvswitch
+        - name: host-run-ovn
+          hostPath:
+            path: /run/ovn
         - name: host-sys
           hostPath:
             path: /sys
         - name: host-config-openvswitch
           hostPath:
             path: /etc/origin/openvswitch
-        - name: host-log
+        - name: host-log-ovs
           hostPath:
             path: /var/log/openvswitch
+        - name: host-log-ovn
+          hostPath:
+            path: /var/log/ovn
+        - name: kube-ovn-tls
+          secret:
+            optional: true
+            secretName: kube-ovn-tls
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: kube-ovn-pinger
-  namespace: kube-ovn
+  namespace:  kube-system
   labels:
     app: kube-ovn-pinger
 spec:
@@ -282,4 +341,32 @@ spec:
     app: kube-ovn-pinger
   ports:
     - port: 8080
-      name: http
+      name: metrics
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kube-ovn-controller
+  namespace:  kube-system
+  labels:
+    app: kube-ovn-controller
+spec:
+  selector:
+    app: kube-ovn-controller
+  ports:
+    - port: 10660
+      name: metrics
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kube-ovn-cni
+  namespace:  kube-system
+  labels:
+    app: kube-ovn-cni
+spec:
+  selector:
+    app: kube-ovn-cni
+  ports:
+    - port: 10665
+      name: metrics
