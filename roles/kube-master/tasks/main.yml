@@ -8,27 +8,41 @@
   tags: upgrade_k8s
 
 - name: 创建 kubernetes 证书签名请求
-  template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
+  template: src=kubernetes-csr.json.j2 dest={{ cluster_dir }}/ssl/kubernetes-csr.json
   tags: change_cert
+  connection: local
 
 - name: 创建 kubernetes 证书和私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
+  shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes kubernetes-csr.json | {{ base_dir }}/bin/cfssljson -bare kubernetes"
   tags: change_cert
+  connection: local
 
 # 创建aggregator proxy相关证书
 - name: 创建 aggregator proxy证书签名请求
-  template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
+  template: src=aggregator-proxy-csr.json.j2 dest={{ cluster_dir }}/ssl/aggregator-proxy-csr.json
+  connection: local
 
 - name: 创建 aggregator-proxy证书和私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
+  shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes aggregator-proxy-csr.json | {{ base_dir }}/bin/cfssljson -bare aggregator-proxy"
+  connection: local
+
+- name: 分发 kubernetes证书
+  copy: src={{ cluster_dir }}/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
+  with_items:
+  - ca.pem
+  - ca-key.pem
+  - kubernetes.pem
+  - kubernetes-key.pem
+  - aggregator-proxy.pem
+  - aggregator-proxy-key.pem
 
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:
@@ -65,3 +79,13 @@
   retries:  5
   delay: 6
   tags: upgrade_k8s, restart_master
+
+- name: 获取user:kubernetes是否已经绑定对应角色
+  shell: "{{ bin_dir }}/kubectl get clusterrolebindings|grep kubernetes-crb || echo 'notfound'"
+  register: crb_info
+  run_once: true
+
+- name: 创建user:kubernetes角色绑定
+  command: "{{ bin_dir }}/kubectl create clusterrolebinding kubernetes-crb --clusterrole=cluster-admin --user=kubernetes"
+  run_once: true
+  when: "'notfound' in crb_info.stdout"

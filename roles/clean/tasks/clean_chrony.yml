@@ -7,5 +7,5 @@
     - name: stop and disable chronyd in CentOS/RedHat
       service: name=chronyd state=stopped enabled=no
       ignore_errors: true
-      when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
+      when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
   when: "groups['chrony']|length > 0"

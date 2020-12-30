@@ -18,8 +18,7 @@
 - name: 修改centos的haproxy.service
   template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
   when:
-  - 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
-  - 'ansible_distribution_major_version == "7"'
+  - 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
   tags: restart_lb
 
 - name: 配置 haproxy

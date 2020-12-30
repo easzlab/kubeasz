@@ -33,22 +33,23 @@
     shell: "{{ bin_dir }}/docker load -i /data/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
   
   - block:
+    - name: 创建 harbor 证书请求
+      template: src=harbor-csr.json.j2 dest={{ cluster_dir }}/ssl/harbor-csr.json
+      connection: local
+    
+    - name: 创建 harbor 证书和私钥
+      shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+            -ca=ca.pem \
+            -ca-key=ca-key.pem \
+            -config=ca-config.json \
+            -profile=kubernetes harbor-csr.json|{{ base_dir }}/bin/cfssljson -bare harbor"
+      connection: local
+    
     - name: 生成自签名证书相关
       copy: src={{ cluster_dir }}/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
       with_items:
-      - ca.pem
-      - ca-key.pem
-      - ca-config.json
-    
-    - name: 创建 harbor 证书请求
-      template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json
-    
-    - name: 创建 harbor 证书和私钥
-      shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-            -ca={{ ca_dir }}/ca.pem \
-            -ca-key={{ ca_dir }}/ca-key.pem \
-            -config={{ ca_dir }}/ca-config.json \
-            -profile=kubernetes harbor-csr.json | {{ bin_dir }}/cfssljson -bare harbor"
+      - harbor.pem
+      - harbor-key.pem
     when: SELF_SIGNED_CERT == 'yes'
 
   - name: 复制 down 目录下 harbor 证书

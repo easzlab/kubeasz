@@ -13,6 +13,5 @@
     file: name={{ item }} state=absent
     with_items:
     - "/var/lib/etcd"
-    - "/etc/etcd/"
     - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"

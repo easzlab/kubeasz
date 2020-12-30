@@ -12,7 +12,7 @@
 
 - name: yum 卸载 ntp
   shell: 'yum remove -y ntp'
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
+  when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
   args:
       warn: false
   ignore_errors: true
@@ -28,7 +28,7 @@
 - block:
   - name: 配置 chrony server 
     template: src=server-centos.conf.j2 dest=/etc/chrony.conf
-    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]' 
 
   - name: 配置 chrony server
     template: src=server-ubuntu.conf.j2 dest=/etc/chrony/chrony.conf
@@ -36,7 +36,7 @@
 
   - name: 启动 chrony server
     service: name=chronyd state=restarted enabled=yes
-    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]' 
 
   - name: 启动 chrony server
     service: name=chrony state=restarted enabled=yes
@@ -46,7 +46,7 @@
 - block:
   - name: 配置 chrony client
     template: src=client-centos.conf.j2 dest=/etc/chrony.conf
-    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]' 
 
   - name: 配置 chrony client
     template: src=client-ubuntu.conf.j2 dest=/etc/chrony/chrony.conf
@@ -54,7 +54,7 @@
 
   - name: 启动 chrony client 
     service: name=chronyd state=restarted enabled=yes
-    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]' 
 
   - name: 启动 chrony client
     service: name=chrony state=restarted enabled=yes

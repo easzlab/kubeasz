@@ -3,13 +3,6 @@
   with_items:
   - /opt/kube/kube-system
 
-# DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
-- name: 准备 DNS的部署文件
-  template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}.yaml
-  with_items:
-  - kubedns
-  - coredns
-
 - name: 获取所有已经创建的POD信息
   command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
   register: pod_info
@@ -23,27 +16,29 @@
 
 - block:
     - block:
-        - name: 尝试推送离线{{ dns_backend }}镜像（若执行失败，可忽略）
-          copy: src={{ base_dir }}/down/{{ dns_offline }} dest=/opt/kube/images/{{ dns_offline }}
-          when: 'dns_offline in download_info.stdout'
+        - name: 尝试推送离线coredns镜像（若执行失败，可忽略）
+          copy: src={{ base_dir }}/down/{{ coredns_offline }} dest=/opt/kube/images/{{ coredns_offline }}
+          when: 'coredns_offline in download_info.stdout'
     
-        - name: 获取{{ dns_backend }}离线镜像推送情况
+        - name: 获取coredns离线镜像推送情况
           command: "ls /opt/kube/images"
           register: image_info     
      
-        - name: 导入{{ dns_backend }}的离线镜像（若执行失败，可忽略）
-          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dns_offline }}"
-          when: 'dns_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+        - name: 导入coredns的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ coredns_offline }}"
+          when: 'coredns_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
     
-        - name: 导入{{ dns_backend }}的离线镜像（若执行失败，可忽略）
-          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ dns_offline }}"
-          when: 'dns_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
+        - name: 导入coredns的离线镜像（若执行失败，可忽略）
+          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ coredns_offline }}"
+          when: 'coredns_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
     
-    - name: 创建{{ dns_backend }}部署
-      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}.yaml"
+    - name: 准备 DNS的部署文件
+      template: src=coredns.yaml.j2 dest=/opt/kube/kube-system/coredns.yaml
+
+    - name: 创建coredns部署
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/coredns.yaml"
       run_once: true
   when: 
-  - '"kube-dns" not in pod_info.stdout'
   - '"coredns" not in pod_info.stdout'
   - 'dns_install == "yes"'
   ignore_errors: true

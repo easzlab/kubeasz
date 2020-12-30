@@ -13,8 +13,8 @@
               ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
               --endpoints=https://"$ip":2379 \
               --cacert={{ cluster_dir }}/ssl/ca.pem \
-              --cert={{ cluster_dir }}/ssl/admin.pem \
-              --key={{ cluster_dir }}/ssl/admin-key.pem \
+              --cert={{ cluster_dir }}/ssl/etcd.pem \
+              --key={{ cluster_dir }}/ssl/etcd-key.pem \
               endpoint health; \
             done'
     register: ETCD_CLUSTER_STATUS

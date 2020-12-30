@@ -66,7 +66,7 @@
           service: name=containerd state=restarted
         when:
         - 'CONTAINER_RUNTIME == "containerd"'
-        - 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
+        - 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
     when: hostvars[groups.harbor[0]]['SELF_SIGNED_CERT'] == 'yes'
 
   # [optional] if you have a DNS server, add an 'A record' instead
@@ -93,4 +93,4 @@
       state: present
       regexp: '{{ harbor_hostname }}'
       line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
-    when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'

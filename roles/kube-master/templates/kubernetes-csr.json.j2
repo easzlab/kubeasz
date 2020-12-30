@@ -5,7 +5,9 @@
 {% if groups['ex-lb']|length > 0 %}
     "{{ hostvars[groups['ex-lb'][0]]['EX_APISERVER_VIP'] }}",
 {% endif %}
-    "{{ inventory_hostname }}",
+{% for host in groups['kube-master'] %}
+    "{{ host }}",
+{% endfor %}
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
 {% for host in MASTER_CERT_HOSTS %}
     "{{ host }}",

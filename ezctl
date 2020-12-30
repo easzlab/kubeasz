@@ -12,20 +12,41 @@ function usage() {
 Cluster setups:
     list		             to list all of the managed clusters
     new         <cluster>            to start a new k8s deploy with name 'cluster'
-    setup       <cluster>  [step]    to setup a cluster, also supporting a step-by-step way
+    setup       <cluster>  <step>    to setup a cluster, also supporting a step-by-step way
+    start       <cluster>            to start all of the k8s services stopped by 'ezctl stop'
+    stop        <cluster>            to stop all of the k8s services temporarily
+    upgrade     <cluster>            to upgrade the k8s cluster
+    destroy     <cluster>            to destroy the k8s cluster
     start-aio		             to quickly setup an all-in-one cluster with 'default' settings
 
 Cluster ops:
-    add-etcd    <cluster>  <args>    to add a etcd-node to the etcd cluster
-    add-master  <cluster>  <args>    to add a master node to the k8s cluster
-    add-node    <cluster>  <args>    to add a work node to the k8s cluster
+    add-etcd    <cluster>  <ip>      to add a etcd-node to the etcd cluster
+    add-master  <cluster>  <ip>      to add a master node to the k8s cluster
+    add-node    <cluster>  <ip>      to add a work node to the k8s cluster
     del-etcd    <cluster>  <ip>      to delete a etcd-node from the etcd cluster
     del-master  <cluster>  <ip>      to delete a master node from the k8s cluster
     del-node    <cluster>  <ip>      to delete a work node from the k8s cluster
-    upgrade     <cluster>            to upgrade the k8s cluster
-    destroy     <cluster>            to destroy the current cluster, '--purge' to also delete the context
 
 Use "ezctl help <command>" for more information about a given command.
+EOF
+}
+
+function usage-setup(){
+  echo -e "\033[33mUsage:\033[0m ezctl setup <cluster> <step>"
+  cat <<EOF
+available steps:
+    01     prepare         to prepare CA/certs & kubeconfig & other system settings 
+    02     etcd            to setup the etcd cluster
+    03     runtime         to setup the container runtime(docker or containerd)
+    04     kube-master     to setup the master nodes
+    05     kube-node       to setup the worker nodes
+    06     network         to setup the network plugin
+    07     cluster-addon   to setup other useful plugins
+    all                    to run 01~07 all at once
+
+examples: ./ezctl setup test-k8s 01
+          ./ezctl setup test-k8s 02
+          ./ezctl setup test-k8s all
 EOF
 }
 
@@ -51,6 +72,9 @@ function logger() {
 
 function help-info() {
     case "$1" in
+        (setup)
+	    usage-setup
+            ;;
         (add-etcd)
             echo -e "Usage: easzctl add-etcd <new_etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
             ;;
@@ -81,13 +105,35 @@ function help-info() {
 function new() {
     # check if already existed
     [[ -d "clusters/$1" ]] && { logger error "cluster: $1 already existed"; exit 1; }
-    [[ "$1" == default ]] && { logger error "name 'default' is reserved for `ezctl start-aio`"; exit 1; }
+    [[ "$1" == default ]] && { logger error "name 'default' is reserved"; exit 1; }
 
     logger debug "generate custom cluster files in clusters/$1"
     mkdir -p "clusters/$1"
     cp example/hosts.multi-node "clusters/$1/hosts"
     sed -i "s/_cluster_name_/$1/g" "clusters/$1/hosts"
     cp example/config.yml "clusters/$1/config.yml"
+
+    logger debug "set version of common plugins"
+    calicoVer=$(grep 'calicoVer=' ezdown|cut -d'=' -f2)
+    ciliumVer=$(grep 'ciliumVer=' ezdown|cut -d'=' -f2)
+    flannelVer=$(grep 'flannelVer=' ezdown|cut -d'=' -f2)
+    kubeRouterVer=$(grep 'kubeRouterVer=' ezdown|cut -d'=' -f2)
+    kubeOvnVer=$(grep 'kubeOvnVer=' ezdown|cut -d'=' -f2)
+    corednsVer=$(grep 'corednsVer=' ezdown|cut -d'=' -f2)
+    dashboardVer=$(grep 'dashboardVer=' ezdown|cut -d'=' -f2)
+    dashboardMetricsScraperVer=$(grep 'dashboardMetricsScraperVer=' ezdown|cut -d'=' -f2)
+    metricsVer=$(grep 'metricsVer=' ezdown|cut -d'=' -f2)
+
+    sed -i -e "s/__flannel__/$flannelVer/g" \
+	   -e "s/__calico__/$calicoVer/g" \
+	   -e "s/__cilium__/$ciliumVer/g" \
+	   -e "s/__kube_ovn__/$kubeOvnVer/g" \
+	   -e "s/__kube_router__/$kubeRouterVer/g" \
+	   -e "s/__coredns__/$corednsVer/g" \
+	   -e "s/__dashboard__/$dashboardVer/g" \
+	   -e "s/__dash_metrics__/$dashboardMetricsScraperVer/g" \
+	   -e "s/__metrics__/$metricsVer/g" "clusters/$1/config.yml"
+
 
     logger debug "cluster $1: files successfully created."
     logger info "next steps 1: to config 'clusters/$1/hosts'"
@@ -98,11 +144,82 @@ function setup() {
     [[ -d "clusters/$1" ]] || { logger error "invalid config, run 'ezctl new $1' first"; return 1; }
     [[ -f "bin/kube-apiserver" ]] || { logger error "no binaries founded, run 'ezdown -D' fist"; return 1; }
 
-    logger info "\n cluster:$1 setup begins in 5s, press any key to abort\n:"
+    PLAY_BOOK="dummy.yml"
+    case "$2" in
+      (01)
+          PLAY_BOOK="01.prepare.yml"
+          ;;
+      (02)
+          PLAY_BOOK="02.etcd.yml"
+          ;;
+      (03)
+          PLAY_BOOK="03.runtime.yml"
+          ;;
+      (04)
+          PLAY_BOOK="04.kube-master.yml"
+          ;;
+      (05)
+          PLAY_BOOK="05.kube-node.yml"
+          ;;
+      (06)
+          PLAY_BOOK="06.network.yml"
+          ;;
+      (07)
+          PLAY_BOOK="07.cluster-addon.yml"
+          ;;
+      (90)
+          PLAY_BOOK="90.setup.yml"
+          ;;
+      (all)
+          PLAY_BOOK="90.setup.yml"
+          ;;
+      (*)
+          usage-setup
+          exit 1 
+          ;;
+    esac
+
+    logger info "cluster:$1 setup begins in 5s, press any key to abort:\n"
     ! (read -t5 -n1 ANS) || { logger warn "setup aborted"; return 1; }
 
-    ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" playbooks/90.setup.yml || return 1
+    ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" "playbooks/$PLAY_BOOK" || return 1
 }
+
+function cmd() {
+    [[ -d "clusters/$1" ]] || { logger error "invalid config, run 'ezctl new $1' first"; return 1; }
+
+    PLAY_BOOK="dummy.yml"
+    case "$2" in
+      (start)
+          PLAY_BOOK="91.start.yml"
+          ;;
+      (stop)
+          PLAY_BOOK="92.stop.yml"
+          ;;
+      (upgrade)
+          PLAY_BOOK="93.upgrade.yml"
+          ;;
+      (backup)
+          PLAY_BOOK="94.backup.yml"
+          ;;
+      (restore)
+          PLAY_BOOK="95.restore.yml"
+          ;;
+      (destroy)
+          PLAY_BOOK="99.clean.yml"
+          ;;
+      (*)
+          usage
+          exit 1
+          ;;
+    esac
+
+    logger info "cluster:$1 $2 begins in 5s, press any key to abort:\n"
+    ! (read -t5 -n1 ANS) || { logger warn "$2 aborted"; return 1; }
+
+    ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" "playbooks/$PLAY_BOOK" || return 1
+}
+
 
 function list() {
     [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
@@ -316,18 +433,6 @@ function install_context() {
     fi
 }
 
-function setup() {
-    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
-    [ -f "$BASEPATH/bin/kube-apiserver" ] || { echo "[ERROR] no binaries found, download then fist"; return 1; }
-    [ -f "$BASEPATH/hosts" ] || { echo "[ERROR] no ansible hosts found, read 'docs/setup/00-planning_and_overall_intro.md'"; return 1; }
-    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo -e "\n[INFO] setup cluster with context: $CLUSTER"
-    echo -e "[INFO] setup begin in 5s, press any key to abort\n:"
-    ! (read -t5 -n1 ANS) || { echo "[WARN] setup aborted"; return 1; }
-    ansible-playbook $BASEPATH/90.setup.yml || return 1
-    save_context
-}
-
 function list() {
     [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
     CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
@@ -347,30 +452,6 @@ function list() {
         fi
         let "i++"
     done
-}
-
-function destroy() {
-    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
-    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo -n "[WARN] DELETE cluster: $CLUSTER, Continue? (y/n): "
-    read -t10 -n1 ANS || { echo -e "\n[WARN] timeout, destroy aborted"; return 1; }
-    if [[ -n $ANS && $ANS == y ]];then
-        echo -e "\n[INFO] clean all nodes of cluster in 5s"
-        sleep 5
-        ansible-playbook $BASEPATH/99.clean.yml
-        rm -f $BASEPATH/.cluster/$CLUSTER/config
-        [ "$#" -gt 0 ] || { return 0; }
-        if [[ -n $1 && $1 == --purge ]];then
-            echo "[INFO] delete current context"
-            rm -rf $BASEPATH/.cluster/$CLUSTER
-            rm -rf $BASEPATH/hosts /root/.kube/*
-            echo "[INFO] change current context to default"
-            echo default > $BASEPATH/.cluster/current_cluster
-            install_context
-        fi
-    else
-        echo -e "\n[WARN] destroy aborted"; return 1;
-    fi
 }
 
 function start-aio(){
@@ -436,89 +517,110 @@ function basic-auth(){
 }
 
 ### Main Lines ##################################################
+function main() {
+  BASEPATH=$(cd `dirname $0`; pwd)
+  cd "$BASEPATH"
 
-BASEPATH=/etc/kubeasz
+  # check workdir
+  [[ "$BASEPATH" == "/etc/kubeasz" ]] || { logger error "workdir should be '/etc/kubeasz'"; exit 1; }
 
-[ "$#" -gt 0 ] || { usage >&2; exit 2; }
+  # check bash shell
+  readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell only"; exit 1; }
 
-case "$1" in
-    ### in-cluster operations #####################
-    (add-etcd)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: add a etcd node"
-        CMD="add-etcd $2" 
-        ;;
-    (add-master)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: add a k8s master node"
-        CMD="add-master $2 ${@:3}" 
-        ;;
-    (add-node)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: add a k8s work node"
-        CMD="add-node $2 ${@:3}" 
-        ;;
-    (del-etcd)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: delete a etcd node"
-        CMD="del-etcd $2" 
-        ;;
-    (del-master)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: delete a kube-master"
-        CMD="del-master $2" 
-        ;;
-    (del-node)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: delete a kube-node"
-        CMD="del-node $2" 
-        ;;
-    (upgrade)
-        ACTION="Action: upgrade the cluster"
-        CMD="upgrade" 
-        ;;
-    ### cluster-wide operations #######################
-    (checkout)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        ACTION="Action: checkout cluster context"
-        CMD="checkout $2" 
-        ;;
-    (destroy)
-        ACTION="Action: destroy current cluster"
-        if [ "$#" -gt 1 ];then
-            CMD="destroy $2"
-        else
-            CMD="destroy"
-        fi
-        ;;
-    (list)
-        ACTION="Action: list all of clusters managed"
-        CMD="list" 
-        ;;
-    (setup)
-        ACTION="Action: setup cluster with current context"
-        CMD="setup" 
-        ;;
-    (start-aio)
-        ACTION="Action: start an AllInOne cluster"
-        CMD="start-aio" 
-        ;;
-    (help)
-        [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-        help-info $2
-        exit 0
-        ;;
-    ### extra operations ##############################
-    (basic-auth)
-        [ "$#" -gt 1 ] || { help-info $1; exit 2; }
-        ACTION="Action: enable/disable apiserver's basic-auth"
-        CMD="basic-auth $*"
-        ;;
-    (*)
-        usage
-        exit 0
-        ;;
-esac
+  # check 'ansible' executable
+  which ansible > /dev/null 2>&1 || { logger error "need 'ansible', try: 'pip install ansible==2.6.18'"; exit 1; }
+  
+  [ "$#" -gt 0 ] || { usage >&2; exit 2; }
+  
+  case "$1" in
+      ### in-cluster operations #####################
+      (add-etcd)
+          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+          ACTION="Action: add a etcd node"
+          CMD="add-etcd $2" 
+          ;;
+      (add-master)
+          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+          ACTION="Action: add a k8s master node"
+          CMD="add-master $2 ${@:3}" 
+          ;;
+      (add-node)
+          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+          ACTION="Action: add a k8s work node"
+          CMD="add-node $2 ${@:3}" 
+          ;;
+      (del-etcd)
+          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+          ACTION="Action: delete a etcd node"
+          CMD="del-etcd $2" 
+          ;;
+      (del-master)
+          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+          ACTION="Action: delete a kube-master"
+          CMD="del-master $2" 
+          ;;
+      (del-node)
+          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+          ACTION="Action: delete a kube-node"
+          CMD="del-node $2" 
+          ;;
+      ### cluster-wide operations #######################
+      (list)
+          ACTION="Action: list all of clusters managed"
+          CMD="list" 
+          ;;
+      (new)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          new "$2"
+          ;;
+      (setup)
+          [ "$#" -eq 3 ] || { usage-setup >&2; exit 2; }
+          setup "${@:2}"
+          ;;
+      (start)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          cmd "$2" start
+          ;;
+      (stop)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          cmd "$2" stop
+          ;;
+      (upgrade)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          cmd "$2" upgrade
+          ;;
+      (backup)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          cmd "$2" backup
+          ;;
+      (restore)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          cmd "$2" restore
+          ;;
+      (destroy)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          cmd "$2" destroy
+          ;;
+      (start-aio)
+          ACTION="Action: start an AllInOne cluster"
+          CMD="start-aio" 
+          ;;
+      (help)
+          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
+          help-info $2
+          exit 0
+          ;;
+      ### extra operations ##############################
+      (basic-auth)
+          [ "$#" -gt 1 ] || { help-info $1; exit 2; }
+          ACTION="Action: enable/disable apiserver's basic-auth"
+          CMD="basic-auth $*"
+          ;;
+      (*)
+          usage
+          exit 0
+          ;;
+  esac
+ }
 
-process_cmd
-
+main "$@" 

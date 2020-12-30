@@ -2,14 +2,7 @@
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 
 #
-kubednsVer: "1.14.13"
-kubedns_offline: "kubedns_{{ kubednsVer }}.tar"
 coredns_offline: "coredns_{{ corednsVer }}.tar"
-dns_offline: "{%- if dns_backend == 'coredns' -%} \
-                {{ coredns_offline }} \
-              {%- else -%} \
-                {{ kubedns_offline }} \
-              {%- endif -%}"
 
 metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 

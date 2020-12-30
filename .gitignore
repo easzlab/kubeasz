@@ -19,3 +19,4 @@ roles/cluster-backup/files/*
 
 # cluster backups
 .cluster/
+clusters/

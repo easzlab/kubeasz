@@ -3,7 +3,6 @@
   with_items:
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
-  - "/etc/etcd/ssl"    # etcd 证书目录
   - "/var/lib/etcd"    # etcd 工作目录
 
 - name: 下载etcd二进制文件
@@ -13,22 +12,24 @@
   - etcdctl
   tags: upgrade_etcd
 
-- name: 分发证书相关
+- name: 创建etcd证书请求
+  template: src=etcd-csr.json.j2 dest={{ cluster_dir }}/ssl/etcd-csr.json
+  connection: local
+
+- name: 创建 etcd证书和私钥
+  shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes etcd-csr.json | {{ base_dir }}/bin/cfssljson -bare etcd"
+  connection: local
+
+- name: 分发etcd证书相关
   copy: src={{ cluster_dir }}/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
   with_items:
   - ca.pem
-  - ca-key.pem
-  - ca-config.json
-
-- name: 创建etcd证书请求
-  template: src=etcd-csr.json.j2 dest=/etc/etcd/ssl/etcd-csr.json
-
-- name: 创建 etcd证书和私钥
-  shell: "cd /etc/etcd/ssl && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes etcd-csr.json | {{ bin_dir }}/cfssljson -bare etcd"
+  - etcd.pem
+  - etcd-key.pem
 
 - name: 创建etcd的systemd unit文件
   template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service

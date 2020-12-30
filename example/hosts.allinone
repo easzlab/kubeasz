@@ -60,4 +60,4 @@ base_dir="/etc/kubeasz"
 cluster_dir="{{ base_dir }}/clusters/_cluster_name_"
 
 # CA and other components cert/key Directory
-ca_dir="{{ cluster_dir }}/ssl"
+ca_dir="/etc/kubernetes/ssl"
