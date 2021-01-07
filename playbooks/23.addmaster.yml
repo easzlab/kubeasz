@@ -1,5 +1,4 @@
 # Note: this playbook cann't run independently
-# Usage: easzctl add-master 1.1.1.1
 
 - hosts: "{{ NODE_TO_ADD }}" 
   roles:
@@ -17,13 +16,10 @@
   # 
   tasks:
   - name: Making master nodes SchedulingDisabled
-    shell: "{{ bin_dir }}/kubectl cordon {{ NODE_TO_ADD }} "
+    shell: "{{ base_dir }}/bin/kubectl cordon {{ NODE_TO_ADD }} "
     when: "inventory_hostname not in groups['kube-node']"
     ignore_errors: true
 
   - name: Setting master role name
-    shell: "{{ bin_dir }}/kubectl label node {{ NODE_TO_ADD }} kubernetes.io/role=master --overwrite"
+    shell: "{{ base_dir }}/bin/kubectl label node {{ NODE_TO_ADD }} kubernetes.io/role=master --overwrite"
     ignore_errors: true
-
-# reconfigure and restart the haproxy service on 'kube-node' nodes
-# refer to the function 'add-node()' in 'tools/easzctl'

@@ -11,3 +11,6 @@ KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
                          https://{{ groups['kube-master'][0] }}:6443 \
                      {%- endif -%} \
                  {%- endif -%}"
+
+# 增加/删除 master 节点时，node 节点需要重新配置 haproxy
+MASTER_CHG: "no"

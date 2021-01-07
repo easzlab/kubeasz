@@ -1,5 +1,5 @@
 #!/bin/bash
-#  Create & manage k8s clusters by 'kubeasz'
+#  Create & manage k8s clusters
 
 set -o nounset
 set -o errexit
@@ -11,12 +11,15 @@ function usage() {
 -------------------------------------------------------------------------------------
 Cluster setups:
     list		             to list all of the managed clusters
+    checkout    <cluster>            to switch default kubeconfig of the cluster
     new         <cluster>            to start a new k8s deploy with name 'cluster'
     setup       <cluster>  <step>    to setup a cluster, also supporting a step-by-step way
     start       <cluster>            to start all of the k8s services stopped by 'ezctl stop'
     stop        <cluster>            to stop all of the k8s services temporarily
     upgrade     <cluster>            to upgrade the k8s cluster
     destroy     <cluster>            to destroy the k8s cluster
+    backup      <cluster>            to backup the cluster state (etcd snapshot)
+    restore     <cluster>            to restore the cluster state from backups
     start-aio		             to quickly setup an all-in-one cluster with 'default' settings
 
 Cluster ops:
@@ -76,26 +79,25 @@ function help-info() {
 	    usage-setup
             ;;
         (add-etcd)
-            echo -e "Usage: easzctl add-etcd <new_etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
+            echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
             ;;
         (add-master)
-            echo -e "Usage: easzctl add-master <new_master_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-master.md'"
+            echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-master.md'"
             ;;
         (add-node)
-            echo -e "Usage: easzctl add-node <new_node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
+            echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
             ;;
         (del-etcd)
-            echo -e "Usage: easzctl del-etcd <etcd_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
+            echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md'"
             ;;
         (del-master)
-            echo -e "Usage: easzctl del-master <master_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-master.md'"
+            echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-master.md'"
             ;;
         (del-node)
-            echo -e "Usage: easzctl del-node <node_ip>\n\nread 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
+            echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
             ;;
         (*)
-            usage
-            return 0
+            echo -e "todo: help info $1"
             ;;
     esac
 }
@@ -105,7 +107,6 @@ function help-info() {
 function new() {
     # check if already existed
     [[ -d "clusters/$1" ]] && { logger error "cluster: $1 already existed"; exit 1; }
-    [[ "$1" == default ]] && { logger error "name 'default' is reserved"; exit 1; }
 
     logger debug "generate custom cluster files in clusters/$1"
     mkdir -p "clusters/$1"
@@ -179,8 +180,8 @@ function setup() {
           ;;
     esac
 
-    logger info "cluster:$1 setup begins in 5s, press any key to abort:\n"
-    ! (read -t5 -n1 ANS) || { logger warn "setup aborted"; return 1; }
+    logger info "cluster:$1 setup step:$2 begins in 5s, press any key to abort:\n"
+    ! (read -r -t5 -n1) || { logger warn "setup abort"; return 1; }
 
     ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" "playbooks/$PLAY_BOOK" || return 1
 }
@@ -215,314 +216,160 @@ function cmd() {
     esac
 
     logger info "cluster:$1 $2 begins in 5s, press any key to abort:\n"
-    ! (read -t5 -n1 ANS) || { logger warn "$2 aborted"; return 1; }
+    ! (read -r -t5 -n1) || { logger warn "$2 abort"; return 1; }
 
     ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" "playbooks/$PLAY_BOOK" || return 1
 }
 
 
 function list() {
-    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
-    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo -e "\nlist of managed contexts (current: \033[33m$CLUSTER\033[0m)"
-    i=1; for c in $(ls $BASEPATH/.cluster/ |grep -Ev "backup|ssl|current_cluster|kubeconfig");
+    [[ -d ./clusters ]] || { logger error "cluster not found, run 'ezctl new' first"; return 1; }
+    [[ -f ~/.kube/config ]] || { logger error "kubeconfig not found, run 'ezctl setup' first"; return 1; }
+    which md5sum > /dev/null 2>&1 || { logger error "md5sum not found"; return 1; }
+
+    CLUSTERS=$(cd clusters && echo -- *)
+    CFG_MD5=$(md5sum -t ~/.kube/config |cut -d' ' -f1)
+    cd "$BASE"
+
+    logger info "list of managed clusters:"
+    i=1; for c in $CLUSTERS;
     do
-        echo -e "==> context $i:\t$c"
-        let "i++"
-    done
-    echo -e "\nlist of installed clusters (current: \033[33m$CLUSTER\033[0m)"
-    i=1; for c in $(ls $BASEPATH/.cluster/ |grep -Ev "backup|ssl|current_cluster|kubeconfig");
-    do
-        KUBECONF=$BASEPATH/.cluster/$c/config
-        if [ -f "$KUBECONF" ]; then
-            echo -e "==> cluster $i:\t$c"
-            $BASEPATH/bin/kubectl --kubeconfig=$KUBECONF get node
+        if [[ -f "clusters/$c/kubectl.kubeconfig" ]];then
+            c_md5=$(md5sum -t "clusters/$c/kubectl.kubeconfig" |cut -d' ' -f1)
+            if [[ "$c_md5" = "$CFG_MD5" ]];then
+                echo -e "==> cluster $i:\t$c (\033[32mcurrent\033[0m)"
+            else
+                echo -e "==> cluster $i:\t$c"
+            fi
+            let "i++"
         fi
-        let "i++"
     done
 }
 
 
-
-
+function checkout() {
+    [[ -d "clusters/$1" ]] || { logger error "invalid config, run 'ezctl new $1' first"; return 1; }
+    [[ -f "clusters/$1/kubectl.kubeconfig" ]] || { logger error "invalid kubeconfig, run 'ezctl setup $1' first"; return 1; }
+    logger info "set default kubeconfig: cluster $1 (\033[32mcurrent\033[0m)"
+    /bin/cp -f "clusters/$1/kubectl.kubeconfig" ~/.kube/config
+}
 
 ### in-cluster operation functions ##############################
 
 function add-node() {
     # check new node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 1; }
+    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error "Invalid ip add:$2"; return 1; }
 
     # check if the new node already exsited
-    sed -n '/^\[kube-master/,/^\[harbor/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] node $1 already existed!"; return 2; }
+    sed -n '/^\[kube-master/,/^\[harbor/p' "$BASE/clusters/$1/hosts"|grep "^$2[^0-9]*$" && { logger error "node $2 already existed in $BASE/clusters/$1/hosts"; return 2; }
 
-    # add a node into 'kube-node' group
-    sed -i "/\[kube-node/a $1 NEW_NODE=yes ${@:2}" $BASEPATH/hosts
+    logger info "add $2 into 'kube-node' group"
+    sed -i "/\[kube-node/a $2 NEW_NODE=yes ${@:3}" "$BASE/clusters/$1/hosts"
 
-    # check if playbook runs successfully
-    ansible-playbook $BASEPATH/tools/02.addnode.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_NODE=yes/d" $BASEPATH/hosts; return 2; }
-
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
+    logger info "start to add a work node:$2 into cluster:$1"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/22.addnode.yml" -e "NODE_TO_ADD=$2" -e "@clusters/$1/config.yml"
 }
 
 function add-master() {
     # check new master's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
+    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error  "Invalid ip add:$2"; return 1; }
 
     # check if the new master already exsited
-    sed -n '/^\[kube-master/,/^\[kube-node/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] master $1 already existed!"; return 2; }
+    sed -n '/^\[kube-master/,/^\[kube-node/p' "$BASE/clusters/$1/hosts"|grep "^$2[^0-9]*$" && { logger error "master $2 already existed!"; return 2; }
 
-    # add a node into 'kube-master' group
-    sed -i "/\[kube-master/a $1 NEW_MASTER=yes ${@:2}" $BASEPATH/hosts
+    logger info "add $2 into 'kube-master' group"
+    sed -i "/\[kube-master/a $2 NEW_MASTER=yes ${@:3}" "$BASE/clusters/$1/hosts"
 
-    # check if playbook runs successfully
-    ansible-playbook $BASEPATH/tools/03.addmaster.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NEW_MASTER=yes/d" $BASEPATH/hosts; return 2; }
+    logger info "start to add a master node:$2 into cluster:$1"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/23.addmaster.yml" -e "NODE_TO_ADD=$2" -e "@clusters/$1/config.yml"
 
-    # reconfigure and restart the haproxy service on 'kube-node' nodes
-    ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb -e MASTER_CHG=yes || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
-
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
+    logger info "reconfigure and restart the haproxy service on 'kube-node' nodes"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/05.kube-node.yml" -t restart_lb -e MASTER_CHG=yes -e "@clusters/$1/config.yml" 
 }
 
 function add-etcd() {
     # check new node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
+    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error  "Invalid ip add:$2"; return 1; }
 
     # check if the new node already exsited
-    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "^$1[^0-9]*$" && { echo "[ERROR] etcd $1 already existed!"; return 2; }
+    sed -n '/^\[etcd/,/^\[kube-master/p' "$BASE/clusters/$1/hosts"|grep "^$2[^0-9]*$" && { logger error "etcd $2 already existed!"; return 2; }
 
-    # input an unique NODE_NAME of the node in etcd cluster
-    echo "Please input an UNIQUE name(string) for the new node: "
-    read -t15 NAME
-    sed -n '/^\[etcd/,/^\[kube-master/p' $BASEPATH/hosts|grep "$NAME" && { echo "[ERROR] name [$NAME] already existed!"; return 2; }
+    logger info "add $2 into 'etcd' group"
+    sed -i "/\[etcd/a $2 NEW_ETCD=yes ${@:3}" "$BASE/clusters/$1/hosts" 
 
-    # add a node into 'etcd' group
-    sed -i "/\[etcd/a $1 NODE_NAME=$NAME" $BASEPATH/hosts
+    logger info "start to add a etcd node:$2 into cluster:$1"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/21.addetcd.yml" -e "NODE_TO_ADD=$2" -e "@clusters/$1/config.yml"
 
-    # check if playbook runs successfully
-    ansible-playbook $BASEPATH/tools/01.addetcd.yml -e NODE_TO_ADD=$1 || { sed -i "/$1 NODE_NAME=$NAME/d" $BASEPATH/hosts; return 2; }
-
-    # restart apiservers to use the new etcd cluster
-    ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
-
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
+    logger info "reconfig &restart the etcd cluster"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/02.etcd.yml" -t restart_etcd -e "@clusters/$1/config.yml"
+    
+    logger info "restart apiservers to use the new etcd cluster"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/04.kube-master.yml" -t restart_master -e "@clusters/$1/config.yml" 
 }
 
 function del-etcd() {
     # check node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
+    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error  "Invalid ip add:$2"; return 1; }
 
-    # 
-    ansible-playbook $BASEPATH/tools/11.deletcd.yml -e ETCD_TO_DEL=$1 || { echo "[ERROR] Failed to delete etcd node: $1!"; return 2; }
+    logger warn "start to delete the etcd node:$2 from cluster:$1"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/31.deletcd.yml" -e "ETCD_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml"
 
-    # restart apiservers to use the new etcd cluster
-    ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master || { echo "[ERROR] Unexpected failures in master nodes!"; return 2; }
-
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
+    logger info "reconfig &restart the etcd cluster"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/02.etcd.yml" -t restart_etcd -e "@clusters/$1/config.yml"
+    
+    logger info "restart apiservers to use the new etcd cluster"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/04.kube-master.yml" -t restart_master -e "@clusters/$1/config.yml" 
 }
 
 function del-node() {
     # check node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
+    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger "Invalid ip add:$2"; return 2; }
 
-    # 
-    ansible-playbook $BASEPATH/tools/12.delnode.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-node': $1!"; return 2; }
-
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
+    logger warn "start to delete the node:$2 from cluster:$1"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/32.delnode.yml" -e "NODE_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml"
 }
 
 function del-master() {
     # check node's address regexp
-    [[ $1 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { echo "[ERROR] Invalid ip address!"; return 2; }
+    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error "Invalid ip add:$2"; return 2; }
 
-    # 
-    ansible-playbook $BASEPATH/tools/13.delmaster.yml -e NODE_TO_DEL=$1 || { echo "[ERROR] Failed to delete 'kube-master': $1!"; return 2; }
+    logger warn "start to delete the master:$2 from cluster:$1"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/33.delmaster.yml" -e "NODE_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml" 
 
-    # reconfig kubeconfig in ansible manage node
-    ansible-playbook $BASEPATH/roles/deploy/deploy.yml -t create_kctl_cfg
+    logger info "reconfig kubeconfig in ansible manage node"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/roles/deploy/deploy.yml" -t create_kctl_cfg -e "@clusters/$1/config.yml"
 
-    # reconfigure and restart the haproxy service on 'kube-node' nodes
-    ansible-playbook $BASEPATH/05.kube-node.yml -t restart_lb -e MASTER_CHG=yes || { echo "[ERROR] Failed to restart the haproxy service on 'kube-node' nodes!"; return 2; }
-
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
+    logger info "reconfigure and restart the haproxy service on 'kube-node' nodes"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/05.kube-node.yml" -t restart_lb -e MASTER_CHG=yes -e "@clusters/$1/config.yml" 
 }
 
-function upgrade() {
-    echo -e "[INFO] prepare the new binaries in advance"
-    echo -e "[INFO] upgrade begin in 5s, press any key to abort\n:"
-    ! (read -t5 -n1 ANS) || { echo "[WARN] upgrade aborted"; return 1; }
-    ansible-playbook -t upgrade_k8s $BASEPATH/22.upgrade.yml || return 1
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
-}
-### cluster-wide operation functions ############################
-
-function save_context() {
-    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[WARN] Invalid Context"; return 0; }
-    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo "[INFO] save context: $CLUSTER"
-    echo "[INFO] save $CLUSTER roles' configration"
-    for ROLE in $(ls $BASEPATH/roles);
-    do
-        if [ -d "$BASEPATH/roles/$ROLE/defaults" ]; then
-            mkdir -p $BASEPATH/.cluster/$CLUSTER/roles/$ROLE/defaults/
-            cp -fpr $BASEPATH/roles/$ROLE/defaults/* $BASEPATH/.cluster/$CLUSTER/roles/$ROLE/defaults/
-        fi
-    done
-    
-    if [ -f "$BASEPATH/hosts" ];then
-        echo "[INFO] save $CLUSTER ansible hosts"
-        cp -fp $BASEPATH/hosts $BASEPATH/.cluster/$CLUSTER/
-    fi
-    
-    if [ -f /root/.kube/config ];then
-        echo "[INFO] save $CLUSTER kubeconfig"
-        cp -fp /root/.kube/config $BASEPATH/.cluster/$CLUSTER/
-    fi
-
-    if [ -f "$BASEPATH/.cluster/kube-proxy.kubeconfig" ];then
-        echo "[INFO] save $CLUSTER kube-proxy.kubeconfig"
-        cp -fp $BASEPATH/.cluster/kube-proxy.kubeconfig $BASEPATH/.cluster/$CLUSTER/kube-proxy.kubeconfig
-    fi
-    
-    if [ -d "$BASEPATH/.cluster/ssl" ];then
-        echo "[INFO] save $CLUSTER certs"
-        cp -rfp $BASEPATH/.cluster/ssl $BASEPATH/.cluster/$CLUSTER/ssl
-    fi
-}
-
-function install_context() {
-    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] Invalid Context"; return 1; }
-    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo "[INFO] install context: $CLUSTER"
-    echo "[INFO] install $CLUSTER roles' configration"
-    for ROLE in $(ls $BASEPATH/.cluster/$CLUSTER/roles);
-    do
-        cp -fp $BASEPATH/.cluster/$CLUSTER/roles/$ROLE/defaults/* $BASEPATH/roles/$ROLE/defaults/
-    done
-    
-    if [ -f "$BASEPATH/.cluster/$CLUSTER/hosts" ];then
-        echo "[INFO] install $CLUSTER ansible hosts"
-        cp -fp $BASEPATH/.cluster/$CLUSTER/hosts $BASEPATH/
-    fi
-    
-    if [ -f "$BASEPATH/.cluster/$CLUSTER/config" ];then
-        echo "[INFO] install $CLUSTER kubeconfig"
-        cp -fp $BASEPATH/.cluster/$CLUSTER/config /root/.kube/
-    fi
-
-    if [ -f "$BASEPATH/.cluster/$CLUSTER/kube-proxy.kubeconfig" ];then
-        echo "[INFO] install $CLUSTER kube-proxy.kubeconfig"
-        cp -fp $BASEPATH/.cluster/$CLUSTER/kube-proxy.kubeconfig $BASEPATH/.cluster/kube-proxy.kubeconfig
-    fi
-    
-    if [ -d "$BASEPATH/.cluster/$CLUSTER/ssl" ];then
-        echo "[INFO] install $CLUSTER certs"
-        cp -rfp $BASEPATH/.cluster/$CLUSTER/ssl $BASEPATH/.cluster/ssl
-    fi
-}
-
-function list() {
-    [ -f "$BASEPATH/.cluster/current_cluster" ] || { echo "[ERROR] invalid context, run 'easzctl checkout <cluster_name>' first"; return 1; }
-    CLUSTER=$(cat $BASEPATH/.cluster/current_cluster)
-    echo -e "\nlist of managed contexts (current: \033[33m$CLUSTER\033[0m)"
-    i=1; for c in $(ls $BASEPATH/.cluster/ |grep -Ev "backup|ssl|current_cluster|kubeconfig");
-    do
-        echo -e "==> context $i:\t$c"
-        let "i++"
-    done
-    echo -e "\nlist of installed clusters (current: \033[33m$CLUSTER\033[0m)"
-    i=1; for c in $(ls $BASEPATH/.cluster/ |grep -Ev "backup|ssl|current_cluster|kubeconfig");
-    do
-        KUBECONF=$BASEPATH/.cluster/$c/config
-        if [ -f "$KUBECONF" ]; then
-            echo -e "==> cluster $i:\t$c"
-            $BASEPATH/bin/kubectl --kubeconfig=$KUBECONF get node
-        fi
-        let "i++"
-    done
-}
 
 function start-aio(){
-    checkout aio
     set +u
-    # Check ENV 'HOST_IP', if exist indecates running in a docker container, otherwise running in a host machine
+    # Check ENV 'HOST_IP', exists if the CMD 'ezctl' running in a docker container
     if [[ -z $HOST_IP ]];then
-        # easzctl runs in a host machine, get host's ip
+        # ezctl runs in a host machine, get host's ip
         HOST_IF=$(ip route|grep default|cut -d' ' -f5)
-        HOST_IP=$(ip a|grep "$HOST_IF$"|awk '{print $2}'|cut -d'/' -f1)
+        HOST_IP=$(ip a|grep "$HOST_IF$"|head -n1|awk '{print $2}'|cut -d'/' -f1)
     fi
     set -u
-    cp -f $BASEPATH/example/hosts.allinone $BASEPATH/hosts
-    sed -i "s/192.168.1.1/$HOST_IP/g" $BASEPATH/hosts
-    setup
+
+    logger info "get local host ipadd: $HOST_IP"
+
+    new default
+    /bin/cp -f example/hosts.allinone "clusters/default/hosts"
+    sed -i "s/_cluster_name_/default/g" "clusters/default/hosts"
+    sed -i "s/192.168.1.1/$HOST_IP/g" "clusters/default/hosts"
+
+    setup default all
 }
 
-### extra operation functions ###################################
-
-function basic-auth(){
-    OPTIND=2
-    CONFIG=$BASEPATH/roles/kube-master/defaults/main.yml
-    EX_VARS=""
-    while getopts "sSu:p:" OPTION; do
-        case $OPTION in
-          s)
-            EX_VARS="BASIC_AUTH_ENABLE=yes $EX_VARS"
-            ENABLED=yes
-            ;;
-          S)
-            grep BASIC_AUTH_ENABLE $CONFIG|grep no > /dev/null && \
-            { echo -e "\n[WARN]basic-auth already disabled!\n"; return 1; }
-            EX_VARS="BASIC_AUTH_ENABLE=no $EX_VARS"
-            ENABLED=no
-            ;;
-          u)
-            EX_VARS="BASIC_AUTH_USER=$OPTARG $EX_VARS"
-            sed -i "s/BASIC_AUTH_USER.*$/BASIC_AUTH_USER: '$OPTARG'/g" $CONFIG
-            ;;
-          p)
-            EX_VARS="BASIC_AUTH_PASS=$OPTARG $EX_VARS"
-            sed -i "s/BASIC_AUTH_PASS.*$/BASIC_AUTH_PASS: '$OPTARG'/g" $CONFIG
-            ;;
-          ?)
-            help-info basic-auth
-            return 1
-            ;;
-        esac
-    done
-    
-    ansible-playbook $BASEPATH/04.kube-master.yml -t restart_master -e "$EX_VARS" || { return 1; } 
-    sed -i "s/BASIC_AUTH_ENABLE.*$/BASIC_AUTH_ENABLE: '$ENABLED'/g" $CONFIG 
-    if [[ $ENABLED == yes ]];then
-        echo -e "\n[INFO]basic-auth for apiserver is enabled!"
-        sed -n '/BASIC_AUTH_USER/p' $CONFIG
-        sed -n '/BASIC_AUTH_PASS/p' $CONFIG
-    elif [[ $ENABLED == no ]];then
-        echo -e "\n[INFO]basic-auth for apiserver is disabled!\n"
-    fi
-    # save current cluster context if needed
-    [ -f "$BASEPATH/.cluster/current_cluster" ] && save_context
-    return 0
-}
 
 ### Main Lines ##################################################
 function main() {
-  BASEPATH=$(cd `dirname $0`; pwd)
-  cd "$BASEPATH"
-
-  # check workdir
-  [[ "$BASEPATH" == "/etc/kubeasz" ]] || { logger error "workdir should be '/etc/kubeasz'"; exit 1; }
+  BASE="/etc/kubeasz"
+  [[ -d "$BASE" ]] || { logger error "invalid dir:$BASE, try: 'ezdown -D'"; exit 1; }
+  cd "$BASE"
 
   # check bash shell
   readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell only"; exit 1; }
@@ -535,39 +382,37 @@ function main() {
   case "$1" in
       ### in-cluster operations #####################
       (add-etcd)
-          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-          ACTION="Action: add a etcd node"
-          CMD="add-etcd $2" 
+          [ "$#" -gt 2 ] || { usage >&2; exit 2; }
+          add-etcd "${@:2}"
           ;;
       (add-master)
-          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-          ACTION="Action: add a k8s master node"
-          CMD="add-master $2 ${@:3}" 
+          [ "$#" -gt 2 ] || { usage >&2; exit 2; }
+          add-master "${@:2}"
           ;;
       (add-node)
-          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-          ACTION="Action: add a k8s work node"
-          CMD="add-node $2 ${@:3}" 
+          [ "$#" -gt 2 ] || { usage >&2; exit 2; }
+          add-node "${@:2}"
           ;;
       (del-etcd)
-          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-          ACTION="Action: delete a etcd node"
-          CMD="del-etcd $2" 
+          [ "$#" -eq 3 ] || { usage >&2; exit 2; }
+          del-etcd "$2" "$3"
           ;;
       (del-master)
-          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-          ACTION="Action: delete a kube-master"
-          CMD="del-master $2" 
+          [ "$#" -eq 3 ] || { usage >&2; exit 2; }
+          del-master "$2" "$3"
           ;;
       (del-node)
-          [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-          ACTION="Action: delete a kube-node"
-          CMD="del-node $2" 
+          [ "$#" -eq 3 ] || { usage >&2; exit 2; }
+          del-node "$2" "$3"
           ;;
       ### cluster-wide operations #######################
+      (checkout)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          checkout "$2"
+          ;;
       (list)
-          ACTION="Action: list all of clusters managed"
-          CMD="list" 
+          [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+          list
           ;;
       (new)
           [ "$#" -eq 2 ] || { usage >&2; exit 2; }
@@ -602,19 +447,13 @@ function main() {
           cmd "$2" destroy
           ;;
       (start-aio)
-          ACTION="Action: start an AllInOne cluster"
-          CMD="start-aio" 
+          [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+          start-aio
           ;;
       (help)
           [ "$#" -gt 1 ] || { usage >&2; exit 2; }
-          help-info $2
+          help-info "$2"
           exit 0
-          ;;
-      ### extra operations ##############################
-      (basic-auth)
-          [ "$#" -gt 1 ] || { help-info $1; exit 2; }
-          ACTION="Action: enable/disable apiserver's basic-auth"
-          CMD="basic-auth $*"
           ;;
       (*)
           usage

@@ -1,5 +1,4 @@
 # Note: this playbook can not run independently
-# Usage: easzctl add-node 1.1.1.1
 
 - hosts: "{{ NODE_TO_ADD }}" 
   roles:
@@ -23,7 +22,7 @@
     - "{{ base_dir }}/down/coredns*.tar"
     - "{{ base_dir }}/down/dashboard*.tar"
     - "{{ base_dir }}/down/metrics-scraper*.tar"
-    - "{{ base_dir }}/down/metrics*.tar"
+    - "{{ base_dir }}/down/metrics-server*.tar"
     - "{{ base_dir }}/down/traefik*.tar"
     ignore_errors: true
 

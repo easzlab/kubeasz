@@ -1,5 +1,4 @@
 # WARNNING:  this playbook will clean the etcd {{ ETCD_TO_DEL }} 
-# USAGE:     easzctl del-etcd 1.1.1.1
 
 - hosts: localhost 
   vars_prompt:
@@ -42,7 +41,7 @@
 
     - debug: var="RUNNING_NODE.stdout"
 
-    # step2: remove jobs run on the healthy member if needed
+    # step2: remove jobs run on the healthy member
     - name: get ID of etcd node to delete
       shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member list \
               |grep {{ ETCD_TO_DEL }}:2380|cut -d',' -f1"
@@ -55,26 +54,26 @@
       register: ETCD_NAME
       delegate_to: "{{ RUNNING_NODE.stdout }}"
   
+    - debug: var="ETCD_NAME.stdout"
+
     - name: delete a etcd member
       shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member remove {{ ETCD_ID.stdout }}"
       delegate_to: "{{ RUNNING_NODE.stdout }}"
       when: "ETCD_ID.stdout != ''"
   
-    - name: clean etcd {{ ETCD_TO_DEL }} if possible
-      shell: "ansible-playbook {{ base_dir }}/roles/clean/clean_node.yml \
+    - name: clean etcd {{ ETCD_TO_DEL }}
+      shell: "ansible-playbook -i {{ base_dir }}/clusters/{{ CLUSTER }}/hosts \
+                {{ base_dir }}/roles/clean/clean_node.yml \
                 -e NODE_TO_CLEAN={{ ETCD_TO_DEL }} \
                 -e DEL_ETCD=yes >> /tmp/ansible-`date +'%Y%m%d%H%M%S'`.log 2>&1 \
               || echo 'data not cleaned on {{ ETCD_TO_DEL }}'"
       register: CLEAN_STATUS
 
-    - debug: var="CLEAN_STATUS.stdout"
+    - debug: var="CLEAN_STATUS"
 
     # lineinfile is inadequate to delete lines between some specific line range
     - name: remove the etcd's node entry in hosts
-      shell: 'sed -i "/^\[etcd/,/^\[kube-master/ {/^{{ ETCD_TO_DEL }}[^0-9]/d}" {{ base_dir }}/hosts'
+      shell: 'sed -i "/^\[etcd/,/^\[kube-master/ {/^{{ ETCD_TO_DEL }}[^0-9]/d}" {{ base_dir }}/clusters/{{ CLUSTER }}/hosts'
       args:
         warn: false
-
-    - name: reconfig and restart the etcd cluster
-      shell: "ansible-playbook {{ base_dir }}/02.etcd.yml >> /tmp/ansible-`date +'%Y%m%d%H%M%S'`.log 2>&1"
     when: "groups['etcd']|length > 1 and ETCD_TO_DEL in groups['etcd']" 

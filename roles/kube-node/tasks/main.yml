@@ -65,7 +65,6 @@
   tags: upgrade_k8s, restart_node
 
 ##-------kube-proxy部分----------------
-
 - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
   lineinfile:
     dest: /etc/kubernetes/kube-proxy.kubeconfig
@@ -84,12 +83,21 @@
   shell: systemctl daemon-reload && systemctl restart kube-proxy
   tags: reload-kube-proxy, upgrade_k8s, restart_node
 
+# 轮询等待kube-proxy启动完成
+- name: 轮询等待kube-proxy启动
+  shell: "systemctl status kube-proxy.service|grep Active"
+  register: kubeproxy_status
+  until: '"running" in kubeproxy_status.stdout'
+  retries: 4
+  delay: 2
+  tags: reload-kube-proxy, upgrade_k8s, restart_node
+
 # 轮询等待kubelet启动完成
 - name: 轮询等待kubelet启动
   shell: "systemctl status kubelet.service|grep Active"
   register: kubelet_status
   until: '"running" in kubelet_status.stdout'
-  retries: 8
+  retries: 4
   delay: 2
   tags: reload-kube-proxy, upgrade_k8s, restart_node
 

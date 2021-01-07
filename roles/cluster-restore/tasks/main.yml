@@ -13,18 +13,25 @@
     dest: "/etcd_backup/snapshot.db"
 
 - name: 清理上次备份恢复数据
-  file: name=/etcd_backup/{{ NODE_NAME }}.etcd state=absent
+  file: name=/etcd_backup/etcd-{{ inventory_hostname }}.etcd state=absent
 
 - name: etcd 数据恢复
   shell: "cd /etcd_backup && \
 	ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot restore snapshot.db \
-	--name {{ NODE_NAME }} \
+	--name etcd-{{ inventory_hostname }} \
 	--initial-cluster {{ ETCD_NODES }} \
 	--initial-cluster-token etcd-cluster-0 \
 	--initial-advertise-peer-urls https://{{ inventory_hostname }}:2380"
 
 - name: 恢复数据至etcd 数据目录
-  shell: "cp -rf /etcd_backup/{{ NODE_NAME }}.etcd/member /var/lib/etcd/"
+  shell: "cp -rf /etcd_backup/etcd-{{ inventory_hostname }}.etcd/member /var/lib/etcd/"
 
 - name: 重启etcd 服务
   service: name=etcd state=restarted
+
+- name: 以轮询的方式等待服务同步完成
+  shell: "systemctl status etcd.service|grep Active"
+  register: etcd_status
+  until: '"running" in etcd_status.stdout'
+  retries: 8
+  delay: 8

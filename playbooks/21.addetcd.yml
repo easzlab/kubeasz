@@ -1,9 +1,7 @@
-# Note: this playbook cann't run independently
-# Usage: easzctl add-etcd 1.1.1.1
-
 # add new-etcd node, one at a time
 - hosts: "{{ NODE_TO_ADD }}"
   tasks:
+  # step1: find a healthy member in the etcd cluster
   - block:
     - name: set NODE_IPS of the etcd cluster
       set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
@@ -30,23 +28,17 @@
     - debug: var="RUNNING_NODE.stdout"
     connection: local
 
+  # step2: add a new member in the etcd cluster
   - name: add a new etcd member
-    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add {{ NODE_NAME }} \
+    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add etcd-{{ NODE_TO_ADD }} \
             --peer-urls=https://{{ NODE_TO_ADD }}:2380"
     delegate_to: "{{ RUNNING_NODE.stdout }}"
 
-# start the new-etcd node
+# step3: start the new-etcd node
 - hosts: "{{ NODE_TO_ADD }}"
   vars:
     CLUSTER_STATE: existing
   roles:
   - { role: chrony, when: "groups['chrony']|length > 0" }
   - prepare
-  - etcd
-
-# restart the original etcd cluster with the new configuration
-- hosts: etcd
-  vars:
-    CLUSTER_STATE: existing
-  roles:
   - etcd

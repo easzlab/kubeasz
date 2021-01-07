@@ -1,9 +1,5 @@
 - name: prepare some dirs
-  file: name={{ item }} state=directory
-  with_items:
-  - "{{ bin_dir }}"
-  - "{{ ca_dir }}"
-  - "/var/lib/etcd"    # etcd 工作目录
+  file: name=/var/lib/etcd state=directory mode=0700
 
 - name: 下载etcd二进制文件
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -33,7 +29,7 @@
 
 - name: 创建etcd的systemd unit文件
   template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
-  tags: upgrade_etcd
+  tags: upgrade_etcd, restart_etcd
 
 - name: 开机启用etcd服务
   shell: systemctl enable etcd
@@ -42,7 +38,7 @@
 - name: 开启etcd服务
   shell: systemctl daemon-reload && systemctl restart etcd
   ignore_errors: true
-  tags: upgrade_etcd
+  tags: upgrade_etcd, restart_etcd
 
 - name: 以轮询的方式等待服务同步完成
   shell: "systemctl status etcd.service|grep Active"
@@ -50,4 +46,4 @@
   until: '"running" in etcd_status.stdout'
   retries: 8
   delay: 8
-  tags: upgrade_etcd
+  tags: upgrade_etcd, restart_etcd

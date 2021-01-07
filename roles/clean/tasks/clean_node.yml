@@ -39,16 +39,35 @@
           ignore_errors: true
   
         # as k8s-network-plugins use host-network, '/var/run/docker/netns/default' must be umounted
-        - name: unmount docker filesystem-1
+        - name: umount docker filesystem-1
           mount: path=/var/run/docker/netns/default state=unmounted
   
-        - name: unmount docker filesystem-2
+        - name: umount docker filesystem-2
           mount: path=/var/lib/docker/overlay state=unmounted
   
+        - name: umount docker filesystem-3
+          shell: "echo /var/lib/docker/overlay2/*/merged|xargs umount || exit 0"
+          args:
+            warn: false
+          ignore_errors: true
+
+        - name: umount docker filesystem-4
+          shell: "echo /var/lib/docker/containers/*/mounts/shm|xargs umount || exit 0"
+          args:
+            warn: false
+          ignore_errors: true
+
+        - name: umount docker filesystem-5
+          shell: "echo /var/run/docker/netns/*|xargs umount || exit 0"
+          args:
+            warn: false
+          ignore_errors: true
+
         - name: remove files and dirs
           file: name={{ item }} state=absent
           with_items:
           - "/var/lib/docker/"
+          - "/var/lib/dockershim/"
           - "/var/run/docker/"
           - "/etc/docker/"
           - "/etc/systemd/system/docker.service"
@@ -57,6 +76,7 @@
           - "/etc/bash_completion.d/docker"
           - "/usr/bin/docker"
         when: "'kubeasz' not in install_info.stdout"
+    ignore_errors: true
     when: CONTAINER_RUNTIME == 'docker'
 
   - block:
@@ -82,6 +102,7 @@
         - "/opt/containerd/"
         - "/var/lib/containerd/"
         - "/var/run/containerd/"
+    ignore_errors: true
     when: CONTAINER_RUNTIME == 'containerd'
 
   - name: remove files and dirs2

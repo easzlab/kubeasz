@@ -1,12 +1,12 @@
 # 
+- import_tasks: clean_etcd.yml
+  when: 'DEL_ETCD == "yes"'
+
 - import_tasks: clean_master.yml
   when: 'DEL_MASTER == "yes"'
 
 - import_tasks: clean_node.yml
   when: 'DEL_NODE == "yes"'
-
-- import_tasks: clean_etcd.yml
-  when: 'DEL_ETCD == "yes"'
 
 - import_tasks: clean_lb.yml
   when: 'DEL_LB == "yes"'

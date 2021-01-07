@@ -1,6 +1,5 @@
+# download directory
 down/*
-!down/download.sh
-!down/offline_images
 
 # binaries directory
 bin/*
