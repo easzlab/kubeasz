@@ -8,14 +8,9 @@ bin/*
 manifests/storage/*
 !manifests/storage/test.yaml
 
-# k8s backup directory
-roles/cluster-backup/files/*
-!roles/cluster-backup/files/readme.md
-
 # role based variable settings, exclude roles/os-harden/vars/
 #/roles/*/vars/*
 #!/roles/os-harden/vars/
 
-# cluster backups
-.cluster/
+# cluster instances
 clusters/
