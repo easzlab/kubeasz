@@ -180,6 +180,10 @@ dashboard_install: "yes"
 dashboardVer: "__dashboard__"
 dashboardMetricsScraperVer: "__dash_metrics__"
 
+# prometheus 自动安装
+prom_install: "no"
+prom_namespace: "monitor"
+prom_chart_ver: "__prom_chart__"
 
 ############################
 # role:harbor

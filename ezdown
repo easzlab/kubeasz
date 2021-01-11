@@ -22,14 +22,15 @@ SYS_PKG_VER=0.3.3
 # images needed by k8s cluster
 calicoVer=v3.15.3
 flannelVer=v0.13.0-amd64
-export ciliumVer=v1.4.1
-export kubeRouterVer=v0.3.1
-export kubeOvnVer=v1.5.3
 corednsVer=1.7.1
 dashboardVer=v2.1.0
 dashboardMetricsScraperVer=v1.0.6
 metricsVer=v0.3.6
 pauseVer=3.2
+export ciliumVer=v1.4.1
+export kubeRouterVer=v0.3.1
+export kubeOvnVer=v1.5.3
+export promChartVer=12.10.6
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"

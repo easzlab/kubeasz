@@ -124,6 +124,7 @@ function new() {
     dashboardVer=$(grep 'dashboardVer=' ezdown|cut -d'=' -f2)
     dashboardMetricsScraperVer=$(grep 'dashboardMetricsScraperVer=' ezdown|cut -d'=' -f2)
     metricsVer=$(grep 'metricsVer=' ezdown|cut -d'=' -f2)
+    promChartVer=$(grep 'promChartVer=' ezdown|cut -d'=' -f2)
 
     sed -i -e "s/__flannel__/$flannelVer/g" \
 	   -e "s/__calico__/$calicoVer/g" \
@@ -133,6 +134,7 @@ function new() {
 	   -e "s/__coredns__/$corednsVer/g" \
 	   -e "s/__dashboard__/$dashboardVer/g" \
 	   -e "s/__dash_metrics__/$dashboardMetricsScraperVer/g" \
+	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__metrics__/$metricsVer/g" "clusters/$1/config.yml"
 
 

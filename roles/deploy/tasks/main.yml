@@ -3,6 +3,7 @@
   with_items:
   - "{{ cluster_dir }}/ssl"
   - "{{ cluster_dir }}/backup"
+  - "{{ cluster_dir }}/yml"
   - "~/.kube"
 
 - name: 本地设置 bin 目录权限
