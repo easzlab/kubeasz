@@ -126,6 +126,9 @@ function new() {
     metricsVer=$(grep 'metricsVer=' ezdown|cut -d'=' -f2)
     promChartVer=$(grep 'promChartVer=' ezdown|cut -d'=' -f2)
     traefikChartVer=$(grep 'traefikChartVer=' ezdown|cut -d'=' -f2)
+    registryMirror=true
+
+    grep registry-mirrors /etc/docker/daemon.json > /dev/null 2>&1 || { logger debug "disable registry mirrors"; registryMirror=false; }
 
     sed -i -e "s/__flannel__/$flannelVer/g" \
 	   -e "s/__calico__/$calicoVer/g" \
@@ -137,6 +140,7 @@ function new() {
 	   -e "s/__dash_metrics__/$dashboardMetricsScraperVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__traefik_chart__/$traefikChartVer/g" \
+	   -e "s/^ENABLE_MIRROR_REGISTRY.*$/ENABLE_MIRROR_REGISTRY: $registryMirror/g" \
 	   -e "s/__metrics__/$metricsVer/g" "clusters/$1/config.yml"
 
 
