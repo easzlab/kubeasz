@@ -13,9 +13,6 @@
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
   - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
   tasks:
-  - name: 创建文件夹/opt/kube/images
-    file: dest=/opt/kube/images state=directory
-
   - name: 推送cluster-addon的离线镜像包
     copy: src={{ item }} dest=/opt/kube/images/
     with_fileglob:

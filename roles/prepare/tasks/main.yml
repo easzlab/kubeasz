@@ -21,6 +21,7 @@
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
   - /root/.kube
+  - /opt/kube/images
 
 - name: 写入环境变量$PATH 
   lineinfile:

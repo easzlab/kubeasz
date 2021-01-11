@@ -1,3 +1,5 @@
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
 - block:
     - name: 获取是否已创建命名空间{{ prom_namespace }}
       shell: "{{ base_dir }}/bin/kubectl get ns"
