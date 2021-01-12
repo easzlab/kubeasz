@@ -22,7 +22,7 @@ alertmanager:
 
   ## Configuration for Alertmanager service
   service:
-    nodePort: 39902
+    nodePort: 30902
     type: NodePort 
 
   alertmanagerSpec:
@@ -42,7 +42,7 @@ grafana:
   adminPassword: Admin1234!
 
   service:
-    nodePort: 39903
+    nodePort: 30903
     type: NodePort 
 
 ## Component scraping the kube api server
@@ -127,8 +127,8 @@ prometheusOperator:
   thanosRulerInstanceNamespaces: []
 
   service:
-    nodePort: 39899
-    nodePortTls: 39900
+    nodePort: 30899
+    nodePortTls: 30900
     type: NodePort 
 
   nodeSelector: {}
@@ -154,7 +154,7 @@ prometheus:
 
   ## Configuration for Prometheus service
   service:
-    nodePort: 39901
+    nodePort: 30901
     type: NodePort 
 
   ## Settings affecting prometheusSpec
