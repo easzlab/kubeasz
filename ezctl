@@ -106,7 +106,7 @@ function help-info() {
 
 function new() {
     # check if already existed
-    [[ -d "clusters/$1" ]] && { logger error "cluster: $1 already existed"; exit 1; }
+    [[ -d "clusters/$1" ]] && { logger error "cluster:$1 already existed, if cluster:$1 setup failed, try 'rm -rf clusters/$1' first!"; exit 1; }
 
     logger debug "generate custom cluster files in clusters/$1"
     mkdir -p "clusters/$1"
@@ -383,7 +383,7 @@ function main() {
   readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell only"; exit 1; }
 
   # check 'ansible' executable
-  which ansible > /dev/null 2>&1 || { logger error "need 'ansible', try: 'pip install ansible==2.6.18'"; exit 1; }
+  which ansible > /dev/null 2>&1 || { logger error "need 'ansible', try: 'pip install ansible==2.6.18'"; usage; exit 1; }
   
   [ "$#" -gt 0 ] || { usage >&2; exit 2; }
   

@@ -1,10 +1,8 @@
 {
   "CN": "system:node:{{ inventory_hostname }}",
   "hosts": [
-{% for host in groups['kube-node'] %}
-    "{{ host }}",
-{% endfor %}
-    "127.0.0.1"
+    "127.0.0.1",
+    "{{ inventory_hostname }}"
   ],
   "key": {
     "algo": "rsa",
