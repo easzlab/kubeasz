@@ -4,13 +4,14 @@ CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('addre
 #
 coredns_offline: "coredns_{{ corednsVer }}.tar"
 
+dnscache_offline: "k8s-dns-node-cache_{{ dnsNodeCacheVer }}.tar"
+
 metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 
 dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
+
 metricsscraper_offline: "metrics-scraper_{{ dashboardMetricsScraperVer }}.tar"
 
-# ingress 自动安装，可选 "traefik" 和 "nginx-ingress"
-#ingress_install: "no"
 
 # metallb 自动安装
 #metallb_install: "no"

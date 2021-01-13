@@ -23,6 +23,7 @@ REGISTRY_MIRROR=CN
 # images needed by k8s cluster
 calicoVer=v3.15.3
 flannelVer=v0.13.0-amd64
+dnsNodeCacheVer=1.16.0
 corednsVer=1.7.1
 dashboardVer=v2.1.0
 dashboardMetricsScraperVer=v1.0.6
@@ -251,6 +252,10 @@ function get_offline_image() {
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
     docker pull "coredns/coredns:$corednsVer" && \
     docker save -o "$imageDir/coredns_$corednsVer.tar" "coredns/coredns:$corednsVer"
+  fi
+  if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
+    docker pull "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
+    docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" 
   fi
   if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
     docker pull "kubernetesui/dashboard:$dashboardVer" && \

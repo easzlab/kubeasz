@@ -121,6 +121,7 @@ function new() {
     kubeRouterVer=$(grep 'kubeRouterVer=' ezdown|cut -d'=' -f2)
     kubeOvnVer=$(grep 'kubeOvnVer=' ezdown|cut -d'=' -f2)
     corednsVer=$(grep 'corednsVer=' ezdown|cut -d'=' -f2)
+    dnsNodeCacheVer=$(grep 'dnsNodeCacheVer=' ezdown|cut -d'=' -f2)
     dashboardVer=$(grep 'dashboardVer=' ezdown|cut -d'=' -f2)
     dashboardMetricsScraperVer=$(grep 'dashboardMetricsScraperVer=' ezdown|cut -d'=' -f2)
     metricsVer=$(grep 'metricsVer=' ezdown|cut -d'=' -f2)
@@ -136,6 +137,7 @@ function new() {
 	   -e "s/__kube_ovn__/$kubeOvnVer/g" \
 	   -e "s/__kube_router__/$kubeRouterVer/g" \
 	   -e "s/__coredns__/$corednsVer/g" \
+	   -e "s/__dns_node_cache__/$dnsNodeCacheVer/g" \
 	   -e "s/__dashboard__/$dashboardVer/g" \
 	   -e "s/__dash_metrics__/$dashboardMetricsScraperVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \

@@ -17,7 +17,11 @@ authorization:
 cgroupDriver: cgroupfs 
 cgroupsPerQOS: true
 clusterDNS:
+{% if ENABLE_LOCAL_DNS_CACHE %}
+- {{ LOCAL_DNS_CACHE }}
+{% else %}
 - {{ CLUSTER_DNS_SVC_IP }}
+{% endif %}
 clusterDomain: {{ CLUSTER_DNS_DOMAIN }}
 configMapAndSecretChangeDetectionStrategy: Watch
 containerLogMaxFiles: 3 

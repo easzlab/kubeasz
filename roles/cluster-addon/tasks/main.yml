@@ -13,6 +13,9 @@
 - import_tasks: coredns.yml
   when: '"coredns" not in pod_info.stdout and dns_install == "yes"'
 
+- import_tasks: nodelocaldns.yml
+  when: '"node-local-dns" not in pod_info.stdout and ENABLE_LOCAL_DNS_CACHE|bool'
+
 - import_tasks: metrics-server.yml
   when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
 

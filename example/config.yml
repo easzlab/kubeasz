@@ -170,6 +170,10 @@ busybox_offline: "busybox_{{ busybox_ver }}.tar"
 # coredns 自动安装
 dns_install: "yes"
 corednsVer: "__coredns__"
+ENABLE_LOCAL_DNS_CACHE: true
+dnsNodeCacheVer: "__dns_node_cache__"
+# 设置 local dns cache 地址
+LOCAL_DNS_CACHE: "169.254.20.10"
 
 # metric server 自动安装
 metricsserver_install: "yes"
