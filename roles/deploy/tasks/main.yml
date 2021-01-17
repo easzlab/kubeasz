@@ -31,6 +31,11 @@
 - import_tasks: create-kubectl-kubeconfig.yml
   tags: create_kctl_cfg
 
+#----------- 创建个性化客户端配置文件
+- import_tasks: add-custom-kubectl-kubeconfig.yml
+  tags: add-kcfg
+  when: "ADD_KCFG|bool"
+
 #------------创建配置文件: kube-proxy.kubeconfig
 - import_tasks: create-kube-proxy-kubeconfig.yml
 

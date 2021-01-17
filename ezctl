@@ -30,26 +30,10 @@ Cluster ops:
     del-master  <cluster>  <ip>      to delete a master node from the k8s cluster
     del-node    <cluster>  <ip>      to delete a work node from the k8s cluster
 
+Extra operation:
+    kcfg-adm    <cluster>  <args>    to manage client kubeconfig of the k8s cluster
+
 Use "ezctl help <command>" for more information about a given command.
-EOF
-}
-
-function usage-setup(){
-  echo -e "\033[33mUsage:\033[0m ezctl setup <cluster> <step>"
-  cat <<EOF
-available steps:
-    01     prepare         to prepare CA/certs & kubeconfig & other system settings 
-    02     etcd            to setup the etcd cluster
-    03     runtime         to setup the container runtime(docker or containerd)
-    04     kube-master     to setup the master nodes
-    05     kube-node       to setup the worker nodes
-    06     network         to setup the network plugin
-    07     cluster-addon   to setup other useful plugins
-    all                    to run 01~07 all at once
-
-examples: ./ezctl setup test-k8s 01
-          ./ezctl setup test-k8s 02
-          ./ezctl setup test-k8s all
 EOF
 }
 
@@ -96,10 +80,49 @@ function help-info() {
         (del-node)
             echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
             ;;
+        (kcfg-adm)
+	    usage-kcfg-adm
+            ;;
         (*)
             echo -e "todo: help info $1"
             ;;
     esac
+}
+
+function usage-kcfg-adm(){
+  echo -e "\033[33mUsage:\033[0m ezctl kcfg-adm <cluster> <args>"
+  cat <<EOF
+available <args>:
+    -A     to add a client kubeconfig with a newly created user 
+    -D     to delete a client kubeconfig with the existed user
+    -L     to list all of the users
+    -e     to set expiry of the user certs in hours (ex. 24h, 8h, 240h)
+    -t     to set a user-type (admin or view)
+    -u     to set a user-name prefix
+
+examples: ./ezctl kcfg-adm test-k8s -L
+          ./ezctl kcfg-adm default -A -e 240h -t admin -u jack
+          ./ezctl kcfg-adm default -D -u jim-202101162141
+EOF
+}
+
+function usage-setup(){
+  echo -e "\033[33mUsage:\033[0m ezctl setup <cluster> <step>"
+  cat <<EOF
+available steps:
+    01     prepare         to prepare CA/certs & kubeconfig & other system settings 
+    02     etcd            to setup the etcd cluster
+    03     runtime         to setup the container runtime(docker or containerd)
+    04     kube-master     to setup the master nodes
+    05     kube-node       to setup the worker nodes
+    06     network         to setup the network plugin
+    07     cluster-addon   to setup other useful plugins
+    all                    to run 01~07 all at once
+
+examples: ./ezctl setup test-k8s 01
+          ./ezctl setup test-k8s 02
+          ./ezctl setup test-k8s all
+EOF
 }
 
 ### Cluster setups functions ##############################
@@ -374,6 +397,84 @@ function start-aio(){
     setup default all
 }
 
+### Extra functions #############################################
+EXPIRY=4800h        # default cert will expire in 200 days
+USER_TYPE=admin     # admin/view, admin=clusterrole:cluster-admin view=clusterrole:view 
+USER_NAME=user
+function kcfg-adm() {
+    OPTIND=2
+    ACTION=""
+    while getopts "ADLe:t:u:" OPTION; do
+        case $OPTION in
+          A)
+            ACTION="add-kcfg $1"
+            ;;
+          D)
+            ACTION="del-kcfg $1"
+            ;;
+          L)
+            ACTION="list-kcfg $1"
+            ;;
+          e)
+            EXPIRY="$OPTARG"
+	    [[ $OPTARG =~ ^[1-9][0-9]*h$ ]] || { logger error "'-e' must be set like '2h, 5h, 50000h, ...'"; exit 1; }
+            ;;
+          t)
+            USER_TYPE="$OPTARG"
+	    [[ $OPTARG =~ ^(admin|view)$ ]] || { logger error "'-t' can only be set as 'admin' or 'view'"; exit 1; }
+            ;;
+          u)
+            USER_NAME="$OPTARG"
+            ;;
+          ?)
+            help-info kcfg-adm
+            return 1
+            ;;
+        esac
+    done
+
+    [[ "$ACTION" == "" ]] && { logger error "illegal option"; help-info kcfg-adm; exit 1; }
+
+    logger info "$ACTION"
+    ${ACTION} || { logger error "$ACTION fail"; return 1; }
+    logger info "$ACTION success" 
+}
+
+function add-kcfg(){
+    USER_NAME="$USER_NAME"-$(date +'%Y%m%d%H%M')
+    logger info "add-kcfg in cluster:$1 with user:$USER_NAME"
+    ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" -e "CUSTOM_EXPIRY=$EXPIRY" \
+                     -e "USER_TYPE=$USER_TYPE" -e "USER_NAME=$USER_NAME" -e "ADD_KCFG=true" \
+                     -t add-kcfg "roles/deploy/deploy.yml"
+}
+
+function del-kcfg(){
+    logger info "del-kcfg in cluster:$1 with user:$USER_NAME"
+    CRB=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath="{.items[?(@.subjects[0].name == '$USER_NAME')].metadata.name}") && \
+    bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" delete clusterrolebindings "$CRB" && \
+    /bin/rm -f "clusters/$1/ssl/users/$USER_NAME"*
+}
+
+function list-kcfg(){
+    logger info "list-kcfg in cluster:$1"
+    printf "\n%-30s %-15s %-20s\n" USER TYPE "EXPIRY(+8h if in Asia/Shanghai)"
+    echo "---------------------------------------------------------------------------------"
+    ADMINS=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[?(@.roleRef.name == "cluster-admin")].subjects[*].name}')
+    VIEWS=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[?(@.roleRef.name == "view")].subjects[*].name}')
+    for u in $ADMINS; do
+       if [[ $u =~ ^.*-[0-9]{12}$ ]];then
+          t=$(bin/cfssl-certinfo -cert "clusters/$1/ssl/users/$u.pem"|grep not_after|awk '{print $2}'|sed 's/"//g'|sed 's/,//g')
+          printf "%-30s %-15s %-20s\n" "$u" cluster-admin "$t"
+       fi
+    done;
+    for u in $VIEWS; do
+       if [[ $u =~ ^.*-[0-9]{12}$ ]];then
+          t=$(bin/cfssl-certinfo -cert "clusters/$1/ssl/users/$u.pem"|grep not_after|awk '{print $2}'|sed 's/"//g'|sed 's/,//g')
+          printf "%-30s %-15s %-20s\n" "$u" view "$t"
+       fi
+    done;
+    echo ""
+}
 
 ### Main Lines ##################################################
 function main() {
@@ -459,6 +560,11 @@ function main() {
       (start-aio)
           [ "$#" -eq 1 ] || { usage >&2; exit 2; }
           start-aio
+          ;;
+      ### extra operations ##############################
+      (kcfg-adm)
+          [ "$#" -gt 2 ] || { usage-kcfg-adm >&2; exit 2; }
+          kcfg-adm "${@:2}"
           ;;
       (help)
           [ "$#" -gt 1 ] || { usage >&2; exit 2; }
