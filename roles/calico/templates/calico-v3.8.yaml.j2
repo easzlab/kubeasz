@@ -337,7 +337,9 @@ spec:
               command:
                 - /bin/calico-node
                 - -felix-live
+{% if CALICO_NETWORKING_BACKEND == "brid" %}
                 - -bird-live
+{% endif %}
             periodSeconds: 10
             initialDelaySeconds: 10
             failureThreshold: 6
@@ -345,7 +347,9 @@ spec:
             exec:
               command:
               - /bin/calico-node
+{% if CALICO_NETWORKING_BACKEND == "brid" %}
               - -bird-ready
+{% endif %}
               - -felix-ready
             periodSeconds: 10
           volumeMounts:

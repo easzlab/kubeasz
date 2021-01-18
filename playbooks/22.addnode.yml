@@ -17,6 +17,7 @@
     copy: src={{ item }} dest=/opt/kube/images/
     with_fileglob:
     - "{{ base_dir }}/down/coredns*.tar"
+    - "{{ base_dir }}/down/k8s-dns-node-cache*.tar"
     - "{{ base_dir }}/down/dashboard*.tar"
     - "{{ base_dir }}/down/metrics-scraper*.tar"
     - "{{ base_dir }}/down/metrics-server*.tar"
