@@ -1,0 +1,5 @@
+---
+- name: configure selinux | selinux-01
+  selinux:
+    policy: "{{ os_selinux_policy }}"
+    state: "{{ os_selinux_state }}"

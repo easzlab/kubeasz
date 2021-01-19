@@ -3,6 +3,7 @@
 
 - hosts: harbor
   roles:
+  - { role: os-harden, when: "OS_HARDEN|bool" }
   - { role: chrony, when: "NEW_INSTALL == 'yes' and groups['chrony']|length > 0" }
   - { role: prepare, when: "NEW_INSTALL == 'yes'" }
   - { role: docker, when: "NEW_INSTALL == 'yes'" }

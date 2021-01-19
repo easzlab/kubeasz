@@ -1,13 +1,12 @@
 ############################
-# role:prepare
+# prepare
 ############################
 # 可选离线安装系统软件包 (offline|online)
 INSTALL_SOURCE: "online"
 
+# 可选进行系统安全加固 github.com/dev-sec/ansible-collection-hardening
+OS_HARDEN: false
 
-############################
-# role:chrony
-############################
 # 设置时间源服务器【重要：集群内机器时间必须同步】
 ntp_servers:
   - "ntp1.aliyun.com"

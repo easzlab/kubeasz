@@ -39,6 +39,7 @@
   vars:
     CLUSTER_STATE: existing
   roles:
+  - { role: os-harden, when: "OS_HARDEN|bool" }
   - { role: chrony, when: "groups['chrony']|length > 0" }
   - prepare
   - etcd

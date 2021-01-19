@@ -14,7 +14,7 @@ set -o errexit
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=19.03.14
-KUBEASZ_VER=3.0.0-rc
+KUBEASZ_VER=3.0.0
 K8S_BIN_VER=v1.20.2
 EXT_BIN_VER=0.8.1
 SYS_PKG_VER=0.3.3

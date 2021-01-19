@@ -1,4 +1,5 @@
-# {{ ansible_managed | comment }}
+{{ ansible_managed | comment }}
+
 # This file contains the names of kernel modules that should be loaded at boot time, one per line. Lines beginning with "#" are ignored.
 #
 # A list of all available kernel modules kann be found with `find /lib/modules/$(uname -r)/kernel/`
@@ -10,7 +11,7 @@
 #
 # Modules for certains builds, contains support modules and some CPU-specific optimizations.
 
-{% if ansible_architecture == 'x86_64' %}
+{% if ansible_facts.architecture == 'x86_64' %}
 # Optimize for x86_64 cryptographic features
 twofish-x86_64-3way
 twofish-x86_64
@@ -19,7 +20,7 @@ salsa20-x86_64
 blowfish-x86_64
 {% endif %}
 
-{% if 'amd' in ansible_processor %}
+{% if 'amd' in ansible_facts.processor %}
 # AMD-specific optimizations
 kvm-amd
 {% else %}

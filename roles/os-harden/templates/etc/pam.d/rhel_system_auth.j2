@@ -1,4 +1,4 @@
-# {{ ansible_managed | comment }}
+{{ ansible_managed | comment }}
 
 #%PAM-1.0
 {% if os_auth_retries > 0 %}
@@ -18,7 +18,7 @@ account     sufficient    pam_succeed_if.so uid < 500 quiet
 account     required      pam_permit.so
 
 {% if (os_auth_pam_passwdqc_enable|bool) %}
-  {%- if ((ansible_os_family == 'RedHat' and ansible_distribution_version >= '7') or ansible_distribution == 'Amazon') %}
+  {%- if ((ansible_facts.os_family == 'RedHat' and ansible_facts.distribution_version|int is version('7', '>=')) or ansible_facts.distribution == 'Amazon') %}
 password    required      pam_pwquality.so {{ os_auth_pam_pwquality_options }}
   {%- else %}
 password    requisite     pam_passwdqc.so {{ os_auth_pam_passwdqc_options }}

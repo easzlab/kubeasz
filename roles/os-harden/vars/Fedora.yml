@@ -18,7 +18,7 @@ os_passwd_perms:
   group: root
   mode: '0644'
 
-os_env_umask: '077'
+os_env_umask: '027'
 
 os_auth_uid_min: 1000
 os_auth_gid_min: 1000
@@ -26,3 +26,6 @@ os_auth_sys_uid_min: 201
 os_auth_sys_uid_max: 999
 os_auth_sys_gid_min: 201
 os_auth_sys_gid_max: 999
+
+modprobe_package: 'module-init-tools'
+auditd_package: 'audit'

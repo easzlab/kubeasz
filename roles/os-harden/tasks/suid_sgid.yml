@@ -13,13 +13,13 @@
 - name: find binaries with suid/sgid set | os-06
   shell: find / -xdev \( -perm -4000 -o -perm -2000 \) -type f ! -path '/proc/*' -print 2>/dev/null
   register: sbit_binaries
-  when: os_security_suid_sgid_remove_from_unknown
-  changed_when: False
+  when: os_security_suid_sgid_remove_from_unknown | bool
+  changed_when: false
 
 - name: gather files from which to remove suids/sgids and remove system white-listed files | os-06
   set_fact:
     suid: '{{ sbit_binaries.stdout_lines | difference(os_security_suid_sgid_system_whitelist) }}'
-  when: os_security_suid_sgid_remove_from_unknown
+  when: os_security_suid_sgid_remove_from_unknown | bool
 
 - name: remove suid/sgid bit from all binaries except in system and user whitelist | os-06
   file:
@@ -29,4 +29,4 @@
     follow: 'yes'
   with_flattened:
     - '{{ suid | default([]) | difference(os_security_suid_sgid_whitelist) }}'
-  when: os_security_suid_sgid_remove_from_unknown
+  when: os_security_suid_sgid_remove_from_unknown | bool
