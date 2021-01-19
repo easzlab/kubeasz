@@ -12,4 +12,4 @@
     with_items:
     - "/etc/haproxy"
     - "/etc/keepalived"
-  when: "inventory_hostname in groups['kube-node'] or inventory_hostname in groups['ex-lb']"
+  when: "inventory_hostname in groups['kube_node'] or inventory_hostname in groups['ex_lb']"

@@ -5,8 +5,8 @@
 ```
   "hosts": [
     "127.0.0.1",
-{% if groups['ex-lb']|length > 0 %}
-    "{{ hostvars[groups['ex-lb'][0]]['EX_APISERVER_VIP'] }}",
+{% if groups['ex_lb']|length > 0 %}
+    "{{ hostvars[groups['ex_lb'][0]]['EX_APISERVER_VIP'] }}",
 {% endif %}
     "{{ inventory_hostname }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",

@@ -1,9 +1,9 @@
-## 05-安装kube-node节点
+## 05-安装kube_node节点
 
-`kube-node` 是集群中运行工作负载的节点，前置条件需要先部署好`kube-master`节点，它需要部署如下组件：
+`kube_node` 是集群中运行工作负载的节点，前置条件需要先部署好`kube_master`节点，它需要部署如下组件：
 
 + docker：运行容器
-+ kubelet： kube-node上最主要的组件
++ kubelet： kube_node上最主要的组件
 + kube-proxy： 发布应用服务与负载均衡
 + haproxy：用于请求转发到多个 apiserver，详见[HA-2x 架构](00-planning_and_overall_intro.md#ha-architecture)
 + calico： 配置容器网络 (或者其他网络组件)

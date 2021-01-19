@@ -3,11 +3,11 @@
 192.168.1.1
 
 # master node(s)
-[kube-master]
+[kube_master]
 192.168.1.1
 
 # work node(s)
-[kube-node]
+[kube_node]
 192.168.1.1
 
 # [optional] harbor server, a private docker registry
@@ -17,7 +17,7 @@
 #192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no SELF_SIGNED_CERT=yes
 
 # [optional] loadbalance for accessing k8s from outside
-[ex-lb]
+[ex_lb]
 #192.168.1.6 LB_ROLE=backup EX_APISERVER_VIP=192.168.1.250 EX_APISERVER_PORT=8443
 #192.168.1.7 LB_ROLE=master EX_APISERVER_VIP=192.168.1.250 EX_APISERVER_PORT=8443
 

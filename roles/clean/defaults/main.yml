@@ -1,7 +1,7 @@
-# 是否删除 kube-master 相关服务
+# 是否删除 kube_master 相关服务
 DEL_MASTER: "no"
 
-# 是否删除 kube-node 相关服务
+# 是否删除 kube_node 相关服务
 DEL_NODE: "no"
 
 # 是否删除 etc 相关服务

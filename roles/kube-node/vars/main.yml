@@ -2,13 +2,13 @@
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 
 # 设置 APISERVER 地址
-KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
+KUBE_APISERVER: "{%- if inventory_hostname in groups['kube_master'] -%} \
                      https://{{ inventory_hostname }}:6443 \
                  {%- else -%} \
-                     {%- if groups['kube-master']|length > 1 -%} \
+                     {%- if groups['kube_master']|length > 1 -%} \
                          https://127.0.0.1:6443 \
                      {%- else -%} \
-                         https://{{ groups['kube-master'][0] }}:6443 \
+                         https://{{ groups['kube_master'][0] }}:6443 \
                      {%- endif -%} \
                  {%- endif -%}"
 

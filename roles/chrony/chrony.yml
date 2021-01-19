@@ -1,8 +1,8 @@
 - hosts:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   - etcd
-  - ex-lb
+  - ex_lb
   - chrony
   roles:
   - { role: chrony, when: "groups['chrony']|length > 0" }

@@ -46,8 +46,11 @@
 - import_tasks: create-kube-scheduler-kubeconfig.yml
 
 # ansible 控制端一些易用性配置
-- name: 本地创建 ezctl 工具的软连接
-  file: src={{ base_dir }}/ezctl dest=/usr/bin/ezctl state=link
+- name: 本地创建 ezdown/ezctl 工具的软连接
+  file: src={{ base_dir }}/{{ item }} dest=/usr/bin/{{ item }} state=link
+  with_items:
+  - ezdown
+  - ezctl
 
 - name: ansible 控制端创建 kubectl 软链接
   file: src={{ base_dir }}/bin/kubectl dest=/usr/bin/kubectl state=link

@@ -49,5 +49,5 @@
       with_items:
       - kube-controller-manager.kubeconfig
       - kube-scheduler.kubeconfig
-      when: "inventory_hostname in groups['kube-master']"
-  when: "inventory_hostname in groups['kube-master'] or inventory_hostname in groups['kube-node']"
+      when: "inventory_hostname in groups['kube_master']"
+  when: "inventory_hostname in groups['kube_master'] or inventory_hostname in groups['kube_node']"

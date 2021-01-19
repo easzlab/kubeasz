@@ -1,13 +1,13 @@
-# 管理 kube-master 节点
+# 管理 kube_master 节点
 
-## 1.增加 kube-master 节点
+## 1.增加 kube_master 节点
 
-新增`kube-master`节点大致流程为：tools/03.addmaster.yml
+新增`kube_master`节点大致流程为：tools/03.addmaster.yml
 - [可选]新节点安装 chrony 时间同步
 - 新节点预处理 prepare
 - 新节点安装 docker 服务
-- 新节点安装 kube-master 服务
-- 新节点安装 kube-node 服务
+- 新节点安装 kube_master 服务
+- 新节点安装 kube_node 服务
 - 新节点安装网络插件相关
 - 禁止业务 pod调度到新master节点
 - 更新 node 节点 haproxy 负载均衡并重启
@@ -41,10 +41,10 @@ NAME           STATUS                     ROLES     AGE       VERSION
 192.168.1.11   Ready,SchedulingDisabled   <none>    2h        v1.9.3	# 新增 master节点
 ```
 
-## 2.删除 kube-master 节点
+## 2.删除 kube_master 节点
 
 
-删除`kube-master`节点大致流程为：tools/13.delmaster.yml
+删除`kube_master`节点大致流程为：tools/13.delmaster.yml
 - 检测是否可以删除
 - 迁移节点 pod
 - 删除 master 相关服务及文件

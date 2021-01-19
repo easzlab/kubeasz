@@ -1,4 +1,4 @@
-## 04-安装kube-master节点
+## 04-安装kube_master节点
 
 部署master节点主要包含三个组件`apiserver` `scheduler` `controller-manager`，其中：
 
@@ -39,8 +39,8 @@ roles/kube-master/
   "CN": "kubernetes",
   "hosts": [
     "127.0.0.1",
-{% if groups['ex-lb']|length > 0 %}
-    "{{ hostvars[groups['ex-lb'][0]]['EX_APISERVER_VIP'] }}",
+{% if groups['ex_lb']|length > 0 %}
+    "{{ hostvars[groups['ex_lb'][0]]['EX_APISERVER_VIP'] }}",
 {% endif %}
     "{{ inventory_hostname }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
@@ -69,7 +69,7 @@ roles/kube-master/
 }
 ```
 - kubernetes 证书既是服务器证书，同时apiserver又作为客户端证书去访问etcd 集群；作为服务器证书需要设置hosts 指定使用该证书的IP 或域名列表，需要注意的是：
-  - 如果配置 ex-lb，需要把 EX_APISERVER_VIP 也配置进去
+  - 如果配置 ex_lb，需要把 EX_APISERVER_VIP 也配置进去
   - 如果需要外部访问 apiserver，需要在 defaults/main.yml 配置 MASTER_CERT_HOSTS
   - `kubectl get svc` 将看到集群中由api-server 创建的默认服务 `kubernetes`，因此也要把 `kubernetes` 服务名和各个服务域名也添加进去
 
@@ -207,10 +207,10 @@ WantedBy=multi-user.target
 
 ``` bash
 # vi 04.kube-master.yml
-- hosts: kube-master
+- hosts: kube_master
   roles:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   # 禁止业务 pod调度到 master节点
   tasks:
   - name: 禁止业务 pod调度到 master节点

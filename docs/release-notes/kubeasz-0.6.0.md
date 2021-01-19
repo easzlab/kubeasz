@@ -13,7 +13,7 @@ CHANGELOG:
   - helm/tiller: v2.12.3
 - 集群安装：
   - **增加添加/删除 etcd 节点**脚本和[文档](https://github.com/easzlab/kubeasz/blob/master/docs/op/op-etcd.md)
-  - **增加可选配置附加负载均衡节点（ex-lb）**，可用于负载均衡 NodePort 方式暴露的服务
+  - **增加可选配置附加负载均衡节点（ex_lb）**，可用于负载均衡 NodePort 方式暴露的服务
   - 更新删除节点脚本和[文档](https://github.com/easzlab/kubeasz/blob/master/docs/op/del_one_node.md)
   - 优化增加 node 和增加 master 节点流程
   - 更新 harbor 安装流程和文档

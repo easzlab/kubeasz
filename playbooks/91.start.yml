@@ -3,9 +3,9 @@
   - name: starting etcd cluster
     service: name=etcd state=started enabled=yes
 
-- hosts: kube-master
+- hosts: kube_master
   tasks:
-  - name: starting kube-master services
+  - name: starting kube_master services
     service: name={{ item }} state=started enabled=yes
     with_items:
     - kube-apiserver
@@ -13,8 +13,8 @@
     - kube-scheduler
 
 - hosts:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   tasks:
   - name: starting docker
     service: name=docker state=started enabled=yes
@@ -24,19 +24,19 @@
     service: name=containerd state=started enabled=yes
     when: "CONTAINER_RUNTIME == 'containerd'"
 
-  - name: starting haproxy on kube-node
+  - name: starting haproxy on kube_node
     service: name=haproxy state=started enabled=yes
     when: 
-    - "inventory_hostname not in groups['kube-master']"
-    - "groups['kube-master']|length > 1"
+    - "inventory_hostname not in groups['kube_master']"
+    - "groups['kube_master']|length > 1"
 
-  - name: starting kube-node services
+  - name: starting kube_node services
     service: name={{ item }} state=started enabled=yes
     with_items:
     - kubelet
     - kube-proxy
 
-- hosts: ex-lb
+- hosts: ex_lb
   tasks:
   - name: starting external loadbalance
     service: name={{ item }} state=started enabled=yes

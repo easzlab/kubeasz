@@ -58,7 +58,7 @@ kubelet:
 kubeControllerManager:
   enabled: true
   endpoints:
-{% for h in groups['kube-master'] %}
+{% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
 
@@ -89,7 +89,7 @@ kubeEtcd:
 kubeScheduler:
   enabled: true
   endpoints:
-{% for h in groups['kube-master'] %}
+{% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
 
@@ -97,11 +97,11 @@ kubeScheduler:
 kubeProxy:
   enabled: true
   endpoints:
-{% for h in groups['kube-master'] %}
+{% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
-{% for h in groups['kube-node'] %}
-{% if h not in groups['kube-master'] %}
+{% for h in groups['kube_node'] %}
+{% if h not in groups['kube_master'] %}
   - {{ h }}
 {% endif %}
 {% endfor %}

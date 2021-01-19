@@ -10,11 +10,11 @@ CHANGELOG:
 - 集群安装：
   - 废弃 ansible hosts 中 deploy 角色，精简保留2个预定义节点规划例子（example/hosts.xx）
   - 重构 prepare 安装流程（删除 deploy 角色，移除 lb 节点创建）
-  - 调整 kube-master 安装流程
-  - 调整 kube-node 安装流程（node 节点新增 haproxy 服务）
+  - 调整 kube_master 安装流程
+  - 调整 kube_node 安装流程（node 节点新增 haproxy 服务）
   - 调整 network 等其他安装流程
   - 精简 example hosts 配置文件及配置项
-  - 调整 ex-lb 安装流程【可选】
+  - 调整 ex_lb 安装流程【可选】
   - 添加 docker/containerd 安装时互斥判断
   - 新增 role: clean，重写清理脚本 99.clean.yml
   - 废弃 tools/clean_one_node.yml
@@ -38,7 +38,7 @@ CHANGELOG:
     - node 节点安装文档
     - ...
   - 集群操作管理文档更新（docs/op/op-index.md）
-  - 新增可选外部负载均衡文档（docs/setup/ex-lb.md）
+  - 新增可选外部负载均衡文档（docs/setup/ex_lb.md）
   - 新增容器化系统服务 haproxy/chrony 文档（docs/practice/dockerize_system_service.md）
 - 其他：
   - fix: 对已有集群进行安全加固时禁用 ip_forward 问题

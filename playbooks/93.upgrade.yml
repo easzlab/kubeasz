@@ -3,7 +3,7 @@
 # Usage: ezctl upgrade <cluster_name>
 
 # check k8s version
-- hosts: kube-master
+- hosts: kube_master
   tasks:
   - name: get running k8s version
     shell: "{{ bin_dir }}/kube-apiserver --version"
@@ -30,13 +30,13 @@
 
 # update masters
 - hosts: 
-  - kube-master
+  - kube_master
   roles:
   - kube-master
   - kube-node
 
 # update nodes
 - hosts: 
-  - kube-node
+  - kube_node
   roles:
-  - { role: kube-node, when: "inventory_hostname not in groups['kube-master']" }
+  - { role: kube-node, when: "inventory_hostname not in groups['kube_master']" }

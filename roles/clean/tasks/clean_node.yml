@@ -1,6 +1,6 @@
-# to clean 'kube-node' nodes
+# to clean 'kube_node' nodes
 - block:
-  - name: stop and disable kube-node service
+  - name: stop and disable kube_node service
     service: name={{ item }} state=stopped enabled=no
     with_items:
     - kubelet
@@ -13,7 +13,7 @@
       warn: false
     ignore_errors: true
 
-  - name: remove files and dirs of 'kube-node' nodes
+  - name: remove files and dirs of 'kube_node' nodes
     file: name={{ item }} state=absent
     with_items:
     - "/var/lib/kubelet/"
@@ -160,4 +160,4 @@
 #        && iptables -F -t raw && iptables -X -t raw \
 #        && iptables -F -t mangle && iptables -X -t mangle"
 
-  when: "inventory_hostname in groups['kube-master'] or inventory_hostname in groups['kube-node']"
+  when: "inventory_hostname in groups['kube_master'] or inventory_hostname in groups['kube_node']"

@@ -2,10 +2,10 @@
   "CN": "kubernetes",
   "hosts": [
     "127.0.0.1",
-{% if groups['ex-lb']|length > 0 %}
-    "{{ hostvars[groups['ex-lb'][0]]['EX_APISERVER_VIP'] }}",
+{% if groups['ex_lb']|length > 0 %}
+    "{{ hostvars[groups['ex_lb'][0]]['EX_APISERVER_VIP'] }}",
 {% endif %}
-{% for host in groups['kube-master'] %}
+{% for host in groups['kube_master'] %}
     "{{ host }}",
 {% endfor %}
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",

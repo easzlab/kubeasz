@@ -1,6 +1,6 @@
-- hosts: kube-master
+- hosts: kube_master
   tasks:
-  - name: stopping kube-master services
+  - name: stopping kube_master services
     service: name={{ item }} state=stopped enabled=no
     with_items:
     - kube-apiserver
@@ -12,7 +12,7 @@
   - name: stopping etcd cluster
     service: name=etcd state=stopped enabled=no
 
-- hosts: ex-lb
+- hosts: ex_lb
   tasks:
   - name: stopping external loadbalance
     service: name={{ item }} state=stopped enabled=no
@@ -21,16 +21,16 @@
     - keepalived
 
 - hosts:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   tasks:
-  - name: stopping haproxy on kube-node
+  - name: stopping haproxy on kube_node
     service: name=haproxy state=stopped enabled=no
     when: 
-    - "inventory_hostname not in groups['kube-master']"
-    - "groups['kube-master']|length > 1"
+    - "inventory_hostname not in groups['kube_master']"
+    - "groups['kube_master']|length > 1"
 
-  - name: stopping kube-node services
+  - name: stopping kube_node services
     service: name={{ item }} state=stopped enabled=no
     with_items:
     - kubelet

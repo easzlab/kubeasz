@@ -1,5 +1,5 @@
 - hosts:
-  - ex-lb
+  - ex_lb
   tasks:
   - block:
       - name: stop and disable chrony in Ubuntu

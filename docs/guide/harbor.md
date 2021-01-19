@@ -41,7 +41,7 @@ Habor是由VMWare中国团队开源的容器镜像仓库。事实上，Habor是�
 - role `prepare` 基础系统环境准备
 - role `docker` 安装docker
 - role `harbor` 安装harbor
-- 注意：`kube-node`节点在harbor部署完之后，需要配置harbor的证书（详见下节配置docker/containerd信任harbor证书），并可以在hosts里面添加harbor的域名解析，如果你的环境中有dns服务器，可以跳过hosts文件设置
+- 注意：`kube_node`节点在harbor部署完之后，需要配置harbor的证书（详见下节配置docker/containerd信任harbor证书），并可以在hosts里面添加harbor的域名解析，如果你的环境中有dns服务器，可以跳过hosts文件设置
 
 请在另外窗口打开 [roles/harbor/tasks/main.yml](../../roles/harbor/tasks/main.yml)，对照以下讲解
 

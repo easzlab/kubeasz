@@ -1,9 +1,9 @@
 # [optional] to synchronize time of nodes with 'chrony'
 - hosts:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   - etcd
-  - ex-lb
+  - ex_lb
   - chrony
   roles:
   - { role: chrony, when: "groups['chrony']|length > 0" }
@@ -15,8 +15,8 @@
 
 # prepare tasks for all nodes
 - hosts:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   - etcd
   roles:
   - prepare
@@ -28,36 +28,36 @@
 
 # to install container runtime
 - hosts:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   roles:
   - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" }
   - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" }
 
-# to set up 'kube-master' nodes
-- hosts: kube-master
+# to set up 'kube_master' nodes
+- hosts: kube_master
   roles:
   - kube-master
   - kube-node
   tasks:
   - name: Making master nodes SchedulingDisabled
     shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
-    when: "inventory_hostname not in groups['kube-node']" 
+    when: "inventory_hostname not in groups['kube_node']" 
     ignore_errors: true
 
   - name: Setting master role name
     shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
     ignore_errors: true
 
-# to set up 'kube-node' nodes
-- hosts: kube-node
+# to set up 'kube_node' nodes
+- hosts: kube_node
   roles:
-  - { role: kube-node, when: "inventory_hostname not in groups['kube-master']" }
+  - { role: kube-node, when: "inventory_hostname not in groups['kube_master']" }
 
 # to install network plugin, only one can be choosen
 - hosts:
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   roles:
   - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
   - { role: cilium, when: "CLUSTER_NETWORK == 'cilium'" }
@@ -67,6 +67,6 @@
 
 # to install cluster-addons
 - hosts:
-  - kube-node
+  - kube_node
   roles:
   - cluster-addon

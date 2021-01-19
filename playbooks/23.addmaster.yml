@@ -17,7 +17,7 @@
   tasks:
   - name: Making master nodes SchedulingDisabled
     shell: "{{ bin_dir }}/kubectl cordon {{ NODE_TO_ADD }} "
-    when: "inventory_hostname not in groups['kube-node']"
+    when: "inventory_hostname not in groups['kube_node']"
     ignore_errors: true
 
   - name: Setting master role name

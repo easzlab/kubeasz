@@ -2,9 +2,9 @@
 # Make sure you know what you are doing.
 
 - hosts:
-  - kube-master
-  - kube-node
-  - ex-lb
+  - kube_master
+  - kube_node
+  - ex_lb
   - etcd
   vars:
     DEL_MASTER: "yes"

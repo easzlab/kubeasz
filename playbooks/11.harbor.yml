@@ -16,8 +16,8 @@
     when: hostvars[groups.harbor[0]]['SELF_SIGNED_CERT'] == 'yes'
 
 - hosts: 
-  - kube-master
-  - kube-node
+  - kube_master
+  - kube_node
   tasks:
   - name: Define 'harbor_hostname', a domain name
     set_fact: harbor_hostname={{ hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] }}

@@ -98,7 +98,6 @@ chmod +x ./ezdown
 ezctl new k8s-01
 2021-01-19 10:48:23 DEBUG generate custom cluster files in /etc/kubeasz/clusters/k8s-01
 2021-01-19 10:48:23 DEBUG set version of common plugins
-2021-01-19 10:48:23 DEBUG disable registry mirrors
 2021-01-19 10:48:23 DEBUG cluster k8s-01: files successfully created.
 2021-01-19 10:48:23 INFO next steps 1: to config '/etc/kubeasz/clusters/k8s-01/hosts'
 2021-01-19 10:48:23 INFO next steps 2: to config '/etc/kubeasz/clusters/k8s-01/config.yml'

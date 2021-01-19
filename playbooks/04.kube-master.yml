@@ -1,12 +1,12 @@
-# to set up 'kube-master' nodes
-- hosts: kube-master
+# to set up 'kube_master' nodes
+- hosts: kube_master
   roles:
   - kube-master
   - kube-node
   tasks:
   - name: Making master nodes SchedulingDisabled
     shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
-    when: "inventory_hostname not in groups['kube-node']"
+    when: "inventory_hostname not in groups['kube_node']"
     ignore_errors: true
 
   - name: Setting master role name 

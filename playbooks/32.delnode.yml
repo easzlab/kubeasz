@@ -2,8 +2,8 @@
 
 - hosts: localhost 
   tasks:
-  - fail: msg="you CAN NOT delete the last member of kube-master!"
-    when: "groups['kube-master']|length < 2 and NODE_TO_DEL in groups['kube-master']"
+  - fail: msg="you CAN NOT delete the last member of kube_master!"
+    when: "groups['kube_master']|length < 2 and NODE_TO_DEL in groups['kube_master']"
 
   - name: run kubectl drain @{{ NODE_TO_DEL }}
     shell: "{{ base_dir }}/bin/kubectl drain {{ NODE_TO_DEL }} --ignore-daemonsets --delete-emptydir-data --force"
@@ -26,6 +26,6 @@
 
   # lineinfile is inadequate to delete lines between some specific line range
   - name: remove the node's entry in hosts
-    shell: 'sed -i "/^\[kube-node/,/^\[harbor/ {/^{{ NODE_TO_DEL }}[^0-9]*$/d}" {{ base_dir }}/clusters/{{ CLUSTER }}/hosts'
+    shell: 'sed -i "/^\[kube_node/,/^\[harbor/ {/^{{ NODE_TO_DEL }}[^0-9]*$/d}" {{ base_dir }}/clusters/{{ CLUSTER }}/hosts'
     args:
       warn: false

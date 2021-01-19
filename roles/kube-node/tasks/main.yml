@@ -1,4 +1,4 @@
-- name: 创建kube-node 相关目录
+- name: 创建kube_node 相关目录
   file: name={{ item }} state=directory
   with_items:
   - /var/lib/kubelet
@@ -18,7 +18,7 @@
 
 # 每个 node 节点运行 haproxy 连接到多个 apiserver
 - import_tasks: node_lb.yml
-  when: "inventory_hostname not in groups['kube-master']"
+  when: "inventory_hostname not in groups['kube_master']"
 
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:

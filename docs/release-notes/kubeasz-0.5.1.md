@@ -8,7 +8,7 @@ CHANGELOG:
 - 集群安装：
   - 更新 calico 3.3.2，并保留3.2.4可选
   - 修复特定环境下lb节点变量LB_IF自动设置错误
-  - 移除 kube-node csr 请求批准部分（PR #399）
+  - 移除 kube_node csr 请求批准部分（PR #399）
   - 添加支持 RedHat （PR #431）
   - 修改 docker 存储的目录设置（PR #436）
   - 更新 kube-schedule 监听参数 （PR #440）
