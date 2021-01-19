@@ -31,7 +31,7 @@
     </tr>
 </table>
 
-- 命令行工具 [easzctl介绍](docs/setup/easzctl_cmd.md)
+- 命令行工具 [ezctl介绍](docs/setup/ezctl.md)
 - 公有云自建集群 [部署指南](docs/setup/kubeasz_on_public_cloud.md)
 
 ## 使用指南

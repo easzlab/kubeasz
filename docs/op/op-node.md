@@ -19,7 +19,7 @@
 首先配置 ssh 免密码登录新增节点，然后执行 (假设待增加节点为 192.168.1.11)：
 
 ``` bash
-$ easzctl add-node 192.168.1.11
+$ ezctl add-node 192.168.1.11
 ```
 
 ### 验证
@@ -36,7 +36,7 @@ $ kubectl get pod -n kube-system
 
 ## 2.增加非标准ssh端口节点
 
-目前 easzctl 暂不支持自动添加非标准 ssh 端口的节点，可以手动操作如下：
+目前 ezctl 暂不支持自动添加非标准 ssh 端口的节点，可以手动操作如下：
 
 - 假设待添加节点192.168.2.1，ssh 端口 10022；配置免密登录 ssh-copy-id -p 10022 192.168.2.1，按提示输入密码
 - 在 /etc/ansible/hosts文件 [kube-node] 组下添加一行：
@@ -56,7 +56,7 @@ $ kubectl get pod -n kube-system
 ### 操作步骤
 
 ``` bash
-$ easzctl del-node 192.168.1.11 # 假设待删除节点为 192.168.1.11
+$ ezctl del-node 192.168.1.11 # 假设待删除节点为 192.168.1.11
 ```
 
 ### 验证

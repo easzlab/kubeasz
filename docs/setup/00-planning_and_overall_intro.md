@@ -13,19 +13,19 @@
 
 |角色|数量|描述|
 |:-|:-|:-|
-|管理节点|1|运行ansible/easzctl脚本，一般复用master节点|
-|etcd节点|3|注意etcd集群需要1,3,5,7...奇数个节点，一般复用master节点|
+|部署节点|1|运行ansible/ezctl命令，建议独立节点|
+|etcd节点|3|注意etcd集群需要1,3,5,...奇数个节点，一般复用master节点|
 |master节点|2|高可用集群至少2个master节点|
 |node节点|3|运行应用负载的节点，可根据需要提升机器配置/增加节点数|
 
 在 kubeasz 2x 版本，多节点高可用集群安装可以使用2种方式
 
 - 1.先部署单节点集群 [AllinOne部署](quickStart.md)，然后通过 [节点添加](../op/op-index.md) 扩容成高可用集群
-- 2.按照如下步骤先规划准备，直接安装多节点高可用集群
+- 2.按照如下步骤先规划准备，在clusters/${cluster_name}/hosts 配置节点信息后，直接安装多节点高可用集群
 
 ## 部署步骤
 
-按照`example/hosts.multi-node`示例的节点配置，准备4台虚机，搭建一个多主高可用集群。
+以下示例创建一个4节点的多主高可用集群，文档中命令默认都需要root权限运行。
 
 ### 1.基础系统配置
 
@@ -38,7 +38,6 @@
 Ubuntu 16.04 请执行以下脚本:
 
 ``` bash
-# 文档中脚本默认均以root用户执行
 apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y
 # 安装python2
 apt-get install python2.7
@@ -48,7 +47,6 @@ ln -s /usr/bin/python2.7 /usr/bin/python
 CentOS 7 请执行以下脚本：
 
 ``` bash
-# 文档中脚本默认均以root用户执行
 yum update
 # 安装python
 yum install python -y
@@ -79,42 +77,47 @@ ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa
 ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 和root密码
 ```
 
-### 4.在ansible控制端编排k8s安装
+### 4.在部署节点编排k8s安装
 
-- 4.0 下载项目源码
-- 4.1 下载二进制文件
-- 4.2 下载离线docker镜像
-
-推荐使用 easzup 脚本下载 4.0/4.1/4.2 所需文件；运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/ansible`
+- 4.1 下载项目源码、二进制及离线镜像
 
 ``` bash
-# 下载工具脚本easzup，举例使用kubeasz版本2.0.2
-export release=2.0.2
-curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
-chmod +x ./easzup
+# 下载工具脚本ezdown，举例使用kubeasz版本3.0.0
+export release=3.0.0
+curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
+chmod +x ./ezdown
 # 使用工具脚本下载
-./easzup -D
+./ezdown -D
 ```
 
-- 4.3 配置集群参数
-  - 4.3.1 必要配置：`cd /etc/ansible && cp example/hosts.multi-node hosts`, 然后实际情况修改此hosts文件
-  - 4.3.2 可选配置，初次使用可以不做修改，详见[配置指南](config_guide.md)
-  - 4.3.3 验证ansible 安装：`ansible all -m ping` 正常能看到节点返回 SUCCESS
+上述脚本运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/kubeasz`
 
-- 4.4 开始安装
+- 4.2 创建集群配置实例
+
+``` bash
+ezctl new k8s-01
+2021-01-19 10:48:23 DEBUG generate custom cluster files in /etc/kubeasz/clusters/k8s-01
+2021-01-19 10:48:23 DEBUG set version of common plugins
+2021-01-19 10:48:23 DEBUG disable registry mirrors
+2021-01-19 10:48:23 DEBUG cluster k8s-01: files successfully created.
+2021-01-19 10:48:23 INFO next steps 1: to config '/etc/kubeasz/clusters/k8s-01/hosts'
+2021-01-19 10:48:23 INFO next steps 2: to config '/etc/kubeasz/clusters/k8s-01/config.yml'
+```
+然后根据提示配置'/etc/kubeasz/clusters/k8s-01/hosts' 和 '/etc/kubeasz/clusters/k8s-01/config.yml'：根据前面节点规划修改hosts 文件和其他集群层面的主要配置选项；其他集群组件等配置项可以在config.yml 文件中修改。
+
+- 4.3 开始安装
 如果你对集群安装流程不熟悉，请阅读项目首页 **安装步骤** 讲解后分步安装，并对 **每步都进行验证**  
 
 ``` bash
-# 分步安装
-ansible-playbook 01.prepare.yml
-ansible-playbook 02.etcd.yml
-ansible-playbook 03.docker.yml
-ansible-playbook 04.kube-master.yml
-ansible-playbook 05.kube-node.yml
-ansible-playbook 06.network.yml
-ansible-playbook 07.cluster-addon.yml
-# 一步安装
-#ansible-playbook 90.setup.yml
+# 一键安装
+ezctl setup k8s-01 all
+
+# 或者分步安装，具体使用 ezctl help setup 查看分步安装帮助信息
+# ezctl setup k8s-01 01
+# ezctl setup k8s-01 02
+# ezctl setup k8s-01 03
+# ezctl setup k8s-01 04
+...
 ```
 
 + [可选]对集群所有节点进行操作系统层面的安全加固 `ansible-playbook roles/os-harden/os-harden.yml`，详情请参考[os-harden项目](https://github.com/dev-sec/ansible-os-hardening)

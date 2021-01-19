@@ -55,7 +55,7 @@ kubectl logs kubernetes-dashboard-7c74685c48-9qdpn -n kube-system
 新版 dashboard可以有多层访问控制，首先与旧版一样可以使用apiserver 方式登录控制：
 
 - 第一步通过api-server本身安全认证流程，与之前[1.6.3版本](dashboard.1.6.3.md)相同，这里不再赘述
-  - 如需（用户名/密码）认证，kubeasz 1.0.0以后使用 `easzctl basic-auth -s` 开启
+  - 如需（用户名/密码）认证，kubeasz 1.0.0以后使用 `ezctl basic-auth -s` 开启
 - 第二步通过dashboard自带的登录流程，使用`Kubeconfig` `Token`等方式登录
 
 **注意：** 如果集群已启用 ingress tls的话，可以[配置ingress规则访问dashboard](ingress-tls.md#%E9%85%8D%E7%BD%AE-dashboard-ingress)

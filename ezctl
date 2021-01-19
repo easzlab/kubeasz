@@ -131,7 +131,7 @@ function new() {
     # check if already existed
     [[ -d "clusters/$1" ]] && { logger error "cluster:$1 already existed, if cluster:$1 setup failed, try 'rm -rf clusters/$1' first!"; exit 1; }
 
-    logger debug "generate custom cluster files in clusters/$1"
+    logger debug "generate custom cluster files in $BASE/clusters/$1"
     mkdir -p "clusters/$1"
     cp example/hosts.multi-node "clusters/$1/hosts"
     sed -i "s/_cluster_name_/$1/g" "clusters/$1/hosts"
@@ -170,8 +170,8 @@ function new() {
 
 
     logger debug "cluster $1: files successfully created."
-    logger info "next steps 1: to config 'clusters/$1/hosts'"
-    logger info "next steps 2: to config 'clusters/$1/config.yml'"
+    logger info "next steps 1: to config '$BASE/clusters/$1/hosts'"
+    logger info "next steps 2: to config '$BASE/clusters/$1/config.yml'"
 }
 
 function setup() {

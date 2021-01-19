@@ -11,4 +11,4 @@
 ## kubeasz 集成安装 containerd
 
 - 按照 example 例子，在 ansible hosts 设置全局变量 `CONTAINER_RUNTIME="containerd"`
-- 执行 `ansible-playbook 90.setup.yml` 或 `easzctl setup` 即可
+- 执行 `ansible-playbook 90.setup.yml` 或 `ezctl setup` 即可

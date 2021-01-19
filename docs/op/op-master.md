@@ -17,7 +17,7 @@
 首先配置 ssh 免密码登录新增节点，然后执行 (假设待增加节点为 192.168.1.11)：
 
 ``` bash
-$ easzctl add-master 192.168.1.11
+$ ezctl add-master 192.168.1.11
 ```
 
 ### 验证
@@ -57,7 +57,7 @@ NAME           STATUS                     ROLES     AGE       VERSION
 ### 操作步骤
 
 ``` bash
-$ easzctl del-master 192.168.1.11  # 假设待删除节点 192.168.1.11
+$ ezctl del-master 192.168.1.11  # 假设待删除节点 192.168.1.11
 ```
 
 ### 验证
