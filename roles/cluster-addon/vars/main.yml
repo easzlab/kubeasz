@@ -4,8 +4,6 @@ CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('addre
 #
 coredns_offline: "coredns_{{ corednsVer }}.tar"
 
-dnscache_offline: "k8s-dns-node-cache_{{ dnsNodeCacheVer }}.tar"
-
 metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
 
 dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
