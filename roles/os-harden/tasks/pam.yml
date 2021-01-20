@@ -30,6 +30,7 @@
     name: '{{ os_packages_pam_passwdqc }}'
     state: 'present'
     update_cache: 'yes'
+  ignore_errors: true
   when:
     - ansible_facts.distribution in ['Debian', 'Ubuntu']
     - os_auth_pam_passwdqc_enable
@@ -97,6 +98,7 @@
   yum:
     name: '{{ os_packages_pam_passwdqc }}'
     state: 'present'
+  ignore_errors: true
   when:
     - ansible_facts.os_family == 'RedHat'
     - ansible_facts.distribution_major_version|int is version('7', '<')

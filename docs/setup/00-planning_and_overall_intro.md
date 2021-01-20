@@ -63,7 +63,7 @@ apt-get install git python-pip -y
 yum install git python-pip -y
 # pip安装ansible(国内如果安装太慢可以直接用pip阿里云加速)
 pip install pip --upgrade -i https://mirrors.aliyun.com/pypi/simple/
-pip install ansible==2.6.18 netaddr==0.7.19 -i https://mirrors.aliyun.com/pypi/simple/
+pip install ansible netaddr==0.7.19 -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
 - 3.2 在ansible控制端配置免密码登录
@@ -118,8 +118,6 @@ ezctl setup k8s-01 all
 # ezctl setup k8s-01 04
 ...
 ```
-
-+ [可选]对集群所有节点进行操作系统层面的安全加固 `ansible-playbook roles/os-harden/os-harden.yml`，详情请参考[os-harden项目](https://github.com/dev-sec/ansible-os-hardening)
 
 ## Appendix
 

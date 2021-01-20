@@ -486,7 +486,7 @@ function main() {
   readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell only"; exit 1; }
 
   # check 'ansible' executable
-  which ansible > /dev/null 2>&1 || { logger error "need 'ansible', try: 'pip install ansible==2.6.18'"; usage; exit 1; }
+  which ansible > /dev/null 2>&1 || { logger error "need 'ansible', try: 'pip install ansible'"; usage; exit 1; }
   
   [ "$#" -gt 0 ] || { usage >&2; exit 2; }
   

@@ -1,20 +1,8 @@
-## 03-安装docker服务
+## 03-安装容器运行时（docker or containerd）
 
-``` bash
-roles/docker/
-├── defaults
-│   └── main.yml		# 变量配置文件
-├── files
-│   ├── docker			# bash 自动补全
-│   └── docker-tag		# 查询镜像tag的小工具
-├── tasks
-│   └── main.yml		# 主执行文件
-└── templates	
-    ├── daemon.json.j2		# docker daemon 配置文件
-    └── docker.service.j2	# service 服务模板
-```
+目前k8s官方推荐使用containerd，查阅[使用文档](containerd.md)
 
-请在另外窗口打开[roles/docker/tasks/main.yml](../../roles/docker/tasks/main.yml) 文件，对照看以下讲解内容。
+## 安装docker服务
 
 ### 创建docker的systemd unit文件 
 
@@ -43,22 +31,38 @@ WantedBy=multi-user.target
 + docker 从 1.13 版本开始，将`iptables` 的`filter` 表的`FORWARD` 链的默认策略设置为`DROP`，从而导致 ping 其它 Node 上的 Pod IP 失败，因此必须在 `filter` 表的`FORWARD` 链增加一条默认允许规则 `iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT`
 + 运行`dockerd --help` 查看所有可配置参数，确保默认开启 `--iptables` 和 `--ip-masq` 选项
 
-### 配置国内镜像加速
+### 配置daemon.json
 
-从国内下载docker官方仓库镜像非常缓慢，所以对于k8s集群来说配置镜像加速非常重要，配置 `/etc/docker/daemon.json`
+roles/docker/templates/daemon.json.j2
 
 ``` bash
 {
-  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"],
+  "data-root": "{{ DOCKER_STORAGE_DIR }}",
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
+{% if ENABLE_MIRROR_REGISTRY %}
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn",
+    "http://hub-mirror.c.163.com"
+  ],
+{% endif %}
+{% if ENABLE_REMOTE_API %}
+  "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
+{% endif %}
+  "insecure-registries": {{ INSECURE_REG }},
   "max-concurrent-downloads": 10,
+  "live-restore": true,
   "log-driver": "json-file",
   "log-level": "warn",
   "log-opts": {
-    "max-size": "10m",
+    "max-size": "15m",
     "max-file": "3"
-    }
+    },
+  "storage-driver": "overlay2"
 }
 ```
+
+
+从国内下载docker官方仓库镜像非常缓慢，所以对于k8s集群来说配置镜像加速非常重要，配置 `/etc/docker/daemon.json`
 
 这将在后续部署calico下载 calico/node镜像和kubedns/heapster/dashboard镜像时起到加速效果。
 
