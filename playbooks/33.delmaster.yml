@@ -10,8 +10,8 @@
     #ignore_errors: true
 
   - name: clean node {{ NODE_TO_DEL }}
-    shell: "ansible-playbook -i {{ base_dir }}/clusters/{{ CLUSTER }}/hosts \
-              {{ base_dir }}/roles/clean/clean_node.yml \
+    shell: "cd {{ base_dir }} && ansible-playbook -i clusters/{{ CLUSTER }}/hosts \
+              roles/clean/clean_node.yml \
               -e NODE_TO_CLEAN={{ NODE_TO_DEL }} \
               -e DEL_MASTER=yes \
               -e DEL_NODE=yes \

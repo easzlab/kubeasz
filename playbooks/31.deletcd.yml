@@ -62,8 +62,8 @@
       when: "ETCD_ID.stdout != ''"
   
     - name: clean etcd {{ ETCD_TO_DEL }}
-      shell: "ansible-playbook -i {{ base_dir }}/clusters/{{ CLUSTER }}/hosts \
-                {{ base_dir }}/roles/clean/clean_node.yml \
+      shell: "cd {{ base_dir }} && ansible-playbook -i clusters/{{ CLUSTER }}/hosts \
+                roles/clean/clean_node.yml \
                 -e NODE_TO_CLEAN={{ ETCD_TO_DEL }} \
                 -e DEL_ETCD=yes >> /tmp/ansible-`date +'%Y%m%d%H%M%S'`.log 2>&1 \
               || echo 'data not cleaned on {{ ETCD_TO_DEL }}'"
