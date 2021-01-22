@@ -1,6 +1,3 @@
-# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第2个IP)
-CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
-
 # 设置 APISERVER 地址
 KUBE_APISERVER: "{%- if inventory_hostname in groups['kube_master'] -%} \
                      https://{{ inventory_hostname }}:6443 \

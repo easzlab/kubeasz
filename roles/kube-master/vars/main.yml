@@ -1,6 +1,3 @@
 # etcd 集群服务地址列表, 根据etcd组成员自动生成
 TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
-
-# 设置 dns svc ip (这里选用 SERVICE_CIDR 中第1个IP)
-CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"

@@ -10,6 +10,15 @@
   connection: local
   run_once: true
 
+- name: 注册变量 DNS_SVC_IP
+  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
+  register: DNS_SVC_IP
+
+- name: 设置变量 CLUSTER_DNS_SVC_IP
+  set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
+
+- debug: var="CLUSTER_DNS_SVC_IP"
+
 - import_tasks: coredns.yml
   when: '"coredns" not in pod_info.stdout and dns_install == "yes"'
 

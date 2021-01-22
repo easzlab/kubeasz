@@ -78,9 +78,3 @@
     line: 'source <(kubectl completion bash)'
   when: "procs.stdout|int > 50"
   ignore_errors: true
-
-- name: pip install netaddr
-  pip:
-    name: netaddr
-  when: "procs.stdout|int > 50"
-  ignore_errors: true

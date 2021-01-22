@@ -7,6 +7,15 @@
   - kubectl
   tags: upgrade_k8s
 
+- name: 注册变量 KUBERNETES_SVC_IP
+  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+1}'
+  register: KUBERNETES_SVC_IP
+  tags: change_cert
+
+- name: 设置变量 CLUSTER_KUBERNETES_SVC_IP
+  set_fact: CLUSTER_KUBERNETES_SVC_IP={{ KUBERNETES_SVC_IP.stdout }}
+  tags: change_cert
+
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ cluster_dir }}/ssl/kubernetes-csr.json
   tags: change_cert

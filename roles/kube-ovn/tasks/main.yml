@@ -5,6 +5,13 @@
   - /opt/kube/images
   - /opt/kube/kube-ovn
 
+- name: 注册变量 ovn_default_gateway
+  shell: echo {{ CLUSTER_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+1}'
+  register: ovn_default_gateway
+
+- name: 设置变量 kube_ovn_default_gateway
+  set_fact: kube_ovn_default_gateway={{ ovn_default_gateway.stdout }}
+
 - name: 配置 crd.yaml 文件
   template: src=crd.yaml.j2 dest=/opt/kube/kube-ovn/crd.yaml
 
