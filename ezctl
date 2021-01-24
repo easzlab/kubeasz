@@ -457,24 +457,38 @@ function del-kcfg(){
 
 function list-kcfg(){
     logger info "list-kcfg in cluster:$1"
-    printf "\n%-30s %-15s %-20s\n" USER TYPE "EXPIRY(+8h if in Asia/Shanghai)"
-    echo "---------------------------------------------------------------------------------"
     ADMINS=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[?(@.roleRef.name == "cluster-admin")].subjects[*].name}')
     VIEWS=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[?(@.roleRef.name == "view")].subjects[*].name}')
+    ALL=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[*].subjects[*].name}')
+    
+    printf "\n%-30s %-15s %-20s\n" USER TYPE "EXPIRY(+8h if in Asia/Shanghai)"
+    echo "---------------------------------------------------------------------------------"
+    
     for u in $ADMINS; do
        if [[ $u =~ ^.*-[0-9]{12}$ ]];then
           t=$(bin/cfssl-certinfo -cert "clusters/$1/ssl/users/$u.pem"|grep not_after|awk '{print $2}'|sed 's/"//g'|sed 's/,//g')
           printf "%-30s %-15s %-20s\n" "$u" cluster-admin "$t"
        fi
     done;
+
     for u in $VIEWS; do
        if [[ $u =~ ^.*-[0-9]{12}$ ]];then
           t=$(bin/cfssl-certinfo -cert "clusters/$1/ssl/users/$u.pem"|grep not_after|awk '{print $2}'|sed 's/"//g'|sed 's/,//g')
           printf "%-30s %-15s %-20s\n" "$u" view "$t"
        fi
     done;
+
+    for u in $ALL; do
+       if [[ $u =~ ^.*-[0-9]{12}$ ]];then
+          [[ $ADMINS == *$u* ]] || [[ $VIEWS == *$u* ]] || {
+             t=$(bin/cfssl-certinfo -cert "clusters/$1/ssl/users/$u.pem"|grep not_after|awk '{print $2}'|sed 's/"//g'|sed 's/,//g')
+             printf "%-30s %-15s %-20s\n" "$u" unknown "$t"
+          }
+       fi
+    done;
     echo ""
 }
+
 
 ### Main Lines ##################################################
 function main() {
