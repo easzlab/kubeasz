@@ -71,7 +71,7 @@
 
     # lineinfile is inadequate to delete lines between some specific line range
     - name: remove the etcd's node entry in hosts
-      shell: 'sed -i "/^\[etcd/,/^\[kube-master/ {/^{{ ETCD_TO_DEL }}[^0-9]/d}" {{ base_dir }}/hosts'
+      shell: 'sed -i "/^\[etcd/,/^\[kube-master/ {/^{{ ETCD_TO_DEL }}[^0-9]*$/d}" {{ base_dir }}/hosts'
       args:
         warn: false
 
