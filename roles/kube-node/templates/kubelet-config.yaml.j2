@@ -69,7 +69,7 @@ podPidsLimit: -1
 port: 10250
 # disable readOnlyPort 
 readOnlyPort: 0
-{% if ansible_distribution_release == "bionic" %}
+{% if ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int > 16 %}
 resolvConf: /run/systemd/resolve/resolv.conf
 {% else %}
 resolvConf: /etc/resolv.conf

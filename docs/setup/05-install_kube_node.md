@@ -2,37 +2,10 @@
 
 `kube_node` 是集群中运行工作负载的节点，前置条件需要先部署好`kube_master`节点，它需要部署如下组件：
 
-+ docker：运行容器
 + kubelet： kube_node上最主要的组件
 + kube-proxy： 发布应用服务与负载均衡
 + haproxy：用于请求转发到多个 apiserver，详见[HA-2x 架构](00-planning_and_overall_intro.md#ha-architecture)
 + calico： 配置容器网络 (或者其他网络组件)
-
-``` bash
-roles/kube-node/
-├── defaults
-│   └── main.yml		# 变量配置文件
-├── tasks
-│   ├── main.yml		# 主执行文件
-│   ├── node_lb.yml		# haproxy 安装文件
-│   └── offline.yml             # 离线安装 haproxy
-└── templates
-    ├── cni-default.conf.j2	# 默认cni插件配置模板
-    ├── haproxy.cfg.j2		# haproxy 配置模板
-    ├── haproxy.service.j2	# haproxy 服务模板
-    ├── kubelet-config.yaml.j2  # kubelet 独立配置文件
-    ├── kubelet-csr.json.j2	# 证书请求模板
-    ├── kubelet.service.j2	# kubelet 服务模板
-    └── kube-proxy.service.j2	# kube-proxy 服务模板
-```
-
-请在另外窗口打开`roles/kube-node/tasks/main.yml`文件，对照看以下讲解内容。
-
-### 变量配置文件
-
-详见 roles/kube-node/defaults/main.yml，举例以下3个变量配置说明
-- 变量`KUBE_APISERVER`，根据不同的节点情况，它有三种取值方式
-- 变量`MASTER_CHG`，变更 master 节点时会根据它来重新配置 haproxy
 
 ### 创建cni 基础网络插件配置文件
 

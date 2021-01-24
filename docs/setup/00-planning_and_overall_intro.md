@@ -18,6 +18,12 @@
 |master节点|2|高可用集群至少2个master节点|
 |node节点|3|运行应用负载的节点，可根据需要提升机器配置/增加节点数|
 
+机器配置：
+- master节点：4c/8g内存/50g硬盘
+- worker节点：建议8c/32g内存/200g硬盘以上
+
+注意：默认配置下容器/kubelet会占用/var的磁盘空间，如果磁盘分区特殊，可以设置config.yml中的容器/kubelet数据目录：`CONTAINERD_STORAGE_DIR` `DOCKER_STORAGE_DIR` `KUBELET_ROOT_DIR`
+
 在 kubeasz 2x 版本，多节点高可用集群安装可以使用2种方式
 
 - 1.先部署单节点集群 [AllinOne部署](quickStart.md)，然后通过 [节点添加](../op/op-index.md) 扩容成高可用集群
@@ -29,7 +35,7 @@
 
 ### 1.基础系统配置
 
-+ 推荐内存2G/硬盘30G以上
++ 2c/4g内存/40g硬盘（该配置仅测试用）
 + 最小化安装`Ubuntu 16.04 server`或者`CentOS 7 Minimal`
 + 配置基础网络、更新源、SSH登录等
 

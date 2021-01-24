@@ -83,12 +83,6 @@ WantedBy=multi-user.target
 + `--initial-cluster-state` 值为 `new` 时，`--name` 的参数值必须位于 `--initial-cluster` 列表中
 + `--snapshot-count` `--auto-compaction-retention` 一些性能优化参数，请查阅etcd项目
 
-### 启动etcd服务
-
-``` bash
-systemctl daemon-reload && systemctl enable etcd && systemctl start etcd
-```
-
 ### 验证etcd集群状态
 
 + systemctl status etcd 查看服务状态
