@@ -1,6 +1,46 @@
-# cluster-restore playbook
 # read the guide: 'op/cluster_restore.md'
 
+# stop kubernetes api service
+- hosts: kube-master
+  tasks:
+    - name: 停止 Kubernetes Api 服务
+      shell: "systemctl stop kube-apiserver"
+
+# cluster-restore playbook
 - hosts: etcd
   roles:
   - cluster-restore
+
+# restart master node kubernetes service
+- hosts: kube-master
+  tasks:
+    - name: 重启 kubernetes 服务
+      shell: "systemctl restart kube-apiserver && systemctl restart kubelet &&\
+        systemctl restart kube-controller-manager && systemctl restart kube-scheduler &&\
+        systemctl restart kube-proxy"
+
+    - name: "Wait services start"
+      wait_for: timeout=5
+
+    - name: 轮询等待 kubernetes API 服务运行
+      shell: "systemctl status kube-apiserver|grep Active"
+      register: api_status
+      until: '"running" in api_status.stdout'
+      retries: 8
+      delay: 2
+
+# restart work node kubernetes service
+- hosts:
+  tasks:
+    - name: 重启 kubernetes 服务
+      shell: "systemctl restart kubelet && systemctl restart kube-proxy"
+
+    - name: "Wait services start"
+      wait_for: timeout=5
+
+    - name: 轮询等待 Kubelet 服务运行
+      shell: "systemctl status kubelet|grep Active"
+      register: kubelet_status
+      until: '"running" in kubelet_status.stdout'
+      retries: 8
+      delay: 2
