@@ -46,6 +46,10 @@
       flat: yes
     delegate_to: "{{ RUNNING_NODE.stdout }}"
 
+  - name: Rename etcd backup file
+    shell: "cd {{ base_dir }}/.cluster/backup && \
+    cp -fp snapshot_{{ temp }}.db snapshot.db"
+
 - hosts:
   - localhost
   tasks:
