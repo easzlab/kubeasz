@@ -74,6 +74,8 @@
     
     - name: flush-iptables
       shell: "iptables -P INPUT ACCEPT \
+            && iptables -P FORWARD ACCEPT \
+            && iptables -P OUTPUT ACCEPT \
             && iptables -F && iptables -X \
             && iptables -F -t nat && iptables -X -t nat \
             && iptables -F -t raw && iptables -X -t raw \
