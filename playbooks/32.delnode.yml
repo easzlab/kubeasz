@@ -26,6 +26,6 @@
 
   # lineinfile is inadequate to delete lines between some specific line range
   - name: remove the node's entry in hosts
-    shell: 'sed -i "/^\[kube_node/,/^\[harbor/ {/^{{ NODE_TO_DEL }}[^0-9]*$/d}" {{ base_dir }}/clusters/{{ CLUSTER }}/hosts'
+    shell: 'sed -i "/^\[kube_node/,/^\[harbor/ {/^{{ NODE_TO_DEL }}[^0-9].*$/d}" {{ base_dir }}/clusters/{{ CLUSTER }}/hosts'
     args:
       warn: false
