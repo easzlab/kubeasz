@@ -147,7 +147,8 @@ data:
     <filter **>
       @id filter_concat
       @type concat
-      key message
+      key log
+      use_first_timestamp true
       multiline_end_regexp /\n$/
       separator ""
     </filter>

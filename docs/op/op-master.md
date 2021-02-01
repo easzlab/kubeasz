@@ -2,7 +2,7 @@
 
 ## 1.增加 kube_master 节点
 
-新增`kube_master`节点大致流程为：tools/03.addmaster.yml
+新增`kube_master`节点大致流程为：(参考ezctl 中add-master函数和playbooks/23.addmaster.yml)
 - [可选]新节点安装 chrony 时间同步
 - 新节点预处理 prepare
 - 新节点安装 docker 服务
@@ -14,10 +14,10 @@
 
 ### 操作步骤
 
-首先配置 ssh 免密码登录新增节点，然后执行 (假设待增加节点为 192.168.1.11)：
+首先配置 ssh 免密码登录新增节点，然后执行 (假设待增加节点为 192.168.1.11, 集群名称test-k8s)：
 
 ``` bash
-$ ezctl add-master 192.168.1.11
+$ ezctl add-master test-k8s 192.168.1.11
 ```
 
 ### 验证
@@ -44,7 +44,7 @@ NAME           STATUS                     ROLES     AGE       VERSION
 ## 2.删除 kube_master 节点
 
 
-删除`kube_master`节点大致流程为：tools/13.delmaster.yml
+删除`kube_master`节点大致流程为：(参考ezctl 中del-master函数和playbooks/33.delmaster.yml)
 - 检测是否可以删除
 - 迁移节点 pod
 - 删除 master 相关服务及文件
@@ -57,7 +57,7 @@ NAME           STATUS                     ROLES     AGE       VERSION
 ### 操作步骤
 
 ``` bash
-$ ezctl del-master 192.168.1.11  # 假设待删除节点 192.168.1.11
+$ ezctl del-master test-k8s 192.168.1.11  # 假设待删除节点 192.168.1.11
 ```
 
 ### 验证
