@@ -165,6 +165,15 @@ EOF
     sed -i 's/^SELINUX=.*$/SELINUX=disabled/g' /etc/selinux/config
   fi
 
+  logger info "clean iptable rules"
+  iptables -P INPUT ACCEPT && \
+  iptables -P FORWARD ACCEPT && \
+  iptables -P OUTPUT ACCEPT && \
+  iptables -F && iptables -X && \
+  iptables -F -t nat && iptables -X -t nat && \
+  iptables -F -t raw && iptables -X -t raw && \
+  iptables -F -t mangle && iptables -X -t mangle
+
   logger debug "enable and start docker"
   systemctl enable docker
   systemctl daemon-reload && systemctl restart docker && sleep 4
