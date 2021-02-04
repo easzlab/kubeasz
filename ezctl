@@ -389,8 +389,15 @@ function start-aio(){
         HOST_IP=$(ip a|grep "$HOST_IF$"|head -n1|awk '{print $2}'|cut -d'/' -f1)
     fi
     set -u
-
     logger info "get local host ipadd: $HOST_IP"
+
+    # allow ssh login using key locally
+    if [[ ! -e /root/.ssh/id_rsa ]]; then
+      logger debug "generate ssh key pair"
+      ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa > /dev/null
+      cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+      ssh-keyscan -t ecdsa -H "$HOST_IP" >> /root/.ssh/known_hosts
+    fi
 
     new default
     /bin/cp -f example/hosts.allinone "clusters/default/hosts"
