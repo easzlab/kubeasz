@@ -15,10 +15,9 @@
 192.168.1.4
 
 # [optional] harbor server, a private docker registry
-# 'NEW_INSTALL': 'yes' to install a harbor server; 'no' to integrate with existed one
-# 'SELF_SIGNED_CERT': 'no' you need put files of certificates named harbor.pem and harbor-key.pem in directory 'down'
+# 'NEW_INSTALL': 'true' to install a harbor server; 'false' to integrate with existed one
 [harbor]
-#192.168.1.8 HARBOR_DOMAIN="harbor.yourdomain.com" NEW_INSTALL=no SELF_SIGNED_CERT=yes
+#192.168.1.8 NEW_INSTALL=false
 
 # [optional] loadbalance for accessing k8s from outside
 [ex_lb]

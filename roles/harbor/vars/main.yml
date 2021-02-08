@@ -3,4 +3,7 @@
 HARBOR_VER_MAIN: "{{ HARBOR_VER.split('.')[0] }}.{{ HARBOR_VER.split('.')[1] }}"
 
 # HARBOR_HOSTNAME 值设置
-HARBOR_HOSTNAME: "{% if HARBOR_DOMAIN != '' %}HARBOR_DOMAIN{% else %}inventory_hostname{% endif %}" 
+HARBOR_HOSTNAME: "{% if HARBOR_DOMAIN != '' %}{{ HARBOR_DOMAIN }}{% else %}{{ inventory_hostname }}{% endif %}"
+
+# harobr 默认安装选项
+HARBOR_INST_OPS: ""

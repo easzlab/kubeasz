@@ -194,4 +194,15 @@ prom_chart_ver: "__prom_chart__"
 # role:harbor
 ############################
 # harbor version，完整版本号
-HARBOR_VER: "v1.9.4"
+HARBOR_VER: "__harbor__"
+HARBOR_DOMAIN: "harbor.yourdomain.com"
+HARBOR_TLS_PORT: 8443
+
+# if set 'false', you need to put certs named harbor.pem and harbor-key.pem in directory 'down'
+HARBOR_SELF_SIGNED_CERT: true
+
+# install extra component
+HARBOR_WITH_NOTARY: false
+HARBOR_WITH_TRIVY: false
+HARBOR_WITH_CLAIR: false
+HARBOR_WITH_CHARTMUSEUM: true

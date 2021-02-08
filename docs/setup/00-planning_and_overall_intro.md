@@ -58,17 +58,18 @@ yum update
 yum install python -y
 ```
 
-### 3.在ansible控制端安装及准备ansible
+### 3.在部署节点安装ansible及准备ssh免密登陆
 
-- 3.1 pip 安装 ansible（如果 Ubuntu pip报错，请看[附录](00-planning_and_overall_intro.md#Appendix)）
+- 3.1 安装ansible (也可以使用容器化运行kubeasz，已经预装好ansible)
 
 ``` bash
-# Ubuntu 16.04 
-apt-get install git python-pip -y
-# CentOS 7
-yum install git python-pip -y
+# 注意pip 21.0以后不再支持python2和python3.5，需要如下安装
+# To install pip for Python 2.7 install it from https://bootstrap.pypa.io/2.7/ :
+curl -O https://bootstrap.pypa.io/2.7/get-pip.py
+python get-pip.py
+python -m pip install --upgrade "pip < 21.0"
+ 
 # pip安装ansible(国内如果安装太慢可以直接用pip阿里云加速)
-pip install pip --upgrade -i https://mirrors.aliyun.com/pypi/simple/
 pip install ansible -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
@@ -123,30 +124,6 @@ ezctl setup k8s-01 all
 # ezctl setup k8s-01 03
 # ezctl setup k8s-01 04
 ...
-```
-
-## Appendix
-
-- Ubuntu 1604 安装 ansible 如果出现以下错误
-
-``` bash
-Traceback (most recent call last):
-  File "/usr/bin/pip", line 9, in <module>
-    from pip import main
-ImportError: cannot import name main
-```
-将`/usr/bin/pip`做以下修改即可
-
-``` bash
-#原代码
-from pip import main
-if __name__ == '__main__':
-    sys.exit(main())
-
-#修改后
-from pip import __main__
-if __name__ == '__main__':
-    sys.exit(__main__._main())
 ```
 
 
