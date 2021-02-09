@@ -31,6 +31,14 @@ CONTEXT_NAME: "context-{{ CLUSTER_NAME }}"
 
 
 ############################
+# role:etcd
+############################
+# 设置不同的wal目录，可以避免磁盘io竞争，提高性能
+ETCD_DATA_DIR: "/var/lib/etcd"
+ETCD_WAL_DIR: ""
+
+
+############################
 # role:runtime [containerd,docker]
 ############################
 # ------------------------------------------- containerd
