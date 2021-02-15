@@ -4,9 +4,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart={{ bin_dir }}/kube-scheduler \
-  --bind-address={{ inventory_hostname }} \
-  --kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
-  --leader-elect=true \
+  --config=/etc/kubernetes/kube-scheduler-config.yaml \
   --v=2
 Restart=always
 RestartSec=5

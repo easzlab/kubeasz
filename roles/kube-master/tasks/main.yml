@@ -64,6 +64,10 @@
   - "/etc/kubernetes/kube-scheduler.kubeconfig"
   tags: upgrade_k8s, restart_master
 
+- name: 创建 kube-scheduler 配置文件
+  template: src=kube-scheduler-config.yaml.j2 dest=/etc/kubernetes/kube-scheduler-config.yaml
+  tags: restart_master, upgrade_k8s
+
 - name: 创建 master 服务的 systemd unit 文件
   template: src={{ item }}.j2 dest=/etc/systemd/system/{{ item }}
   with_items:
