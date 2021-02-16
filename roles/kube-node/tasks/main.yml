@@ -114,7 +114,6 @@
       command: "ls {{ base_dir }}/down"
       register: download_info
       connection: local
-      run_once: true
 
     - name: 尝试推送离线dnscache镜像（若执行失败，可忽略）
       copy: src={{ base_dir }}/down/{{ dnscache_offline }} dest=/opt/kube/images/{{ dnscache_offline }}
