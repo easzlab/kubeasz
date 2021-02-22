@@ -50,12 +50,12 @@ kubectl logs kubernetes-dashboard-7c74685c48-9qdpn -n kube-system
 + 启用 `TLS认证` `RBAC授权`等安全特性
 + 关闭 apiserver非安全端口8080的外部访问`--insecure-bind-address=127.0.0.1`
 + 关闭匿名认证`--anonymous-auth=false`
-+ 可选启用基本密码认证 `--basic-auth-file=/etc/kubernetes/ssl/basic-auth.csv`，[密码文件模板](../../roles/kube-master/templates/basic-auth.csv.j2)中按照每行(密码,用户名,序号)的格式，可以定义多个用户；kubeasz 1.0.0 版本以后默认关闭 basic-auth，可以在 roles/kube-master/defaults/main.yml 选择开启
++ 可选启用基本密码认证 `--token-auth-file=/etc/kubernetes/ssl/basic-auth.csv`，[密码文件模板](../../roles/kube-master/templates/basic-auth.csv.j2)中按照每行(密码,用户名,序号)的格式，可以定义多个用户；kubeasz 1.0.0 版本以后默认关闭 basic-auth，可以在 roles/kube-master/defaults/main.yml 选择开启
 
 新版 dashboard可以有多层访问控制，首先与旧版一样可以使用apiserver 方式登录控制：
 
 - 第一步通过api-server本身安全认证流程，与之前[1.6.3版本](dashboard.1.6.3.md)相同，这里不再赘述
-  - 如需（用户名/密码）认证，kubeasz 1.0.0以后使用 `easzctl basic-auth -s` 开启
+  - 如需（用户名/密码）认证，kubeasz 1.0.0以后使用 `ezctl basic-auth -s` 开启
 - 第二步通过dashboard自带的登录流程，使用`Kubeconfig` `Token`等方式登录
 
 **注意：** 如果集群已启用 ingress tls的话，可以[配置ingress规则访问dashboard](ingress-tls.md#%E9%85%8D%E7%BD%AE-dashboard-ingress)

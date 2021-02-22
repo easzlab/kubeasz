@@ -22,7 +22,7 @@ data:
   # Typha is disabled.
   typha_service_name: "none"
   # Configure the backend to use.
-  calico_backend: "bird"
+  calico_backend: "{{ CALICO_NETWORKING_BACKEND }}"
 
   # Configure the MTU to use
   veth_mtu: "1440"
@@ -294,8 +294,15 @@ spec:
             - name: IP_AUTODETECTION_METHOD
               value: "{{ IP_AUTODETECTION_METHOD }}"
             # Enable IPIP
+{% if CALICO_NETWORKING_BACKEND == "brid" %}
             - name: CALICO_IPV4POOL_IPIP
               value: "{{ CALICO_IPV4POOL_IPIP }}"
+{% endif %}
+            # Enable or Disable VXLAN on the default IP pool.
+{% if CALICO_NETWORKING_BACKEND == "vxlan" %}
+            - name: CALICO_IPV4POOL_VXLAN
+              value: "Never"
+{% endif %}
             # Set MTU for tunnel device used if ipip is enabled
             - name: FELIX_IPINIPMTU
               valueFrom:
@@ -318,7 +325,7 @@ spec:
               value: "false"
             # Set Felix logging to "info"
             - name: FELIX_LOGSEVERITYSCREEN
-              value: "{{ FELIX_LOG_LVL }}"
+              value: "warning"
             - name: FELIX_HEALTHENABLED
               value: "true"
             # Set Kubernetes NodePorts: If services do use NodePorts outside Calico’s expected range,
@@ -337,7 +344,9 @@ spec:
               command:
                 - /bin/calico-node
                 - -felix-live
+{% if CALICO_NETWORKING_BACKEND == "brid" %}
                 - -bird-live
+{% endif %}
             periodSeconds: 10
             initialDelaySeconds: 10
             failureThreshold: 6
@@ -345,7 +354,9 @@ spec:
             exec:
               command:
               - /bin/calico-node
+{% if CALICO_NETWORKING_BACKEND == "brid" %}
               - -bird-ready
+{% endif %}
               - -felix-ready
             periodSeconds: 10
           volumeMounts:

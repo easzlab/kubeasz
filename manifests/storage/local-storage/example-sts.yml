@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: local-test
+spec:
+  serviceName: ""
+  replicas: 2
+  selector:
+    matchLabels:
+      app: local-test
+  template:
+    metadata:
+      labels:
+        app: local-test
+    spec:
+      containers:
+      - name: test-container
+        image: busybox
+        command:
+        - "/bin/sh"
+        args:
+        - "-c"
+        - "sleep 100000"
+        volumeMounts:
+        - name: local-vol
+          mountPath: /usr/test-pod
+  volumeClaimTemplates:
+  - metadata:
+      name: local-vol
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "local-storage"
+      resources:
+        requests:
+          storage: 5Gi

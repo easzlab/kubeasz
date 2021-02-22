@@ -1,0 +1,90 @@
+{{ ansible_managed | comment }}
+
+# See libuser.conf(5) for more information. 
+
+# Do not modify the default module list if you care about unattended calls
+# to programs (i.e., scripts) working!
+
+[import]
+# Data from these files is used when libuser.conf does not define a value.
+# The mapping is documented in the man page.
+login_defs = /etc/login.defs
+default_useradd = /etc/default/useradd
+
+[defaults]
+# The default (/usr/lib*/libuser) is usually correct
+# moduledir = /your/custom/directory
+
+# The following variables are usually imported:
+# skeleton = /etc/skel
+# mailspooldir = /var/mail
+
+# NSA 2.3.3.5 Upgrade Password Hashing Algorithm to SHA-512
+crypt_style = sha512
+
+modules = files shadow
+create_modules = files shadow
+# modules = files shadow ldap
+# create_modules = ldap
+
+[userdefaults]
+LU_USERNAME = %n
+# LU_UIDNUMBER = 500
+LU_GIDNUMBER = %u
+# LU_USERPASSWORD = !!
+# LU_GECOS = %n
+# LU_HOMEDIRECTORY = /home/%n
+# LU_LOGINSHELL = /bin/bash
+
+# LU_SHADOWNAME = %n
+# LU_SHADOWPASSWORD = !!
+# LU_SHADOWLASTCHANGE = %d
+# LU_SHADOWMIN = 0
+# LU_SHADOWMAX = 99999
+# LU_SHADOWWARNING = 7
+# LU_SHADOWINACTIVE = -1
+# LU_SHADOWEXPIRE = -1
+# LU_SHADOWFLAG = -1
+
+[groupdefaults]
+LU_GROUPNAME = %n
+# LU_GIDNUMBER = 500
+# LU_GROUPPASSWORD = !!
+# LU_MEMBERUID =
+# LU_ADMINISTRATORUID =
+
+[files]
+# This is useful for the case where some master files are used to
+# populate a different NSS mechanism which this workstation uses.
+# directory = /etc
+
+[shadow]
+# This is useful for the case where some master files are used to
+# populate a different NSS mechanism which this workstation uses.
+# directory = /etc
+
+[ldap]
+# Setting these is always necessary.
+# server = ldap
+# basedn = dc=example,dc=com
+
+# Setting these is rarely necessary, since it's usually correct.
+# userBranch = ou=People
+# groupBranch = ou=Group
+
+# Set only if your administrative user uses simple bind operations to
+# connect to the server.
+# binddn = cn=Manager,dc=example,dc=com
+
+# Set this only if the default user (as determined by SASL) is incorrect
+# for SASL bind operations.  Usually, it's correct, so you'll rarely need
+# to set these.
+# user = Manager
+# authuser = Manager
+
+[sasl]
+# Set these only if your sasldb is only used by a particular application, and
+# in a particular domain.  The default (all applications, all domains) is
+# probably correct for most installations.
+# appname = imap
+# domain = EXAMPLE.COM

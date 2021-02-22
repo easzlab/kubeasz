@@ -1,6 +1,6 @@
-root = "{{ STORAGE_DIR }}"
+root = "{{ CONTAINERD_STORAGE_DIR }}"
 state = "/run/containerd"
-oom_score = 0
+oom_score = -999
 
 [grpc]
   address = "/run/containerd/containerd.sock"
@@ -48,7 +48,7 @@ oom_score = 0
     [plugins.cri.cni]
       bin_dir = "{{ bin_dir }}"
       conf_dir = "/etc/cni/net.d"
-      conf_template = ""
+      conf_template = "/etc/cni/net.d/10-default.conf"
 {% if ENABLE_MIRROR_REGISTRY %}
     [plugins.cri.registry]
       [plugins.cri.registry.mirrors]

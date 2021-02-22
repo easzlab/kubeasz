@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crb-{{ USER_NAME }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+{% if USER_TYPE == 'admin' %}
+  name: cluster-admin
+{% else %}
+  name: view
+{% endif %}
+subjects:
+- kind: User
+  name: {{ USER_NAME }}
+  apiGroup: rbac.authorization.k8s.io

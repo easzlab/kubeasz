@@ -1,0 +1,35 @@
+# Note: this playbook can not run independently
+
+- hosts: "{{ NODE_TO_ADD }}" 
+  roles:
+  - { role: os-harden, when: "OS_HARDEN|bool" }
+  - { role: chrony, when: "groups['chrony']|length > 0" } 
+  - prepare
+  - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" }
+  - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" }
+  - kube-node
+  - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
+  - { role: cilium, when: "CLUSTER_NETWORK == 'cilium'" }
+  - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
+  - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
+  - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
+  tasks:
+  - name: 推送cluster-addon的离线镜像包
+    copy: src={{ item }} dest=/opt/kube/images/
+    with_fileglob:
+    - "{{ base_dir }}/down/coredns*.tar"
+    - "{{ base_dir }}/down/dashboard*.tar"
+    - "{{ base_dir }}/down/metrics-scraper*.tar"
+    - "{{ base_dir }}/down/metrics-server*.tar"
+    - "{{ base_dir }}/down/traefik*.tar"
+    ignore_errors: true
+
+  - name: 导入离线镜像（若执行失败，可忽略）
+    shell: "for image in $(echo /opt/kube/images/*.tar); do {{ bin_dir }}/docker load -i $image; done;"
+    ignore_errors: true
+    when: "CONTAINER_RUNTIME == 'docker'"
+
+  - name: 导入离线镜像（若执行失败，可忽略）
+    shell: "for image in $(echo /opt/kube/images/*.tar); do {{ bin_dir }}/ctr -n=k8s.io images import $image; done;"
+    ignore_errors: true
+    when: "CONTAINER_RUNTIME == 'containerd'"

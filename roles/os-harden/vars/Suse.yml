@@ -1,0 +1,34 @@
+---
+
+os_packages_pam_ccreds: 'pam_ccreds'
+os_packages_pam_passwdqc: 'pam_passwdqc'
+os_packages_pam_cracklib: 'cracklib'
+os_nologin_shell_path: '/sbin/nologin'
+
+# Different distros use different standards for /etc/shadow perms, e.g.
+# RHEL derivatives use root:root 0000, whereas Debian-based use root:shadow 0640.
+# You must provide key/value pairs for owner, group, and mode if overriding.
+os_shadow_perms:
+  owner: root
+  group: shadow
+  mode: '0640'
+
+os_passwd_perms:
+  owner: root
+  group: root
+  mode: '0644'
+
+os_env_umask: '027'
+
+os_auth_uid_min: 1000
+os_auth_gid_min: 1000
+os_auth_sys_uid_min: 100
+os_auth_sys_uid_max: 499
+os_auth_sys_gid_min: 100
+os_auth_sys_gid_max: 499
+
+# defaults for useradd
+os_useradd_create_home: false
+
+modprobe_package: 'kmod-compat'
+auditd_package: 'audit'

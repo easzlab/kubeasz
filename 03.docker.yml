@@ -1,6 +1,0 @@
-# to install docker service
-- hosts:
-  - kube-master
-  - kube-node
-  roles:
-  - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" } 

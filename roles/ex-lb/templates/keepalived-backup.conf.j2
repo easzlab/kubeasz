@@ -9,12 +9,12 @@ vrrp_script check-haproxy {
     weight -60
 }
 
-vrrp_instance VI-kube-master {
+vrrp_instance VI-kube_master {
     state BACKUP
     priority {{ 119 | random(61, 1) }}
     unicast_src_ip {{ inventory_hostname }}
     unicast_peer {
-{% for h in groups['ex-lb'] %}{% if h != inventory_hostname %}
+{% for h in groups['ex_lb'] %}{% if h != inventory_hostname %}
         {{ h }}
 {% endif %}{% endfor %}
     }

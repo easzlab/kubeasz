@@ -1,0 +1,52 @@
+# cluster-backup playbook
+# read the guide: 'op/cluster_restore.md'
+
+- hosts:
+  - localhost
+  tasks:
+  # step1: find a healthy member in the etcd cluster
+  - name: set NODE_IPS of the etcd cluster
+    set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
+
+  - name: get etcd cluster status
+    shell: 'for ip in {{ NODE_IPS }};do \
+              ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
+              --endpoints=https://"$ip":2379 \
+              --cacert={{ cluster_dir }}/ssl/ca.pem \
+              --cert={{ cluster_dir }}/ssl/etcd.pem \
+              --key={{ cluster_dir }}/ssl/etcd-key.pem \
+              endpoint health; \
+            done'
+    register: ETCD_CLUSTER_STATUS
+    ignore_errors: true
+
+  - debug: var="ETCD_CLUSTER_STATUS"
+
+  - name: get a running ectd node
+    shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}" \
+             "{{ ETCD_CLUSTER_STATUS.stderr }}" \
+             |grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+    register: RUNNING_NODE
+
+  - debug: var="RUNNING_NODE.stdout"
+
+  - name: get current time
+    set_fact: temp="{{lookup('pipe','date \"+%Y%m%d_%H%M\"')}}"
+
+  # step2: backup data on the healthy member
+  - name: make a backup on the etcd node
+    shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
+        ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot_{{ temp }}.db"
+    args:
+      warn: false
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
+
+  - name: fetch the backup data
+    fetch:
+      src: /etcd_backup/snapshot_{{ temp }}.db
+      dest: "{{ cluster_dir }}/backup/"
+      flat: yes
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
+
+  - name: update the latest backup
+    shell: 'cd {{ cluster_dir }}/backup/ && /bin/cp -f snapshot_{{ temp }}.db snapshot.db'

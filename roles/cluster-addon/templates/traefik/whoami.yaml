@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami
+  labels:
+    app: whoami 
+spec:
+  ports:
+  - name: web
+    port: 80
+    targetPort: 80
+  selector:
+    app: whoami
+  sessionAffinity: None
+  #type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: whoami
+spec:   
+  replicas: 2
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+      - name: whoami 
+        image: emilevauge/whoami
+        ports:
+        - containerPort: 80

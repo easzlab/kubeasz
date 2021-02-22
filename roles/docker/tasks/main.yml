@@ -16,11 +16,15 @@
 
 - name: debug info
   debug: var="docker_ver"
+  connection: local
+  run_once: true
   tags: upgrade_docker, download_docker
 
 - name: 转换docker版本信息为浮点数
   set_fact: 
     DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
+  connection: local
+  run_once: true
   tags: upgrade_docker, download_docker
 
 - name: debug info
@@ -70,6 +74,8 @@
     
     - name: flush-iptables
       shell: "iptables -P INPUT ACCEPT \
+            && iptables -P FORWARD ACCEPT \
+            && iptables -P OUTPUT ACCEPT \
             && iptables -F && iptables -X \
             && iptables -F -t nat && iptables -X -t nat \
             && iptables -F -t raw && iptables -X -t raw \

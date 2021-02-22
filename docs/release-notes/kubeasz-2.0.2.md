@@ -24,7 +24,7 @@ CHANGELOG:
   - new logo
   - fix: 执行roles/cluster-storage/cluster-storage.yml 报错不存在`deploy`
   - fix: 部分os启用kube-reserved出错（提示/sys/fs/cgroup只读）
-  - fix: ex-lb 组少量 keepalived 相关配置
+  - fix: ex_lb 组少量 keepalived 相关配置
   - fix: 偶然出现docker安装时提示找不到变量`docker_ver`
   - fix: Ubuntu1804 pod内dns解析不到外网
   - fix: k8s 相关服务在接收SIGPIPE信号停止后不重启问题 #631 thx to gj19910723

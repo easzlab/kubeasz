@@ -1,0 +1,23 @@
+# [optional] to synchronize system time of nodes with 'chrony' 
+- hosts:
+  - kube_master
+  - kube_node
+  - etcd
+  - ex_lb
+  - chrony
+  roles:
+  - { role: os-harden, when: "OS_HARDEN|bool" }
+  - { role: chrony, when: "groups['chrony']|length > 0" }
+
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc.
+- hosts: localhost
+  roles:
+  - deploy
+
+# prepare tasks for all nodes
+- hosts:
+  - kube_master
+  - kube_node
+  - etcd
+  roles:
+  - prepare

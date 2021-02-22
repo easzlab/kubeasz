@@ -1,7 +1,7 @@
-# kube-node 节点成员不能同时是 ex-lb 节点，因为它们都需要安装 haproxy
+# kube_node 节点成员不能同时是 ex_lb 节点，因为它们都需要安装 haproxy
 - name: fail info1
-  fail: msg="an 'kube-node' node CAN NOT be a 'ex-lb' node at the same time"
-  when: "inventory_hostname in groups['ex-lb']"
+  fail: msg="an 'kube_node' node CAN NOT be a 'ex_lb' node at the same time"
+  when: "inventory_hostname in groups['ex_lb']"
   tags: restart_lb
 
 - name: 安装 haproxy
@@ -17,7 +17,8 @@
 
 - name: 修改centos的haproxy.service
   template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+  when:
+  - 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
   tags: restart_lb
 
 - name: 配置 haproxy
@@ -39,7 +40,7 @@
 # 仅 master 节点数大于1时才启动haproxy
 - name: 开启haproxy服务
   shell: systemctl start haproxy
-  when: "groups['kube-master']|length > 1"
+  when: "groups['kube_master']|length > 1"
   tags: restart_lb
 
 # master 节点从1个增加到2个时候，需要修改如下配置
@@ -55,11 +56,11 @@
     - "/etc/kubernetes/kubelet.kubeconfig"
     - "/etc/kubernetes/kube-proxy.kubeconfig"
   
-  - name: restart kube-node service
+  - name: restart kube_node service
     service: name={{ item }} state=restarted
     with_items:
     - kubelet
     - kube-proxy
     ignore_errors: true
-  when: "MASTER_CHG == 'yes' and groups['kube-master']|length < 3"
+  when: "MASTER_CHG == 'yes' and groups['kube_master']|length < 3"
   tags: restart_lb

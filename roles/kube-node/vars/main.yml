@@ -1,0 +1,16 @@
+# 设置 APISERVER 地址
+KUBE_APISERVER: "{%- if inventory_hostname in groups['kube_master'] -%} \
+                     https://{{ inventory_hostname }}:6443 \
+                 {%- else -%} \
+                     {%- if groups['kube_master']|length > 1 -%} \
+                         https://127.0.0.1:6443 \
+                     {%- else -%} \
+                         https://{{ groups['kube_master'][0] }}:6443 \
+                     {%- endif -%} \
+                 {%- endif -%}"
+
+# node local dns cache 离线镜像
+dnscache_offline: "k8s-dns-node-cache_{{ dnsNodeCacheVer }}.tar"
+
+# 增加/删除 master 节点时，node 节点需要重新配置 haproxy
+MASTER_CHG: "no"

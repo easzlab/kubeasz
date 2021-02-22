@@ -23,7 +23,7 @@ CHANGELOG:
   - easzup: 修复安装 docker 逻辑 aa76da0f2ee2b01d47c28667feed36b6be778b17
 - 其他
   - fix: dashboard生成cluster-service #739
-  - fix: ubuntu1804安装ex-lb失败问题
+  - fix: ubuntu1804安装ex_lb失败问题
   - fix: calico的BGP RR模式下的bgppeer的nodeSelector错误 #741
   - fix: ectd集群有不正常节点时增/删etcd节点失败 #743
   - fix: kube-router 安装报错 #783

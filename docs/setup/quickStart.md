@@ -12,48 +12,47 @@
 
 ### 2.下载文件
 
-- 下载工具脚本easzup，举例使用kubeasz版本2.2.1
+- 下载工具脚本ezdown，举例使用kubeasz版本3.0.0
 
 ``` bash
-export release=2.2.1
-curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/easzup
-chmod +x ./easzup
+export release=3.0.0
+curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
+chmod +x ./ezdown
 ```
 
 - 使用工具脚本下载
 
-默认下载最新推荐k8s/docker等版本，使用命令`./easzup` 查看工具脚本的帮助信息
+默认下载最新推荐k8s/docker等版本（更多关于ezdown的参数，运行./ezdown 查看）
 
 ``` bash
-# 举例使用 k8s 版本 v1.18.2，docker 19.03.5
-./easzup -D -d 19.03.5 -k v1.18.2
+./ezdown -D
 ```
 
 - 可选下载离线系统包 (适用于无法使用yum/apt仓库情形)
 
 ``` bash
-./easzup -P
+./ezdown -P
 ```
 
-上述脚本运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/ansible`
+上述脚本运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/kubeasz`
 
-- `/etc/ansible` 包含 kubeasz 版本为 ${release} 的发布代码
-- `/etc/ansible/bin` 包含 k8s/etcd/docker/cni 等二进制文件
-- `/etc/ansible/down` 包含集群安装时需要的离线容器镜像
-- `/etc/ansible/down/packages` 包含集群安装时需要的系统基础软件
+- `/etc/kubeasz` 包含 kubeasz 版本为 ${release} 的发布代码
+- `/etc/kubeasz/bin` 包含 k8s/etcd/docker/cni 等二进制文件
+- `/etc/kubeasz/down` 包含集群安装时需要的离线容器镜像
+- `/etc/kubeasz/down/packages` 包含集群安装时需要的系统基础软件
 
 ### 3.安装集群
 
-- 容器化运行 kubeasz，详见[文档](docker_kubeasz.md)
+- 容器化运行 kubeasz，详见ezdown 脚本中的 start_kubeasz_docker 函数
 
 ```
-./easzup -S
+./ezdown -S
 ```
 
 - 使用默认配置安装 aio 集群
 
 ```
-docker exec -it kubeasz easzctl start-aio
+docker exec -it kubeasz ezctl start-aio
 ```
 
 ### 4.验证安装
@@ -75,8 +74,8 @@ $ kubectl get svc -A      # 验证集群服务状态
 
 在宿主机上，按照如下步骤清理
 
-- 清理集群 `docker exec -it kubeasz easzctl destroy`
-- 清理运行的容器 `./easzup -C`
+- 清理集群 `docker exec -it kubeasz ezctl destroy default`
+- 清理运行的容器 `./ezdown -C`
 - 清理容器镜像 `docker system prune -a`
 - 停止docker服务 `systemctl stop docker`
 - 删除docker文件

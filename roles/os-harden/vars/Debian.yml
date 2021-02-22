@@ -1,12 +1,9 @@
+---
+
 os_packages_pam_ccreds: 'libpam-ccreds'
 os_packages_pam_passwdqc: 'libpam-passwdqc'
 os_packages_pam_cracklib: 'libpam-cracklib'
-passwdqc_path: '/usr/share/pam-configs/passwdqc'
-tally2_path: '/usr/share/pam-configs/tally2'
 os_nologin_shell_path: '/usr/sbin/nologin'
-
-auditd_package: 'auditd'
-modprobe_package: 'kmod'
 
 # Different distros use different standards for /etc/shadow perms, e.g.
 # RHEL derivatives use root:root 0000, whereas Debian-based use root:shadow 0640.
@@ -29,3 +26,12 @@ os_auth_sys_uid_min: 100
 os_auth_sys_uid_max: 999
 os_auth_sys_gid_min: 100
 os_auth_sys_gid_max: 999
+
+# defaults for useradd
+os_useradd_mail_dir: /var/mail
+
+modprobe_package: 'kmod'
+auditd_package: 'auditd'
+
+tally2_path: '/usr/share/pam-configs/tally2'
+passwdqc_path: '/usr/share/pam-configs/passwdqc'

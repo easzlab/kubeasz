@@ -1,0 +1,49 @@
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+- block:
+    - name: 获取是否已创建命名空间{{ prom_namespace }}
+      shell: "{{ base_dir }}/bin/kubectl get ns"
+      register: ns_info
+    
+    - name: 创建命名空间{{ prom_namespace }}
+      shell: "{{ base_dir }}/bin/kubectl create ns {{ prom_namespace }}"
+      when: "prom_namespace not in ns_info.stdout"
+    
+    - name: get etcd-client-cert info
+      shell: "{{ base_dir }}/bin/kubectl get secrets -n {{ prom_namespace }}"
+      register: secrets_info
+    
+    - name: 创建etcd-client 证书请求
+      template: src=prometheus/etcd-client-csr.json.j2 dest={{ cluster_dir }}/ssl/etcd-client-csr.json
+      when: '"etcd-client-cert" not in secrets_info.stdout'
+    
+    - name: 创建 etcd-client证书和私钥
+      shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+            -ca=ca.pem \
+            -ca-key=ca-key.pem \
+            -config=ca-config.json \
+            -profile=kubernetes etcd-client-csr.json|{{ base_dir }}/bin/cfssljson -bare etcd-client"
+      when: '"etcd-client-cert" not in secrets_info.stdout'
+    
+    - name: 创建 etcd-client-cert
+      shell: "cd {{ cluster_dir }}/ssl && \
+            {{ base_dir }}/bin/kubectl create secret generic -n {{ prom_namespace }} etcd-client-cert \
+            --from-file=etcd-ca=ca.pem \
+            --from-file=etcd-client=etcd-client.pem \
+            --from-file=etcd-client-key=etcd-client-key.pem"
+      when: '"etcd-client-cert" not in secrets_info.stdout'
+
+    # 判断 kubernetes 版本
+    - name: 注册变量 K8S_VER
+      shell: "{{ base_dir }}/bin/kube-apiserver --version|cut -d' ' -f2|cut -d'v' -f2"
+      register: K8S_VER
+    
+    - name: 创建 prom chart 个性化设置
+      template: src=prometheus/values.yaml.j2 dest={{ cluster_dir }}/yml/prom-values.yaml
+
+    - name: helm 创建 kube-prometheus-stack {{ prom_chart_ver }}
+      shell: "{{ base_dir }}/bin/helm install -n {{ prom_namespace }} prometheus \
+              -f {{ cluster_dir }}/yml/prom-values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/kube-prometheus-stack-{{ prom_chart_ver }}.tgz"
+  run_once: true
+  connection: local

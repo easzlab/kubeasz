@@ -15,7 +15,7 @@ CHANGELOG: (0.6.x 版本以后)
   - 优化 ansible hosts 配置，更加精简、易用
     - 废弃 new-node/new-master/new-etcd 主机组，对应功能已集成在 easzctl 命令行
     - 废弃变量 K8S_VER，改为自动识别，避免手工配置错误
-    - 迁移 basic_auth 相关配置至 roles:kube-master，增强初始安全性，且默认关闭apiserver的用户名/密码认证，详见 roles/kube-master/defaults/main.yml
+    - 迁移 basic_auth 相关配置至 roles:kube_master，增强初始安全性，且默认关闭apiserver的用户名/密码认证，详见 roles/kube-master/defaults/main.yml
   - easzctl 提供以下集群层面操作
     - 切换/创建集群 context
     - 删除当前集群

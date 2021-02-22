@@ -31,10 +31,10 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
   - kube-scheduler
 - 在ansible控制端执行`ansible-playbook -t upgrade_k8s 22.upgrade.yml`即可完成k8s 升级，不会中断业务应用
 
-如果使用 easzctl 命令行，可按如下执行：
+如果使用 ezctl 命令行，可按如下执行：
 
-- 首先确认待升级的集群（如果有多集群的话） `easzctl checkout <cluster_name>`
-- 执行升级 `easzctl upgrade`
+- 首先确认待升级的集群（如果有多集群的话） `ezctl checkout <cluster_name>`
+- 执行升级 `ezctl upgrade`
 
 ### 其他升级说明
 

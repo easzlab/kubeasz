@@ -1,4 +1,4 @@
-- name: 创建kube-node 相关目录
+- name: 创建kube_node 相关目录
   file: name={{ item }} state=directory
   with_items:
   - /var/lib/kubelet
@@ -18,7 +18,7 @@
 
 # 每个 node 节点运行 haproxy 连接到多个 apiserver
 - import_tasks: node_lb.yml
-  when: "inventory_hostname not in groups['kube-master']"
+  when: "inventory_hostname not in groups['kube_master']"
 
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:
@@ -33,20 +33,12 @@
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
 
-# 判断 kubernetes 版本
-- name: 注册变量 TMP_VER
-  shell: "{{ base_dir }}/bin/kube-apiserver --version|cut -d' ' -f2|cut -d'v' -f2"
-  register: TMP_VER
-  connection: local
-  tags: upgrade_k8s, restart_node
+- name: 注册变量 DNS_SVC_IP
+  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
+  register: DNS_SVC_IP
 
-- name: 获取 kubernetes 主版本号
-  set_fact:
-    KUBE_VER: "{{ TMP_VER.stdout.split('.')[0]|int + TMP_VER.stdout.split('.')[1]|int/100 }}"
-  tags: upgrade_k8s, restart_node
-
-- name: debug info
-  debug: var="KUBE_VER"
+- name: 设置变量 CLUSTER_DNS_SVC_IP
+  set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
 
 - name: 创建kubelet的配置文件
   template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
@@ -65,12 +57,15 @@
   tags: upgrade_k8s, restart_node
 
 ##-------kube-proxy部分----------------
-
 - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
   lineinfile:
     dest: /etc/kubernetes/kube-proxy.kubeconfig
     regexp: "^    server"
     line: "    server: {{ KUBE_APISERVER }}"
+
+- name: 创建kube-proxy 配置
+  template: src=kube-proxy-config.yaml.j2 dest=/var/lib/kube-proxy/kube-proxy-config.yaml
+  tags: reload-kube-proxy, restart_node, upgrade_k8s
 
 - name: 创建kube-proxy 服务文件
   template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
@@ -84,12 +79,21 @@
   shell: systemctl daemon-reload && systemctl restart kube-proxy
   tags: reload-kube-proxy, upgrade_k8s, restart_node
 
+# 轮询等待kube-proxy启动完成
+- name: 轮询等待kube-proxy启动
+  shell: "systemctl status kube-proxy.service|grep Active"
+  register: kubeproxy_status
+  until: '"running" in kubeproxy_status.stdout'
+  retries: 4
+  delay: 2
+  tags: reload-kube-proxy, upgrade_k8s, restart_node
+
 # 轮询等待kubelet启动完成
 - name: 轮询等待kubelet启动
   shell: "systemctl status kubelet.service|grep Active"
   register: kubelet_status
   until: '"running" in kubelet_status.stdout'
-  retries: 8
+  retries: 4
   delay: 2
   tags: reload-kube-proxy, upgrade_k8s, restart_node
 
@@ -104,3 +108,26 @@
 - name: 设置node节点role
   shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=node --overwrite"
   ignore_errors: true
+
+- block:
+    - name: 获取已下载离线镜像信息
+      command: "ls {{ base_dir }}/down"
+      register: download_info
+      connection: local
+
+    - name: 尝试推送离线dnscache镜像（若执行失败，可忽略）
+      copy: src={{ base_dir }}/down/{{ dnscache_offline }} dest=/opt/kube/images/{{ dnscache_offline }}
+      when: 'dnscache_offline in download_info.stdout'
+
+    - name: 获取dnscache离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info
+
+    - name: 导入dnscache的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dnscache_offline }}"
+      when: 'dnscache_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+
+    - name: 导入dnscache的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ dnscache_offline }}"
+      when: 'dnscache_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
+  when: "ENABLE_LOCAL_DNS_CACHE|bool"
