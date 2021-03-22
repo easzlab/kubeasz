@@ -27,7 +27,7 @@ awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg
 CentOS Linux (4.4.183-1.el7.elrepo.x86_64) 7 (Core)  
 CentOS Linux (3.10.0-327.10.1.el7.x86_64) 7 (Core)  
 CentOS Linux (0-rescue-c52097a1078c403da03b8eddeac5080b) 7 (Core)
-#默认启动的顺序是从0开始，新内核是从头插入（目前位置在0，而4.4.4的是在1），所以需要选择0。
+#默认启动的顺序是从0开始，新内核是从头插入（目前位置在0，而3.10.0的是在1），所以需要选择0。
 grub2-set-default 0  
 #重启并检查
 reboot
