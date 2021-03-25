@@ -8,8 +8,9 @@
 - **运行时** docker 18.09.x, 19.03.x, 20.10.x [containerd](docs/setup/containerd.md) v1.4.3
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
-- **[news]** kubeasz 技术上通过cncf一致性测试 [详情](docs/mixes/conformance.md)
-- **[news]** 群里大佬上新一套免费[kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)，强烈推荐！
+
+**[news]** kubeasz 技术上通过cncf一致性测试 [详情](docs/mixes/conformance.md)
+**[news]** 群里大佬上新一套免费[kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)，强烈推荐！
 
 ## 快速指南
 
