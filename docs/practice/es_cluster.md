@@ -52,27 +52,6 @@ epoch      timestamp cluster       status node.total node.data shards pri relo i
 
 - 1.安装 helm: 以本项目[安全安装helm](../guide/helm.md)为例
 - 2.准备 PV: 以本项目[K8S 集群存储](../setup/08-cluster-storage.md)创建`nfs`动态 PV 为例
-  - 编辑配置文件：roles/cluster-storage/defaults/main.yml  
-
-``` bash
-storage:
-  nfs:
-    enabled: "yes"
-    server: "192.168.1.8"
-    server_path: "/share"
-    storage_class: "nfs-es"
-    provisioner_name: "nfs-provisioner-01"
-```
-
-  - 创建 nfs provisioner  
-
-``` bash
-$ ansible-playbook /etc/ansible/roles/cluster-storage/cluster-storage.yml
-# 执行成功后验证
-$ kubectl get pod --all-namespaces |grep nfs-prov
-kube-system   nfs-provisioner-01-6b7fbbf9d4-bh8lh        1/1       Running   0          1d
-```
-
 - 3.安装 elasticsearch chart  
 
 ``` bash

@@ -1,0 +1,33 @@
+- name: 尝试推送离线 nfs-provisioner镜像（若执行失败，可忽略）
+  copy: src={{ base_dir }}/down/{{ nfsprovisioner_offline }} dest=/opt/kube/images/{{ nfsprovisioner_offline }}
+  when: 'nfsprovisioner_offline in download_info.stdout'
+
+- name: 获取nfs-provisioner离线镜像推送情况
+  command: "ls /opt/kube/images"
+  register: image_info
+
+- name: 导入 nfs-provisioner的离线镜像（若执行失败，可忽略）
+  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ nfsprovisioner_offline }}"
+  when: 'nfsprovisioner_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
+
+- name: 导入 nfs-provisioner的离线镜像（若执行失败，可忽略）
+  shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ nfsprovisioner_offline }}"
+  when: 'nfsprovisioner_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
+
+- name: 准备 nfs-provisioner 配置目录
+  file: name={{ cluster_dir }}/yml/nfs-provisioner state=directory
+  run_once: true
+  connection: local
+
+- name: 准备 nfs-provisioner部署文件
+  template: src=nfs-provisioner/{{ item }}.j2 dest={{ cluster_dir }}/yml/nfs-provisioner/{{ item }}
+  with_items:
+  - "nfs-provisioner.yaml"
+  - "test-pod.yaml"
+  run_once: true
+  connection: local
+
+- name: 创建 nfs-provisioner部署
+  shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/nfs-provisioner/nfs-provisioner.yaml"
+  run_once: true
+  connection: local

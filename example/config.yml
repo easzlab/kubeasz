@@ -198,6 +198,14 @@ prom_install: "no"
 prom_namespace: "monitor"
 prom_chart_ver: "__prom_chart__"
 
+# nfs-provisioner 自动安装
+nfs_provisioner_install: "no"
+nfs_provisioner_namespace: "kube-system"
+nfs_provisioner_ver: "__nfs_provisioner__"
+nfs_storage_class: "managed-nfs-storage"
+nfs_server: "192.168.1.10"
+nfs_path: "/data/nfs"
+
 ############################
 # role:harbor
 ############################

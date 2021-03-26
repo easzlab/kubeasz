@@ -10,6 +10,7 @@
 
 
 **[news]** kubeasz 技术上通过cncf一致性测试 [详情](docs/mixes/conformance.md)
+
 **[news]** 群里大佬上新一套免费[kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)，强烈推荐！
 
 ## 快速指南

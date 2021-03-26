@@ -14,7 +14,7 @@ set -o errexit
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=20.10.5
-KUBEASZ_VER=3.0.0
+KUBEASZ_VER=3.0.1
 K8S_BIN_VER=v1.20.5
 EXT_BIN_VER=0.8.1
 SYS_PKG_VER=0.3.3
@@ -30,6 +30,7 @@ dashboardVer=v2.1.0
 dashboardMetricsScraperVer=v1.0.6
 metricsVer=v0.3.6
 pauseVer=3.2
+nfsProvisionerVer=v4.0.1
 export ciliumVer=v1.4.1
 export kubeRouterVer=v0.3.1
 export kubeOvnVer=v1.5.3
@@ -110,8 +111,18 @@ Description=Docker Application Container Engine
 Documentation=http://docs.docker.io
 [Service]
 Environment="PATH=/opt/kube/bin:/bin:/sbin:/usr/bin:/usr/sbin"
+ExecStartPre=/sbin/iptables -F
+ExecStartPre=/sbin/iptables -X
+ExecStartPre=/sbin/iptables -F -t nat
+ExecStartPre=/sbin/iptables -X -t nat
+ExecStartPre=/sbin/iptables -F -t raw
+ExecStartPre=/sbin/iptables -X -t raw
+ExecStartPre=/sbin/iptables -F -t mangle
+ExecStartPre=/sbin/iptables -X -t mangle
 ExecStart=/opt/kube/bin/dockerd
-ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
+ExecStartPost=/sbin/iptables -P INPUT ACCEPT
+ExecStartPost=/sbin/iptables -P OUTPUT ACCEPT
+ExecStartPost=/sbin/iptables -P FORWARD ACCEPT
 ExecReload=/bin/kill -s HUP \$MAINPID
 Restart=on-failure
 RestartSec=5
@@ -167,15 +178,6 @@ EOF
     sed -i 's/^SELINUX=.*$/SELINUX=disabled/g' /etc/selinux/config
   fi
 
-  logger info "clean iptable rules"
-  iptables -P INPUT ACCEPT && \
-  iptables -P FORWARD ACCEPT && \
-  iptables -P OUTPUT ACCEPT && \
-  iptables -F && iptables -X && \
-  iptables -F -t nat && iptables -X -t nat && \
-  iptables -F -t raw && iptables -X -t raw && \
-  iptables -F -t mangle && iptables -X -t mangle
-
   logger debug "enable and start docker"
   systemctl enable docker
   systemctl daemon-reload && systemctl restart docker && sleep 4
@@ -220,7 +222,7 @@ function get_k8s_bin() {
 }
 
 function get_ext_bin() {
-  [[ -f "$BASE/bin/etcdctl" ]] && { logger warn "extral binaries existed"; return 0; }
+  [[ -f "$BASE/bin/etcdctl" ]] && { logger warn "extra binaries existed"; return 0; }
 
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
   docker pull "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
@@ -261,9 +263,7 @@ function get_harbor_offline_pkg() {
 }
 
 function get_offline_image() {
-
   imageDir="$BASE/down"
-  
   logger info "downloading offline images"
 
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
@@ -301,6 +301,10 @@ function get_offline_image() {
     docker pull "easzlab/pause-amd64:$pauseVer" && \
     docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause-amd64:$pauseVer"
     /bin/cp -u "$imageDir/pause_$pauseVer.tar" "$imageDir/pause.tar"
+  fi
+  if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
+    docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
+    docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
   fi
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
