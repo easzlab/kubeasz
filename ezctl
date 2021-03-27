@@ -110,18 +110,19 @@ function usage-setup(){
   echo -e "\033[33mUsage:\033[0m ezctl setup <cluster> <step>"
   cat <<EOF
 available steps:
-    01     prepare         to prepare CA/certs & kubeconfig & other system settings 
-    02     etcd            to setup the etcd cluster
-    03     runtime         to setup the container runtime(docker or containerd)
-    04     kube-master     to setup the master nodes
-    05     kube-node       to setup the worker nodes
-    06     network         to setup the network plugin
-    07     cluster-addon   to setup other useful plugins
-    all                    to run 01~07 all at once
-    harbor                 to install a new harbor server or to integrate with an existed one
+    01  prepare            to prepare CA/certs & kubeconfig & other system settings 
+    02  etcd               to setup the etcd cluster
+    03  container-runtime  to setup the container runtime(docker or containerd)
+    04  kube-master        to setup the master nodes
+    05  kube-node          to setup the worker nodes
+    06  network            to setup the network plugin
+    07  cluster-addon      to setup other useful plugins
+    90  all                to run 01~07 all at once
+    10  ex-lb              to install external loadbalance for accessing k8s from outside
+    11  harbor             to install a new harbor server or to integrate with an existed one
 
-examples: ./ezctl setup test-k8s 01
-          ./ezctl setup test-k8s 02
+examples: ./ezctl setup test-k8s 01  (or ./ezctl setup test-k8s prepare)
+	  ./ezctl setup test-k8s 02  (or ./ezctl setup test-k8s etcd)
           ./ezctl setup test-k8s all
 EOF
 }
@@ -185,34 +186,34 @@ function setup() {
 
     PLAY_BOOK="dummy.yml"
     case "$2" in
-      (01)
+      (01|prepare)
           PLAY_BOOK="01.prepare.yml"
           ;;
-      (02)
+      (02|etcd)
           PLAY_BOOK="02.etcd.yml"
           ;;
-      (03)
+      (03|container-runtime)
           PLAY_BOOK="03.runtime.yml"
           ;;
-      (04)
+      (04|kube-master)
           PLAY_BOOK="04.kube-master.yml"
           ;;
-      (05)
+      (05|kube-node)
           PLAY_BOOK="05.kube-node.yml"
           ;;
-      (06)
+      (06|network)
           PLAY_BOOK="06.network.yml"
           ;;
-      (07)
+      (07|cluster-addon)
           PLAY_BOOK="07.cluster-addon.yml"
           ;;
-      (90)
+      (90|all)
           PLAY_BOOK="90.setup.yml"
           ;;
-      (all)
-          PLAY_BOOK="90.setup.yml"
+      (10|ex-lb)
+          PLAY_BOOK="10.ex-lb.yml"
           ;;
-      (harbor)
+      (11|harbor)
           PLAY_BOOK="11.harbor.yml"
           ;;
       (*)

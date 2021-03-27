@@ -1,24 +1,18 @@
 - hosts:
   - ex_lb
   tasks:
-  - block:
-      - name: stop and disable chrony in Ubuntu
-        service: name=chrony state=stopped enabled=no
-        ignore_errors: true
-        when: 'ansible_distribution in ["Ubuntu","Debian"]' 
-    
-      - name: stop and disable chronyd in CentOS/RedHat
-        service: name=chronyd state=stopped enabled=no
-        ignore_errors: true
-        when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]' 
-    when: "groups['chrony']|length > 0"
+  - name: get service info
+    shell: 'systemctl list-units --type=service |grep -E "haproxy|keepalived|ssh"'
+    register: service_info
 
-  - name: stop keepalived service
-    service: name=keepalived state=stopped enabled=no
+  - name: remove service haproxy
+    service: name=haproxy state=stopped enabled=no
+    when: '"haproxy" in service_info.stdout'
     ignore_errors: true
 
-  - name: stop haproxy service
-    service: name=haproxy state=stopped enabled=no
+  - name: remove service keepalived
+    service: name=keepalived state=stopped enabled=no
+    when: '"keepalived" in service_info.stdout'
     ignore_errors: true
 
   - name: remove files and dirs
@@ -26,11 +20,3 @@
     with_items:
     - "/etc/haproxy"
     - "/etc/keepalived"
-
-  - name: clean 'ENV PATH'
-    lineinfile:
-      dest: ~/.bashrc
-      state: absent
-      regexp: '{{ item }}'
-    with_items:
-    - 'kubeasz'
