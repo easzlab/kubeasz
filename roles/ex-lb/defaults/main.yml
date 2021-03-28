@@ -10,9 +10,9 @@ ROUTER_ID: 222
 BALANCE_ALG: "roundrobin"
 
 # 启用 ingress NodePort服务的负载均衡 (yes/no)
-INGRESS_NODEPORT_LB: "yes"
+INGRESS_NODEPORT_LB: "no"
 # 启用 ingress tls NodePort服务的负载均衡 (yes/no)
-INGRESS_TLS_NODEPORT_LB: "yes"
+INGRESS_TLS_NODEPORT_LB: "no"
 
 # 离线安装 haproxy+keepalived (offline|online)
 INSTALL_SOURCE: "online"
