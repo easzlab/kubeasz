@@ -37,6 +37,9 @@
 - import_tasks: prometheus.yml
   when: '"kube-prometheus-operator" not in pod_info.stdout and prom_install == "yes"'
 
+- import_tasks: nfs-provisioner.yml
+  when: '"nfs-client-provisioner" not in pod_info.stdout and nfs_provisioner_install == "yes"'
+
 #- block:
 #    - block:
 #        - name: 尝试推送离线 metallb镜像（若执行失败，可忽略）
