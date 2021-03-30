@@ -104,9 +104,13 @@ BALANCE_ALG: "roundrobin"
 # role:network [flannel,calico,cilium,kube-ovn,kube-router]
 ############################
 # ------------------------------------------- flannel
-# [flannel]设置flannel 后端"host-gw","vxlan"等
+# [flannel]设置flannel 后端"host-gw","vxlan","wireguard"等
 FLANNEL_BACKEND: "vxlan"
 DIRECT_ROUTING: false
+
+# [flannel] 设置wireguard的网卡名和端口
+WIREGUARD_IF: "flannel0"
+WIREGUARD_PORT: 51820
 
 # [flannel] flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
 flannelVer: "__flannel__"

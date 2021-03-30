@@ -127,10 +127,19 @@ data:
     {
       "Network": "{{ CLUSTER_CIDR }}",
       "Backend": {
+{% if FLANNEL_BACKEND == "wireguard" %}
+        "Type": "extension",
+        "PreStartupCommand": "wg |grep public |awk '{print $3}'",
+        "PostStartupCommand": "export IF_NAME={{ WIREGUARD_IF }}; export IF_NET=`ip addr show dev $IF_NAME |grep inet |awk '{print $2}'`; if [ $IF_NET ]; then ip addr del $IF_NET dev $IF_NAME; fi; export SUBNET_IP=`echo $SUBNET | cut -d'/' -f 1`; ip addr add $SUBNET_IP/32 dev $IF_NAME; ip route add $NETWORK dev $IF_NAME",
+        "ShutdownCommand": "export IF_NAME={{ WIREGUARD_IF }}; export SUBNET_IP=`echo $SUBNET | cut -d'/' -f 1`; ip addr del $SUBNET_IP/32 dev $IF_NAME",
+        "SubnetAddCommand": "read PUBLIC_KEY; export IF_NAME={{ WIREGUARD_IF }}; echo SUBNET=$SUBNET PUBLIC_IP=$PUBLIC_IP PUBLIC_KEY=$PUBLIC_KEY; export SUBNET_IP=`echo $SUBNET | cut -d'/' -f 1`; ENDPOINT=$PUBLIC_IP:{{ WIREGUARD_PORT }}; wg set $IF_NAME peer $PUBLIC_KEY endpoint $ENDPOINT allowed-ips $SUBNET persistent-keepalive 25; echo Subnet allowed $SUBNET $IF_NAME",
+        "SubnetRemoveCommand": "read PUBLIC_KEY; export IF_NAME={{ WIREGUARD_IF }}; echo SUBNET=$SUBNET PUBLIC_IP=$PUBLIC_IP PUBLIC_KEY=$PUBLIC_KEY; export SUBNET_IP=`echo $SUBNET | cut -d'/' -f 1`;  wg set $IF_NAME peer $PUBLIC_KEY allowed-ips ''; echo Subnet disallowed $SUBNET $IF_NAME"
+{% else %}
+        "Type": "{{ FLANNEL_BACKEND }}"
+{% endif %}
 {% if FLANNEL_BACKEND == "vxlan" and DIRECT_ROUTING %}
         "DirectRouting": true,
 {% endif %}
-        "Type": "{{ FLANNEL_BACKEND }}"
       }
     }
 ---

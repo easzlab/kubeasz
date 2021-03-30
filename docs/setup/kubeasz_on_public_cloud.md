@@ -10,7 +10,7 @@
 
 一般公有云对网络限制较多，跨节点 pod 通讯需要使用 OVERLAY 添加报头；默认配置详见example/config.yml
 
-- flannel 使用 vxlan 模式：`FLANNEL_BACKEND: "vxlan"`
+- flannel 使用 vxlan 后端：`FLANNEL_BACKEND: "vxlan"` , 或 wireguard 后端： `FLANNEL_BACKEND: "wireguard"`
 - calico 开启 ipinip：`CALICO_IPV4POOL_IPIP: "Always"`
 - kube-router 开启 ipinip：`OVERLAY_TYPE: "full"`
 
