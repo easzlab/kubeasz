@@ -1,6 +1,3 @@
-- import_tasks: wireguard.yml
-  when: "FLANNEL_BACKEND == 'wireguard'"
-  
 - name: 创建flannel 相关目录
   file: name={{ item }} state=directory
   with_items:

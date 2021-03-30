@@ -23,8 +23,7 @@ Kubernetes Pod的网络是这样创建的：
 - 3.然后 CNI 插件给`基础容器`配置网络
 - 4.最后 Pod 中其他的容器共享使用`基础容器`的网络
 
-本项目基于CNI driver 调用各种网络插件来配置kubernetes的网络，常用CNI插件有 `flannel` `calico` `weave`等等，这些插件各有优势，也在互相借鉴学习优点，比如：在所有node节点都在一个二层网络时候，flannel提供hostgw实现，避免vxlan实现的udp封装开销，估计是目前最高效的；wireguard后端目前使用extension方式实现，在系统层借助了wireguard-tools工具，首次安装后如果发现无法握手，需重启下服务器；相比vxlan，wireguard 只需单向端口即可建立握手（默认是51820）。calico也针对L3 Fabric，推出了IPinIP的选项，利用了GRE隧道封装；因此这些插件都能适合很多实际应用场景。
-
+本项目基于CNI driver 调用各种网络插件来配置kubernetes的网络，常用CNI插件有 `flannel` `calico` `weave`等等，这些插件各有优势，也在互相借鉴学习优点，比如：在所有node节点都在一个二层网络时候，flannel提供hostgw实现，避免vxlan实现的udp封装开销，估计是目前最高效的；calico也针对L3 Fabric，推出了IPinIP的选项，利用了GRE隧道封装；因此这些插件都能适合很多实际应用场景。
 
 项目当前内置支持的网络插件有：`calico` `cilium` `flannel` `kube-ovn` `kube-router`
 
