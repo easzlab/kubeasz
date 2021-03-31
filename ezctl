@@ -303,7 +303,7 @@ function add-node() {
     [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error "Invalid ip add:$2"; return 1; }
 
     # check if the new node already exsited
-    sed -n '/^\[kube_master/,/^\[harbor/p' "$BASE/clusters/$1/hosts"|grep "^$2[^0-9]" && { logger error "node $2 already existed in $BASE/clusters/$1/hosts"; return 2; }
+    sed -n '/^\[kube_master/,/^\[harbor/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " && { logger error "node $2 already existed in $BASE/clusters/$1/hosts"; return 2; }
 
     logger info "add $2 into 'kube_node' group"
     NODE_INFO="${@:2}"
@@ -318,7 +318,7 @@ function add-master() {
     [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error  "Invalid ip add:$2"; return 1; }
 
     # check if the new master already exsited
-    sed -n '/^\[kube_master/,/^\[kube_node/p' "$BASE/clusters/$1/hosts"|grep "^$2[^0-9]" && { logger error "master $2 already existed!"; return 2; }
+    sed -n '/^\[kube_master/,/^\[kube_node/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " && { logger error "master $2 already existed!"; return 2; }
 
     logger info "add $2 into 'kube_master' group"
     MASTER_INFO="${@:2}"
@@ -336,7 +336,7 @@ function add-etcd() {
     [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error  "Invalid ip add:$2"; return 1; }
 
     # check if the new node already exsited
-    sed -n '/^\[etcd/,/^\[kube_master/p' "$BASE/clusters/$1/hosts"|grep "^$2[^0-9]" && { logger error "etcd $2 already existed!"; return 2; }
+    sed -n '/^\[etcd/,/^\[kube_master/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " && { logger error "etcd $2 already existed!"; return 2; }
 
     logger info "add $2 into 'etcd' group"
     ETCD_INFO="${@:2}"
@@ -356,6 +356,9 @@ function del-etcd() {
     # check node's address regexp
     [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error  "Invalid ip add:$2"; return 1; }
 
+    # check if the deleting node exsited
+    sed -n '/^\[etcd/,/^\[kube_master/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " || { logger error "etcd $2 not existed!"; return 2; }
+
     logger warn "start to delete the etcd node:$2 from cluster:$1"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/31.deletcd.yml" -e "ETCD_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml"
 
@@ -370,6 +373,9 @@ function del-node() {
     # check node's address regexp
     [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger "Invalid ip add:$2"; return 2; }
 
+    # check if the deleting node exsited
+    sed -n '/^\[kube_master/,/^\[harbor/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " || { logger error "node $2 not existed in $BASE/clusters/$1/hosts"; return 2; }
+
     logger warn "start to delete the node:$2 from cluster:$1"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/32.delnode.yml" -e "NODE_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml"
 }
@@ -377,6 +383,9 @@ function del-node() {
 function del-master() {
     # check node's address regexp
     [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error "Invalid ip add:$2"; return 2; }
+
+    # check if the deleting master exsited
+    sed -n '/^\[kube_master/,/^\[kube_node/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " || { logger error "master $2 not existed!"; return 2; }
 
     logger warn "start to delete the master:$2 from cluster:$1"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/33.delmaster.yml" -e "NODE_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml" 
