@@ -16,10 +16,6 @@
   - loopback
   tags: upgrade_k8s
 
-# 每个 node 节点运行 haproxy 连接到多个 apiserver
-- import_tasks: node_lb.yml
-  when: "inventory_hostname not in groups['kube_master']"
-
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:
     dest: /root/.kube/config

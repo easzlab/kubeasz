@@ -270,14 +270,14 @@ function list() {
     which md5sum > /dev/null 2>&1 || { logger error "md5sum not found"; return 1; }
 
     CLUSTERS=$(cd clusters && echo -- *)
-    CFG_MD5=$(md5sum -t ~/.kube/config |cut -d' ' -f1)
+    CFG_MD5=$(sed '/server/d' ~/.kube/config|md5sum|cut -d' ' -f1)
     cd "$BASE"
 
     logger info "list of managed clusters:"
     i=1; for c in $CLUSTERS;
     do
         if [[ -f "clusters/$c/kubectl.kubeconfig" ]];then
-            c_md5=$(md5sum -t "clusters/$c/kubectl.kubeconfig" |cut -d' ' -f1)
+            c_md5=$(sed '/server/d' "clusters/$c/kubectl.kubeconfig"|md5sum|cut -d' ' -f1)
             if [[ "$c_md5" = "$CFG_MD5" ]];then
                 echo -e "==> cluster $i:\t$c (\033[32mcurrent\033[0m)"
             else
@@ -327,8 +327,8 @@ function add-master() {
     logger info "start to add a master node:$2 into cluster:$1"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/23.addmaster.yml" -e "NODE_TO_ADD=$2" -e "@clusters/$1/config.yml"
 
-    logger info "reconfigure and restart the haproxy service on 'kube_node' nodes"
-    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/05.kube-node.yml" -t restart_lb -e MASTER_CHG=yes -e "@clusters/$1/config.yml" 
+    logger info "reconfigure and restart 'kube-lb' service"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml" 
 }
 
 function add-etcd() {
@@ -371,7 +371,7 @@ function del-etcd() {
 
 function del-node() {
     # check node's address regexp
-    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger "Invalid ip add:$2"; return 2; }
+    [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error "Invalid ip add:$2"; return 2; }
 
     # check if the deleting node exsited
     sed -n '/^\[kube_master/,/^\[harbor/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " || { logger error "node $2 not existed in $BASE/clusters/$1/hosts"; return 2; }
@@ -393,8 +393,8 @@ function del-master() {
     logger info "reconfig kubeconfig in ansible manage node"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/roles/deploy/deploy.yml" -t create_kctl_cfg -e "@clusters/$1/config.yml"
 
-    logger info "reconfigure and restart the haproxy service on 'kube_node' nodes"
-    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/05.kube-node.yml" -t restart_lb -e MASTER_CHG=yes -e "@clusters/$1/config.yml" 
+    logger info "reconfigure and restart 'kube-lb' service"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml" 
 }
 
 

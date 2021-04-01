@@ -24,15 +24,10 @@
   - kube_master
   - kube_node
   tasks:
-  - name: stopping haproxy on kube_node
-    service: name=haproxy state=stopped enabled=no
-    when: 
-    - "inventory_hostname not in groups['kube_master']"
-    - "groups['kube_master']|length > 1"
-
   - name: stopping kube_node services
     service: name={{ item }} state=stopped enabled=no
     with_items:
+    - kube-lb
     - kubelet
     - kube-proxy
 

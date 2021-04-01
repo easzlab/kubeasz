@@ -3,6 +3,7 @@
   - name: stop and disable kube_node service
     service: name={{ item }} state=stopped enabled=no
     with_items:
+    - kube-lb
     - kubelet
     - kube-proxy
     ignore_errors: true
@@ -18,9 +19,11 @@
     with_items:
     - "/var/lib/kubelet/"
     - "/var/lib/kube-proxy/"
+    - "/etc/systemd/system/kube-lb.service"
     - "/etc/systemd/system/kubelet.service"
     - "/etc/systemd/system/kube-proxy.service"
     - "/opt/kube/kube-system/"
+    - "/etc/kube-lb/"
     - "/etc/kubernetes/"
     - "/root/.kube/config"
 

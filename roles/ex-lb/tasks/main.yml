@@ -1,8 +1,3 @@
-# ex_lb 节点成员不能同时是 kube_node 节点，因为它们都需要安装 haproxy
-- name: fail info1
-  fail: msg="an 'ex_lb' node CAN NOT be a 'kube_node' node at the same time"
-  when: "inventory_hostname in groups['kube_node']"
-
 # 自动设置LB节点变量'LB_IF'
 - name: 注册变量 LB_IF_TMP
   shell: "ip a|grep '{{ inventory_hostname }}/'|awk '{print $NF}'"
