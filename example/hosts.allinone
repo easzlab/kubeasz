@@ -26,6 +26,9 @@
 
 [all:vars]
 # --------- Main Variables ---------------
+# Secure port for apiservers
+SECURE_PORT="6443"
+
 # Cluster container-runtime supported: docker, containerd
 CONTAINER_RUNTIME="docker"
 

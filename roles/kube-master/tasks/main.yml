@@ -57,7 +57,7 @@
   lineinfile:
     dest: "{{ item }}"
     regexp: "^    server"
-    line: "    server: https://127.0.0.1:6443"
+    line: "    server: https://127.0.0.1:{{ SECURE_PORT }}"
   with_items:
   - "/root/.kube/config"
   - "/etc/kubernetes/kube-controller-manager.kubeconfig"

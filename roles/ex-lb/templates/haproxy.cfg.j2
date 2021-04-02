@@ -21,7 +21,7 @@ listen kube_master
         option dontlog-normal
         balance {{ BALANCE_ALG }}
 {% for host in groups['kube_master'] %}
-        server {{ host }} {{ host }}:6443 check inter 5s fall 2 rise 2 weight 1
+        server {{ host }} {{ host }}:{{ SECURE_PORT }} check inter 5s fall 2 rise 2 weight 1
 {% endfor %}
 
 {% if INGRESS_NODEPORT_LB == "yes" %}
