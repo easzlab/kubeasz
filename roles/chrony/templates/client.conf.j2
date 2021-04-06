@@ -1,0 +1,32 @@
+# Use local server 
+server {{ groups['chrony'][0] }} iburst
+
+# Record the rate at which the system clock gains/losses time.
+driftfile /var/lib/chrony/drift
+
+# Allow the system clock to be stepped in the first three updates
+# if its offset is larger than 1 second.
+makestep 1.0 3
+
+# This directive enables kernel synchronisation (every 11 minutes) of the
+# real-time clock. Note that it can’t be used along with the 'rtcfile' directive.
+rtcsync
+
+# Specify directory for dumping measurements.
+dumpdir /var/lib/chrony
+
+# This directive designates subnets (or nodes) from which NTP clients are allowed
+# to access to 'chronyd'.
+allow {{ local_network }}
+
+# Stop bad estimates upsetting machine clock.
+maxupdateskew 100.0
+
+# Ignor source level
+stratumweight 0
+
+# Comment this line out to turn off logging.
+#log tracking measurements statistics
+logdir /var/log/chrony
+log statistics measurements tracking
+noclientlog

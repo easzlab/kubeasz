@@ -1,11 +1,14 @@
 - block:
-    - name: stop and disable chrony in Ubuntu
-      service: name=chrony state=stopped enabled=no
-      ignore_errors: true
-      when: 'ansible_distribution in ["Ubuntu","Debian"]'
-
-    - name: stop and disable chronyd in CentOS/RedHat
+    - name: stop and disable chronyd
       service: name=chronyd state=stopped enabled=no
       ignore_errors: true
-      when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
+
+    - name: remove files and dirs
+      file: name={{ item }} state=absent
+      with_items:
+      - "/etc/chrony"
+      - "/var/lib/chrony"
+      - "/var/log/chrony"
+      - "/var/run/chrony"
+      - "/etc/systemd/system/chronyd.service"
   when: "groups['chrony']|length > 0"

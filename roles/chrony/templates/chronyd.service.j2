@@ -1,0 +1,20 @@
+[Unit]
+Description=chrony, an NTP client/server
+Documentation=https://chrony.tuxfamily.org/documentation.html
+Conflicts=systemd-timesyncd.service openntpd.service ntpd.service ntp.service ntpsec.service
+After=network.target
+ConditionCapability=CAP_SYS_TIME
+
+[Service]
+# sysctl net.netfilter.nf_conntrack_count
+Type=forking
+PIDFile=/var/run/chrony/chronyd.pid
+ExecStart=/usr/sbin/chronyd -f /etc/chrony/chrony.conf
+ExecStartPost=/sbin/iptables -t raw -A PREROUTING -p udp -m udp --dport 123 -j NOTRACK
+ExecStartPost=/sbin/iptables -t raw -A OUTPUT -p udp -m udp --sport 123 -j NOTRACK
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
