@@ -1,0 +1,14 @@
+[Unit]
+Description=VRRP High Availability Monitor
+After=network-online.target syslog.target
+Wants=network-online.target
+Documentation=https://keepalived.org/manpage.html
+
+[Service]
+Type=forking
+KillMode=process
+ExecStart=/usr/local/sbin/keepalived -D -f /etc/keepalived/keepalived.conf
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

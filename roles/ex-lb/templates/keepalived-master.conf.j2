@@ -1,15 +1,13 @@
 global_defs {
-    router_id lb-master-{{ inventory_hostname }}
-    script_user root
 }
 
-vrrp_script check-haproxy {
-    script "/usr/bin/killall -0 haproxy"
-    interval 5
+vrrp_track_process check-l4lb {
+    process l4lb
     weight -60
+    delay 3
 }
 
-vrrp_instance VI-kube_master {
+vrrp_instance VI-01 {
     state MASTER
     priority 120
     unicast_src_ip {{ inventory_hostname }}
@@ -22,8 +20,8 @@ vrrp_instance VI-kube_master {
     interface {{ LB_IF }}
     virtual_router_id {{ ROUTER_ID }}
     advert_int 3
-    track_script {
-        check-haproxy
+    track_process {
+        check-l4lb
     }
     virtual_ipaddress {
         {{ EX_APISERVER_VIP }}
