@@ -329,6 +329,9 @@ function add-master() {
 
     logger info "reconfigure and restart 'kube-lb' service"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml" 
+
+    logger info "reconfigure and restart 'ex-lb' service"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/10.ex-lb.yml" -t restart_lb -e "@clusters/$1/config.yml"
 }
 
 function add-etcd() {
@@ -395,6 +398,9 @@ function del-master() {
 
     logger info "reconfigure and restart 'kube-lb' service"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml" 
+
+    logger info "reconfigure and restart 'ex-lb' service"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/10.ex-lb.yml" -t restart_lb -e "@clusters/$1/config.yml"
 }
 
 
