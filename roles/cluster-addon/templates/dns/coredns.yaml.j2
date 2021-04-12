@@ -55,15 +55,18 @@ data:
     .:53 {
         errors
         health {
-          lameduck 5s
+            lameduck 5s
         }
         ready
         kubernetes {{ CLUSTER_DNS_DOMAIN }} in-addr.arpa ip6.arpa {
-          pods insecure
-          fallthrough in-addr.arpa ip6.arpa
+            pods insecure
+            fallthrough in-addr.arpa ip6.arpa
+            ttl 30
         }
         prometheus :9153
-        forward . /etc/resolv.conf
+        forward . /etc/resolv.conf {
+            max_concurrent 1000
+        }
         cache 30
         reload
         loadbalance
@@ -91,29 +94,34 @@ spec:
       labels:
         k8s-app: kube-dns
     spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       priorityClassName: system-cluster-critical
       serviceAccountName: coredns
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: k8s-app
+                    operator: In
+                    values: ["kube-dns"]
+              topologyKey: kubernetes.io/hostname
       tolerations:
         - key: "CriticalAddonsOnly"
           operator: "Exists"
       nodeSelector:
-        beta.kubernetes.io/os: linux
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: k8s-app
-                operator: In
-                values: ["kube-dns"]
-            topologyKey: kubernetes.io/hostname
+        kubernetes.io/os: linux
       containers:
       - name: coredns
         image: coredns/coredns:{{ corednsVer }}
         imagePullPolicy: IfNotPresent
         resources:
           limits:
-            memory: 170Mi
+            memory: 200Mi
           requests:
             cpu: 100m
             memory: 70Mi
@@ -132,14 +140,6 @@ spec:
         - containerPort: 9153
           name: metrics
           protocol: TCP
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            add:
-            - NET_BIND_SERVICE
-            drop:
-            - all
-          readOnlyRootFilesystem: true
         livenessProbe:
           httpGet:
             path: /health
@@ -154,6 +154,14 @@ spec:
             path: /ready
             port: 8181
             scheme: HTTP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            add:
+            - NET_BIND_SERVICE
+            drop:
+            - all
+          readOnlyRootFilesystem: true
       dnsPolicy: Default
       volumes:
         - name: config-volume
