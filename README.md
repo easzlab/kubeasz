@@ -4,7 +4,7 @@
 
 - **集群特性** `TLS`双向认证、`RBAC`授权、[多Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、备份恢复、[离线安装](docs/setup/offline_install.md)
 - **集群版本** kubernetes v1.17, v1.18, v1.19, v1.20
-- **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 1604/1804
+- **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 16.04/18.04/20.04
 - **运行时** docker 18.09.x, 19.03.x, 20.10.x [containerd](docs/setup/containerd.md) v1.4.3
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
