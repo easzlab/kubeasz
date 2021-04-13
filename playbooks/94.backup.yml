@@ -31,22 +31,23 @@
   - debug: var="RUNNING_NODE.stdout"
 
   - name: get current time
-    set_fact: temp="{{lookup('pipe','date \"+%Y%m%d_%H%M\"')}}"
+    shell: "date +'%Y%m%d%H%M'"
+    register: timestamp
 
   # step2: backup data on the healthy member
   - name: make a backup on the etcd node
     shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
-        ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot_{{ temp }}.db"
+        ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot_{{ timestamp.stdout }}.db"
     args:
       warn: false
     delegate_to: "{{ RUNNING_NODE.stdout }}"
 
   - name: fetch the backup data
     fetch:
-      src: /etcd_backup/snapshot_{{ temp }}.db
+      src: /etcd_backup/snapshot_{{ timestamp.stdout }}.db
       dest: "{{ cluster_dir }}/backup/"
       flat: yes
     delegate_to: "{{ RUNNING_NODE.stdout }}"
 
   - name: update the latest backup
-    shell: 'cd {{ cluster_dir }}/backup/ && /bin/cp -f snapshot_{{ temp }}.db snapshot.db'
+    shell: 'cd {{ cluster_dir }}/backup/ && /bin/cp -f snapshot_{{ timestamp.stdout }}.db snapshot.db'
