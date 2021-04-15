@@ -12,12 +12,7 @@
   - /etc/cni/net.d
   - /var/run/cilium
   - /opt/kube/images
-  - /opt/kube/kube-system
     
-- name: 配置 cilium DaemonSet yaml文件
-  template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium.yaml
-  tags: reconf
-
 - name: Optional-Mount BPF FS
   mount:
     fstype: "bpf"
@@ -62,10 +57,17 @@
       ignore_errors: true
       when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
+- name: 配置 cilium DaemonSet yaml文件
+  template: src=cilium.yaml.j2 dest={{ cluster_dir }}/yml/cilium.yaml
+  tags: reconf
+  run_once: true
+  connection: local
+
 # 只需单节点执行一次
 - name: 运行 cilium网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/cilium.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f {{ cluster_dir }}/yml/cilium.yaml"
   run_once: true
+  connection: local
 
 # 删除原有cni配置
 - name: 删除默认cni配置

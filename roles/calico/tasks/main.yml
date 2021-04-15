@@ -4,7 +4,6 @@
   - /etc/cni/net.d
   - /etc/calico/ssl
   - /opt/kube/images 
-  - /opt/kube/kube-system
 
 - name: 创建calico 证书请求
   template: src=calico-csr.json.j2 dest={{ cluster_dir }}/ssl/calico-csr.json
@@ -39,9 +38,6 @@
   when: '"calico-etcd-secrets" not in secrets_info.stdout'
   run_once: true
 
-- name: 配置 calico DaemonSet yaml文件
-  template: src=calico-{{ calico_ver_main }}.yaml.j2 dest=/opt/kube/kube-system/calico.yaml
-    
 # 【可选】推送离线docker 镜像，可以忽略执行错误
 - block:
     - name: 检查是否已下载离线calico镜像
@@ -79,10 +75,16 @@
       ignore_errors: true
       when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
+- name: 配置 calico DaemonSet yaml文件
+  template: src=calico-{{ calico_ver_main }}.yaml.j2 dest={{ cluster_dir }}/yml/calico.yaml
+  run_once: true
+  connection: local
+
 # 只需单节点执行一次
 - name: 运行 calico网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/calico.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f {{ cluster_dir }}/yml/calico.yaml"
   run_once: true
+  connection: local
 
 # 删除原有cni配置
 - name: 删除默认cni配置

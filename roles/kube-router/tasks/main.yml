@@ -3,11 +3,7 @@
   with_items:
   - /etc/cni/net.d
   - /opt/kube/images
-  - /opt/kube/kube-system
 
-- name: 准备配置 kube-router DaemonSet (without IPVS)
-  template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kube-router.yaml
-    
 - name: 下载cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
@@ -56,10 +52,16 @@
       ignore_errors: true
       when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
+- name: 准备配置 kube-router DaemonSet (without IPVS)
+  template: src=kuberouter.yaml.j2 dest={{ cluster_dir }}/yml/kube-router.yaml
+  run_once: true
+  connection: local
+
 # 只需单节点执行一次
 - name: 运行 kube-router DaemonSet
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kube-router.yaml"
+  shell: "{{ bin_dir }}/kubectl apply -f {{ cluster_dir }}/yml/kube-router.yaml"
   run_once: true
+  connection: local
 
 # 删除原有cni配置
 - name: 删除默认cni配置 
