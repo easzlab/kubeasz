@@ -3,13 +3,13 @@
 项目致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
 - **集群特性** `TLS`双向认证、`RBAC`授权、[多Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、备份恢复、[离线安装](docs/setup/offline_install.md)
-- **集群版本** kubernetes v1.17, v1.18, v1.19, v1.20
+- **集群版本** kubernetes v1.18, v1.19, v1.20, v1.21
 - **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 16.04/18.04/20.04
-- **运行时** docker 18.09.x, 19.03.x, 20.10.x [containerd](docs/setup/containerd.md) v1.4.3
+- **运行时** docker 19.03.x, 20.10.x [containerd](docs/setup/containerd.md) v1.4.4
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 
-**[news]** kubeasz 技术上通过cncf一致性测试 [详情](docs/mixes/conformance.md)
+**[news]** kubeasz 通过cncf一致性测试 [详情](https://github.com/cncf/k8s-conformance/tree/master/v1.20/kubeasz)
 
 **[news]** 群里大佬上新一套免费[kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)，强烈推荐！
 

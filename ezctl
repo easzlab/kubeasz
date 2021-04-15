@@ -151,6 +151,7 @@ function new() {
     dashboardMetricsScraperVer=$(grep 'dashboardMetricsScraperVer=' ezdown|cut -d'=' -f2)
     metricsVer=$(grep 'metricsVer=' ezdown|cut -d'=' -f2)
     nfsProvisionerVer=$(grep 'nfsProvisionerVer=' ezdown|cut -d'=' -f2)
+    pauseVer=$(grep 'pauseVer=' ezdown|cut -d'=' -f2)
     promChartVer=$(grep 'promChartVer=' ezdown|cut -d'=' -f2)
     traefikChartVer=$(grep 'traefikChartVer=' ezdown|cut -d'=' -f2)
     harborVer=$(grep 'HARBOR_VER=' ezdown|cut -d'=' -f2)
@@ -164,6 +165,7 @@ function new() {
 	   -e "s/__kube_ovn__/$kubeOvnVer/g" \
 	   -e "s/__kube_router__/$kubeRouterVer/g" \
 	   -e "s/__coredns__/$corednsVer/g" \
+	   -e "s/__pause__/$pauseVer/g" \
 	   -e "s/__dns_node_cache__/$dnsNodeCacheVer/g" \
 	   -e "s/__dashboard__/$dashboardVer/g" \
 	   -e "s/__dash_metrics__/$dashboardMetricsScraperVer/g" \
