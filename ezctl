@@ -411,7 +411,7 @@ function start-aio(){
     # Check ENV 'HOST_IP', exists if the CMD 'ezctl' running in a docker container
     if [[ -z $HOST_IP ]];then
         # ezctl runs in a host machine, get host's ip
-        HOST_IF=$(ip route|grep default|cut -d' ' -f5)
+        HOST_IF=$(ip route|grep default|head -n1|cut -d' ' -f5)
         HOST_IP=$(ip a|grep "$HOST_IF$"|head -n1|awk '{print $2}'|cut -d'/' -f1)
     fi
     set -u
