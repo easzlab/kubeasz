@@ -14,7 +14,7 @@ authorization:
   webhook:
     cacheAuthorizedTTL: 5m0s
     cacheUnauthorizedTTL: 30s
-cgroupDriver: cgroupfs 
+cgroupDriver: {{ CGROUP_DRIVER }} 
 cgroupsPerQOS: true
 clusterDNS:
 {% if ENABLE_LOCAL_DNS_CACHE %}

@@ -1,6 +1,6 @@
 {
   "data-root": "{{ DOCKER_STORAGE_DIR }}",
-  "exec-opts": ["native.cgroupdriver=cgroupfs"],
+  "exec-opts": ["native.cgroupdriver={{ CGROUP_DRIVER }}"],
 {% if ENABLE_MIRROR_REGISTRY %}
   "registry-mirrors": [
     "https://docker.mirrors.ustc.edu.cn",
