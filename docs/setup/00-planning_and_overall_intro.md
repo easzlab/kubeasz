@@ -65,7 +65,7 @@ yum install python -y
 ``` bash
 # 注意pip 21.0以后不再支持python2和python3.5，需要如下安装
 # To install pip for Python 2.7 install it from https://bootstrap.pypa.io/2.7/ :
-curl -O https://bootstrap.pypa.io/2.7/get-pip.py
+curl -O https://bootstrap.pypa.io/pip/2.7/get-pip.py
 python get-pip.py
 python -m pip install --upgrade "pip < 21.0"
  
