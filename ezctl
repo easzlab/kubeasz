@@ -124,6 +124,7 @@ available steps:
 examples: ./ezctl setup test-k8s 01  (or ./ezctl setup test-k8s prepare)
 	  ./ezctl setup test-k8s 02  (or ./ezctl setup test-k8s etcd)
           ./ezctl setup test-k8s all
+          ./ezctl setup test-k8s 04 -t restart_master
 EOF
 }
 
@@ -186,6 +187,9 @@ function setup() {
     [[ -d "clusters/$1" ]] || { logger error "invalid config, run 'ezctl new $1' first"; return 1; }
     [[ -f "bin/kube-apiserver" ]] || { logger error "no binaries founded, run 'ezdown -D' fist"; return 1; }
 
+    # for extending usage
+    EXTRA_ARGS=$(echo "$*"|sed "s/$1 $2//g"|sed "s/^ *//g")
+
     PLAY_BOOK="dummy.yml"
     case "$2" in
       (01|prepare)
@@ -224,10 +228,13 @@ function setup() {
           ;;
     esac
 
+    COMMAND="ansible-playbook -i clusters/$1/hosts -e @clusters/$1/config.yml $EXTRA_ARGS playbooks/$PLAY_BOOK"
+    echo "$COMMAND"
+
     logger info "cluster:$1 setup step:$2 begins in 5s, press any key to abort:\n"
     ! (read -r -t5 -n1) || { logger warn "setup abort"; return 1; }
 
-    ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" "playbooks/$PLAY_BOOK" || return 1
+    ${COMMAND} || return 1
 }
 
 function cmd() {
@@ -580,7 +587,7 @@ function main() {
           new "$2"
           ;;
       (setup)
-          [ "$#" -eq 3 ] || { usage-setup >&2; exit 2; }
+          [ "$#" -ge 3 ] || { usage-setup >&2; exit 2; }
           setup "${@:2}"
           ;;
       (start)
