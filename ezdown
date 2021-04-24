@@ -137,11 +137,15 @@ EOF
 
   # configuration for dockerd
   mkdir -p /etc/docker
+  DOCKER_VER_MAIN=$(echo "$DOCKER_VER"|cut -d. -f1)
+  CGROUP_DRIVER="cgroupfs"
+  ((DOCKER_VER_MAIN>=20)) && CGROUP_DRIVER="systemd"
   logger debug "generate docker config: /etc/docker/daemon.json"
   if [[ "$REGISTRY_MIRROR" == CN ]];then
     logger debug "prepare register mirror for $REGISTRY_MIRROR"
     cat > /etc/docker/daemon.json << EOF
 {
+  "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "registry-mirrors": [
     "https://docker.mirrors.ustc.edu.cn",
     "http://hub-mirror.c.163.com"
@@ -160,6 +164,7 @@ EOF
     logger debug "standard config without registry mirrors"
     cat > /etc/docker/daemon.json << EOF
 {
+  "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",
