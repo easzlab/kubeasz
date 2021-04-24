@@ -67,8 +67,8 @@
 #      connection: local
 #
 #    - name: 创建 metallb controller 部署
-#      shell: "{{ bin_dir }}/kubectl apply -f {{ cluster_dir }}/yml/metallb.yaml && \
-#	      {{ bin_dir }}/kubectl apply -f {{ cluster_dir }}/yml/{{ metallb_protocol }}.yaml"
+#      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/metallb.yaml && \
+#	      {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/{{ metallb_protocol }}.yaml"
 #      run_once: true
 #      connection: local
 #  when: '"metallb" not in pod_info.stdout and metallb_install == "yes"'

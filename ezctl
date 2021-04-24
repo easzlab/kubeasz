@@ -266,10 +266,13 @@ function cmd() {
           ;;
     esac
 
+    COMMAND="ansible-playbook -i clusters/$1/hosts -e @clusters/$1/config.yml playbooks/$PLAY_BOOK"
+    echo "$COMMAND"
+
     logger info "cluster:$1 $2 begins in 5s, press any key to abort:\n"
     ! (read -r -t5 -n1) || { logger warn "$2 abort"; return 1; }
 
-    ansible-playbook -i "clusters/$1/hosts" -e "@clusters/$1/config.yml" "playbooks/$PLAY_BOOK" || return 1
+    ${COMMAND} || return 1
 }
 
 

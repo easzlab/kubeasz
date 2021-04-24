@@ -350,9 +350,10 @@ function start_kubeasz_docker() {
 
   # run kubeasz docker container
   docker run --detach \
-      --name kubeasz \
-      --restart always \
       --env HOST_IP="$host_ip" \
+      --name kubeasz \
+      --network host \
+      --restart always \
       --volume "$BASE":"$BASE" \
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh:/root/.ssh \
