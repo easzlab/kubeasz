@@ -2,8 +2,8 @@
 
 为减小维护压力，避免产生混淆，精简项目分支为：`master`, `dev3`, `dev2`, `dev1`, `dev0`, `closed`; 分别对应发布版本如下：
 
-- master 最新版本稳定分支（目前对应dev2）
-- dev2 对应 kubeasz 3.x 版本的开发分支
+- master 最新版本稳定分支（目前对应dev3）
+- dev3 对应 kubeasz 3.x 版本的开发分支
 - dev2 对应 kubeasz 2.x 版本的开发分支（仅bugfix）
 - dev1 对应 kubeasz 1.x 版本的开发分支（已停止更新）
 - dev0 对应 kubeasz 0.x 版本的开发分支（已停止更新）
