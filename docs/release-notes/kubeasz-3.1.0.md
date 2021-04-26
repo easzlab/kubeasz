@@ -42,6 +42,8 @@ https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8
 - fix:restart ex-lb when master nodes change
 - fix:多条默认路由网卡自动识别问题
 - fix:安装aio集群时docker cgroupdriver设置问题
+- fix:add scheme:https to service-account-issuer
+- fix:容器化aio安装时选择containerd运行时失败
 - feat:增加可选配置apiserver安全端口
 - feat:允许修改配置ingress port #999
 - feat:增加支持ubuntu 20.04
