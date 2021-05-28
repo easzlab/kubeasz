@@ -86,27 +86,27 @@
 
 # 轮询等待kube-apiserver启动完成
 - name: 轮询等待kube-apiserver启动
-  shell: "systemctl status kube-apiserver.service|grep Active"
+  shell: "systemctl is-active kube-apiserver.service"
   register: api_status
-  until: '"running" in api_status.stdout'
+  until: '"active" in api_status.stdout'
   retries: 10
   delay: 3
   tags: upgrade_k8s, restart_master
 
 # 轮询等待kube-controller-manager启动完成
 - name: 轮询等待kube-controller-manager启动
-  shell: "systemctl status kube-controller-manager.service|grep Active"
+  shell: "systemctl is-active kube-controller-manager.service"
   register: cm_status
-  until: '"running" in cm_status.stdout'
+  until: '"active" in cm_status.stdout'
   retries: 8
   delay: 3
   tags: upgrade_k8s, restart_master
 
 # 轮询等待kube-scheduler启动完成
 - name: 轮询等待kube-scheduler启动
-  shell: "systemctl status kube-scheduler.service|grep Active"
+  shell: "systemctl is-active kube-scheduler.service"
   register: sch_status
-  until: '"running" in sch_status.stdout'
+  until: '"active" in sch_status.stdout'
   retries: 8
   delay: 3
   tags: upgrade_k8s, restart_master
