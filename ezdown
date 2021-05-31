@@ -13,7 +13,7 @@ set -o errexit
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=20.10.5
+DOCKER_VER=20.10.6
 KUBEASZ_VER=3.1.0
 K8S_BIN_VER=v1.21.0
 EXT_BIN_VER=0.9.4

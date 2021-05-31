@@ -139,7 +139,7 @@ spec:
       containers:
       - name: node-cache
         #image: k8s.gcr.io/dns/k8s-dns-node-cache:1.16.0
-        image: easzlab/k8s-dns-node-cache:1.16.0
+        image: easzlab/k8s-dns-node-cache:{{ dnsNodeCacheVer }}
         resources:
           requests:
             cpu: 25m
