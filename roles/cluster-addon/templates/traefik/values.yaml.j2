@@ -2,7 +2,7 @@
 deployment:
   enabled: true
   # Can be either Deployment or DaemonSet
-  kind: Deployment
+  kind: DaemonSet
   replicas: 1
 
 # Activate Pilot integration
@@ -36,7 +36,8 @@ providers:
 # This can be used to mount a cert pair or a configmap that holds a config.toml file.
 # After the volume has been mounted, add the configs into traefik by using the `additionalArguments` list below, eg:
 # additionalArguments:
-# - "--providers.file.filename=/config/dynamic.toml"
+#  - "--entryPoints.web.address=:80"
+#  - "--entryPoints.websecure.address=:443"
 volumes: []
 # - name: public-cert
 #   mountPath: "/certs"
@@ -99,23 +100,16 @@ globalArguments:
 ports:
   traefik:
     port: 9000
-    expose: false
-  web:
-    port: 8000
     expose: true
-    exposedPort: 80
-    protocol: TCP
-    nodePort: 32080
+    exposedPort: 9000
+  web:
+    hostPort: 80
     # Port Redirections
     # Added in 2.2, you can make permanent redirects via entrypoints.
     # https://docs.traefik.io/routing/entrypoints/#redirection
     # redirectTo: websecure
   websecure:
-    port: 8443
-    expose: true
-    exposedPort: 443
-    protocol: TCP
-    nodePort: 32443
+    hostPort: 443
     # Set TLS at the entrypoint
     # https://doc.traefik.io/traefik/routing/entrypoints/#tls
     tls:
@@ -132,7 +126,7 @@ ports:
 # Options for the main traefik service, where the entrypoints traffic comes from.
 service:
   enabled: true
-  type: NodePort
+  type: ClusterIP
 
 # If hostNetwork is true, runs traefik in the host network namespace
 hostNetwork: false
@@ -147,6 +141,15 @@ resources: {}
   # limits:
   #   cpu: "300m"
   #   memory: "150Mi"
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/role
+          operator: In
+          values:
+          - node
 nodeSelector: {}
 
 # Set the container security context
@@ -161,3 +164,21 @@ securityContext:
 
 podSecurityContext:
   fsGroup: 65532
+readinessProbe:
+  httpGet:
+    path: /ping
+    port: 9000
+  failureThreshold: 1
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 2
+livenessProbe:
+  httpGet:
+    path: /ping
+    port: 9000
+  failureThreshold: 3
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 2
