@@ -41,9 +41,9 @@
   tags: restart_chronyd
 
 - name: 以轮询的方式等待chronyd服务启动
-  shell: "systemctl status chronyd.service|grep Active"
+  shell: "systemctl is-active chronyd.service"
   register: svc_status
-  until: '"running" in svc_status.stdout'
+  until: '"active" in svc_status.stdout'
   retries: 3
   delay: 3
   tags: restart_chronyd

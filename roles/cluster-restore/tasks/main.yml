@@ -30,8 +30,8 @@
   service: name=etcd state=restarted
 
 - name: 以轮询的方式等待服务同步完成
-  shell: "systemctl status etcd.service|grep Active"
+  shell: "systemctl is-active etcd.service"
   register: etcd_status
-  until: '"running" in etcd_status.stdout'
+  until: '"active" in etcd_status.stdout'
   retries: 8
   delay: 8

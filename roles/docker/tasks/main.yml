@@ -1,9 +1,9 @@
 - name: 获取是否已经安装docker
-  shell: 'systemctl status docker|grep Active || echo "NoFound"'
+  shell: 'systemctl is-active docker || echo "NoFound"'
   register: docker_svc
 
 - name: 获取是否已经安装containerd
-  shell: 'systemctl status containerd|grep Active || echo "NoFound"'
+  shell: 'systemctl is-active containerd || echo "NoFound"'
   register: containerd_svc
 
 # 18.09.x 版本二进制名字有变化，需要做判断
@@ -102,9 +102,9 @@
       tags: upgrade_docker
 
     - name: 轮询等待docker服务运行
-      shell: "systemctl status docker.service|grep Active"
+      shell: "systemctl is-active docker.service"
       register: docker_status
-      until: '"running" in docker_status.stdout'
+      until: '"active" in docker_status.stdout'
       retries: 8
       delay: 2
       tags: upgrade_docker
