@@ -1,5 +1,5 @@
 - name: prepare some dirs
-  file: name=/var/lib/etcd state=directory mode=0700
+  file: name={{ ETCD_DATA_DIR }} state=directory mode=0700
 
 - name: 下载etcd二进制文件
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
