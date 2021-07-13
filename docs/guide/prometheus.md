@@ -46,7 +46,7 @@ service/prometheus-prometheus-node-exporter       ClusterIP   10.68.64.56     <n
 
 - 访问prometheus的web界面：`http://$NodeIP:30901`
 - 访问alertmanager的web界面：`http://$NodeIP:30902`
-- 访问grafana的web界面：`http://$NodeIP:30903` (默认用户密码 admin:admin)
+- 访问grafana的web界面：`http://$NodeIP:30903` (默认用户密码 admin:Admin1234!)
 
 ## 管理操作
 
