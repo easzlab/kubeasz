@@ -58,6 +58,9 @@ DOCKER_STORAGE_DIR: "/var/lib/docker"
 # [docker]开启Restful API
 ENABLE_REMOTE_API: false
 
+# [docker]开启iptables
+ENABLE_DOCKER_IPTABLES: false
+
 # [docker]信任的HTTP仓库
 INSECURE_REG: '["127.0.0.1/8"]'
 
