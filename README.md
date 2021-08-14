@@ -17,6 +17,31 @@
 
 单机快速体验k8s集群的测试环境--[AllinOne部署](docs/setup/quickStart.md)
 
+<table>
+  <thead>
+    <tr>
+      <th>Kubernetes version</th>
+      <th>1.18</th>
+      <th>1.19</th>
+      <th>1.20</th>
+      <th>1.21</th>
+      <th>1.22</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>kubeasz suggestion</td>
+      <td>2.2.1</td>
+      <td>2.2.2</td>
+      <td>3.0.1</td>
+      <td>3.1.0</td>
+      <td>3.2.0</td>
+    </tr>
+  </tbody>
+</table>
+
+- 命令行工具 [ezctl介绍](docs/setup/ezctl.md)
+
 ## 安装指南
 
 <table border="0">
@@ -33,9 +58,6 @@
         <td><a href="docs/setup/07-install_cluster_addon.md">07-安装集群插件</a></td>
     </tr>
 </table>
-
-- 命令行工具 [ezctl介绍](docs/setup/ezctl.md)
-- 公有云自建集群 [部署指南](docs/setup/kubeasz_on_public_cloud.md)
 
 ## 使用指南
 
