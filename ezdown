@@ -13,23 +13,23 @@ set -o errexit
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=20.10.6
-KUBEASZ_VER=3.1.0
-K8S_BIN_VER=v1.21.0
-EXT_BIN_VER=0.9.4
+DOCKER_VER=20.10.8
+KUBEASZ_VER=3.2.0
+K8S_BIN_VER=v1.22.1
+EXT_BIN_VER=0.9.5
 SYS_PKG_VER=0.4.1
 HARBOR_VER=v2.1.3
 REGISTRY_MIRROR=CN
 
 # images needed by k8s cluster
-calicoVer=v3.15.3
+calicoVer=v3.19.2
 flannelVer=v0.13.0-amd64
 dnsNodeCacheVer=1.17.0
-corednsVer=1.8.0
+corednsVer=1.8.4
 dashboardVer=v2.2.0
 dashboardMetricsScraperVer=v1.0.6
 metricsVer=v0.3.6
-pauseVer=3.4.1
+pauseVer=3.5
 nfsProvisionerVer=v4.0.1
 export ciliumVer=v1.4.1
 export kubeRouterVer=v0.3.1
