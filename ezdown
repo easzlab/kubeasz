@@ -157,7 +157,8 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/var/lib/docker",
+  "exec-opts": ["native.cgroupdriver=systemd"]
 }
 EOF
   else
@@ -172,7 +173,8 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/var/lib/docker",
+  "exec-opts": ["native.cgroupdriver=systemd"]
 }
 EOF
   fi
