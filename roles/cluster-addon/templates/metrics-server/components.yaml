@@ -83,8 +83,8 @@ spec:
         emptyDir: {}
       containers:
       - name: metrics-server
-        #image: k8s.gcr.io/metrics-server-amd64:v0.3.6
-        image: mirrorgooglecontainers/metrics-server-amd64:v0.3.6
+        #image: k8s.gcr.io/metrics-server-amd64:{{ metricsVer }}
+        image: mirrorgooglecontainers/metrics-server-amd64:{{ metricsVer }}
         imagePullPolicy: IfNotPresent
         args:
           - --cert-dir=/tmp
