@@ -152,6 +152,45 @@ OVN_DB_NODE: "{{ groups['kube_master'][0] }}"
 kube_ovn_ver: "__kube_ovn__"
 kube_ovn_offline: "kube_ovn_{{ kube_ovn_ver }}.tar"
 
+# ------------------------------------------- ovn-kubernetes
+# [ovn-kubernetes]选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
+OVN_CONTROL_PLANE_NODE: "{{ groups['kube_master'][0] }}"
+
+# [ovn-kubernetes]OVN DB 集群部署开关(至少需要3个节点)
+OVN_DB_RAFT_ENABLE: "false"
+OVN_DB_NODES:
+  - "{{ groups['kube_master'][0] }}"
+  - "{{ groups['kube_master'][1] }}"
+  - "{{ groups['kube_master'][2] }}"
+
+# [ovn-kubernetes]EgressIP 支持开关
+EGRESS_IP_ENABLE: "true"
+EGRESS_IP_NODES:
+  - "{{ groups['kube_node'][0] }}"
+
+# [ovn-kubernetes]Egress Firewall 支持开关
+EGRESS_FIREWALL_ENABLE: "true"
+
+# [ovn-kubernetes]智能网卡支持开关
+SMART_NIC_HOST_ENABLE: "false"
+MGMT_PORT_NETDEV: "ens3"
+SMART_NIC_HOSTS:
+  - "{{ groups['kube_node'][0] }}"
+
+# [ovn-kubernetes]指定网关网卡支持开关
+GATEWAY_INTERFACE_ENABLE: "false"
+GATEWAY_INTERFACE: "ens3"
+GATEWAY_NEXTHOP: "127.0.0.1"
+
+# [ovn-kubernetes]更新支持ovn-kubernetes 版本: [v1.0]
+ovn_kubernetes_ver: "__ovn_kubernetes__"
+
+# [ovn-kubernetes]默认镜像名
+ovn_kubernetes_image: "nocsyscn/ovn-kubernetes:{{ ovn_kubernetes_ver }}"
+
+# [ovn-kubernetes]离线镜像tar包
+ovn_kubernetes_offline: "ovn-kubernetes_{{ ovn_kubernetes_ver }}.tar"
+
 # ------------------------------------------- kube-router
 # [kube-router]公有云上存在限制，一般需要始终开启 ipinip；自有环境可以设置为 "subnet"
 OVERLAY_TYPE: "full"

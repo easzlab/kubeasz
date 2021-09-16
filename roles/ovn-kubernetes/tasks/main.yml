@@ -1,0 +1,121 @@
+- name: 创建相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - /etc/cni/net.d
+  - /opt/kube/images
+  - /opt/kube/ovn-kubernetes
+
+- name: 配置 crd.yaml 文件
+  copy: src={{ item.name }}.yaml dest=/opt/kube/ovn-kubernetes/{{ item.name }}.yaml
+  with_items:
+    - { name: "egressip", enable: "{{ EGRESS_IP_ENABLE }}" }
+    - { name: "egressfirewall", enable: "{{ EGRESS_FIREWALL_ENABLE }}" }
+  when: item.enable | bool == true
+
+- name: 配置 ovn-kubernetes.yaml 文件
+  template: src={{ item }}.yaml.j2 dest=/opt/kube/ovn-kubernetes/{{ item }}.yaml
+  with_items:
+    - "ovn-setup"
+    - "ovs-node"
+    - "{{ 'ovnkube-db-raft' if OVN_DB_RAFT_ENABLE | bool else 'ovnkube-db' }}"
+    - "{{ 'ovnkube-node-smart-nic-host' if SMART_NIC_HOST_ENABLE | bool else 'ovnkube-node' }}"
+    - "ovnkube-master"
+
+# 【可选】推送离线镜像，可以忽略执行错误
+- block:
+    - name: 检查是否已下载离线 ovn_kubernetes 镜像
+      command: "ls {{ base_dir }}/down"
+      register: download_info
+      connection: local
+      run_once: true
+    
+    - name: 尝试推送离线docker镜像（若执行失败，可忽略）
+      copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
+      when: 'item in download_info.stdout'
+      with_items:
+      - "pause.tar"
+      - "{{ ovn_kubernetes_offline }}"
+      ignore_errors: true
+
+    - name: 获取 ovn_kubernetes 离线镜像推送情况
+      command: "ls /opt/kube/images"
+      register: image_info
+
+    # 如果目录下有离线镜像，就把它导入到node节点上
+    - name: 导入 ovn_kubernetes 的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
+      with_items:
+      - "pause.tar"
+      - "{{ ovn_kubernetes_offline }}"
+      ignore_errors: true
+      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'docker'"
+
+    - name: 导入 ovn_kubernetes 的离线镜像（若执行失败，可忽略）
+      shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
+      with_items:
+      - "pause.tar"
+      - "{{ ovn_kubernetes_offline }}"
+      ignore_errors: true
+      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
+
+- name: 标记SDN控制节点
+  shell: "{{ bin_dir }}/kubectl label node {{ OVN_CONTROL_PLANE_NODE }} node-role.kubernetes.io/master='' --overwrite && \
+    {{ bin_dir }}/kubectl label node {{ OVN_CONTROL_PLANE_NODE }} node-role.kubernetes.io/control-plane='' --overwrite"
+
+- name: 标记EgressIP节点
+  shell: "{{ bin_dir }}/kubectl label node {{ item }} k8s.ovn.org/egress-assignable='' --overwrite"
+  with_items: "{{ EGRESS_IP_NODES }}"
+  when: EGRESS_IP_ENABLE | bool == true
+
+- name: 标记Smart NIC节点
+  shell: "{{ bin_dir }}/kubectl label node {{ item }} k8s.ovn.org/smart-nic='' --overwrite"
+  with_items: "{{ SMART_NIC_HOSTS }}"
+  when: SMART_NIC_HOST_ENABLE | bool == true
+
+- name: 标记OVN DB集群节点
+  shell: "{{ bin_dir }}/kubectl label node {{ item }} k8s.ovn.org/ovnkube-db=true --overwrite"
+  with_items: "{{ OVN_DB_NODES }}"
+  when: OVN_DB_RAFT_ENABLE | bool == true
+
+# 只需单节点执行一次
+- name: 创建CRD
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/ovn-kubernetes/{{ item.name }}.yaml"
+  with_items:
+    - { name: "egressip", enable: "{{ EGRESS_IP_ENABLE }}" }
+    - { name: "egressfirewall", enable: "{{ EGRESS_FIREWALL_ENABLE }}" }
+  when: item.enable | bool == true
+  run_once: true
+
+- name: 运行 ovn-kubernetes 网络
+  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/ovn-kubernetes/{{ item }}.yaml && sleep 5"
+  with_items:
+    - "ovn-setup"
+    - "ovs-node"
+    - "{{ 'ovnkube-db-raft' if OVN_DB_RAFT_ENABLE | bool else 'ovnkube-db' }}"
+    - "{{ 'ovnkube-node-smart-nic-host' if SMART_NIC_HOST_ENABLE | bool else 'ovnkube-node' }}"
+    - "ovnkube-master"
+  run_once: true
+
+# 删除原有cni配置
+- name: 删除默认cni配置
+  file: path=/etc/cni/net.d/10-default.conf state=absent
+
+# ovn-kubernetes负责Service的实现，不再依赖kube-proxy
+- name: 停止kube-proxy
+  systemd:
+    name: kube-proxy
+    enabled: no
+    state: stopped
+
+# 等待网络插件部署成功，视下载镜像速度而定
+- name: 轮询等待ovn-kubernetes运行，视下载镜像速度而定
+  shell: "{{ bin_dir }}/kubectl get pod -n ovn-kubernetes -o wide|grep 'ovnkube-node'|grep ' {{ inventory_hostname }} '|awk '{print $2}'"
+  register: pod_status
+  until: pod_status.stdout == "{{ '1/1' if SMART_NIC_HOST_ENABLE | bool else '3/3' }}"
+  retries: 12
+  delay: 10
+
+- name: 拷贝cni plugin到指定目录
+  shell: "cp /opt/cni/bin/ovn-k8s-cni-overlay {{ bin_dir }}/ovn-k8s-cni-overlay"
+  retries: 12
+  delay: 5

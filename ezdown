@@ -36,6 +36,7 @@ export kubeRouterVer=v0.3.1
 export kubeOvnVer=v1.5.3
 export promChartVer=12.10.6
 export traefikChartVer=9.12.3
+export ovnKubernetesVer=v1.0
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
@@ -314,6 +315,10 @@ function get_offline_image() {
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
     docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+  fi
+  if [[ ! -f "$imageDir/ovn-kubernetes_$ovnKubernetesVer.tar" ]];then
+    docker pull "nocsyscn/ovn-kubernetes:$ovnKubernetesVer" && \
+    docker save -o "$imageDir/ovn-kubernetes_$ovnKubernetesVer.tar" "nocsyscn/ovn-kubernetes:$ovnKubernetesVer"
   fi
 }
 

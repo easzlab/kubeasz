@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ovn-kubernetes
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ovn
+  namespace: ovn-kubernetes
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ovn-kubernetes
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - namespaces
+      - nodes
+      - endpoints
+      - services
+      - configmaps
+    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - extensions
+      - networking.k8s.io
+      - apps
+    resources:
+      - networkpolicies
+      - statefulsets
+    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+      - endpoints
+      - configmaps
+    verbs: ["create", "patch", "update"]
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+      - pods
+    verbs: ["patch", "update"]
+  - apiGroups:
+      - k8s.ovn.org
+    resources:
+      - egressfirewalls
+      - egressips
+    verbs: ["list", "get", "watch", "update"]
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs: ["list", "get", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ovn-kubernetes
+roleRef:
+  name: ovn-kubernetes
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: ovn
+    namespace: ovn-kubernetes
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ovn-config
+  namespace: ovn-kubernetes
+data:
+  net_cidr:      "{{ CLUSTER_CIDR }}/{{ NODE_CIDR_LEN }}"
+  svc_cidr:      "{{ SERVICE_CIDR }}"
+  k8s_apiserver: "{{ KUBE_APISERVER }}"
+  mtu:           "1400"
+  host_network_namespace: "ovn-host-network"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "ovn-host-network"

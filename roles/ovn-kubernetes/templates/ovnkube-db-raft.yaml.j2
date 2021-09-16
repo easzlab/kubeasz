@@ -1,0 +1,295 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovnkube-db
+  namespace: ovn-kubernetes
+spec:
+  ports:
+    - name: north
+      port: 6641
+      protocol: TCP
+      targetPort: 6641
+    - name: south
+      port: 6642
+      protocol: TCP
+      targetPort: 6642
+  sessionAffinity: None
+  clusterIP: None
+  type: ClusterIP
+
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: ovndb-raft-pdb
+  namespace: ovn-kubernetes
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      name: ovnkube-db
+
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: ovnkube-db
+  namespace: ovn-kubernetes
+  annotations:
+    kubernetes.io/description: |
+      This statefulset launches the OVN Northbound/Southbound Database raft clusters.
+spec:
+  serviceName: ovnkube-db
+  podManagementPolicy: "Parallel"
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: ovnkube-db
+  template:
+    metadata:
+      labels:
+        ovn-db-pod: "true"
+        name: ovnkube-db
+        component: network
+        type: infra
+        kubernetes.io/os: "linux"
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: registry-credentials
+      serviceAccountName: ovn
+      hostNetwork: true
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: k8s.ovn.org/ovnkube-db
+                    operator: In
+                    values:
+                      - "true"
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                      - ovnkube-db
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: nb-ovsdb
+          image: "{{ ovn_kubernetes_image }}"
+          imagePullPolicy: "IfNotPresent"
+          command: ["/root/ovnkube.sh", "nb-ovsdb-raft"]
+          readinessProbe:
+            exec:
+              command: ["/usr/bin/ovn-kube-util", "readiness-probe", "-t", "ovnnb-db-raft"]
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 60
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add: ["NET_ADMIN"]
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - mountPath: /etc/openvswitch/
+              name: host-var-lib-ovs
+            - mountPath: /etc/ovn/
+              name: host-var-lib-ovs
+            - mountPath: /var/log/openvswitch/
+              name: host-var-log-ovs
+            - mountPath: /var/log/ovn/
+              name: host-var-log-ovs
+            - mountPath: /var/run/openvswitch/
+              name: host-var-run-ovs
+            - mountPath: /var/run/ovn/
+              name: host-var-run-ovs
+            - mountPath: /ovn-cert
+              name: host-ovn-cert
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+          env:
+            - name: OVN_DAEMONSET_VERSION
+              value: "3"
+            - name: OVN_LOGLEVEL_NB
+              value: "-vconsole:info -vfile:info"
+            - name: K8S_APISERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: k8s_apiserver
+            - name: OVN_KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: K8S_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OVN_SSL_ENABLE
+              value: "no"
+            - name: OVN_NB_RAFT_ELECTION_TIMER
+              value: "1000"
+            - name: OVN_NB_PORT
+              value: "6641"
+            - name: OVN_NB_RAFT_PORT
+              value: "6643"
+        - name: sb-ovsdb
+          image: "{{ ovn_kubernetes_image }}"
+          imagePullPolicy: "IfNotPresent"
+          command: ["/root/ovnkube.sh", "sb-ovsdb-raft"]
+          readinessProbe:
+            exec:
+              command: ["/usr/bin/ovn-kube-util", "readiness-probe", "-t", "ovnsb-db-raft"]
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 60
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add: ["NET_ADMIN"]
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - mountPath: /etc/openvswitch/
+              name: host-var-lib-ovs
+            - mountPath: /etc/ovn/
+              name: host-var-lib-ovs
+            - mountPath: /var/log/openvswitch/
+              name: host-var-log-ovs
+            - mountPath: /var/log/ovn/
+              name: host-var-log-ovs
+            - mountPath: /var/run/openvswitch/
+              name: host-var-run-ovs
+            - mountPath: /var/run/ovn/
+              name: host-var-run-ovs
+            - mountPath: /ovn-cert
+              name: host-ovn-cert
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+          env:
+            - name: OVN_DAEMONSET_VERSION
+              value: "3"
+            - name: OVN_LOGLEVEL_SB
+              value: "-vconsole:info -vfile:info"
+            - name: K8S_APISERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: k8s_apiserver
+            - name: OVN_KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: K8S_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OVN_SSL_ENABLE
+              value: "no"
+            - name: OVN_SB_RAFT_ELECTION_TIMER
+              value: "1000"
+            - name: OVN_SB_PORT
+              value: "6642"
+            - name: OVN_SB_RAFT_PORT
+              value: "6644"
+        - name: ovn-dbchecker
+          image: "{{ ovn_kubernetes_image }}"
+          imagePullPolicy: "IfNotPresent"
+          command: ["/root/ovnkube.sh", "ovn-dbchecker"]
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add: ["NET_ADMIN"]
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - mountPath: /etc/openvswitch/
+              name: host-var-lib-ovs
+            - mountPath: /etc/ovn/
+              name: host-var-lib-ovs
+            - mountPath: /var/log/openvswitch/
+              name: host-var-log-ovs
+            - mountPath: /var/log/ovn/
+              name: host-var-log-ovs
+            - mountPath: /var/run/openvswitch/
+              name: host-var-run-ovs
+            - mountPath: /var/run/ovn/
+              name: host-var-run-ovs
+            - mountPath: /ovn-cert
+              name: host-ovn-cert
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+          env:
+            - name: OVN_DAEMONSET_VERSION
+              value: "3"
+            - name: OVNKUBE_LOGLEVEL
+              value: "4"
+            - name: OVNKUBE_LOGFILE_MAXSIZE
+              value: "100"
+            - name: OVNKUBE_LOGFILE_MAXBACKUPS
+              value: "5"
+            - name: OVNKUBE_LOGFILE_MAXAGE
+              value: "5"
+            - name: K8S_APISERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: k8s_apiserver
+            - name: OVN_KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: K8S_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OVN_SSL_ENABLE
+              value: "no"
+            - name: OVN_NB_RAFT_ELECTION_TIMER
+              value: "1000"
+            - name: OVN_NB_PORT
+              value: "6641"
+            - name: OVN_NB_RAFT_PORT
+              value: "6643"
+      volumes:
+        - name: host-var-log-ovs
+          hostPath:
+            path: /var/log/openvswitch
+        - name: host-var-lib-ovs
+          hostPath:
+            path: /var/lib/openvswitch
+        - name: host-var-run-ovs
+          hostPath:
+            path: /var/run/openvswitch
+        - name: host-ovn-cert
+          hostPath:
+            path: /etc/ovn
+            type: DirectoryOrCreate
+      tolerations:
+        - operator: "Exists"

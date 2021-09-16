@@ -14,6 +14,7 @@
   - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
   - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
   - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
+  - { role: ovn-kubernetes, when: "CLUSTER_NETWORK == 'ovn-kubernetes'" }
   tasks:
   - name: 推送cluster-addon的离线镜像包
     copy: src={{ item }} dest=/opt/kube/images/

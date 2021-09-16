@@ -1,0 +1,177 @@
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: ovnkube-node-smart-nic-host
+  namespace: ovn-kubernetes
+  annotations:
+    kubernetes.io/description: |
+      This DaemonSet launches the ovn-kubernetes networking components for worker nodes.
+spec:
+  selector:
+    matchLabels:
+      app: ovnkube-node-smart-nic-host
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ovnkube-node-smart-nic-host
+        name: ovnkube-node-smart-nic-host
+        component: network
+        type: infra
+        kubernetes.io/os: "linux"
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      serviceAccountName: ovn
+      hostNetwork: true
+      hostPID: true
+      containers:
+        - name: ovnkube-node
+          image: "{{ ovn_kubernetes_image }}"
+          imagePullPolicy: "IfNotPresent"
+          command: ["/root/ovnkube.sh", "ovn-node"]
+          securityContext:
+            runAsUser: 0
+            privileged: true
+          terminationMessagePolicy: FallbackToLogsOnError
+          volumeMounts:
+            - mountPath: /host
+              name: host-slash
+              readOnly: true
+            - mountPath: /var/run/dbus/
+              name: host-var-run-dbus
+              readOnly: true
+            - mountPath: /var/log/ovn-kubernetes/
+              name: host-var-log-ovnkube
+            - mountPath: /var/run/ovn-kubernetes
+              name: host-var-run-ovn-kubernetes
+            - mountPath: /opt/cni/bin
+              name: host-opt-cni-bin
+            - mountPath: /etc/cni/net.d
+              name: host-etc-cni-netd
+            - mountPath: /var/run/netns
+              name: host-netns
+              mountPropagation: Bidirectional
+            - mountPath: /var/run/ovn
+              name: var-run-ovn
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+          env:
+            - name: OVN_DAEMONSET_VERSION
+              value: "3"
+            - name: OVNKUBE_LOGLEVEL
+              value: "5"
+            - name: OVNKUBE_LOGFILE_MAXSIZE
+              value: "100"
+            - name: OVNKUBE_LOGFILE_MAXBACKUPS
+              value: "5"
+            - name: OVNKUBE_LOGFILE_MAXAGE
+              value: "5"
+            - name: OVN_NET_CIDR
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: net_cidr
+            - name: OVN_SVC_CIDR
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: svc_cidr
+            - name: K8S_APISERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: k8s_apiserver
+            - name: OVN_MTU
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: mtu
+            - name: K8S_NODE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8S_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OVN_GATEWAY_MODE
+              value: "shared"
+            - name: OVN_GATEWAY_OPTS
+              value: ""
+            - name: OVN_HYBRID_OVERLAY_ENABLE
+              value: ""
+            - name: OVN_EGRESSIP_ENABLE
+              value: "{{ 'true' if EGRESS_IP_ENABLE | bool else 'false'}}"
+            - name: OVN_HYBRID_OVERLAY_NET_CIDR
+              value: ""
+            - name: OVN_DISABLE_SNAT_MULTIPLE_GWS
+              value: ""
+            - name: OVN_DISABLE_PKT_MTU_CHECK
+              value: ""
+            - name: OVN_NETFLOW_TARGETS
+              value: ""
+            - name: OVN_SFLOW_TARGETS
+              value: ""
+            - name: OVN_IPFIX_TARGETS
+              value: ""
+            - name: OVN_V4_JOIN_SUBNET
+              value: ""
+            - name: OVN_V6_JOIN_SUBNET
+              value: ""
+            - name: OVN_REMOTE_PROBE_INTERVAL
+              value: "100000"
+            - name: OVN_MULTICAST_ENABLE
+              value: ""
+            - name: OVN_UNPRIVILEGED_MODE
+              value: "no"
+            - name: OVN_EX_GW_NETWORK_INTERFACE
+              value: ""
+            - name: OVNKUBE_NODE_MODE
+              value: "smart-nic-host"
+            - name: OVNKUBE_NODE_MGMT_PORT_NETDEV
+              value: "{{ MGMT_PORT_NETDEV }}"
+            - name: OVN_HOST_NETWORK_NAMESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: ovn-config
+                  key: host_network_namespace
+          readinessProbe:
+            exec:
+              command: ["/usr/bin/ovn-kube-util", "readiness-probe", "-t", "ovnkube-node"]
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 60
+      nodeSelector:
+        kubernetes.io/os: "linux"
+        k8s.ovn.org/smart-nic: ""
+      volumes:
+        - name: host-var-run-dbus
+          hostPath:
+            path: /var/run/dbus
+        - name: host-var-log-ovnkube
+          hostPath:
+            path: /var/log/ovn-kubernetes
+        - name: host-var-run-ovn-kubernetes
+          hostPath:
+            path: /var/run/ovn-kubernetes
+        - name: host-opt-cni-bin
+          hostPath:
+            path: /opt/cni/bin
+        - name: host-etc-cni-netd
+          hostPath:
+            path: /etc/cni/net.d
+        - name: host-slash
+          hostPath:
+            path: /
+        - name: host-netns
+          hostPath:
+            path: /var/run/netns
+        - name: var-run-ovn
+          emptyDir: {}
+      tolerations:
+        - operator: "Exists"
