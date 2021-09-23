@@ -13,30 +13,32 @@
 
 **[news]** 群里大佬上新一套免费[kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)，强烈推荐！
 
-## 快速指南
-
-单机快速体验k8s集群的测试环境--[AllinOne部署](docs/setup/quickStart.md)
+推荐版本对照
 
 <table>
   <thead>
     <tr>
-      <th>Kubernetes version</th>
-      <th>1.19</th>
-      <th>1.20</th>
-      <th>1.21</th>
-      <th>1.22</th>
+      <td>Kubernetes version</td>
+      <td>1.19</td>
+      <td>1.20</td>
+      <td>1.21</td>
+      <td>1.22</td>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>kubeasz suggestion</td>
+      <td>kubeasz version</td>
       <td>2.2.2</td>
       <td>3.0.1</td>
       <td>3.1.0</td>
-      <td>3.2.0</td>
+      <td>3.1.1</td>
     </tr>
   </tbody>
 </table>
+
+## 快速指南
+
+单机快速体验k8s集群的测试环境--[AllinOne部署](docs/setup/quickStart.md)
 
 - 命令行工具 [ezctl介绍](docs/setup/ezctl.md)
 

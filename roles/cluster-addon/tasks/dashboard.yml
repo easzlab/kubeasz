@@ -23,7 +23,12 @@
   - "{{ metricsscraper_offline }}"
   when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
+- name: 准备 dashboard的部署文件
+  template: src=dashboard/kubernetes-dashboard.yaml.j2 dest={{ cluster_dir }}/yml/kubernetes-dashboard.yaml
+  run_once: true
+  connection: local
+
 - name: 创建 dashboard部署
-  shell: "{{ base_dir }}/bin/kubectl apply -f {{ base_dir }}/roles/cluster-addon/templates/dashboard"
+  shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/kubernetes-dashboard.yaml"
   run_once: true
   connection: local

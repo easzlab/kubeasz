@@ -14,8 +14,8 @@ set -o errexit
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=20.10.8
-KUBEASZ_VER=3.2.0
-K8S_BIN_VER=v1.22.1
+KUBEASZ_VER=3.1.1
+K8S_BIN_VER=v1.22.2
 EXT_BIN_VER=0.9.5
 SYS_PKG_VER=0.4.1
 HARBOR_VER=v2.1.3
