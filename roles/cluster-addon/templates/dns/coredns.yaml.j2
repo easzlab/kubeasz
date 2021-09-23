@@ -22,11 +22,12 @@ rules:
   - list
   - watch
 - apiGroups:
-  - ""
+  - discovery.k8s.io
   resources:
-  - nodes
+  - endpointslices
   verbs:
-  - get
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -94,11 +95,13 @@ spec:
       labels:
         k8s-app: kube-dns
     spec:
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
       priorityClassName: system-cluster-critical
       serviceAccountName: coredns
+      tolerations:
+        - key: "CriticalAddonsOnly"
+          operator: "Exists"
+      nodeSelector:
+        kubernetes.io/os: linux
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -110,11 +113,6 @@ spec:
                     operator: In
                     values: ["kube-dns"]
               topologyKey: kubernetes.io/hostname
-      tolerations:
-        - key: "CriticalAddonsOnly"
-          operator: "Exists"
-      nodeSelector:
-        kubernetes.io/os: linux
       containers:
       - name: coredns
         image: coredns/coredns:{{ corednsVer }}
