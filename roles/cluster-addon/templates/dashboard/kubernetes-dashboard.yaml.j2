@@ -191,6 +191,8 @@ spec:
           args:
             - --auto-generate-certificates
             - --namespace=kube-system
+            - --token-ttl=1800
+            - --sidecar-host=http://dashboard-metrics-scraper:8000
             # Uncomment the following line to manually specify Kubernetes API server Host
             # If not specified, Dashboard will attempt to auto discover the API server and connect
             # to it. Uncomment only if the default does not work.

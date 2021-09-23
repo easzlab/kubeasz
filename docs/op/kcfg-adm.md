@@ -20,6 +20,9 @@ examples: ./ezctl kcfg-adm test-k8s -L
           ./ezctl kcfg-adm default -D -u jim-202101162141
 ```
 
+- 可以设置过期时间
+- 可以设置权限：管理员权限（admin）和只读权限（view）
+
 ## 使用举例
 
 - 1.查看集群k8s-01当前自定义kubeconfig
