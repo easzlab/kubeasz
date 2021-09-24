@@ -8,11 +8,9 @@
 - 1.metric-server是扩展的apiserver，依赖于[kube-aggregator](https://github.com/kubernetes/kube-aggregator)，因此需要在apiserver中开启相关参数。
 - 2.需要在集群中运行deployment处理请求
 
-从kubeasz 0.1.0 开始，metrics-server已经默认集成在集群安装脚本中，请查看`roles/cluster-addon/defaults/main.yml`中的设置
+从kubeasz 0.1.0 开始，metrics-server已经默认集成安装，请查看`/etc/kubeasz/clusters/xxxx/config.yml`中的设置
 
-## 安装
-
-默认已集成在90.setup.yml中，如果分步请执行`ansible-play /etc/ansible/07.cluster-addon.yml`
+## 前提
 
 - 1.设置apiserver相关[参数](../../roles/kube-master/templates/kube-apiserver.service.j2)
 ``` bash
@@ -30,6 +28,19 @@
 
 参考1：https://kubernetes.io/docs/tasks/access-kubernetes-api/configure-aggregation-layer/  
 参考2：https://kubernetes.io/docs/tasks/access-kubernetes-api/setup-extension-api-server/
+
+## 安装
+
+``` bash
+# 默认已经集成安装，假设集群名为xxxx
+ezctl setup xxxx all
+
+# 如果需要分步安装
+ezctl setup xxxx 07
+
+# 如果需要手动安装
+kubectl apply -f /etc/kubeasz/clusters/xxxx/yml/metrics-server.yaml
+```
 
 ## 验证
 
@@ -50,11 +61,3 @@ $ kubectl top pod --all-namespaces 	# 输出略
 ```
 
 - 验证基于metrics-server实现的基础hpa自动缩放，请参考[hpa.md](hpa.md)
-
-## 补充
-
-目前dashboard插件如果想在界面上显示资源使用率，它还依赖于`heapster`；另外，测试发现k8s 1.8版本的`kubectl top`也依赖`heapster`，因此建议补充安装`heapster`，无需安装`influxdb`和`grafana`。
-
-``` bash
-$ kubectl apply -f /etc/ansible/manifests/heapster/heapster.yaml
-```
