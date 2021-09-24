@@ -30,3 +30,6 @@ kubeasz 用户可以确认集群各项功能符合预期，既符合k8s设计标
 - 更新：dashboard 部署文件和文档
 - 更新：metrics-server 部署文件和文档
 - 修复：coredns 1.8.4 rbac settings
+- 修复：docker/containerd是否需要安装的判断条件
+- 修复：暂时绕过centos7.9开启KUBE_RESERVED的问题
+
