@@ -18,7 +18,15 @@ kubeasz 用户可以确认集群各项功能符合预期，既符合k8s设计标
 - calico: v3.19.2
 - coredns: 1.8.4
 - pause: 3.5
+- dashboard: v2.3.1
+- metrics-server: v0.5.0
 
 ### 其他
 
-- fix:增加/删除节点时ansible hosts文件更新错误 
+- 更新：kuboard 文档 #1014 #1023
+- 更新：判断服务状态直接使用systemctl is-active #1019
+- 修复：etcd dir bug #1036
+- 更新：traefik为Daemonset部署,增加健康检测功能以及Node节点亲和性调度 #1028
+- 更新：dashboard 部署文件和文档
+- 更新：metrics-server 部署文件和文档
+- 修复：coredns 1.8.4 rbac settings

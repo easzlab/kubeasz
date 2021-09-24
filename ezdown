@@ -299,8 +299,8 @@ function get_offline_image() {
     docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
   fi
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
-    docker pull "mirrorgooglecontainers/metrics-server-amd64:$metricsVer" && \
-    docker save -o "$imageDir/metrics-server_$metricsVer.tar" "mirrorgooglecontainers/metrics-server-amd64:$metricsVer"
+    docker pull "easzlab/metrics-server:$metricsVer" && \
+    docker save -o "$imageDir/metrics-server_$metricsVer.tar" "easzlab/metrics-server:$metricsVer"
   fi
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
     docker pull "easzlab/pause-amd64:$pauseVer" && \
