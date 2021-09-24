@@ -66,4 +66,4 @@
         state: present
         regexp: 'crictl completion'
         line: 'source <(crictl completion)'
-  when: "'running' not in containerd_svc.stdout"
+  when: "'active' not in containerd_svc.stdout"
