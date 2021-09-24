@@ -113,7 +113,7 @@
     - name: 配置 docker 命令软链接
       file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
       ignore_errors: true
-  when: "'active' not in containerd_svc.stdout and 'active' not in docker_svc.stdout"
+  when: "'NoFound' in containerd_svc.stdout and 'NoFound' in docker_svc.stdout"
     
 ## 可选 ------安装docker查询镜像 tag的小工具----
 - name: 下载 docker-tag
