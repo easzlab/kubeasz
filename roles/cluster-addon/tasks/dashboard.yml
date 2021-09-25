@@ -25,6 +25,8 @@
 
 - name: prepare some dirs
   file: name={{ cluster_dir }}/yml/dashboard state=directory
+  run_once: true
+  connection: local
 
 - name: 准备 dashboard的部署文件
   template: src=dashboard/{{ item }}.j2 dest={{ cluster_dir }}/yml/dashboard/{{ item }}

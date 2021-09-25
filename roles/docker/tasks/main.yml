@@ -2,10 +2,6 @@
   shell: 'systemctl is-active docker || echo "NoFound"'
   register: docker_svc
 
-- name: 获取是否已经安装containerd
-  shell: 'systemctl is-active containerd || echo "NoFound"'
-  register: containerd_svc
-
 # 18.09.x 版本二进制名字有变化，需要做判断
 - name: 获取docker版本信息
   shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
@@ -113,7 +109,7 @@
     - name: 配置 docker 命令软链接
       file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
       ignore_errors: true
-  when: "'NoFound' in containerd_svc.stdout and 'NoFound' in docker_svc.stdout"
+  when: "'NoFound' in docker_svc.stdout"
     
 ## 可选 ------安装docker查询镜像 tag的小工具----
 - name: 下载 docker-tag
