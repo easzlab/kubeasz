@@ -184,13 +184,15 @@ spec:
     spec:
       containers:
         - name: kubernetes-dashboard
-          image: kubernetesui/dashboard:v2.1.0
+          image: kubernetesui/dashboard:{{ dashboardVer }}
           ports:
             - containerPort: 8443
               protocol: TCP
           args:
             - --auto-generate-certificates
             - --namespace=kube-system
+            - --token-ttl=1800
+            - --sidecar-host=http://dashboard-metrics-scraper:8000
             # Uncomment the following line to manually specify Kubernetes API server Host
             # If not specified, Dashboard will attempt to auto discover the API server and connect
             # to it. Uncomment only if the default does not work.
@@ -265,7 +267,7 @@ spec:
     spec:
       containers:
         - name: dashboard-metrics-scraper
-          image: kubernetesui/metrics-scraper:v1.0.6
+          image: kubernetesui/metrics-scraper:{{ dashboardMetricsScraperVer }}
           ports:
             - containerPort: 8000
               protocol: TCP

@@ -1,12 +1,3 @@
-- name: 获取是否已经安装docker
-  shell: 'systemctl is-active docker || echo "NOT FOUND"'
-  register: docker_status
-
-- name: WARNNING 提示
-  debug:
-    msg: "[WARN]: docker is running, and containerd will be installed" 
-  when: '"active" in docker_status.stdout'
-
 - name: 获取是否已经安装containerd
   shell: 'systemctl is-active containerd || echo "NoFound"'
   register: containerd_svc
@@ -66,4 +57,4 @@
         state: present
         regexp: 'crictl completion'
         line: 'source <(crictl completion)'
-  when: "'running' not in containerd_svc.stdout"
+  when: "'NoFound' in containerd_svc.stdout"
