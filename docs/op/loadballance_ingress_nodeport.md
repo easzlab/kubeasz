@@ -19,7 +19,7 @@ INGRESS_TLS_NODEPORT_LB: "yes"
 ## 2.重新配置启动LB节点服务
 
 ``` bash
-$ ezctl setup ${集群名} ex-lb 
+$ docker exec -it  kubeasz ezctl setup ${集群名} ex-lb 
 ```
 
 ## 3.验证 ex_lb 节点的 haproxy 服务配置 `/etc/haproxy/haproxy.cfg` 包含如下配置
