@@ -10,7 +10,7 @@ kubeasz 2.0.1 开始支持**完全离线安装**，目前已测试 `Ubuntu1604|1
 
 ``` bash
 export release=3.0.0
-curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
+wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 ```
 

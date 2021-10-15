@@ -91,7 +91,7 @@ ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 
 ``` bash
 # 下载工具脚本ezdown，举例使用kubeasz版本3.0.0
 export release=3.0.0
-curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
+wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 # 使用工具脚本下载
 ./ezdown -D
