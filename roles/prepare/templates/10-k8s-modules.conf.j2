@@ -4,4 +4,6 @@ ip_vs_rr
 ip_vs_wrr
 ip_vs_sh
 nf_conntrack
+{% if 'NoFound' not in NF_CONNTRACK_IPV4.stdout %}
 nf_conntrack_ipv4
+{% endif %}

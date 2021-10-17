@@ -1,10 +1,10 @@
 # 系统基础软件环境
-#- name: apt更新缓存刷新
-#  apt: update_cache=yes cache_valid_time=72000
-#  ignore_errors: true
-#  when:
-#  - 'ansible_distribution in ["Ubuntu","Debian"]'
-#  - 'INSTALL_SOURCE != "offline"'
+- name: apt更新缓存刷新
+  apt: update_cache=yes cache_valid_time=72000
+  ignore_errors: true
+  when:
+  - 'ansible_distribution in ["Ubuntu","Debian"]'
+  - 'INSTALL_SOURCE != "offline"'
 
 - import_tasks: ubuntu.yml
   when: 'ansible_distribution in ["Ubuntu","Debian"]'
@@ -22,6 +22,14 @@
   - "{{ ca_dir }}"
   - /root/.kube
   - /opt/kube/images
+
+# 某些系统没有/usr/bin/python，需要配置一个软链接，否则connection: local的任务会失败
+# 如果仍旧出现任务失败，重新执行一遍即可 https://github.com/ansible/ansible/issues/64903
+- name: symlink /usr/bin/python -> /usr/bin/python3
+  raw: |
+    if [ -f /usr/bin/python3 ] && [ ! -f /usr/bin/python ]; then
+      ln --symbolic /usr/bin/python3 /usr/bin/python;
+    fi
 
 - name: 写入环境变量$PATH 
   lineinfile:
