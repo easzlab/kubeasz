@@ -29,6 +29,8 @@ CERT_EXPIRY: "438000h"
 CLUSTER_NAME: "cluster1"
 CONTEXT_NAME: "context-{{ CLUSTER_NAME }}"
 
+# k8s version
+K8S_VER: "__k8s_ver__"
 
 ############################
 # role:etcd

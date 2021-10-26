@@ -140,7 +140,8 @@ function new() {
     sed -i "s/_cluster_name_/$1/g" "clusters/$1/hosts"
     cp example/config.yml "clusters/$1/config.yml"
 
-    logger debug "set version of common plugins"
+    logger debug "set versions"
+    k8sVer=$(grep 'K8S_BIN_VER=v' ezdown|cut -d'v' -f2)
     calicoVer=$(grep 'calicoVer=' ezdown|cut -d'=' -f2)
     ciliumVer=$(grep 'ciliumVer=' ezdown|cut -d'=' -f2)
     flannelVer=$(grep 'flannelVer=' ezdown|cut -d'=' -f2)
@@ -160,7 +161,8 @@ function new() {
 
     grep registry-mirrors /etc/docker/daemon.json > /dev/null 2>&1 || { logger debug "disable registry mirrors"; registryMirror=false; }
 
-    sed -i -e "s/__flannel__/$flannelVer/g" \
+    sed -i -e "s/__k8s_ver__/$k8sVer/g" \
+           -e "s/__flannel__/$flannelVer/g" \
 	   -e "s/__calico__/$calicoVer/g" \
 	   -e "s/__cilium__/$ciliumVer/g" \
 	   -e "s/__kube_ovn__/$kubeOvnVer/g" \
