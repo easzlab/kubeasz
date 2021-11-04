@@ -23,7 +23,7 @@ kube-ovn 提供了针对企业应用场景下容器网络实用功能，并为�
 kube-ovn 的安装十分简单，详见项目的安装文档；基于 kubeasz，以下两步将安装一个集成了 kube-ovn 网络的 k8s 集群；
 
 - 在 ansible hosts 中设置变量 `CLUSTER_NETWORK="kube-ovn"`
-- 执行安装 `ansible-playbook 90.setup.yml` 或者 `easzctl setup`
+- 执行安装 `ansible-playbook 90.setup.yml` 或者 `ezctl setup`
 
 kubeasz 项目为`kube-ovn`网络生成的 ansible role 如下：
 

@@ -1,0 +1,10 @@
+# to install network plugin, only one can be choosen 
+- hosts:
+  - kube_master
+  - kube_node
+  roles:
+  - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
+  - { role: cilium, when: "CLUSTER_NETWORK == 'cilium'" }
+  - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
+  - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
+  - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }

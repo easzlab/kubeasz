@@ -41,7 +41,7 @@ apt install nfs-kernel-server
 | anonuid=xxx | 指定nfs服务器/etc/passwd文件中匿名用户的UID |
 | anongid=xxx | 指定nfs服务器/etc/passwd文件中匿名用户的GID |
 
-+ 注1：尽量指定主机名或IP或IP段最小化授权可以访问NFS 挂载的资源的客户端
++ 注1：尽量指定主机名或IP或IP段最小化授权可以访问NFS 挂载的资源的客户端；注意如果在k8s集群中配合nfs-client-provisioner使用的话，这里需要指定pod的IP段，否则nfs-client-provisioner pod无法启动，报错 mount.nfs: access denied by server while mounting
 + 注2：经测试参数insecure必须要加，否则客户端挂载出错mount.nfs: access denied by server while mounting
 
 ### 启动

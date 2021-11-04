@@ -1,6 +1,6 @@
 ---
 # system accounts that do not get their login disabled and pasword changed
-os_always_ignore_users: ['root','sync','shutdown','halt', 'ec2-user']
+os_always_ignore_users: ['root', 'sync', 'shutdown', 'halt', 'ec2-user']
 
 sysctl_rhel_config:
   # ExecShield protection against buffer overflows

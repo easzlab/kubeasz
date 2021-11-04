@@ -12,41 +12,43 @@ set -o errexit
 #set -o xtrace
 
 function usage() {
+  echo -e "\033[33mUsage:\033[0m imgutils [options] [args]"
   cat <<EOF
-Usage: imgutils [options] [args]
   option: -{LPSdr}
-    -L         to load images from the disk
+    -L         to load images from the disk (default '/tmp/docker/images')
     -P         to pull images from CN mirrors of 'docker.io|gcr.io|k8s.gcr.io|quay.io'
-    -S         to save images to the disk 
-    -d <dir>   working directory to hold images, default '/tmp/docker/images'
+    -S         to save local images to the disk (default '/tmp/docker/images')
+    -d <dir>   change image directory (default '/tmp/docker/images')
     -r <str>   limit to images who's repo have a pattern <str>
 
 Example:
 $ ./imgutils -S -d /opt/docker/images -r gcr.io
-  - to save all images of repo 'gcr.io' into '/opt/docker/images/'
+  - to save all local images of repo 'gcr.io' into '/opt/docker/images/'
 $ ./imgutils -P k8s.gcr.io/addon-resizer:1.8.3
   - to pull images from k8s.gcr.io
 EOF
 }
 
 function logger() {
+  TIMESTAMP=$(date +'%Y-%m-%d %H:%M:%S')
   case "$1" in
     debug)
-      echo -e "[debug] \033[36m$2\033[0m"
+      echo -e "$TIMESTAMP \033[36mDEBUG\033[0m $2"
       ;;
     info)
-      echo -e "[info] \033[32m$2\033[0m"
-      ;;  
+      echo -e "$TIMESTAMP \033[32mINFO\033[0m $2"
+      ;;
     warn)
-      echo -e "[warn] \033[33m$2\033[0m"
-      ;;  
+      echo -e "$TIMESTAMP \033[33mWARN\033[0m $2"
+      ;;
     error)
-      echo -e "[error] \033[31m$2\033[0m"
-      ;; 
+      echo -e "$TIMESTAMP \033[31mERROR\033[0m $2"
+      ;;
     *)
       ;;
-  esac 
+  esac
 }
+
 
 function save_to_disk() {
   if [[ "$REPO_PATTERN" == "" ]];then

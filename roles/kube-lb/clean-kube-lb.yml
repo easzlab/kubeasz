@@ -1,0 +1,16 @@
+- hosts:
+  - kube-master
+  - kube-node
+  tasks:
+  - name: stop and disable kube-lb service
+    service:
+      name: kube-lb
+      state: stopped
+      enabled: no
+    ignore_errors: true
+
+  - name: remove files and dirs
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/kube-lb"
+    - "/etc/systemd/system/kube-lb.service"

@@ -3,45 +3,48 @@
   file:
     name: '/etc/yum.repos.d/{{ item }}.repo'
     state: 'absent'
-  with_items:
+  loop:
     - 'CentOS-Debuginfo'
     - 'CentOS-Media'
     - 'CentOS-Vault'
-  when: os_security_packages_clean
+  when: os_security_packages_clean | bool
 
 - name: get yum-repository-files
-  shell: 'find /etc/yum.repos.d/ -type f -name *.repo'
-  changed_when: False
+  find:
+    paths: '/etc/yum.repos.d'
+    patterns: '*.repo'
   register: yum_repos
 
-- name: check if rhnplugin.conf exists
-  stat:
-    path: '/etc/yum/pluginconf.d/rhnplugin.conf'
-  register: rhnplugin_file
-
-  # for the 'default([])' see here:
-  # https://github.com/dev-sec/ansible-os-hardening/issues/99 and
-  # https://stackoverflow.com/questions/37067827/ansible-deprecation-warning-for-undefined-variable-despite-when-clause
-- name: activate gpg-check for yum-repos
+# for the 'default([])' see here:
+# https://github.com/dev-sec/ansible-os-hardening/issues/99 and
+# https://stackoverflow.com/questions/37067827/ansible-deprecation-warning-for-undefined-variable-despite-when-clause
+- name: activate gpg-check for yum-repository-files
   replace:
-    dest: '{{ item }}'
-    regexp: '^\s*gpgcheck: 0'
-    replace: 'gpgcheck: 1'
-  with_flattened:
+    path: '{{ item.path }}'
+    regexp: '^\s*gpgcheck.*'
+    replace: 'gpgcheck=1'
+    mode: '0644'
+  with_items:
+    - '{{ yum_repos.files | default([]) }}'
+
+# failed_when is needed because by default replace module will fail if the file doesn't exists.
+# status.rc is only defined if an error accrued and only error code (rc) 257 will be ignored.
+# All other errors will still be raised.
+- name: activate gpg-check for config files
+  replace:
+    path: '{{ item }}'
+    regexp: '^\s*gpgcheck\W.*'
+    replace: 'gpgcheck=1'
+    mode: '0644'
+  register: status
+  failed_when: status.rc is defined and status.rc != 257
+  loop:
     - '/etc/yum.conf'
-    - '{{ yum_repos.stdout_lines| default([]) }}'
-
-- name: activate gpg-check for yum rhn if it exists
-  replace:
-    dest: '/etc/yum/pluginconf.d/rhnplugin.conf'
-    regexp: '^\s*gpgcheck: 0'
-    replace: 'gpgcheck: 1'
-  when: rhnplugin_file.stat.exists
+    - '/etc/dnf/dnf.conf'
+    - '/etc/yum/pluginconf.d/rhnplugin.conf'
 
 - name: remove deprecated or insecure packages | package-01 - package-09
   yum:
-    name: '{{ item }}'
+    name: '{{ os_security_packages_list }}'
     state: 'absent'
-  with_items:
-    - '{{ os_security_packages_list }}'
-  when: os_security_packages_clean
+  when: os_security_packages_clean | bool

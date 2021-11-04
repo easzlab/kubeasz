@@ -1,0 +1,40 @@
+- hosts: kube_master
+  tasks:
+  - name: stopping kube_master services
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+
+- hosts: etcd
+  tasks:
+  - name: stopping etcd cluster
+    service: name=etcd state=stopped enabled=no
+
+- hosts: ex_lb
+  tasks:
+  - name: stopping external loadbalance
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - haproxy
+    - keepalived
+
+- hosts:
+  - kube_master
+  - kube_node
+  tasks:
+  - name: stopping kube_node services
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+    - kube-lb
+    - kubelet
+    - kube-proxy
+
+  - name: stopping docker
+    service: name=docker state=stopped enabled=no
+    when: "CONTAINER_RUNTIME == 'docker'"
+
+  - name: stopping containerd
+    service: name=containerd state=stopped enabled=no
+    when: "CONTAINER_RUNTIME == 'containerd'"

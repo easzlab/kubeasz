@@ -1,0 +1,191 @@
+## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
+kubeTargetVersionOverride: "{{ K8S_VER.stdout }}"
+
+## Configuration for alertmanager
+alertmanager:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['job']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null'
+      routes:
+      - match:
+          alertname: Watchdog
+        receiver: 'null'
+    receivers:
+    - name: 'null'
+
+  ## Configuration for Alertmanager service
+  service:
+    nodePort: 30902
+    type: NodePort 
+
+  alertmanagerSpec:
+    image:
+      repository: quay.io/prometheus/alertmanager
+      tag: v0.21.0
+
+    replicas: 1
+    retention: 120h
+
+    nodeSelector: {}
+
+## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+grafana:
+  enabled: true
+  defaultDashboardsEnabled: true
+  adminPassword: Admin1234!
+
+  service:
+    nodePort: 30903
+    type: NodePort 
+
+## Component scraping the kube api server
+kubeApiServer:
+  enabled: true
+
+## Component scraping the kubelet and kubelet-hosted cAdvisor
+kubelet:
+  enabled: true
+  namespace: kube-system
+
+## Component scraping the kube controller manager
+kubeControllerManager:
+  enabled: true
+  endpoints:
+{% for h in groups['kube_master'] %}
+  - {{ h }}
+{% endfor %}
+
+## Component scraping coreDns. Use either this or kubeDns
+coreDns:
+  enabled: true
+
+## Component scraping etcd
+kubeEtcd:
+  enabled: true
+  endpoints:
+{% for h in groups['etcd'] %}
+  - {{ h }}
+{% endfor %}
+
+  ## Configure secure access to the etcd cluster by loading a secret into prometheus and
+  ## specifying security configuration below. For example, with a secret named etcd-client-cert
+  serviceMonitor:
+    scheme: https
+    insecureSkipVerify: true 
+    serverName: localhost
+    caFile: /etc/prometheus/secrets/etcd-client-cert/etcd-ca
+    certFile: /etc/prometheus/secrets/etcd-client-cert/etcd-client
+    keyFile: /etc/prometheus/secrets/etcd-client-cert/etcd-client-key
+
+
+## Component scraping kube scheduler
+kubeScheduler:
+  enabled: true
+  endpoints:
+{% for h in groups['kube_master'] %}
+  - {{ h }}
+{% endfor %}
+
+## Component scraping kube proxy
+kubeProxy:
+  enabled: true
+  endpoints:
+{% for h in groups['kube_master'] %}
+  - {{ h }}
+{% endfor %}
+{% for h in groups['kube_node'] %}
+{% if h not in groups['kube_master'] %}
+  - {{ h }}
+{% endif %}
+{% endfor %}
+
+## Manages Prometheus and Alertmanager components
+prometheusOperator:
+  enabled: true
+
+  ## Namespaces to scope the interaction of the Prometheus Operator and the apiserver (allow list).
+  ## This is mutually exclusive with denyNamespaces. Setting this to an empty object will disable the configuration
+  namespaces: {}
+    # releaseNamespace: true
+    # additional:
+    # - kube-system
+
+  ## Namespaces not to scope the interaction of the Prometheus Operator (deny list).
+  denyNamespaces: []
+
+  ## Filter namespaces to look for prometheus-operator custom resources
+  ##
+  alertmanagerInstanceNamespaces: []
+  prometheusInstanceNamespaces: []
+  thanosRulerInstanceNamespaces: []
+
+  service:
+    nodePort: 30899
+    nodePortTls: 30900
+    type: NodePort 
+
+  nodeSelector: {}
+
+  ## Prometheus-operator image
+  image:
+    repository: quay.io/prometheus-operator/prometheus-operator
+    tag: v0.44.0
+
+  ## Configmap-reload image to use for reloading configmaps
+  configmapReloadImage:
+    repository: docker.io/jimmidyson/configmap-reload
+    tag: v0.4.0
+
+  ## Prometheus-config-reloader image to use for config and rule reloading
+  prometheusConfigReloaderImage:
+    repository: quay.io/prometheus-operator/prometheus-config-reloader
+    tag: v0.44.0
+
+## Deploy a Prometheus instance
+prometheus:
+  enabled: true
+
+  ## Configuration for Prometheus service
+  service:
+    nodePort: 30901
+    type: NodePort 
+
+  ## Settings affecting prometheusSpec
+  ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+  prometheusSpec:
+    ## APIServerConfig
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#apiserverconfig
+    apiserverConfig: {}
+
+    image:
+      repository: quay.io/prometheus/prometheus
+      tag: v2.22.1
+
+    replicas: 1
+
+    secrets:
+    - etcd-client-cert
+
+    storageSpec: {}
+    ## Using PersistentVolumeClaim
+    ##
+    #  volumeClaimTemplate:
+    #    spec:
+    #      storageClassName: gluster
+    #      accessModes: ["ReadWriteOnce"]
+    #      resources:
+    #        requests:
+    #          storage: 50Gi
+    #    selector: {}
+
+    ## Using tmpfs volume
+    ##
+    #  emptyDir:
+    #    medium: Memory

@@ -1,8 +1,3 @@
-# ex-lb 节点成员不能同时是 kube-node 节点，因为它们都需要安装 haproxy
-- name: fail info1
-  fail: msg="an 'ex-lb' node CAN NOT be a 'kube-node' node at the same time"
-  when: "inventory_hostname in groups['kube-node']"
-
 # 自动设置LB节点变量'LB_IF'
 - name: 注册变量 LB_IF_TMP
   shell: "ip a|grep '{{ inventory_hostname }}/'|awk '{print $NF}'"
@@ -13,15 +8,45 @@
   set_fact: LB_IF={{ LB_IF_TMP.stdout }}
   tags: restart_lb
 
-- name: 创建相关目录
+- name: prepare some dirs
   file: name={{ item }} state=directory
   with_items:
-  - /etc/haproxy
-  - /etc/keepalived 
+  - "/etc/l4lb/sbin"
+  - "/etc/l4lb/logs"
+  - "/etc/l4lb/conf"
+  - "/etc/keepalived"
 
-- name: 配置 haproxy
-  template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+- name: 下载二进制文件l4lb(nginx)
+  copy: src={{ base_dir }}/bin/nginx dest=/etc/l4lb/sbin/l4lb mode=0755
+
+- name: 创建l4lb的配置文件
+  template: src=l4lb.conf.j2 dest=/etc/l4lb/conf/l4lb.conf
   tags: restart_lb
+
+- name: 创建l4lb的systemd unit文件
+  template: src=l4lb.service.j2 dest=/etc/systemd/system/l4lb.service
+  tags: restart_lb
+
+- name: 开机启用l4lb服务
+  shell: systemctl enable l4lb
+  ignore_errors: true
+
+- name: 开启l4lb服务
+  shell: systemctl daemon-reload && systemctl restart l4lb
+  ignore_errors: true
+  tags: restart_lb
+
+- name: 以轮询的方式等待l4lb服务启动
+  shell: "systemctl is-active l4lb.service"
+  register: svc_status
+  until: '"active" in svc_status.stdout'
+  retries: 3
+  delay: 3
+  tags: restart_lb
+
+
+- name: 下载二进制文件keepalived
+  copy: src={{ base_dir }}/bin/keepalived dest=/usr/local/sbin/keepalived mode=0755
 
 - name: 配置 keepalived 主节点
   template: src=keepalived-master.conf.j2 dest=/etc/keepalived/keepalived.conf
@@ -33,39 +58,23 @@
   when: LB_ROLE == "backup"
   tags: restart_lb
 
-- name: 安装 haproxy+keepalived
-  package: name={{ item }} state=present
-  with_items:
-  - haproxy
-  - keepalived
-  when: 'INSTALL_SOURCE != "offline"'
-  ignore_errors: true
-
-# 离线安装 haproxy+keepalived
-- import_tasks: offline.yml
-  when: 'INSTALL_SOURCE == "offline"'
-
-- name: 修改centos的haproxy.service
-  template: src=haproxy.service.j2 dest=/usr/lib/systemd/system/haproxy.service
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
-  tags: restart_lb
-
-- name: daemon-reload for haproxy.service
-  shell: systemctl daemon-reload
-  tags: restart_lb
-
-- name: 开机启用haproxy服务
-  shell: systemctl enable haproxy
-  ignore_errors: true 
-
-- name: 重启haproxy服务
-  shell: systemctl restart haproxy
+- name: 创建keepalived的systemd unit文件
+  template: src=keepalived.service.j2 dest=/etc/systemd/system/keepalived.service
   tags: restart_lb
 
 - name: 开机启用keepalived服务
   shell: systemctl enable keepalived
   ignore_errors: true
 
-- name: 重启keepalived服务
-  shell: systemctl restart keepalived
+- name: 开启keepalived服务
+  shell: systemctl daemon-reload && systemctl restart keepalived
+  ignore_errors: true
+  tags: restart_lb
+
+- name: 以轮询的方式等待keepalived服务启动
+  shell: "systemctl is-active keepalived.service"
+  register: svc_status
+  until: '"active" in svc_status.stdout'
+  retries: 3
+  delay: 3
   tags: restart_lb

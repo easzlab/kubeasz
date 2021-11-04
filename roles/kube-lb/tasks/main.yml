@@ -1,0 +1,34 @@
+- name: prepare some dirs
+  file: name={{ item }} state=directory
+  with_items:
+  - "/etc/kube-lb/sbin"
+  - "/etc/kube-lb/logs"
+  - "/etc/kube-lb/conf"
+
+- name: 下载二进制文件kube-lb(nginx)
+  copy: src={{ base_dir }}/bin/nginx dest=/etc/kube-lb/sbin/kube-lb mode=0755
+
+- name: 创建kube-lb的配置文件
+  template: src=kube-lb.conf.j2 dest=/etc/kube-lb/conf/kube-lb.conf
+  tags: restart_kube-lb
+
+- name: 创建kube-lb的systemd unit文件
+  template: src=kube-lb.service.j2 dest=/etc/systemd/system/kube-lb.service
+  tags: restart_kube-lb
+
+- name: 开机启用kube-lb服务
+  shell: systemctl enable kube-lb
+  ignore_errors: true
+
+- name: 开启kube-lb服务
+  shell: systemctl daemon-reload && systemctl restart kube-lb
+  ignore_errors: true
+  tags: restart_kube-lb
+
+- name: 以轮询的方式等待kube-lb服务启动
+  shell: "systemctl is-active kube-lb.service"
+  register: svc_status
+  until: '"active" in svc_status.stdout'
+  retries: 3
+  delay: 3
+  tags: restart_kube-lb

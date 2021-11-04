@@ -1,0 +1,7 @@
+# to install a container runtime
+- hosts:
+  - kube_master
+  - kube_node
+  roles:
+  - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" }
+  - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" }

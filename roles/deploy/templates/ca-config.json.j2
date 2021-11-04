@@ -13,6 +13,16 @@
         ],
         "expiry": "{{ CERT_EXPIRY }}"
       }
+    },
+    "profiles": {
+      "kcfg": {
+        "usages": [
+            "signing",
+            "key encipherment",
+            "client auth"
+        ],
+        "expiry": "{{ CUSTOM_EXPIRY }}"
+      }
     }
   }
 }

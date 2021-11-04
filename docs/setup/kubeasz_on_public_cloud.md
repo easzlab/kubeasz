@@ -8,11 +8,11 @@
 
 ### 网络组件
 
-一般公有云对网络限制较多，跨节点 pod 通讯需要使用 OVERLAY 添加报头；比如可以使用如下：(kubeasz 项目中已默认配置)
+一般公有云对网络限制较多，跨节点 pod 通讯需要使用 OVERLAY 添加报头；默认配置详见example/config.yml
 
-- flannel 使用 vxlan 模式：`roles/flannel/defaults/main.yml`
-- calico 开启 ipinip：`roles/calico/defaults/main.yml`
-- kube-router 开启 ipinip：`roles/kube-router/defaults/main.yml`
+- flannel 使用 vxlan 模式：`FLANNEL_BACKEND: "vxlan"`
+- calico 开启 ipinip：`CALICO_IPV4POOL_IPIP: "Always"`
+- kube-router 开启 ipinip：`OVERLAY_TYPE: "full"`
 
 ### 节点公网访问
 
@@ -38,4 +38,3 @@
 处理好以上讨论的常见问题后，在公有云上使用 kubeasz 安装集群与自有环境没有差异。
 
 - 使用 kubeasz 2x 版本安装单节点、单主多节点、多主多节点 k8s 集群，云上云下的预期安装体验完全一致
-

@@ -1,0 +1,25 @@
+---
+
+os_nologin_shell_path: '/sbin/nologin'
+
+os_shadow_perms:
+  owner: root
+  group: root
+  mode: '0600'
+
+os_passwd_perms:
+  owner: root
+  group: root
+  mode: '0644'
+
+os_env_umask: '027'
+
+os_auth_uid_min: 1000
+os_auth_gid_min: 1000
+os_auth_sys_uid_min: 500
+os_auth_sys_uid_max: 999
+os_auth_sys_gid_min: 500
+os_auth_sys_gid_max: 999
+
+modprobe_package: 'kmod'
+auditd_package: 'audit'

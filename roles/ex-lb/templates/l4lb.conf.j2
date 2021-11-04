@@ -1,0 +1,62 @@
+user root;
+worker_processes 1;
+
+error_log  /etc/l4lb/logs/error.log warn;
+
+events {
+    worker_connections  3000;
+}
+
+stream {
+    upstream apiservers {
+{% for host in groups['kube_master'] %}
+        server {{ host }}:{{ SECURE_PORT }}    max_fails=2 fail_timeout=3s;
+{% endfor %}
+    }
+
+    server {
+        listen 0.0.0.0:{{ EX_APISERVER_PORT }};
+        proxy_connect_timeout 1s;
+        proxy_pass apiservers;
+    }
+{% if INGRESS_NODEPORT_LB == "yes" %}
+
+    upstream ingress-nodes {
+{% if groups['kube_node']|length > 3 %}
+       server {{ groups['kube_node'][0] }}:{{ INGRESS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+       server {{ groups['kube_node'][1] }}:{{ INGRESS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+       server {{ groups['kube_node'][2] }}:{{ INGRESS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+{% else %}
+{% for host in groups['kube_node'] %}
+       server {{ host }}:{{ INGRESS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+{% endfor %}
+{% endif %}
+    }
+
+    server {
+        listen 0.0.0.0:80;
+        proxy_connect_timeout 1s;
+        proxy_pass ingress-nodes;
+    }
+{% endif %}
+{% if INGRESS_TLS_NODEPORT_LB == "yes" %}
+
+    upstream ingress-tls-nodes {
+{% if groups['kube_node']|length > 3 %}
+       server {{ groups['kube_node'][0] }}:{{ INGRESS_TLS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+       server {{ groups['kube_node'][1] }}:{{ INGRESS_TLS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+       server {{ groups['kube_node'][2] }}:{{ INGRESS_TLS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+{% else %}
+{% for host in groups['kube_node'] %}
+       server {{ host }}:{{ INGRESS_TLS_NODEPORT_LB_PORT }}    max_fails=2 fail_timeout=3s;
+{% endfor %}
+{% endif %}
+    }
+
+    server {
+        listen 0.0.0.0:443;
+        proxy_connect_timeout 1s;
+        proxy_pass ingress-tls-nodes;
+    }
+{% endif %}
+}

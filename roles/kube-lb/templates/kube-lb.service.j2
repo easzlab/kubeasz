@@ -1,0 +1,19 @@
+[Unit]
+Description=l4 nginx proxy for kube-apiservers
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+ExecStartPre=/etc/kube-lb/sbin/kube-lb -c /etc/kube-lb/conf/kube-lb.conf -p /etc/kube-lb -t
+ExecStart=/etc/kube-lb/sbin/kube-lb -c /etc/kube-lb/conf/kube-lb.conf -p /etc/kube-lb
+ExecReload=/etc/kube-lb/sbin/kube-lb -c /etc/kube-lb/conf/kube-lb.conf -p /etc/kube-lb -s reload
+PrivateTmp=true
+Restart=always
+RestartSec=15
+StartLimitInterval=0
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

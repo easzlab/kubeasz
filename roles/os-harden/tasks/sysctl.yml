@@ -5,6 +5,9 @@
     owner: 'root'
     group: 'root'
     mode: '0440'
+    state: touch
+    modification_time: preserve
+    access_time: preserve
 
 - name: set Daemon umask, do config for rhel-family | NSA 2.2.4.1
   template:
@@ -13,14 +16,16 @@
     owner: 'root'
     group: 'root'
     mode: '0544'
-  when: ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon'
+  when: ansible_facts.distribution in ['Amazon', 'CentOS', 'Fedora', 'RedHat']
 
 - name: install initramfs-tools
   apt:
     name: 'initramfs-tools'
     state: 'present'
     update_cache: true
-  when: ansible_os_family == 'Debian' and os_security_kernel_enable_module_loading
+  when:
+    - ansible_facts.os_family == 'Debian'
+    - os_security_kernel_enable_module_loading
 
 - name: rebuild initramfs with starting pack of modules, if module loading at runtime is disabled
   template:
@@ -29,41 +34,49 @@
     owner: 'root'
     group: 'root'
     mode: '0440'
-  when: ansible_os_family == 'Debian' and os_security_kernel_enable_module_loading
+  notify:
+    - update-initramfs
+  when:
+    - ansible_facts.os_family == 'Debian'
+    - os_security_kernel_enable_module_loading
   register: initramfs
 
-- name: update-initramfs
-  command: 'update-initramfs -u'
-  when: initramfs.changed
+- name: change sysctls
+  block:
+    - name: create a combined sysctl-dict if overwrites are defined
+      set_fact:
+        sysctl_config: '{{ sysctl_config | combine(sysctl_overwrite) }}'
+      when: sysctl_overwrite | default()
 
-- name: create a combined sysctl-dict if overwrites are defined
-  set_fact:
-    sysctl_config: '{{ sysctl_config | combine(sysctl_overwrite) }}'
-  when: sysctl_overwrite | default()
+    - name: Change various sysctl-settings, look at the sysctl-vars file for documentation
+      sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        sysctl_set: true
+        state: present
+        reload: true
+        ignoreerrors: true
+      with_dict: '{{ sysctl_config }}'
 
-- name: Change various sysctl-settings, look at the sysctl-vars file for documentation
-  sysctl:
-    name: '{{ item.key }}'
-    value: '{{ item.value }}'
-    sysctl_set: yes
-    state: present
-    reload: yes
-    ignoreerrors: yes
-  with_dict: '{{ sysctl_config }}'
+    - name: Change various sysctl-settings on rhel6-hosts or older, look at the sysctl-vars file for documentation
+      sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        state: present
+        reload: true
+        ignoreerrors: true
+      with_dict: '{{ sysctl_rhel_config }}'
+      when: ((ansible_facts.distribution in ['CentOS', 'Fedora', 'RedHat']) and
+            ansible_distribution_version|int is version('7', '<')) or ansible_facts.distribution == 'Amazon'
 
-- name: Change various sysctl-settings on rhel6-hosts or older, look at the sysctl-vars file for documentation
-  sysctl:
-    name: '{{ item.key }}'
-    value: '{{ item.value }}'
-    state: present
-    reload: yes
-    ignoreerrors: yes
-  with_dict: '{{ sysctl_rhel_config }}'
-  when: ((ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora' or ansible_distribution == 'CentOS') and ansible_distribution_major_version < '7') or ansible_distribution == 'Amazon'
+  when: ansible_virtualization_type not in ['docker', 'lxc', 'openvz']
 
 - name: Apply ufw defaults
   template:
     src: 'etc/default/ufw.j2'
     dest: '/etc/default/ufw'
-  when: ufw_manage_defaults and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+    mode: '0644'
+  when:
+    - ufw_manage_defaults
+    - ansible_facts.distribution in ['Debian', 'Ubuntu']
   tags: ufw

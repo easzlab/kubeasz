@@ -12,7 +12,7 @@
   - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
-    - "/var/lib/etcd"
-    - "/etc/etcd/"
+    - {{ ETCD_DATA_DIR }}
+    - {{ ETCD_WAL_DIR }}
     - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"

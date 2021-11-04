@@ -1,0 +1,103 @@
+# [optional] to set up a HARBOR, and to integrate the HARBOR with k8s cluster
+# read the guide: 'guide/harbor.md'
+
+### --- install harbor ---
+- hosts: harbor
+  roles:
+  - { role: os-harden, when: "NEW_INSTALL|bool and OS_HARDEN|bool" }
+  - { role: chrony, when: "NEW_INSTALL|bool and groups['chrony']|length > 0" }
+  - { role: prepare, when: "NEW_INSTALL|bool" }
+  - { role: docker, when: "NEW_INSTALL|bool" }
+  - { role: harbor, when: "NEW_INSTALL|bool" }
+  tasks:
+  - name: Fetching the HARBOR SERVER's CA cert
+    fetch:
+      src: "{{ ca_dir }}/ca.pem"
+      dest: "{{ base_dir }}/down/"
+      flat: yes
+    when: 'HARBOR_SELF_SIGNED_CERT|bool' 
+    #when: hostvars[groups.harbor[0]]['SELF_SIGNED_CERT']|bool
+
+### --- config k8s nodes to use with harbor ---
+- hosts: 
+  - kube_master
+  - kube_node
+  tasks:
+  - name: Define 'harbor_hostname', a domain name
+    set_fact: harbor_hostname={{ HARBOR_DOMAIN }}
+    when: "HARBOR_DOMAIN != ''"
+
+  - name: Define 'harbor_hostname', an IP Addr
+    set_fact: harbor_hostname={{ groups['harbor'][0] }}
+    when: "HARBOR_DOMAIN == ''"
+ 
+  - block:  
+      - block:  
+        - name: Creating cert dir for the docker daemon
+          file: name=/etc/docker/certs.d/{{ harbor_hostname }}:{{ HARBOR_TLS_PORT }} state=directory
+    
+        - name: Installing the HARBOR SERVER's CA cert for docker
+          copy:
+            src: "{{ base_dir }}/down/ca.pem"
+            dest: "/etc/docker/certs.d/{{ harbor_hostname }}:{{ HARBOR_TLS_PORT }}/ca.crt"
+        when: CONTAINER_RUNTIME == 'docker'
+
+      - block:  
+        - name: Installing the HARBOR SERVER's CA cert on k8s nodes
+          copy: src={{ base_dir }}/down/ca.pem dest=/usr/share/ca-certificates/harbor-ca.crt
+
+        - name: Add the HARBOR SERVER's CA cert 
+          lineinfile:
+            dest: /etc/ca-certificates.conf
+            state: present
+            regexp: 'harbor-ca'
+            line: 'harbor-ca.crt'
+
+        - name: Update the trusted ca-certificates
+          shell: 'update-ca-certificates'
+
+        - name: restart containerd
+          service: name=containerd state=restarted
+        when:
+        - 'CONTAINER_RUNTIME == "containerd"'
+        - 'ansible_distribution == "Ubuntu"'
+
+      - block:  
+        - name: Installing the HARBOR SERVER's CA cert on k8s nodes
+          copy: src={{ base_dir }}/down/ca.pem dest=/etc/pki/ca-trust/source/anchors/harbor-ca.crt
+
+        - name: Update the trusted ca-certificates
+          shell: 'update-ca-trust'
+
+        - name: restart containerd
+          service: name=containerd state=restarted
+        when:
+        - 'CONTAINER_RUNTIME == "containerd"'
+        - 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
+    when: 'HARBOR_SELF_SIGNED_CERT|bool' 
+
+  # [optional] if you have a DNS server, add an 'A record' instead
+  - name: Adding an '/etc/hosts' entry for the HARBOR DOMAIN
+    lineinfile:
+      dest: /etc/hosts
+      state: present
+      regexp: '{{ harbor_hostname }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
+    when: "hostvars[groups.harbor[0]]['HARBOR_DOMAIN'] != ''"
+  
+  # [optional] 使用 cloud-init 初始化的虚拟机，/etc/hosts 后会重启时被替换，需修改对应的模板文件 
+  - name: Adding cloud-init hosts template (debian) entry for the HARBOR DOMAIN
+    lineinfile:
+      dest: /etc/cloud/templates/hosts.debian.tmpl
+      state: present
+      regexp: '{{ harbor_hostname }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
+    when: 'ansible_distribution in ["Ubuntu","Debian"]'
+
+  - name: Adding cloud-init hosts template (redhat) entry for the HARBOR DOMAIN
+    lineinfile:
+      dest: /etc/cloud/templates/hosts.redhat.tmpl
+      state: present
+      regexp: '{{ harbor_hostname }}'
+      line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
+    when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'

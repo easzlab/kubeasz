@@ -1,0 +1,45 @@
+# add new-etcd node, one at a time
+- hosts: "{{ NODE_TO_ADD }}"
+  tasks:
+  # step1: find a healthy member in the etcd cluster
+  - block:
+    - name: set NODE_IPS of the etcd cluster
+      set_fact: NODE_IPS="{% for host in groups['etcd'] %}{{ host }} {% endfor %}"
+
+    - name: get etcd cluster status
+      shell: 'for ip in {{ NODE_IPS }};do \
+                ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl \
+                --endpoints=https://"$ip":2379 \
+                --cacert={{ cluster_dir }}/ssl/ca.pem \
+                --cert={{ cluster_dir }}/ssl/etcd.pem \
+                --key={{ cluster_dir }}/ssl/etcd-key.pem \
+                endpoint health; \
+              done'
+      register: ETCD_CLUSTER_STATUS
+
+    - debug: var="ETCD_CLUSTER_STATUS"
+
+    - name: get a running ectd node
+      shell: 'echo -e "{{ ETCD_CLUSTER_STATUS.stdout }}" \
+               "{{ ETCD_CLUSTER_STATUS.stderr }}" \
+               |grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3'
+      register: RUNNING_NODE
+
+    - debug: var="RUNNING_NODE.stdout"
+    connection: local
+
+  # step2: add a new member in the etcd cluster
+  - name: add a new etcd member
+    shell: "ETCDCTL_API=3 {{ bin_dir }}/etcdctl member add etcd-{{ NODE_TO_ADD }} \
+            --peer-urls=https://{{ NODE_TO_ADD }}:2380"
+    delegate_to: "{{ RUNNING_NODE.stdout }}"
+
+# step3: start the new-etcd node
+- hosts: "{{ NODE_TO_ADD }}"
+  vars:
+    CLUSTER_STATE: existing
+  roles:
+  - { role: os-harden, when: "OS_HARDEN|bool" }
+  - { role: chrony, when: "groups['chrony']|length > 0" }
+  - prepare
+  - etcd

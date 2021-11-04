@@ -1,5 +1,4 @@
 ---
-
 - name: install auditd package | package-08
   package:
     name: '{{ auditd_package }}'

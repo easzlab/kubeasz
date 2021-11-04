@@ -1,0 +1,6 @@
+# cgroup driver
+CGROUP_DRIVER: "{%- if DOCKER_VER|float >= 20.10 -%} \
+                     systemd \
+                {%- else -%} \
+                     cgroupfs \
+                {%- endif -%}"

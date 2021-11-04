@@ -1,7 +1,7 @@
 ---
 - name: install modprobe to disable filesystems | os-10
   package:
-    name: '{{modprobe_package}}'
+    name: '{{ modprobe_package }}'
     state: 'present'
 
 - name: check if efi is installed
@@ -12,7 +12,15 @@
 - name: remove vfat from fs-list if efi is used
   set_fact:
     os_unused_filesystems: "{{ os_unused_filesystems | difference('vfat') }}"
-  when: efi_installed.stat.isdir is defined and efi_installed.stat.isdir
+  when:
+    - efi_installed.stat.isdir is defined
+    - efi_installed.stat.isdir
+
+- name: remove used filesystems from fs-list
+  set_fact:
+    os_unused_filesystems: "{{ os_unused_filesystems | difference(ansible_mounts | map(attribute='fstype') | list) }}"
+  # we cannot do this on el6 and below, because these systems don't support the map function
+  when: not ((ansible_facts.os_family in ['Oracle Linux', 'RedHat']) and ansible_facts.distribution_major_version < '7')
 
 - name: disable unused filesystems | os-10
   template:
@@ -20,5 +28,4 @@
     dest: '/etc/modprobe.d/dev-sec.conf'
     owner: 'root'
     group: 'root'
-    mode: '0640'
-
+    mode: '0644'

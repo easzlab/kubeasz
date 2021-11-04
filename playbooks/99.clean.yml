@@ -1,0 +1,17 @@
+# WARNING: This playbook will erase the entire k8s-cluster, include PODs, ETCD data etc.
+# Make sure you know what you are doing.
+
+- hosts:
+  - kube_master
+  - kube_node
+  - ex_lb
+  - etcd
+  vars:
+    DEL_MASTER: "yes"
+    DEL_NODE: "yes"
+    DEL_ETCD: "yes"
+    DEL_LB: "yes"
+    DEL_CHRONY: "yes"
+    DEL_ENV: "yes"
+  roles:
+  - clean

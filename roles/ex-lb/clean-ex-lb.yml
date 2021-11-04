@@ -1,36 +1,25 @@
 - hosts:
   - ex-lb
   tasks:
-  - block:
-      - name: stop and disable chrony in Ubuntu
-        service: name=chrony state=stopped enabled=no
-        ignore_errors: true
-        when: 'ansible_distribution in ["Ubuntu","Debian"]' 
-    
-      - name: stop and disable chronyd in CentOS/RedHat
-        service: name=chronyd state=stopped enabled=no
-        ignore_errors: true
-        when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
-    when: "groups['chrony']|length > 0"
+  - name: get service info
+    shell: 'systemctl list-units --type=service |grep -E "l4lb|keepalived|ssh"'
+    register: service_info
 
-  - name: stop keepalived service
-    service: name=keepalived state=stopped enabled=no
+  - name: remove service l4lb
+    service: name=l4lb state=stopped enabled=no
+    when: '"l4lb" in service_info.stdout'
     ignore_errors: true
 
-  - name: stop haproxy service
-    service: name=haproxy state=stopped enabled=no
+  - name: remove service keepalived
+    service: name=keepalived state=stopped enabled=no
+    when: '"keepalived" in service_info.stdout'
     ignore_errors: true
 
   - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
-    - "/etc/haproxy"
+    - "/etc/l4lb"
     - "/etc/keepalived"
-
-  - name: clean 'ENV PATH'
-    lineinfile:
-      dest: ~/.bashrc
-      state: absent
-      regexp: '{{ item }}'
-    with_items:
-    - 'kubeasz'
+    - "/etc/systemd/system/l4lb.service"
+    - "/etc/systemd/system/keepalived.service"
+    - "/usr/local/sbin/keepalived"

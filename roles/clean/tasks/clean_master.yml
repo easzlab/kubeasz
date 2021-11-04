@@ -1,18 +1,18 @@
-# to clean 'kube-master' nodes
-- name: stop and disable kube-master service
+# to clean 'kube_master' nodes
+- name: stop and disable kube_master service
   service: name={{ item }} state=stopped enabled=no
   with_items:
   - kube-apiserver
   - kube-controller-manager
   - kube-scheduler
   ignore_errors: true
-  when: "inventory_hostname in groups['kube-master']"
+  when: "inventory_hostname in groups['kube_master']"
 
-- name: remove files and dirs of 'kube-master' nodes
+- name: remove files and dirs of 'kube_master' nodes
   file: name={{ item }} state=absent
   with_items:
   - "/var/run/kubernetes"
   - "/etc/systemd/system/kube-apiserver.service"
   - "/etc/systemd/system/kube-controller-manager.service"
   - "/etc/systemd/system/kube-scheduler.service"
-  when: "inventory_hostname in groups['kube-master']"
+  when: "inventory_hostname in groups['kube_master']"

@@ -1,15 +1,25 @@
 # to clean 'lb' service
 - block:
-  - name: rm service keepalived and haproxy
-    service: name={{ item }} state=stopped enabled=no
-    with_items:
-    - keepalived
-    - haproxy
+  - name: get service info
+    shell: 'systemctl list-units --type=service |grep -E "l4lb|keepalived|ssh"'
+    register: service_info
+
+  - name: remove service l4lb
+    service: name=l4lb state=stopped enabled=no
+    when: '"l4lb" in service_info.stdout'
+    ignore_errors: true
+
+  - name: remove service keepalived
+    service: name=keepalived state=stopped enabled=no
+    when: '"keepalived" in service_info.stdout'
     ignore_errors: true
 
   - name: remove files and dirs
     file: name={{ item }} state=absent
     with_items:
-    - "/etc/haproxy"
+    - "/etc/l4lb"
     - "/etc/keepalived"
-  when: "inventory_hostname in groups['kube-node'] or inventory_hostname in groups['ex-lb']"
+    - "/etc/systemd/system/l4lb.service"
+    - "/etc/systemd/system/keepalived.service"
+    - "/usr/local/sbin/keepalived"
+  when: "inventory_hostname in groups['ex_lb']"

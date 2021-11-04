@@ -1,4 +1,4 @@
-- name: 下载 kube-master 二进制
+- name: 下载 kube_master 二进制
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
   - kube-apiserver
@@ -7,58 +7,65 @@
   - kubectl
   tags: upgrade_k8s
 
-- name: 创建 kubernetes 证书签名请求
-  template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
+- name: 注册变量 KUBERNETES_SVC_IP
+  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+1}'
+  register: KUBERNETES_SVC_IP
   tags: change_cert
 
-- name: 创建 kubernetes 证书和私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
+- name: 设置变量 CLUSTER_KUBERNETES_SVC_IP
+  set_fact: CLUSTER_KUBERNETES_SVC_IP={{ KUBERNETES_SVC_IP.stdout }}
   tags: change_cert
+
+- name: 创建 kubernetes 证书签名请求
+  template: src=kubernetes-csr.json.j2 dest={{ cluster_dir }}/ssl/kubernetes-csr.json
+  tags: change_cert
+  connection: local
+
+- name: 创建 kubernetes 证书和私钥
+  shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes kubernetes-csr.json | {{ base_dir }}/bin/cfssljson -bare kubernetes"
+  tags: change_cert
+  connection: local
 
 # 创建aggregator proxy相关证书
 - name: 创建 aggregator proxy证书签名请求
-  template: src=aggregator-proxy-csr.json.j2 dest={{ ca_dir }}/aggregator-proxy-csr.json
+  template: src=aggregator-proxy-csr.json.j2 dest={{ cluster_dir }}/ssl/aggregator-proxy-csr.json
+  connection: local
 
 - name: 创建 aggregator-proxy证书和私钥
-  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes aggregator-proxy-csr.json | {{ bin_dir }}/cfssljson -bare aggregator-proxy"
+  shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes aggregator-proxy-csr.json | {{ base_dir }}/bin/cfssljson -bare aggregator-proxy"
+  connection: local
 
-- block:
-  - name: 生成 basic-auth 随机密码
-    shell: 'PWD=`date +%s%N|md5sum|head -c16`; \
-	sed -i "s/_pwd_/$PWD/g" {{ base_dir }}/roles/kube-master/defaults/main.yml; \
-	echo $PWD;'
-    connection: local
-    register: TMP_PASS
-    run_once: true
-    
-  - name: 设置 basic-auth 随机密码
-    set_fact: BASIC_AUTH_PASS={{ TMP_PASS.stdout }}
-  when: 'BASIC_AUTH_ENABLE == "yes" and BASIC_AUTH_PASS == "_pwd_"'
-  tags: restart_master
-  
-- name: 创建 basic-auth.csv
-  template: src=basic-auth.csv.j2 dest={{ ca_dir }}/basic-auth.csv
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  tags: restart_master
+- name: 分发 kubernetes证书
+  copy: src={{ cluster_dir }}/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
+  with_items:
+  - ca.pem
+  - ca-key.pem
+  - kubernetes.pem
+  - kubernetes-key.pem
+  - aggregator-proxy.pem
+  - aggregator-proxy-key.pem
 
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:
     dest: "{{ item }}"
     regexp: "^    server"
-    line: "    server: https://{{ inventory_hostname }}:6443"
+    line: "    server: https://127.0.0.1:{{ SECURE_PORT }}"
   with_items:
   - "/root/.kube/config"
   - "/etc/kubernetes/kube-controller-manager.kubeconfig"
   - "/etc/kubernetes/kube-scheduler.kubeconfig"
-  tags: upgrade_k8s, restart_master
+
+- name: 创建 kube-scheduler 配置文件
+  template: src=kube-scheduler-config.yaml.j2 dest=/etc/kubernetes/kube-scheduler-config.yaml
+  tags: restart_master, upgrade_k8s
 
 - name: 创建 master 服务的 systemd unit 文件
   template: src={{ item }}.j2 dest=/etc/systemd/system/{{ item }}
@@ -77,6 +84,33 @@
 	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
   tags: upgrade_k8s, restart_master
 
+# 轮询等待kube-apiserver启动完成
+- name: 轮询等待kube-apiserver启动
+  shell: "systemctl is-active kube-apiserver.service"
+  register: api_status
+  until: '"active" in api_status.stdout'
+  retries: 10
+  delay: 3
+  tags: upgrade_k8s, restart_master
+
+# 轮询等待kube-controller-manager启动完成
+- name: 轮询等待kube-controller-manager启动
+  shell: "systemctl is-active kube-controller-manager.service"
+  register: cm_status
+  until: '"active" in cm_status.stdout'
+  retries: 8
+  delay: 3
+  tags: upgrade_k8s, restart_master
+
+# 轮询等待kube-scheduler启动完成
+- name: 轮询等待kube-scheduler启动
+  shell: "systemctl is-active kube-scheduler.service"
+  register: sch_status
+  until: '"active" in sch_status.stdout'
+  retries: 8
+  delay: 3
+  tags: upgrade_k8s, restart_master
+
 - name: 以轮询的方式等待master服务启动完成
   command: "{{ bin_dir }}/kubectl get node"
   register: result
@@ -85,13 +119,12 @@
   delay: 6
   tags: upgrade_k8s, restart_master
 
-- name: 配置{{ BASIC_AUTH_USER }}用户rbac权限
-  template: src=basic-auth-rbac.yaml.j2 dest=/opt/kube/basic-auth-rbac.yaml
-  when: 'BASIC_AUTH_ENABLE == "yes"'
-  tags: restart_master
-
-- name: 创建{{ BASIC_AUTH_USER }}用户rbac权限
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/basic-auth-rbac.yaml"
-  when: 'BASIC_AUTH_ENABLE == "yes"'
+- name: 获取user:kubernetes是否已经绑定对应角色
+  shell: "{{ bin_dir }}/kubectl get clusterrolebindings|grep kubernetes-crb || echo 'notfound'"
+  register: crb_info
   run_once: true
-  tags: restart_master
+
+- name: 创建user:kubernetes角色绑定
+  command: "{{ bin_dir }}/kubectl create clusterrolebinding kubernetes-crb --clusterrole=cluster-admin --user=kubernetes"
+  run_once: true
+  when: "'notfound' in crb_info.stdout"

@@ -1,0 +1,9 @@
+# harbor 主版本号，目前支持主版本号 v1.5/v1.6/v1.7/v1.8/v1.9/v.10
+# 从完整版本号提取出主版本号 v1.5/v1.6/v1.7/v1.8/v1.9/v.10
+HARBOR_VER_MAIN: "{{ HARBOR_VER.split('.')[0] }}.{{ HARBOR_VER.split('.')[1] }}"
+
+# HARBOR_HOSTNAME 值设置
+HARBOR_HOSTNAME: "{% if HARBOR_DOMAIN != '' %}{{ HARBOR_DOMAIN }}{% else %}{{ inventory_hostname }}{% endif %}"
+
+# harobr 默认安装选项
+HARBOR_INST_OPS: ""

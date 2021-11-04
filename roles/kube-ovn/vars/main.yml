@@ -1,0 +1,3 @@
+kube_ovn_default_cidr: "{{ CLUSTER_CIDR }}"
+kube_ovn_node_switch_cidr: 100.64.0.0/16
+kube_ovn_enable_mirror: true

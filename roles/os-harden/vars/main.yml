@@ -1,3 +1,4 @@
+---
 # SYSTEM CONFIGURATION
 # ====================
 # These are not meant to be modified by the user
@@ -43,6 +44,7 @@ os_security_suid_sgid_system_whitelist:
   - '/bin/mount'
   - '/bin/ping'
   - '/bin/su'
+  - '/usr/bin/su'
   - '/bin/umount'
   - '/sbin/pam_timestamp_check'
   - '/sbin/unix_chkpwd'
@@ -107,4 +109,4 @@ os_security_suid_sgid_system_whitelist:
   - '/usr/lib/libvte-2.90-9/gnome-pty-helper'                     # gnome
 
 # system accounts that do not get their login disabled and pasword changed
-os_always_ignore_users: ['root','sync','shutdown','halt']
+os_always_ignore_users: ['root', 'sync', 'shutdown', 'halt']

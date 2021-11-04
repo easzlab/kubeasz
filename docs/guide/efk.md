@@ -43,7 +43,7 @@ $ kubectl logs -n kube-system kibana-logging-d5cffd7c6-9lz2p -f
 
 推荐使用`kube-apiserver`方式访问（可以使用basic-auth、证书和rbac等方式进行认证授权），获取访问 URL
 
-- 开启 apiserver basic-auth(用户名/密码认证)：`easzctl basic-auth -s -u admin -p test1234`
+- 开启 apiserver basic-auth(用户名/密码认证)：`ezctl basic-auth -s -u admin -p test1234`
 
 ``` bash
 $ kubectl cluster-info | grep Kibana

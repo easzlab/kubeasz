@@ -1,8 +1,5 @@
 ---
 
-modprobe_package: 'module-init-tools'
-auditd_package: 'audit'
-
 os_packages_pam_ccreds: 'pam_ccreds'
 os_packages_pam_passwdqc: 'pam_passwdqc'
 os_packages_pam_cracklib: 'pam_cracklib'
@@ -29,3 +26,10 @@ os_auth_sys_uid_min: 201
 os_auth_sys_uid_max: 999
 os_auth_sys_gid_min: 201
 os_auth_sys_gid_max: 999
+
+# defaults for useradd
+os_useradd_mail_dir: /var/spool/mail
+os_useradd_create_home: true
+
+modprobe_package: 'module-init-tools'
+auditd_package: 'audit'

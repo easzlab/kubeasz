@@ -7,22 +7,23 @@
 
 ## 备份与恢复操作说明
 
-- 1.首先搭建一个测试集群，部署几个测试deployment，验证集群各项正常后，进行一次备份：
+- 1.首先搭建一个测试集群，部署几个测试deployment，验证集群各项正常后，进行一次备份(假设集群名为k8s-01)：
 
 ``` bash
-$ ansible-playbook /etc/ansible/23.backup.yml
+$ ezctl backup k8s-01
+# 或者如下手动执行ansible命令
+# ansible-playbook -i clusters/k8s-01/hosts -e @clusters/k8s-01/config.yml  playbooks/94.backup.yml
 ```
 
-执行完毕可以在备份目录下检查备份情况，示例如下：
+执行完毕可以在部署主机的备份目录下检查备份情况，示例如下：
 
 ```
-/etc/ansible/.cluster/backup/
-├── hosts
-├── hosts-201907030954
-├── snapshot-201907030954.db
-├── snapshot-201907031048.db
+/etc/kubeasz/clusters/k8s-01/backup/
+├── snapshot_202106201205.db
+├── snapshot_202106211406.db
 └── snapshot.db
 ```
+其中，snapshot.db始终为最近一次备份文件
 
 - 2.模拟误删除操作（略）
 
@@ -31,16 +32,26 @@ $ ansible-playbook /etc/ansible/23.backup.yml
 可以在 `roles/cluster-restore/defaults/main.yml` 文件中配置需要恢复的 etcd备份版本（从上述备份目录中选取），默认使用最近一次备份；执行恢复后，需要一定时间等待 pod/svc 等资源恢复重建。
 
 ``` bash
-$ ansible-playbook /etc/ansible/24.restore.yml
+$ ezctl restore k8s-01
+# 或者如下手动执行ansible命令
+# ansible-playbook -i clusters/k8s-01/hosts -e @clusters/k8s-01/config.yml  playbooks/95.restore.yml
 ```
 如果集群主要组件（master/etcd/node）等出现不可恢复问题，可以尝试使用如下步骤 [清理]() --> [创建]() --> [恢复]()
 
 ``` bash
-$ ansible-playbook /etc/ansible/99.clean.yml
-$ ansible-playbook /etc/ansible/90.setup.yml
-$ ansible-playbook /etc/ansible/24.restore.yml
+$ ezctl clean k8s-01
+# 或者如下手动执行ansible命令
+# ansible-playbook -i clusters/k8s-01/hosts -e @clusters/k8s-01/config.yml  playbooks/99.clean.yml
+$ ezctl setup k8s-01 01
+$ ezctl setup k8s-01 02
+$ ezctl setup k8s-01 03
+$ ezctl setup k8s-01 04
+$ ezctl setup k8s-01 05
+...
+$ ezctl restore k8s-01
+# ansible-playbook -i clusters/k8s-01/hosts -e @clusters/k8s-01/config.yml  playbooks/95.restore.yml
 ```
 
 ## 参考
 
-- https://github.com/coreos/etcd/blob/master/Documentation/op-guide/recovery.md 
+- https://etcd.io/docs/v3.4/op-guide/recovery/
