@@ -177,6 +177,31 @@ EOF
 EOF
   fi
 
+  # docker proxy setting
+  http_proxy=${http_proxy:-}
+  HTTP_PROXY=${HTTP_PROXY:-$http_proxy}
+  https_proxy=${https_proxy:-}
+  HTTPS_PROXY=${HTTPS_PROXY:-$https_proxy}
+  USE_PROXY=0
+  CONFIG="[Service]\n"
+
+  if [[ ! -z ${HTTP_PROXY} ]]; then
+    USE_PROXY=1
+    CONFIG=${CONFIG}"Environment=HTTP_PROXY=${HTTP_PROXY}\n"
+  fi
+  if [[ ! -z ${HTTPS_PROXY} ]]; then
+    USE_PROXY=1
+    CONFIG=${CONFIG}"Environment=HTTPS_PROXY=${HTTPS_PROXY}\n"
+  fi
+  if [[ ${USE_PROXY} == 1 ]]; then
+    logger debug "generate docker service http proxy file"
+    mkdir -p /etc/systemd/system/docker.service.d
+    c=$(echo -e ${CONFIG})
+    cat > /etc/systemd/system/docker.service.d/http-proxy.conf << EOF
+${c}
+EOF
+  fi
+
   if [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
     logger debug "turn off selinux in CentOS/Redhat"
     getenforce|grep Disabled || setenforce 0
