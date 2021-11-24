@@ -196,7 +196,7 @@ EOF
   if [[ ${USE_PROXY} == 1 ]]; then
     logger debug "generate docker service http proxy file"
     mkdir -p /etc/systemd/system/docker.service.d
-    c=$(echo -e ${CONFIG})
+    c=$(echo -e "$CONFIG")
     cat > /etc/systemd/system/docker.service.d/http-proxy.conf << EOF
 ${c}
 EOF
