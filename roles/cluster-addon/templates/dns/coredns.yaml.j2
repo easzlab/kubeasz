@@ -3,12 +3,16 @@ kind: ServiceAccount
 metadata:
   name: coredns
   namespace: kube-system
+  labels:
+      kubernetes.io/cluster-service: "true"
+      addonmanager.kubernetes.io/mode: Reconcile
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     kubernetes.io/bootstrapping: rbac-defaults
+    addonmanager.kubernetes.io/mode: Reconcile
   name: system:coredns
 rules:
 - apiGroups:
@@ -21,6 +25,12 @@ rules:
   verbs:
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
 - apiGroups:
   - discovery.k8s.io
   resources:
@@ -36,6 +46,7 @@ metadata:
     rbac.authorization.kubernetes.io/autoupdate: "true"
   labels:
     kubernetes.io/bootstrapping: rbac-defaults
+    addonmanager.kubernetes.io/mode: EnsureExists
   name: system:coredns
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -51,6 +62,8 @@ kind: ConfigMap
 metadata:
   name: coredns
   namespace: kube-system
+  labels:
+      addonmanager.kubernetes.io/mode: EnsureExists
 data:
   Corefile: |
     .:53 {
@@ -80,6 +93,8 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-dns
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
     kubernetes.io/name: "CoreDNS"
 spec:
   replicas: 1
@@ -95,13 +110,11 @@ spec:
       labels:
         k8s-app: kube-dns
     spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       priorityClassName: system-cluster-critical
       serviceAccountName: coredns
-      tolerations:
-        - key: "CriticalAddonsOnly"
-          operator: "Exists"
-      nodeSelector:
-        kubernetes.io/os: linux
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -113,13 +126,18 @@ spec:
                     operator: In
                     values: ["kube-dns"]
               topologyKey: kubernetes.io/hostname
+      tolerations:
+        - key: "CriticalAddonsOnly"
+          operator: "Exists"
+      nodeSelector:
+        kubernetes.io/os: linux
       containers:
       - name: coredns
         image: coredns/coredns:{{ corednsVer }}
         imagePullPolicy: IfNotPresent
         resources:
           limits:
-            memory: 200Mi
+            memory: 300Mi
           requests:
             cpu: 100m
             memory: 70Mi
@@ -180,6 +198,7 @@ metadata:
   labels:
     k8s-app: kube-dns
     kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
     kubernetes.io/name: "CoreDNS"
 spec:
   selector:
