@@ -130,7 +130,7 @@ spec:
       containers:
       - args:
         - --cert-dir=/tmp
-        - --secure-port=443
+        - --secure-port=4443
         - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
         - --kubelet-insecure-tls
         - --kubelet-use-node-status-port
@@ -147,7 +147,7 @@ spec:
           periodSeconds: 10
         name: metrics-server
         ports:
-        - containerPort: 443
+        - containerPort: 4443
           name: https
           protocol: TCP
         readinessProbe:
