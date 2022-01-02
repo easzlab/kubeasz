@@ -48,7 +48,7 @@ ETCD_WAL_DIR: ""
 ENABLE_MIRROR_REGISTRY: true
 
 # [containerd]基础容器镜像
-SANDBOX_IMAGE: "easzlab/pause-amd64:__pause__"
+SANDBOX_IMAGE: "easzlab/pause:__pause__"
 
 # [containerd]容器持久化存储目录
 CONTAINERD_STORAGE_DIR: "/var/lib/containerd"

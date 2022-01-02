@@ -29,7 +29,7 @@ corednsVer=1.8.6
 dashboardVer=v2.4.0
 dashboardMetricsScraperVer=v1.0.7
 metricsVer=v0.5.2
-pauseVer=3.5
+pauseVer=3.6
 nfsProvisionerVer=v4.0.1
 export ciliumVer=v1.4.1
 export kubeRouterVer=v0.3.1
@@ -318,8 +318,8 @@ function get_offline_image() {
     docker save -o "$imageDir/metrics-server_$metricsVer.tar" "easzlab/metrics-server:$metricsVer"
   fi
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
-    docker pull "easzlab/pause-amd64:$pauseVer" && \
-    docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause-amd64:$pauseVer"
+    docker pull "easzlab/pause:$pauseVer" && \
+    docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer"
     /bin/cp -u "$imageDir/pause_$pauseVer.tar" "$imageDir/pause.tar"
   fi
   if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
