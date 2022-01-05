@@ -33,7 +33,7 @@ SECURE_PORT="6443"
 CONTAINER_RUNTIME="containerd"
 
 # Network plugins supported: calico, flannel, kube-router, cilium, kube-ovn
-CLUSTER_NETWORK="flannel"
+CLUSTER_NETWORK="calico"
 
 # Service proxy mode of kube-proxy: 'iptables' or 'ipvs'
 PROXY_MODE="ipvs"
