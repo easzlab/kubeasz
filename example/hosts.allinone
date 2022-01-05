@@ -30,7 +30,7 @@
 SECURE_PORT="6443"
 
 # Cluster container-runtime supported: docker, containerd
-CONTAINER_RUNTIME="docker"
+CONTAINER_RUNTIME="containerd"
 
 # Network plugins supported: calico, flannel, kube-router, cilium, kube-ovn
 CLUSTER_NETWORK="flannel"

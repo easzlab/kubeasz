@@ -5,12 +5,11 @@ After=network.target
 
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
-  --advertise-address={{ inventory_hostname }} \
   --allow-privileged=true \
   --anonymous-auth=false \
   --api-audiences=api,istio-ca \
   --authorization-mode=Node,RBAC \
-  --bind-address={{ inventory_hostname }} \
+  --bind-address=0.0.0.0 \
   --client-ca-file={{ ca_dir }}/ca.pem \
   --endpoint-reconciler-type=lease \
   --etcd-cafile={{ ca_dir }}/ca.pem \

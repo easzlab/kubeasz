@@ -40,7 +40,7 @@ spec:
 
 在一个工作k8s 集群中，`PVC`请求会很多，如果每次都需要管理员手动去创建对应的 `PV`资源，那就很不方便；因此 K8S还提供了多种 `provisioner`来动态创建 `PV`，不仅节省了管理员的时间，还可以根据`StorageClasses`封装不同类型的存储供 PVC 选用。
 
-项目中以nfs-client-provisioner为例（https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner）
+项目中以nfs-client-provisioner为例 https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
 
 - 1.编辑集群配置文件：clusters/${集群名}/config.yml
 

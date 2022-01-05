@@ -1,10 +1,22 @@
-## 关于K8S集群一致性认证
+# 关于K8S集群一致性认证
 
 CNCF 一致性认证项目(https://github.com/cncf/k8s-conformance) 可以很方便帮助k8s搭建者和用户确认集群各项功能符合预期，既符合k8s设计标准。
 
+# kubeasz 通过一致性测试
+
+Cheers! 
+
+自kubeasz 3.0.0 版本，k8s v1.20.2开始，正式通过cncf一致性认证，成为cncf 官方认证安装工具；后续k8s主要版本发布或者kubeasz有大版本更新，会优先确保通过集群一致性认证。
+
+v1.23 [进行中]()
+v1.22 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.22/kubeasz)
+v1.21 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.21/kubeasz)
+v1.20 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.20/kubeasz)
+
+
 ## Conformance Test
 
-按照测试文档，注意以下几点，通过所有的测试项也不是难事：
+按照测试文档，注意以下几点：
 
 1.解决qiang的问题，可以临时去国外公有云创建集群，然后运行测试项目。
 
@@ -12,92 +24,73 @@ CNCF 一致性认证项目(https://github.com/cncf/k8s-conformance) 可以很方
 
 3.网络组件选择calico，其他组件可能有bug导致特定测试项失败
 
-4.kube-proxy暂时用iptables模式，使用ipvs再测试服务sessionAffinity时有bug，后续应该会修复
+4.kube-proxy暂时用iptables模式，使用ipvs在测试服务sessionAffinity时有bug，后续应该会修复
 
 
-## kubeasz 技术上完全通过一致性测试
+# 附：测试流程
 
-Cheers! 
+## Node Provisioning
 
-使用kubeasz 3.0.0 版本，k8s v1.20.2（其他kubeasz版本应该也类似），开始测试时候在网络上走了一些弯路，后面还是很顺利的通过测试，测试结果：
-
-``` bash
-JUnit report was created: /tmp/results/junit_01.xml
-{"msg":"Test Suite completed","total":311,"completed":311,"skipped":5356,"failed":0}
-
-Ran 311 of 5667 Specs in 6179.487 seconds
-SUCCESS! -- 311 Passed | 0 Failed | 0 Pending | 5356 Skipped
-PASS
-
-Ginkgo ran 1 suite in 1h43m0.59512776s
-Test Suite Passed
-```
-
-具体的测试过程和结果请参考这里：https://github.com/cncf/k8s-conformance/pull/1326
-
-PS：另外，我也花时间走流程正式申请成为官方认证的部署工具；目前来看作为免费的开源工具申请下来还是比较困难，估计是类似的发行版及部署工具太多了吧，中文项目估计也不被看好，有兴趣的或者有门路的朋友可以联系我，帮忙申请下来。
-
-后续k8s主要版本发布或者kubeasz有大版本更新，我都会优先确保通过集群一致性认证。
-
-
-## 附：测试流程
-
-### Node Provisioning
-
-Provision 2 nodes for your cluster (OS requirements: CentOS 7 or Ubuntu 1604/1804)
+Provision 3 nodes for your cluster (OS: Ubuntu 20.04)
 
 1 master node (4c16g)
 
-1 worker node (4c16g)
+2 worker node (4c16g)
 
 for a High-Availability Kubernetes Cluster, read [more](https://github.com/easzlab/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md)
 
-### Install the cluster
+## Install the cluster
 
-(1) clone repo: kubeasz
-
-```
-git clone https://github.com/easzlab/kubeasz.git
-mv ./kubeasz /etc
-```
-
-(2) Download the binaries and offline images
+(1) Download 'kubeasz' code, the binaries and offline images
 
 ```
-cd /etc/kubeasz
+export release=3.1.0
+curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
+chmod +x ./ezdown
 ./ezdown -D -m standard
 ```
 
-(3) install an all-in-one cluster
+(2) install an all-in-one cluster
 
 ```
+cd /etc/kubeasz
 sed -i 's/^CLUSTER_NETWORK=.*$/CLUSTER_NETWORK="calico"/g' example/hosts.allinone
 sed -i 's/^PROXY_MODE=.*$/PROXY_MODE="iptables"/g' example/hosts.allinone
 ./ezdown -S
 docker exec -it kubeasz ezctl start-aio
 ```
 
-(4) Add a worker node
+(3) Add two worker nodes
 
 ```
-ssh-copy-id ${worker_ip}
-docker exec -it kubeasz ezctl add-node default ${worker_ip}
+ssh-copy-id ${worker1_ip}
+ssh ${worker1_ip} ln -s /usr/bin/python3 /usr/bin/python
+docker exec -it kubeasz ezctl add-node default ${worker1_ip}
+ssh-copy-id ${worker2_ip}
+ssh ${worker2_ip} ln -s /usr/bin/python3 /usr/bin/python
+docker exec -it kubeasz ezctl add-node default ${worker2_ip}
 ```
 
-### Run Conformance Test
-The standard tool for running these tests is Sonobuoy. Sonobuoy is regularly built and kept up to date to execute against all currently supported versions of kubernetes.
+## Run Conformance Test
 
-Download a [binary release](https://github.com/vmware-tanzu/sonobuoy/releases) of the CLI, or build it yourself by running:
+The standard tool for running these tests is
+[Sonobuoy](https://github.com/heptio/sonobuoy).  Sonobuoy is
+regularly built and kept up to date to execute against all
+currently supported versions of kubernetes.
+
+Download a [binary release](https://github.com/heptio/sonobuoy/releases) of the CLI, or build it yourself by running:
 
 ```
-go get -u -v github.com/vmware-tanzu/sonobuoy
+$ go get -u -v github.com/heptio/sonobuoy
 ```
 
 Deploy a Sonobuoy pod to your cluster with:
 
 ```
-sonobuoy run --mode=certified-conformance
+$ sonobuoy run --mode=certified-conformance
 ```
+
+**NOTE:** You can run the command synchronously by adding the flag `--wait` but be aware that running the Conformance tests can take an hour or more.
 
 View actively running pods:
 
@@ -131,3 +124,4 @@ To clean up Kubernetes objects created by Sonobuoy, run:
 ```
 sonobuoy delete
 ```
+
