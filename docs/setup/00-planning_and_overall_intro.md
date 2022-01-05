@@ -82,6 +82,9 @@ ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519
 ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa
 
 ssh-copy-id $IPs #$IPs为所有节点地址包括自身，按照提示输入yes 和root密码
+
+# 为每个节点设置python软链接
+ssh $IPs ln -s /usr/bin/python3 /usr/bin/python
 ```
 
 ### 4.在部署节点编排k8s安装

@@ -20,11 +20,9 @@ v1.20 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.20/kube
 
 1.解决qiang的问题，可以临时去国外公有云创建集群，然后运行测试项目。
 
-2.集群要保障资源，建议3个节点左右
+2.集群要保障资源，建议3个节点
 
 3.网络组件选择calico，其他组件可能有bug导致特定测试项失败
-
-4.kube-proxy暂时用iptables模式，使用ipvs在测试服务sessionAffinity时有bug，后续应该会修复
 
 
 # 附：测试流程
@@ -44,7 +42,7 @@ for a High-Availability Kubernetes Cluster, read [more](https://github.com/easzl
 (1) Download 'kubeasz' code, the binaries and offline images
 
 ```
-export release=3.1.0
+export release=3.2.0
 curl -C- -fLO --retry 3 https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 ./ezdown -D -m standard
@@ -53,9 +51,6 @@ chmod +x ./ezdown
 (2) install an all-in-one cluster
 
 ```
-cd /etc/kubeasz
-sed -i 's/^CLUSTER_NETWORK=.*$/CLUSTER_NETWORK="calico"/g' example/hosts.allinone
-sed -i 's/^PROXY_MODE=.*$/PROXY_MODE="iptables"/g' example/hosts.allinone
 ./ezdown -S
 docker exec -it kubeasz ezctl start-aio
 ```
@@ -124,4 +119,3 @@ To clean up Kubernetes objects created by Sonobuoy, run:
 ```
 sonobuoy delete
 ```
-
