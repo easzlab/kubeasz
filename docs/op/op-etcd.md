@@ -41,4 +41,4 @@ $ journalctl -u etcd -f
 
 ## 参考
 
-- 官方文档 https://github.com/etcd-io/etcd/blob/master/Documentation/op-guide/runtime-configuration.md
+- 官方文档 https://etcd.io/docs/v3.5/op-guide/runtime-configuration/ 
