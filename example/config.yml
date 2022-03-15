@@ -53,6 +53,23 @@ SANDBOX_IMAGE: "easzlab/pause:__pause__"
 # [containerd]容器持久化存储目录
 CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
 
+# [containerd] 镜像仓库 安全配置
+CONTAINERD_PRIVATE_REGISTRIES:
+ - host: registry.example.com
+   username: user
+   password: password
+   auth_token: auth_token
+   insecure: true
+
+# [containerd]镜像外网镜像仓库至本地仓库
+CONTAINERD_MIRROR_TO_PRIVATE_REGISTRIES:
+ - from: gcr.io
+   to: http://registry.example.com/v2/gcr.io
+ - from: k8s.gcr.io
+   to: http://registry.example.com/v2/gcr.io
+ - from: quay.io
+   to: http://registry.example.com/v2/quay.io
+
 # ------------------------------------------- docker
 # [docker]容器存储目录
 DOCKER_STORAGE_DIR: "/var/lib/docker"

@@ -131,7 +131,24 @@ version = 2
       [plugins."io.containerd.grpc.v1.cri".registry.auths]
 
       [plugins."io.containerd.grpc.v1.cri".registry.configs]
-
+{% if CONTAINERD_PRIVATE_REGISTRIES %}
+{% for private_reg in CONTAINERD_PRIVATE_REGISTRIES %}
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."{{ private_reg.host }}.auth"]
+          {% if private_reg.username %}}
+          username="{{ private_reg.username }}"
+          {% endif %}
+          {% if private_reg.password %}}
+          password="{{ private_reg.password }}"
+          {% endif %}
+          {% if private_reg.auth_token %}}
+          auth="{{ private_reg.auth_token }}"
+          {% endif %}
+{% if private_reg.insecure %}}
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."{{ private_reg.host }}.tls"]
+          insecure_skip_verify = true
+{% endif %}
+{% endfor %}
+{% endif %}
       [plugins."io.containerd.grpc.v1.cri".registry.headers]
 
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
@@ -144,6 +161,13 @@ version = 2
           endpoint = ["https://gcr.mirrors.ustc.edu.cn/google-containers/"]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."quay.io"]
           endpoint = ["https://quay.mirrors.ustc.edu.cn"]
+{% if CONTAINERD_MIRROR_TO_PRIVATE_REGISTRIES %}
+{% for mirror in CONTAINERD_MIRROR_TO_PRIVATE_REGISTRIES %}
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."{{ mirror.from }}"]
+          endpoint = ["{{ mirror.to }}"]
+{% endfor %}
+{% endif %}
+
 {% endif %}
 
     [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]
