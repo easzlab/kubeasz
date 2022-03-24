@@ -259,6 +259,7 @@ function get_ext_bin() {
 function get_sys_pkg() {
   [[ -f "$BASE/down/packages/chrony_xenial.tar.gz" ]] && { logger warn "system packages existed"; return 0; }
 
+  docker ps -a |grep temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
   logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
   docker pull "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "run a temporary container" && \
@@ -272,6 +273,7 @@ function get_sys_pkg() {
 function get_harbor_offline_pkg() {
   [[ -f "$BASE/down/harbor-offline-installer-$HARBOR_VER.tgz" ]] && { logger warn "harbor-offline existed"; return 0; }
 
+  docker ps -a |grep temp_harbor && { logger debug "remove existing container"; docker rm -f temp_harbor; }
   logger info "downloading harbor-offline:$HARBOR_VER"
   docker pull "easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "run a temporary container" && \
