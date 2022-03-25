@@ -393,7 +393,7 @@ function main() {
   BASE="/etc/kubeasz"
 
   # check if use bash shell
-  readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell, not sh"; exit 1; }
+  readlink /proc/$$/exe|grep -q "bash" || { logger error "you should use bash shell, not sh"; exit 1; }
   # check if use with root
   [[ "$EUID" -ne 0 ]] && { logger error "you should run this script as root"; exit 1; }
   
