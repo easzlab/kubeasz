@@ -1,0 +1,4 @@
+- hosts:
+  - kube_master
+  roles:
+  - { role: ali-ccm, when: "aliccm_install == 'yes'" }

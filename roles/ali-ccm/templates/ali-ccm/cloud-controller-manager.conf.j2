@@ -1,0 +1,18 @@
+kind: Config
+contexts:
+- context:
+    cluster: kubernetes
+    user: system:cloud-controller-manager
+  name: system:cloud-controller-manager@kubernetes
+current-context: system:cloud-controller-manager@kubernetes
+users:
+- name: system:cloud-controller-manager
+  user:
+    client-certificate-data: {{ ccm_token }}
+    client-key-data: {{ ccm_token }}
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: {{ CA_DATA }}
+    server: {{ APISERVER_DOMAIN }}
+  name: {{ CLUSTER_NAME }}

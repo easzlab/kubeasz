@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: cloud-controller-manager
+    tier: control-plane
+  name: cloud-controller-manager
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: cloud-controller-manager
+      tier: control-plane
+  template:
+    metadata:
+      labels:
+        app: cloud-controller-manager
+        tier: control-plane
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      serviceAccountName: cloud-controller-manager
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          operator: Exists
+          key: node.cloudprovider.kubernetes.io/uninitialized
+      nodeSelector:
+        kubernetes.io/role: "master"
+      containers:
+        - command:
+          - /cloud-controller-manager
+          - --kubeconfig=/etc/kubernetes/cloud-controller-manager.conf
+          - --cloud-config=/etc/kubernetes/config/cloud-config.conf
+          - --controllers=node,route,service,ingress
+          - --metrics-bind-addr=0
+          - --route-reconciliation-period=3m
+          - --configure-cloud-routes=true
+          #- --cluster-cidr=172.16.0.0/16
+          - --cluster-cidr={{ CLUSTER_CIDR }}
+          image: registry.cn-hangzhou.aliyuncs.com/acs/cloud-controller-manager-amd64:{{ aliccmVer }}
+          livenessProbe:
+            failureThreshold: 8
+            httpGet:
+              host: 127.0.0.1
+              path: /healthz
+              port: 10258
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 15
+          name: cloud-controller-manager
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          volumeMounts:
+            - mountPath: /etc/kubernetes/
+              name: k8s
+            - mountPath: /etc/kubernetes/config
+              name: cloud-config
+      hostNetwork: true
+      volumes:
+        - hostPath:
+            path: /etc/kubernetes
+          name: k8s
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: cloud-config.conf
+                path: cloud-config.conf
+            name: cloud-config
+          name: cloud-config

@@ -73,3 +73,8 @@
   - kube_node
   roles:
   - cluster-addon
+
+- hosts:
+  - kube_master
+  roles:
+  - { role: ali-ccm, when: "aliccm_install == 'yes'" }

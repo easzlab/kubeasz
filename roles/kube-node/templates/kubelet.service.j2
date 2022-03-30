@@ -28,6 +28,11 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
 {% endif %}
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
+{% if aliccm_install == "yes" %}
+  --cloud-provider=external \
+  --provider-id={{ providerID }} \
+  --hostname-override={{ providerID }} \
+{% endif %}
   --config=/var/lib/kubelet/config.yaml \
   --cni-bin-dir={{ bin_dir }} \
   --cni-conf-dir=/etc/cni/net.d \

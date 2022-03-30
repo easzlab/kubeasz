@@ -1,5 +1,8 @@
 ############################
 # prepare
+
+# kube-apiserver前的负载均衡器域名
+APISERVER_DOMAIN: ""
 ############################
 # 可选离线安装系统软件包 (offline|online)
 INSTALL_SOURCE: "online"
@@ -199,6 +202,12 @@ traefik_chart_ver: "__traefik_chart__"
 prom_install: "no"
 prom_namespace: "monitor"
 prom_chart_ver: "__prom_chart__"
+
+# 自动安装阿里云Cloud Controller Manager
+aliccm_install: "no"
+aliccmVer: "__aliCCM_ver__"
+AccessKeyID-base64: ""
+AccessKeySecret-base64: ""
 
 # nfs-provisioner 自动安装
 nfs_provisioner_install: "no"

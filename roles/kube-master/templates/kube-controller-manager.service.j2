@@ -4,6 +4,9 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart={{ bin_dir }}/kube-controller-manager \
+{% if aliccm_install == "yes" %}
+  --cloud-provider=external \
+{% endif %}
   --bind-address=0.0.0.0 \
   --allocate-node-cidrs=true \
   --cluster-cidr={{ CLUSTER_CIDR }} \
