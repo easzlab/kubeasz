@@ -4,7 +4,9 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart={{ bin_dir }}/kube-scheduler \
-  --address=127.0.0.1 \
+  --authentication-kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
+  --authorization-kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
+  --bind-address=0.0.0.0 \
   --kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
   --leader-elect=true \
   --v=2

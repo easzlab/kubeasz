@@ -1,0 +1,19 @@
+[Unit]
+Description=l4 nginx proxy
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+ExecStartPre=/etc/l4lb/sbin/l4lb -c /etc/l4lb/conf/l4lb.conf -p /etc/l4lb -t
+ExecStart=/etc/l4lb/sbin/l4lb -c /etc/l4lb/conf/l4lb.conf -p /etc/l4lb
+ExecReload=/etc/l4lb/sbin/l4lb -c /etc/l4lb/conf/l4lb.conf -p /etc/l4lb -s reload
+PrivateTmp=true
+Restart=always
+RestartSec=15
+StartLimitInterval=0
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

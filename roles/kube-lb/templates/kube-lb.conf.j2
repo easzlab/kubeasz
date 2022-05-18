@@ -1,0 +1,22 @@
+user root;
+worker_processes 1;
+
+error_log  /etc/kube-lb/logs/error.log warn;
+
+events {
+    worker_connections  3000;
+}
+
+stream {
+    upstream backend {
+{% for host in groups['kube_master'] %}
+        server {{ host }}:{{ SECURE_PORT }}    max_fails=2 fail_timeout=3s;
+{% endfor %}
+    }
+
+    server {
+        listen 127.0.0.1:{{ SECURE_PORT }};
+        proxy_connect_timeout 1s;
+        proxy_pass backend;
+    }
+}

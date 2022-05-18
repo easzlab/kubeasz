@@ -26,6 +26,7 @@
       - socat               # 用于port forwarding
     state: present
   when: 'INSTALL_SOURCE != "offline"'
+  ignore_errors: true
 
 # 离线安装基础软件包
 - import_tasks: offline.yml
@@ -43,3 +44,11 @@
 
 - name: 重启 journald 服务
   service: name=systemd-journald state=restarted
+
+- name: Configuration iptables
+  shell: 'iptables -F \
+    && iptables -t nat -F \
+    && iptables -t mangle -F \
+    && iptables -X \
+    && update-alternatives --set iptables /usr/sbin/iptables-legacy'
+  when: ansible_distribution == "Debian" and ansible_distribution_version|int >= 10

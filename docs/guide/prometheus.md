@@ -4,96 +4,51 @@
 
 ## 前提
 
-- 安装 helm：以本项目[安全安装helm](helm.md)为例
+- 安装 helm
 - 安装 [kube-dns](kubedns.md)
-
-## 准备
-
-安装目录概览 `ll /etc/ansible/manifests/prometheus`
-
-``` bash
-drwx------  3 root root  4096 Jun  3 22:42 grafana/
--rw-r-----  1 root root 67875 Jun  4 22:47 grafana-dashboards.yaml
--rw-r-----  1 root root   690 Jun  4 09:34 grafana-settings.yaml
--rw-r-----  1 root root  1105 May 30 16:54 prom-alertrules.yaml
--rw-r-----  1 root root   474 Jun  5 10:04 prom-alertsmanager.yaml
-drwx------  3 root root  4096 Jun  2 21:39 prometheus/
--rw-r-----  1 root root   294 May 30 18:09 prom-settings.yaml
-```
-- 目录`prometheus/`和`grafana/`即官方的helm charts，可以使用`helm fetch --untar stable/prometheus` 和 `helm fetch --untar stable/grafana`下载，本安装不会修改任何官方charts里面的内容，这样方便以后跟踪charts版本的更新
-- `prom-settings.yaml`：个性化prometheus安装参数，比如禁用PV，禁用pushgateway，设置nodePort等
-- `prom-alertrules.yaml`：配置告警规则
-- `prom-alertsmanager.yaml`：配置告警邮箱设置等
-- `grafana-settings.yaml`：个性化grafana安装参数，比如用户名密码，datasources，dashboardProviders等
-- `grafana-dashboards.yaml`：预设置dashboard
 
 ## 安装
 
-``` bash
-$ source ~/.bashrc
-$ cd /etc/ansible/manifests/prometheus
-# 安装 prometheus chart，如果你的helm安装没有启用tls证书，请忽略--tls参数
-$ helm install --tls \
-        --name monitor \
-        --namespace monitoring \
-        -f prom-settings.yaml \
-        -f prom-alertsmanager.yaml \
-        -f prom-alertrules.yaml \
-        prometheus
-# 安装 grafana chart
-$ helm install --tls \
-	--name grafana \
-	--namespace monitoring \
-	-f grafana-settings.yaml \
-	-f grafana-dashboards.yaml \
-	grafana
-```
+项目3.x采用的部署charts: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+kubeasz 集成安装
+
+- 1.修改 clusters/xxxx/config.yml 中配置项 prom_install: "yes"
+- 2.安装 ezctl setup xxxx 07
+
+注：涉及到镜像需从 quay.io 下载，国内比较慢，可以使用项目中的工具脚本 tools/imgutils
+
+--- 以下内容暂未更新
 
 ## 验证安装
 
 ``` bash 
 # 查看相关pod和svc
-$ kubectl get pod,svc -n monitoring 
-NAME                                                     READY     STATUS    RESTARTS   AGE
-grafana-54dc76d47d-2mk55                                 1/1       Running   0          1m
-monitor-prometheus-alertmanager-6d9d9b5b96-w57bk         2/2       Running   0          2m
-monitor-prometheus-kube-state-metrics-69f5d56f49-fh9z7   1/1       Running   0          2m
-monitor-prometheus-node-exporter-55bwx                   1/1       Running   0          2m
-monitor-prometheus-node-exporter-k8sb2                   1/1       Running   0          2m
-monitor-prometheus-node-exporter-kxlr9                   1/1       Running   0          2m
-monitor-prometheus-node-exporter-r5dx8                   1/1       Running   0          2m
-monitor-prometheus-server-5ccfc77dff-8h9k6               2/2       Running   0          2m
+$ kubectl get pod,svc -n monitor
+NAME                                                         READY   STATUS    RESTARTS   AGE
+pod/alertmanager-prometheus-kube-prometheus-alertmanager-0   2/2     Running   0          3m11s
+pod/prometheus-grafana-6d6d47996f-7xlpt                      2/2     Running   0          3m14s
+pod/prometheus-kube-prometheus-operator-5f6774b747-bpktd     1/1     Running   0          3m14s
+pod/prometheus-kube-state-metrics-95d956569-dhlkx            1/1     Running   0          3m14s
+pod/prometheus-prometheus-kube-prometheus-prometheus-0       2/2     Running   1          3m11s
+pod/prometheus-prometheus-node-exporter-d9m7j                1/1     Running   0          3m14s
 
-NAME                                    TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
-grafana                                 NodePort    10.68.74.242   <none>        80:39002/TCP   1m
-monitor-prometheus-alertmanager         NodePort    10.68.69.105   <none>        80:39001/TCP   2m
-monitor-prometheus-kube-state-metrics   ClusterIP   None           <none>        80/TCP         2m
-monitor-prometheus-node-exporter        ClusterIP   None           <none>        9100/TCP       2m
-monitor-prometheus-server               NodePort    10.68.248.94   <none>        80:39000/TCP   2m
+NAME                                              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+service/alertmanager-operated                     ClusterIP   None            <none>        9093/TCP,9094/TCP,9094/UDP   3m12s
+service/prometheus-grafana                        NodePort    10.68.31.225    <none>        80:30903/TCP                 3m14s
+service/prometheus-kube-prometheus-alertmanager   NodePort    10.68.212.136   <none>        9093:30902/TCP               3m14s
+service/prometheus-kube-prometheus-operator       NodePort    10.68.226.171   <none>        443:30900/TCP                3m14s
+service/prometheus-kube-prometheus-prometheus     NodePort    10.68.100.42    <none>        9090:30901/TCP               3m14s
+service/prometheus-kube-state-metrics             ClusterIP   10.68.80.70     <none>        8080/TCP                     3m14s
+service/prometheus-operated                       ClusterIP   None            <none>        9090/TCP                     3m12s
+service/prometheus-prometheus-node-exporter       ClusterIP   10.68.64.56     <none>        9100/TCP                     3m14s
 ```
 
-- 访问prometheus的web界面：`http://$NodeIP:39000`
-- 访问alertmanager的web界面：`http://$NodeIP:39001`
-- 访问grafana的web界面：`http://$NodeIP:39002` (默认用户密码 admin:admin，可在web界面修改)
+- 访问prometheus的web界面：`http://$NodeIP:30901`
+- 访问alertmanager的web界面：`http://$NodeIP:30902`
+- 访问grafana的web界面：`http://$NodeIP:30903` (默认用户密码 admin:Admin1234!)
 
 ## 管理操作
-
-- 升级（修改配置）：修改配置请在`prom-settings.yaml` `prom-alertsmanager.yaml` 等文件中进行，保存后执行：  
-``` bash
-# 修改prometheus
-$ helm upgrade --tls monitor -f prom-settings.yaml -f prom-alertsmanager.yaml -f prom-alertrules.yaml prometheus
-# 修改grafana
-$ helm upgrade --tls grafana -f grafana-settings.yaml -f grafana-dashboards.yaml grafana
-```
-- 回退：具体可以参考`helm help rollback`文档
-``` bash
-$ helm rollback --tls monitor [REVISION]
-```
-- 删除 
-``` bash
-$ helm del --tls monitor --purge
-$ helm del --tls grafana --purge
-```
 
 ## 验证告警
 

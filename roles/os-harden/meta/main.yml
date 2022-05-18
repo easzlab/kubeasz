@@ -1,25 +1,28 @@
 ---
 galaxy_info:
   author: "Sebastian Gumprich"
-  description: 'This Ansible role provides numerous security-related configurations, providing all-round base protection.'
+  description: 'This Ansible role provides numerous security-related ssh configurations, providing all-round base protection.'
   company: Hardening Framework Team
   license: Apache License 2.0
   min_ansible_version: '2.5'
   platforms:
     - name: EL
       versions:
-        - 6
         - 7
+        - 8
     - name: Ubuntu
       versions:
-        - precise
-        - trusty
         - xenial
+        - bionic
     - name: Debian
       versions:
-        - wheezy
-        - jessie
+        - stretch
+        - buster
     - name: Amazon
+    - name: Fedora
+    - name: Archlinux
+    - name: SmartOS
+    - name: openSUSE
   galaxy_tags:
     - system
     - security

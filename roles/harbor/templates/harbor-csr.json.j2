@@ -2,7 +2,8 @@
   "CN": "harbor",
   "hosts": [
     "127.0.0.1",
-    "{{ HARBOR_HOSTNAME }}"
+    "{{ inventory_hostname }}",
+    "{{ HARBOR_DOMAIN }}"
   ],
   "key": {
     "algo": "rsa",

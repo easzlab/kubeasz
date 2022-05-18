@@ -1,0 +1,15 @@
+kind: KubeProxyConfiguration
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+bindAddress: 0.0.0.0
+clientConnection:
+  kubeconfig: "/etc/kubernetes/kube-proxy.kubeconfig"
+clusterCIDR: "{{ CLUSTER_CIDR }}"
+conntrack:
+  maxPerCore: 32768
+  min: 131072
+  tcpCloseWaitTimeout: 1h0m0s
+  tcpEstablishedTimeout: 24h0m0s
+healthzBindAddress: 0.0.0.0:10256
+hostnameOverride: "{{ inventory_hostname }}"
+metricsBindAddress: 0.0.0.0:10249
+mode: "{{ PROXY_MODE }}"

@@ -4,12 +4,13 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
-#ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
+{% if ansible_distribution == "Debian" and ansible_distribution_version|int >= 10 %}
+ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
+{% endif %}
 {% if KUBE_RESERVED_ENABLED == "yes" or SYS_RESERVED_ENABLED == "yes" %}
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpu/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuacct/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/podruntime.slice
-ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/systemd/podruntime.slice
@@ -17,16 +18,17 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/systemd/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpu/system.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuacct/system.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice
-ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/systemd/system.slice
+
+{% if ansible_distribution != "Debian" %}
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/podruntime.slice
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
+{% endif %}
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
   --config=/var/lib/kubelet/config.yaml \
-{% if KUBE_VER|float < 1.13 %}
-  --allow-privileged=true \
-{% endif %}
   --cni-bin-dir={{ bin_dir }} \
   --cni-conf-dir=/etc/cni/net.d \
 {% if CONTAINER_RUNTIME == "containerd" %}
@@ -34,6 +36,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
 {% endif %}
   --hostname-override={{ inventory_hostname }} \
+  --image-pull-progress-deadline=5m \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --network-plugin=cni \
   --pod-infra-container-image={{ SANDBOX_IMAGE }} \

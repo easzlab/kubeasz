@@ -17,7 +17,7 @@
 - IPAM Plugin负责给容器分配IP地址
 
 Kubernetes Pod的网络是这样创建的：
-- 0.每个Pod除了创建时指定的容器外，都有一个kubelet启动时指定的`基础容器`，比如：`easzlab/pause-amd64` `registry.access.redhat.com/rhel7/pod-infrastructure`
+- 0.每个Pod除了创建时指定的容器外，都有一个kubelet启动时指定的`基础容器`，比如：`easzlab/pause` `registry.access.redhat.com/rhel7/pod-infrastructure`
 - 1.首先 kubelet创建`基础容器`生成network namespace
 - 2.然后 kubelet调用网络CNI driver，由它根据配置调用具体的CNI 插件
 - 3.然后 CNI 插件给`基础容器`配置网络

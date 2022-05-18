@@ -8,25 +8,6 @@ Mariadb 是从 MySQL 衍生出来的开源关系型数据库，目前兼容 mysq
 - 已部署 helm，参考[这里](../guide/helm.md)
 - 集群提供持久性存储，参考[这里](../setup/08-cluster-storage.md)
 
-这里演示使用 nfs 动态存储，编辑修改 nfs 存储部分参数
-
-``` bash
-$ vi roles/cluster-storage/defaults/main.yml
-storage:
-  # nfs server 参数
-  nfs:
-    enabled: "yes"              # 启用 nfs
-    server: "172.16.3.86"       # 设置 nfs 服务器地址
-    server_path: "/data/nfs"    # 设置共享目录
-    storage_class: "nfs-db"     # 定义 storage_class，后面pvc要调用这个 
-    provisioner_name: "nfs-provisioner-01"  # 任意命名
-
-# 配置完成，保存退出，运行下面命令
-$ ansible-playbook /etc/ansible/roles/cluster-storage/cluster-storage.yml
-# 确认nfs provisioner pod
-$ kubectl get pod --all-namespaces |grep nfs
-kube-system   nfs-provisioner-01-88694d78c-mrn7f            1/1     Running   0          6m
-```
 
 ## mariadb charts 配置修改
 

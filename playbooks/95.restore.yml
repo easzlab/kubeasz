@@ -1,0 +1,45 @@
+# cluster-restore playbook
+# read the guide: 'op/cluster_restore.md'
+# https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#restoring-an-etcd-cluster
+
+- hosts: kube_master
+  tasks:
+  - name: stopping kube_master services
+    service: name={{ item }} state=stopped
+    with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+
+- hosts:
+  - kube_master
+  - kube_node
+  tasks:
+  - name: stopping kube_node services
+    service: name={{ item }} state=stopped
+    with_items:
+    - kubelet
+    - kube-proxy
+
+- hosts: etcd
+  roles:
+  - cluster-restore
+
+- hosts: kube_master
+  tasks:
+  - name: starting kube_master services
+    service: name={{ item }} state=started enabled=yes
+    with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+
+- hosts:
+  - kube_master
+  - kube_node
+  tasks:
+  - name: starting kube_node services
+    service: name={{ item }} state=started enabled=yes
+    with_items:
+    - kubelet
+    - kube-proxy

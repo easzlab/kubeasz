@@ -12,15 +12,7 @@
 
 - name: 转换内核版本为浮点数
   set_fact:
-     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
-
-- name: 设置 nf_conntrack 模块名
-  set_fact: NF_CONNTRACK="nf_conntrack"
-  when: "KERNEL_VER|float >= 4.19"
-
-- name: 设置 nf_conntrack_ipv4 模块名
-  set_fact: NF_CONNTRACK="nf_conntrack_ipv4"
-  when: "KERNEL_VER|float < 4.19"
+    KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
 
 - name: 加载内核模块
   modprobe: name={{ item }} state=present
@@ -30,8 +22,12 @@
     - ip_vs_rr
     - ip_vs_wrr
     - ip_vs_sh
-    - "{{ NF_CONNTRACK }}"
+    - nf_conntrack
   ignore_errors: true
+
+- name: 尝试加载nf_conntrack_ipv4
+  shell: 'modprobe nf_conntrack_ipv4 || echo "NoFound"'
+  register: NF_CONNTRACK_IPV4
 
 - name: 启用systemd自动加载模块服务
   service: name=systemd-modules-load enabled=yes

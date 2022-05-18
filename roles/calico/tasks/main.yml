@@ -1,20 +1,28 @@
 - name: 在节点创建相关目录
   file: name={{ item }} state=directory
   with_items:
-  - /etc/calico/ssl
   - /etc/cni/net.d
+  - /etc/calico/ssl
   - /opt/kube/images 
-  - /opt/kube/kube-system
 
 - name: 创建calico 证书请求
-  template: src=calico-csr.json.j2 dest=/etc/calico/ssl/calico-csr.json
+  template: src=calico-csr.json.j2 dest={{ cluster_dir }}/ssl/calico-csr.json
+  connection: local
 
 - name: 创建 calico证书和私钥
-  shell: "cd /etc/calico/ssl && {{ bin_dir }}/cfssl gencert \
-        -ca={{ ca_dir }}/ca.pem \
-        -ca-key={{ ca_dir }}/ca-key.pem \
-        -config={{ ca_dir }}/ca-config.json \
-        -profile=kubernetes calico-csr.json | {{ bin_dir }}/cfssljson -bare calico"
+  shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+        -ca=ca.pem \
+        -ca-key=ca-key.pem \
+        -config=ca-config.json \
+        -profile=kubernetes calico-csr.json|{{ base_dir }}/bin/cfssljson -bare calico"
+  connection: local
+
+- name: 分发calico证书相关
+  copy: src={{ cluster_dir }}/ssl/{{ item }} dest=/etc/calico/ssl/{{ item }}
+  with_items:
+  - ca.pem
+  - calico.pem
+  - calico-key.pem
 
 - name: get calico-etcd-secrets info
   shell: "{{ bin_dir }}/kubectl get secrets -n kube-system"
@@ -24,15 +32,12 @@
 - name: 创建 calico-etcd-secrets
   shell: "cd /etc/calico/ssl && \
         {{ bin_dir }}/kubectl create secret generic -n kube-system calico-etcd-secrets \
-        --from-file=etcd-ca={{ ca_dir }}/ca.pem \
+        --from-file=etcd-ca=ca.pem \
         --from-file=etcd-key=calico-key.pem \
         --from-file=etcd-cert=calico.pem"
   when: '"calico-etcd-secrets" not in secrets_info.stdout'
   run_once: true
 
-- name: 配置 calico DaemonSet yaml文件
-  template: src=calico-{{ calico_ver_main }}.yaml.j2 dest=/opt/kube/kube-system/calico.yaml
-    
 # 【可选】推送离线docker 镜像，可以忽略执行错误
 - block:
     - name: 检查是否已下载离线calico镜像
@@ -70,10 +75,16 @@
       ignore_errors: true
       when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
+- name: 配置 calico DaemonSet yaml文件
+  template: src=calico-{{ calico_ver_main }}.yaml.j2 dest={{ cluster_dir }}/yml/calico.yaml
+  run_once: true
+  connection: local
+
 # 只需单节点执行一次
 - name: 运行 calico网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/calico.yaml"
+  shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/calico.yaml"
   run_once: true
+  connection: local
 
 # 删除原有cni配置
 - name: 删除默认cni配置

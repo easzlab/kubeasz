@@ -1,36 +1,21 @@
 # 01-创建证书和环境准备
 
-本步骤[01.prepare.yml](../../01.prepare.yml)主要完成:
+本步骤主要完成: 
 
-- [chrony role](../guide/chrony.md): 集群节点时间同步[可选]
-- deploy role: 创建CA证书、集群组件访问apiserver所需的各种kubeconfig
-- prepare role: 系统基础环境配置、分发CA证书、kubectl客户端安装
+- (optional) role:os-harden，可选系统加固，符合linux安全基线，详见[upstream](https://github.com/dev-sec/ansible-collection-hardening/tree/master/roles/os_hardening)
+- (optional) role:chrony，[可选集群节点时间同步](../guide/chrony.md)
+- role:deploy，创建CA证书、集群组件访问apiserver所需的各种kubeconfig
+- role:prepare，系统基础环境配置、分发CA证书、kubectl客户端安装
 
 ## deploy 角色
 
-请在另外窗口打开[roles/deploy/tasks/main.yml](../../roles/deploy/tasks/main.yml) 文件，对照看以下讲解内容。
+主要任务讲解：roles/deploy/tasks/main.yml
 
 ### 创建 CA 证书
 
-``` bash
-roles/deploy/
-├── defaults
-│   └── main.yml		# 配置文件：证书有效期，kubeconfig 相关配置
-├── files
-│   └── read-group-rbac.yaml	# 只读用户的 rbac 权限配置
-├── tasks
-│   └── main.yml		# 主任务脚本
-└── templates
-    ├── admin-csr.json.j2	# kubectl客户端使用的admin证书请求模板
-    ├── ca-config.json.j2	# ca 配置文件模板
-    ├── ca-csr.json.j2		# ca 证书签名请求模板
-    ├── kube-proxy-csr.json.j2  # kube-proxy使用的证书请求模板
-    └── read-csr.json.j2        # kubectl客户端使用的只读证书请求模板
-```
-
 kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 CloudFlare 的 PKI 工具集生成自签名的 CA 证书，用来签名后续创建的其它 TLS 证书。[参考阅读](https://coreos.com/os/docs/latest/generate-self-signed-certificates.html)
 
-根据认证对象可以将证书分成三类：服务器证书`server cert`，客户端证书`client cert`，对等证书`peer cert`(表示既是`server cert`又是`client cert`)，在kubernetes 集群中需要的证书种类如下：
+根据认证对象可以将证书分成三类：服务器证书`server cert`，客户端证书`client cert`，对等证书`peer cert`(既是`server cert`又是`client cert`)，在kubernetes 集群中需要的证书种类如下：
 
 + `etcd` 节点需要标识自己服务的`server cert`，也需要`client cert`与`etcd`集群其他节点交互，当然可以分别指定2个证书，为方便这里使用一个对等证书
 + `master` 节点需要标识 apiserver服务的`server cert`，也需要`client cert`连接`etcd`集群，这里也使用一个对等证书
@@ -44,7 +29,7 @@ kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 
 {
   "signing": {
     "default": {
-      "expiry": "87600h"
+      "expiry": "{{ CERT_EXPIRY }}"
     },
     "profiles": {
       "kubernetes": {
@@ -54,7 +39,17 @@ kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 
             "server auth",
             "client auth"
         ],
-        "expiry": "87600h"
+        "expiry": "{{ CERT_EXPIRY }}"
+      }
+    },
+    "profiles": {
+      "kcfg": {
+        "usages": [
+            "signing",
+            "key encipherment",
+            "client auth"
+        ],
+        "expiry": "{{ CUSTOM_EXPIRY }}"
       }
     }
   }
@@ -63,7 +58,8 @@ kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 
 + `signing`：表示该证书可用于签名其它证书；生成的 ca.pem 证书中 `CA=TRUE`；
 + `server auth`：表示可以用该 CA 对 server 提供的证书进行验证；
 + `client auth`：表示可以用该 CA 对 client 提供的证书进行验证；
-+ `profile kubernetes` 包含了`server auth`和`client auth`，所以可以签发三种不同类型证书；
++ `profile kubernetes` 包含了`server auth`和`client auth`，所以可以签发三种不同类型证书；expiry 证书有效期，默认50年
++ `profile kcfg` 在后面客户端kubeconfig证书管理中用到
 
 #### 创建 CA 证书签名请求 [ca-csr.json.j2](../../roles/deploy/templates/ca-csr.json.j2)
 ``` bash
@@ -87,6 +83,7 @@ kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 
   }
 }
 ```
+- `ca expiry` 指定ca证书的有效期，默认100年
 
 #### 生成CA 证书和私钥
 ``` bash
@@ -214,10 +211,9 @@ kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 
 请在另外窗口打开[roles/prepare/tasks/main.yml](../../roles/prepare/tasks/main.yml) 文件，比较简单直观
 
-1. 首先设置基础操作系统软件和系统参数，请阅读脚本中的注释内容
-1. 首先创建一些基础文件目录
-1. 把证书工具 CFSSL 下发到指定节点，并下发kubeconfig配置文件
-1. 把CA 证书相关下发到指定节点的 {{ ca_dir }} 目录
+1. 设置基础操作系统软件和系统参数，请阅读脚本中的注释内容
+1. 创建一些基础文件目录
+1. 分发kubeconfig配置文件
 
 
 [后一篇](02-install_etcd.md)

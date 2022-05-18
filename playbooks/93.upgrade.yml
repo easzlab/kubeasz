@@ -1,0 +1,42 @@
+# WARNING: Upgrade the k8s cluster can be risky. Make sure you know what you are doing.
+# Read the guide: 'op/upgrade.md' .
+# Usage: ezctl upgrade <cluster_name>
+
+# check k8s version
+- hosts: kube_master
+  tasks:
+  - name: get running k8s version
+    shell: "{{ bin_dir }}/kube-apiserver --version"
+    register: RUNNING_VER
+    run_once: true
+
+  - name: print running version
+    debug: var="RUNNING_VER.stdout"
+    run_once: true
+
+  - name: get update version
+    shell: "{{ base_dir }}/bin/kube-apiserver --version"
+    register: UPDATE_VER
+    run_once: true
+    connection: local
+
+  - name: print update version
+    debug: var="UPDATE_VER.stdout"
+    run_once: true
+
+  - name: check version
+    fail: msg="running version is the same as the update version, UPDATE ABORT."
+    when: "RUNNING_VER.stdout == UPDATE_VER.stdout"
+
+# update masters
+- hosts: 
+  - kube_master
+  roles:
+  - kube-master
+  - kube-node
+
+# update nodes
+- hosts: 
+  - kube_node
+  roles:
+  - { role: kube-node, when: "inventory_hostname not in groups['kube_master']" }

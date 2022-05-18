@@ -1,4 +1,0 @@
-# to set up 'kube-node' nodes
-- hosts: kube-node
-  roles:
-  - { role: kube-node, when: "inventory_hostname not in groups['kube-master']" } 

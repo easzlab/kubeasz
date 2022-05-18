@@ -20,10 +20,12 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
 
 ## etcd 集群节点操作
 
-首先确认配置 ssh 免密码登录，然后执行 (假设待操作节点为 192.168.1.11)：
+首先确认配置 ssh 免密码登录，然后执行 (假设待操作节点为 192.168.1.11，集群名称test-k8s)：
 
-- 增加 etcd 节点：`$ easzctl add-etcd 192.168.1.11` (注意：增加 etcd 还需要根据提示输入集群内唯一的 NODE_NAME)
-- 删除 etcd 节点：`$ easzctl del-etcd 192.168.1.11`
+- 增加 etcd 节点：`$ ezctl add-etcd test-k8s 192.168.1.11`
+- 删除 etcd 节点：`$ ezctl del-etcd test-k8s 192.168.1.11`
+
+具体操作流程参考 ezctl中 add-etcd/del-etcd 相关函数和playbooks/ 目录的操作剧本
 
 ### 验证 etcd 集群
 
@@ -37,18 +39,6 @@ $ systemctl status etcd
 $ journalctl -u etcd -f
 ```
 
-### 重置 k8s 连接 etcd 参数
-
-上述步骤验证成功，确认新etcd集群工作正常后，可以重新配置运行apiserver，以让 k8s 集群能够识别新的etcd集群：
-
-``` bash
-# 重启 master 节点服务
-$ ansible-playbook /etc/ansible/04.kube-master.yml -t restart_master
-
-# 验证 k8s 能够识别新 etcd 集群
-$ kubectl get cs
-```
-
 ## 参考
 
-- 官方文档 https://github.com/etcd-io/etcd/blob/master/Documentation/op-guide/runtime-configuration.md
+- 官方文档 https://etcd.io/docs/v3.5/op-guide/runtime-configuration/ 
