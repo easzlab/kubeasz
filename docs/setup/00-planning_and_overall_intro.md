@@ -98,6 +98,8 @@ wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 # 使用工具脚本下载
 ./ezdown -D
+# 移动 ezctl 到可执行目录
+cp /etc/kubeasz/ezctl /usr/local/bin/
 ```
 
 上述脚本运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/kubeasz`
