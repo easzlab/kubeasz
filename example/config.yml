@@ -190,11 +190,6 @@ dashboard_install: "yes"
 dashboardVer: "__dashboard__"
 dashboardMetricsScraperVer: "__dash_metrics__"
 
-# ingress 自动安装
-ingress_install: "no"
-ingress_backend: "traefik"
-traefik_chart_ver: "__traefik_chart__"
-
 # prometheus 自动安装
 prom_install: "no"
 prom_namespace: "monitor"

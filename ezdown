@@ -35,7 +35,6 @@ export ciliumVer=v1.4.1
 export kubeRouterVer=v0.3.1
 export kubeOvnVer=v1.5.3
 export promChartVer=12.10.6
-export traefikChartVer=10.3.0
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"

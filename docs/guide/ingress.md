@@ -1,5 +1,7 @@
 ## Ingress简介
 
+本文档已过期，安装最新版本，请参考相关官方文档。
+
 ingress就是从外部访问k8s集群的入口，将用户的URL请求转发到不同的service上。ingress相当于nginx反向代理服务器，它包括的规则定义就是URL的路由信息；它的实现需要部署`Ingress controller`(比如 [traefik](https://github.com/containous/traefik) [ingress-nginx](https://github.com/kubernetes/ingress-nginx) 等)，`Ingress controller`通过apiserver监听ingress和service的变化，并根据规则配置负载均衡并提供访问入口，达到服务发现的作用。
 
 - 未配置ingress：

@@ -31,45 +31,8 @@
 - import_tasks: dashboard.yml
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
 
-- import_tasks: ingress.yml
-  when: '"traefik" not in pod_info.stdout and ingress_install == "yes"'
-
 - import_tasks: prometheus.yml
   when: '"kube-prometheus-operator" not in pod_info.stdout and prom_install == "yes"'
 
 - import_tasks: nfs-provisioner.yml
   when: '"nfs-client-provisioner" not in pod_info.stdout and nfs_provisioner_install == "yes"'
-
-#- block:
-#    - block:
-#        - name: 尝试推送离线 metallb镜像（若执行失败，可忽略）
-#          copy: src={{ base_dir }}/down/{{ metallb_offline }} dest=/opt/kube/images/{{ metallb_offline }}
-#          when: 'metallb_offline in download_info.stdout'
-#        
-#        - name: 获取metallb离线镜像推送情况
-#          command: "ls /opt/kube/images"
-#          register: image_info     
-#          
-#        - name: 导入 metallb的离线镜像（若执行失败，可忽略）
-#          shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ metallb_offline }}"
-#          when: 'metallb_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
-#
-#        - name: 导入 metallb的离线镜像（若执行失败，可忽略）
-#          shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ metallb_offline }}"
-#          when: 'metallb_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
-#
-#    - name: 生成 metallb 相关 manifests
-#      template: src=metallb/{{ item }}.j2 dest={{ cluster_dir }}/yml/{{ item }}
-#      with_items:
-#      - "metallb.yaml"
-#      - "{{ metallb_protocol }}.yaml"
-#      run_once: true
-#      connection: local
-#
-#    - name: 创建 metallb controller 部署
-#      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/metallb.yaml && \
-#	      {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/{{ metallb_protocol }}.yaml"
-#      run_once: true
-#      connection: local
-#  when: '"metallb" not in pod_info.stdout and metallb_install == "yes"'
-#  ignore_errors: true

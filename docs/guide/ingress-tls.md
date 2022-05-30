@@ -1,5 +1,7 @@
 # 使用 traefik 配置 https ingress
 
+本文档已过期，安装最新版本，请参考相关官方文档。
+
 本文档基于 traefik 配置 https ingress 规则，请先阅读[配置基本 ingress](ingress.md)。与基本 ingress-controller 相比，需要额外配置 https tls 证书，主要步骤如下：
 
 ## 1.准备 tls 证书
