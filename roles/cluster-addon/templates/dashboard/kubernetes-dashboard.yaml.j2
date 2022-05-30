@@ -182,6 +182,9 @@ spec:
       labels:
         k8s-app: kubernetes-dashboard
     spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: kubernetes-dashboard
           image: kubernetesui/dashboard:{{ dashboardVer }}
