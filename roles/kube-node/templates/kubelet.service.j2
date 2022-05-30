@@ -29,17 +29,9 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
   --config=/var/lib/kubelet/config.yaml \
-  --cni-bin-dir={{ bin_dir }} \
-  --cni-conf-dir=/etc/cni/net.d \
-{% if CONTAINER_RUNTIME == "containerd" %}
-  --container-runtime=remote \
   --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
-{% endif %}
   --hostname-override={{ inventory_hostname }} \
-  --image-pull-progress-deadline=5m \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
-  --network-plugin=cni \
-  --pod-infra-container-image={{ SANDBOX_IMAGE }} \
   --root-dir={{ KUBELET_ROOT_DIR }} \
   --v=2
 Restart=always
