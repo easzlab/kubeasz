@@ -34,7 +34,7 @@ nfsProvisionerVer=v4.0.2
 export ciliumVer=v1.4.1
 export kubeRouterVer=v0.3.1
 export kubeOvnVer=v1.5.3
-export promChartVer=12.10.6
+export promChartVer=35.5.1
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"

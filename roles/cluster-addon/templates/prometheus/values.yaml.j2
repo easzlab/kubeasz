@@ -5,18 +5,12 @@ kubeTargetVersionOverride: "{{ K8S_VER.stdout }}"
 alertmanager:
   enabled: true
   config:
-    global:
-      resolve_timeout: 5m
     route:
-      group_by: ['job']
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 12h
       receiver: 'null'
       routes:
-      - match:
-          alertname: Watchdog
-        receiver: 'null'
+      - receiver: 'null'
+        matchers:
+          - alertname =~ "InfoInhibitor|Watchdog"
     receivers:
     - name: 'null'
 
@@ -25,22 +19,10 @@ alertmanager:
     nodePort: 30902
     type: NodePort 
 
-  alertmanagerSpec:
-    image:
-      repository: quay.io/prometheus/alertmanager
-      tag: v0.21.0
-
-    replicas: 1
-    retention: 120h
-
-    nodeSelector: {}
-
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 grafana:
   enabled: true
-  defaultDashboardsEnabled: true
   adminPassword: Admin1234!
-
   service:
     nodePort: 30903
     type: NodePort 
@@ -52,7 +34,6 @@ kubeApiServer:
 ## Component scraping the kubelet and kubelet-hosted cAdvisor
 kubelet:
   enabled: true
-  namespace: kube-system
 
 ## Component scraping the kube controller manager
 kubeControllerManager:
@@ -109,44 +90,10 @@ kubeProxy:
 ## Manages Prometheus and Alertmanager components
 prometheusOperator:
   enabled: true
-
-  ## Namespaces to scope the interaction of the Prometheus Operator and the apiserver (allow list).
-  ## This is mutually exclusive with denyNamespaces. Setting this to an empty object will disable the configuration
-  namespaces: {}
-    # releaseNamespace: true
-    # additional:
-    # - kube-system
-
-  ## Namespaces not to scope the interaction of the Prometheus Operator (deny list).
-  denyNamespaces: []
-
-  ## Filter namespaces to look for prometheus-operator custom resources
-  ##
-  alertmanagerInstanceNamespaces: []
-  prometheusInstanceNamespaces: []
-  thanosRulerInstanceNamespaces: []
-
   service:
     nodePort: 30899
     nodePortTls: 30900
     type: NodePort 
-
-  nodeSelector: {}
-
-  ## Prometheus-operator image
-  image:
-    repository: quay.io/prometheus-operator/prometheus-operator
-    tag: v0.44.0
-
-  ## Configmap-reload image to use for reloading configmaps
-  configmapReloadImage:
-    repository: docker.io/jimmidyson/configmap-reload
-    tag: v0.4.0
-
-  ## Prometheus-config-reloader image to use for config and rule reloading
-  prometheusConfigReloaderImage:
-    repository: quay.io/prometheus-operator/prometheus-config-reloader
-    tag: v0.44.0
 
 ## Deploy a Prometheus instance
 prometheus:
@@ -157,17 +104,7 @@ prometheus:
     nodePort: 30901
     type: NodePort 
 
-  ## Settings affecting prometheusSpec
-  ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
   prometheusSpec:
-    ## APIServerConfig
-    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#apiserverconfig
-    apiserverConfig: {}
-
-    image:
-      repository: quay.io/prometheus/prometheus
-      tag: v2.22.1
-
     replicas: 1
 
     secrets:
