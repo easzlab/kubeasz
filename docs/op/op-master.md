@@ -5,7 +5,7 @@
 新增`kube_master`节点大致流程为：(参考ezctl 中add-master函数和playbooks/23.addmaster.yml)
 - [可选]新节点安装 chrony 时间同步
 - 新节点预处理 prepare
-- 新节点安装 docker 服务
+- 新节点安装 container runtime 
 - 新节点安装 kube_master 服务
 - 新节点安装 kube_node 服务
 - 新节点安装网络插件相关
@@ -14,9 +14,16 @@
 
 ### 操作步骤
 
-首先配置 ssh 免密码登录新增节点，然后执行 (假设待增加节点为 192.168.1.11, 集群名称test-k8s)：
+执行如下 (假设待增加节点为 192.168.1.11, 集群名称test-k8s)：
 
 ``` bash
+# ssh 免密码登录
+$ ssh-copy-id 192.168.1.11
+
+# 部分操作系统需要配置python软链接
+$ ssh 192.168.1.11 ln -s /usr/bin/python3 /usr/bin/python
+
+# 新增节点
 $ ezctl add-master test-k8s 192.168.1.11
 ```
 

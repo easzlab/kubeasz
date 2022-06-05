@@ -42,8 +42,8 @@
       template: src=prometheus/values.yaml.j2 dest={{ cluster_dir }}/yml/prom-values.yaml
 
     - name: helm 创建 kube-prometheus-stack {{ prom_chart_ver }}
-      shell: "{{ base_dir }}/bin/helm install -n {{ prom_namespace }} prometheus \
-              -f {{ cluster_dir }}/yml/prom-values.yaml \
+      shell: "{{ base_dir }}/bin/helm upgrade prometheus --install \
+              -n {{ prom_namespace }} -f {{ cluster_dir }}/yml/prom-values.yaml \
               {{ base_dir }}/roles/cluster-addon/files/kube-prometheus-stack-{{ prom_chart_ver }}.tgz"
   run_once: true
   connection: local
