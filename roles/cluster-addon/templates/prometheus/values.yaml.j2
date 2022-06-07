@@ -1,18 +1,17 @@
 ## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
-kubeTargetVersionOverride: "{{ K8S_VER.stdout }}"
+kubeTargetVersionOverride: "{{ K8S_VER }}"
 
 ## Configuration for alertmanager
 alertmanager:
   enabled: true
-  config:
-    route:
-      receiver: 'null'
-      routes:
-      - receiver: 'null'
-        matchers:
-          - alertname =~ "InfoInhibitor|Watchdog"
-    receivers:
-    - name: 'null'
+  #config:
+  #  route:
+  #    receiver: dingtalk
+  #  receivers:
+  #  - name: dingtalk
+  #    webhook_configs:
+  #    - send_resolved: false
+  #      url: http://webhook-dingtalk.monitor.svc.cluster.local:8060/dingtalk/webhook1/send
 
   ## Configuration for Alertmanager service
   service:
@@ -25,7 +24,9 @@ grafana:
   adminPassword: Admin1234!
   service:
     nodePort: 30903
-    type: NodePort 
+    type: NodePort
+  sidecar:
+    skipTlsVerify: true 
 
 ## Component scraping the kube api server
 kubeApiServer:
@@ -42,6 +43,13 @@ kubeControllerManager:
 {% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
+  service:
+    port: 10257
+    targetPort: 10257
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
+    serverName: localhost
 
 ## Component scraping coreDns. Use either this or kubeDns
 coreDns:
@@ -54,9 +62,6 @@ kubeEtcd:
 {% for h in groups['etcd'] %}
   - {{ h }}
 {% endfor %}
-
-  ## Configure secure access to the etcd cluster by loading a secret into prometheus and
-  ## specifying security configuration below. For example, with a secret named etcd-client-cert
   serviceMonitor:
     scheme: https
     insecureSkipVerify: true 
@@ -73,6 +78,12 @@ kubeScheduler:
 {% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
+  service:
+    port: 10259
+    targetPort: 10259
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
 
 ## Component scraping kube proxy
 kubeProxy:
@@ -87,13 +98,23 @@ kubeProxy:
 {% endif %}
 {% endfor %}
 
+## Configuration for kube-state-metrics subchart
+kube-state-metrics:
+  image:
+    repository: easzlab/kube-state-metrics
+
 ## Manages Prometheus and Alertmanager components
 prometheusOperator:
   enabled: true
+  admissionWebhooks:
+    enabled: true
+    patch:
+      image:
+        repository: easzlab/kube-webhook-certgen
   service:
     nodePort: 30899
     nodePortTls: 30900
-    type: NodePort 
+    type: NodePort
 
 ## Deploy a Prometheus instance
 prometheus:

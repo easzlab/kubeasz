@@ -32,7 +32,7 @@
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
 
 - import_tasks: prometheus.yml
-  when: '"kube-prometheus-operator" not in pod_info.stdout and prom_install == "yes"'
+  when: 'prom_install == "yes"'
 
 - import_tasks: nfs-provisioner.yml
   when: '"nfs-client-provisioner" not in pod_info.stdout and nfs_provisioner_install == "yes"'
