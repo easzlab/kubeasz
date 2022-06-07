@@ -163,3 +163,13 @@ rules:
   - get
   - list
   - watch
+
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: dashboard-read-user
+  namespace: kube-system
+  annotations:
+    kubernetes.io/service-account.name: "dashboard-read-user"
