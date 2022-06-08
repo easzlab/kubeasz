@@ -3,9 +3,9 @@
 项目致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
 - **集群特性** `TLS`双向认证、`RBAC`授权、[多Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、备份恢复、[离线安装](docs/setup/offline_install.md)
-- **集群版本** kubernetes v1.20, v1.21, v1.22, v1.23
+- **集群版本** kubernetes v1.21, v1.22, v1.23, v1.24
 - **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 16.04/18.04/20.04
-- **运行时** docker 19.03.x, 20.10.x [containerd](docs/setup/containerd.md) v1.5.8
+- **运行时** [containerd](docs/setup/containerd.md) v1.6.4, docker 20.10.x (k8s < 1.24)
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 
@@ -24,6 +24,7 @@
       <td>1.21</td>
       <td>1.22</td>
       <td>1.23</td>
+      <td>1.24</td>
     </tr>
   </thead>
   <tbody>
@@ -34,6 +35,7 @@
       <td>3.1.0</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
+      <td>3.3.0</td>
     </tr>
   </tbody>
 </table>
@@ -71,7 +73,6 @@
         <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
         <td><a href="docs/guide/prometheus.md">prometheus</a></td>
         <td><a href="docs/guide/efk.md">efk</a></td>
-        <td><a href="docs/guide/ingress.md">ingress</a></td>
     </tr>
     <tr>
         <td><strong>集群管理</strong><a href="docs/op/op-index.md">+</a></td>
@@ -80,14 +81,12 @@
         <td><a href="docs/op/op-etcd.md">管理etcd节点</a></td>
         <td><a href="docs/op/upgrade.md">升级集群</a></td>
         <td><a href="docs/op/cluster_restore.md">备份恢复</a></td>
-        <td><a href=""></a></td>
     </tr>
     <tr>
         <td><strong>特性实验</strong></td>
         <td><a href="docs/guide/networkpolicy.md">NetworkPolicy</a></td>
         <td><a href="docs/guide/rollingupdateWithZeroDowntime.md">RollingUpdate</a></td>
         <td><a href="docs/guide/hpa.md">HPA</a></td>
-        <td><a href=""></a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
@@ -97,25 +96,6 @@
         <td><a href="docs/guide/helm.md">helm</a></td>
         <td><a href="docs/guide/jenkins.md">jenkins</a></td>
         <td><a href="docs/guide/gitlab/readme.md">gitlab</a></td>
-        <td><a href=""></a></td>
-        <td><a href=""></a></td>
-    </tr>
-    <tr>
-        <td><strong>应用实践</strong></td>
-        <td><a href="docs/practice/go_web_app/">go web应用部署</a></td>
-        <td><a href="docs/practice/java_war_app.md">java应用部署</a></td>
-        <td><a href="docs/practice/es_cluster.md">elasticsearch集群</a></td>
-        <td><a href="docs/practice/mariadb_cluster.md">mariadb集群</a></td>
-        <td><a href=""></a></td>
-        <td><a href=""></a></td>
-    </tr>
-    <tr>
-        <td><strong>推荐工具</strong></td>
-        <td><a href="docs/guide/kuboard.md">kuboard</a></td>
-        <td><a href="https://github.com/derailed/k9s">k9s</a></td>
-        <td><a href="https://github.com/vmware-tanzu/octant">octant</a></td>
-        <td><a href="docs/guide/kubesphere.md">KubeSphere</a></td>
-        <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
 </table>
