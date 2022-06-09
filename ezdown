@@ -139,6 +139,7 @@ EOF
     "https://docker.mirrors.ustc.edu.cn",
     "http://hub-mirror.c.163.com"
   ],
+  "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",
@@ -154,6 +155,7 @@ EOF
     cat > /etc/docker/daemon.json << EOF
 {
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
+  "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",
@@ -287,52 +289,114 @@ function get_harbor_offline_pkg() {
 }
 
 function get_offline_image() {
-  imageDir="$BASE/down"
-  logger info "downloading offline images"
+  logger info "download offline images, then upload to the local registry"
 
+  # calico
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
     docker pull "calico/cni:$calicoVer" && \
     docker pull "calico/pod2daemon-flexvol:$calicoVer" && \
     docker pull "calico/kube-controllers:$calicoVer" && \
     docker pull "calico/node:$calicoVer" && \
     docker save -o "$imageDir/calico_$calicoVer.tar" "calico/cni:$calicoVer" "calico/kube-controllers:$calicoVer" "calico/node:$calicoVer" "calico/pod2daemon-flexvol:$calicoVer"
+  else
+    docker load -i "$imageDir/calico_$calicoVer.tar"
   fi
+  docker tag "calico/cni:$calicoVer" "easzlab.io.local:5000/calico/cni:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/cni:$calicoVer"
+  docker tag "calico/pod2daemon-flexvol:$calicoVer" "easzlab.io.local:5000/calico/pod2daemon-flexvol:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/pod2daemon-flexvol:$calicoVer"
+  docker tag "calico/kube-controllers:$calicoVer" "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
+  docker tag "calico/node:$calicoVer" "easzlab.io.local:5000/calico/node:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/node:$calicoVer"
+
+  # coredns
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
     docker pull "coredns/coredns:$corednsVer" && \
     docker save -o "$imageDir/coredns_$corednsVer.tar" "coredns/coredns:$corednsVer"
+  else
+    docker load -i "$imageDir/coredns_$corednsVer.tar"
   fi
+  docker tag "coredns/coredns:$corednsVer" "easzlab.io.local:5000/coredns/coredns:$corednsVer"
+  docker push "easzlab.io.local:5000/coredns/coredns:$corednsVer"
+
+  # dns-node-cache
   if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
     docker pull "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
     docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" 
+  else
+    docker load -i "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar"
   fi
+  docker tag "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
+  docker push "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
+
+  # dashboard
   if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
     docker pull "kubernetesui/dashboard:$dashboardVer" && \
     docker save -o "$imageDir/dashboard_$dashboardVer.tar" "kubernetesui/dashboard:$dashboardVer"
+  else
+    docker load -i "$imageDir/dashboard_$dashboardVer.tar"
   fi
+  docker tag "kubernetesui/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+  docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+
+  # flannel
   if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
     docker pull "easzlab/flannel:$flannelVer" && \
     docker save -o "$imageDir/flannel_$flannelVer.tar" "easzlab/flannel:$flannelVer"
+  else
+    docker load -i "$imageDir/flannel_$flannelVer.tar"
   fi
+  docker tag "easzlab/flannel:$flannelVer" "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
+  docker push "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
+
+  # dashboard-metrics-scraper
   if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
     docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
     docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+  else
+    docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
   fi
+  docker tag "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+  docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+
+  # metrics-server
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
     docker pull "easzlab/metrics-server:$metricsVer" && \
     docker save -o "$imageDir/metrics-server_$metricsVer.tar" "easzlab/metrics-server:$metricsVer"
+  else
+    docker load -i "$imageDir/metrics-server_$metricsVer.tar"
   fi
+  docker tag "easzlab/metrics-server:$metricsVer" "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
+  docker push "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
+
+  # pause
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
     docker pull "easzlab/pause:$pauseVer" && \
     docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer"
     /bin/cp -u "$imageDir/pause_$pauseVer.tar" "$imageDir/pause.tar"
+  else
+    docker load -i "$imageDir/pause_$pauseVer.tar"
   fi
+  docker tag "easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+  docker push "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+
+  # nfs-provisioner
   if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
     docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
     docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+  else
+    docker load -i "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar"
   fi
+  docker tag "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+  docker push "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+
+  # kubeasz
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
     docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+  else
+    docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
   fi
 }
 
@@ -343,8 +407,33 @@ function download_all() {
   get_kubeasz && \
   get_k8s_bin && \
   get_ext_bin && \
+  start_local_registry && \
   get_offline_image
 }
+
+function start_local_registry() {
+  docker ps -a --format="{{ .Names }}"|grep registry > /dev/null 2>&1 && \
+  { logger warn "registry is already running"; return 0; }
+
+  if [[ ! -f "$imageDir/registry-2.tar" ]];then
+    docker pull "registry:2" && \
+    docker save -o "$imageDir/registry-2.tar" "registry:2"
+  fi
+
+  logger info "start local registry ..."
+  docker load -i "$imageDir/registry-2.tar" > /dev/null
+  mkdir -p /opt/kube/registry
+  docker run -d \
+        --name registry \
+        --network host \
+        --restart always \
+        --volume /opt/kube/registry:/var/lib/registry \
+        registry:2
+
+  sed -i "/easzlab.io.local/d" /etc/hosts
+  echo "127.0.0.1  easzlab.io.local" >> /etc/hosts
+}
+
 
 function start_kubeasz_docker() {
   [[ -d "$BASE/roles/kube-node" ]] || { logger error "not initialized. try 'ezdown -D' first."; exit 1; }
@@ -369,9 +458,6 @@ function start_kubeasz_docker() {
     ln -s /usr/bin/python3 /usr/bin/python
   fi
 
-  # 
-  docker load -i "$BASE/down/kubeasz_$KUBEASZ_VER.tar"
-
   # run kubeasz docker container
   docker run --detach \
       --env HOST_IP="$host_ip" \
@@ -394,6 +480,7 @@ function clean_container() {
 ### Main Lines ##################################################
 function main() {
   BASE="/etc/kubeasz"
+  imageDir="$BASE/down"
 
   # check if use bash shell
   readlink /proc/$$/exe|grep -q "bash" || { logger error "you should use bash shell, not sh"; exit 1; }

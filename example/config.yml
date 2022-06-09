@@ -48,7 +48,7 @@ ETCD_WAL_DIR: ""
 ENABLE_MIRROR_REGISTRY: true
 
 # [containerd]基础容器镜像
-SANDBOX_IMAGE: "easzlab/pause:__pause__"
+SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
 
 # [containerd]容器持久化存储目录
 CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
@@ -61,7 +61,7 @@ DOCKER_STORAGE_DIR: "/var/lib/docker"
 ENABLE_REMOTE_API: false
 
 # [docker]信任的HTTP仓库
-INSECURE_REG: '["127.0.0.1/8"]'
+INSECURE_REG: '["http://easzlab.io.local:5000"]'
 
 
 ############################
@@ -70,7 +70,7 @@ INSECURE_REG: '["127.0.0.1/8"]'
 # k8s 集群 master 节点证书配置，可以添加多个ip和域名（比如增加公网ip和域名）
 MASTER_CERT_HOSTS:
   - "10.1.1.1"
-  - "k8s.test.io"
+  - "k8s.easzlab.io"
   #- "www.test.com"
 
 # node 节点上 pod 网段掩码长度（决定每个节点最多能分配的pod ip地址）
@@ -112,7 +112,7 @@ DIRECT_ROUTING: false
 
 # [flannel] flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
 flannelVer: "__flannel__"
-flanneld_image: "easzlab/flannel:{{ flannelVer }}"
+flanneld_image: "easzlab.io.local:5000/easzlab/flannel:{{ flannelVer }}"
 
 # [flannel]离线镜像tar包
 flannel_offline: "flannel_{{ flannelVer }}.tar"
@@ -208,7 +208,7 @@ nfs_path: "/data/nfs"
 ############################
 # harbor version，完整版本号
 HARBOR_VER: "__harbor__"
-HARBOR_DOMAIN: "harbor.yourdomain.com"
+HARBOR_DOMAIN: "harbor.easzlab.io.local"
 HARBOR_TLS_PORT: 8443
 
 # if set 'false', you need to put certs named harbor.pem and harbor-key.pem in directory 'down'
