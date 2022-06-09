@@ -374,7 +374,6 @@ function get_offline_image() {
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
     docker pull "easzlab/pause:$pauseVer" && \
     docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer"
-    /bin/cp -u "$imageDir/pause_$pauseVer.tar" "$imageDir/pause.tar"
   else
     docker load -i "$imageDir/pause_$pauseVer.tar"
   fi

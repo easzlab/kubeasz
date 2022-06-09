@@ -4,12 +4,6 @@
   connection: local
   run_once: true
 
-- name: 获取已下载离线镜像信息
-  command: "ls {{ base_dir }}/down"
-  register: download_info
-  connection: local
-  run_once: true
-
 - name: 注册变量 DNS_SVC_IP
   shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
   register: DNS_SVC_IP
