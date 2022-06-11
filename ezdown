@@ -436,6 +436,8 @@ function start_local_registry() {
 
 function start_kubeasz_docker() {
   [[ -d "$BASE/roles/kube-node" ]] || { logger error "not initialized. try 'ezdown -D' first."; exit 1; }
+  docker ps -a --format="{{ .Names }}"|grep kubeasz > /dev/null 2>&1 && \
+  { logger warn "kubeasz container is already existed"; return 0; }
 
   logger info "try to run kubeasz in a container"
   # get host's IP
@@ -465,6 +467,7 @@ function start_kubeasz_docker() {
       --restart always \
       --volume "$BASE":"$BASE" \
       --volume /root/.kube:/root/.kube \
+      --volume /root/.bashrc:/root/.bashrc \
       --volume /root/.ssh:/root/.ssh \
       --volume /etc/docker:/etc/docker \
       easzlab/kubeasz:${KUBEASZ_VER} sleep 36000
