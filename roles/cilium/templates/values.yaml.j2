@@ -1,0 +1,71 @@
+image:
+  repository: quay.io/cilium/cilium
+  useDigest: false
+
+resources:
+  limits:
+    cpu: 4000m
+    memory: 4Gi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+cni:
+  binPath: {{ bin_dir }}
+
+containerRuntime:
+  integration: containerd
+  socketPath: unix:///run/containerd/containerd.sock
+
+hubble:
+  enabled: false
+
+identityAllocationMode: "crd"
+
+ipam:
+  # ref: https://docs.cilium.io/en/stable/concepts/networking/ipam/
+  mode: "cluster-pool"
+  operator:
+    clusterPoolIPv4PodCIDRList: ["{{ CLUSTER_CIDR }}"]
+    clusterPoolIPv4MaskSize: 24
+
+l7Proxy: true
+
+# -- Configure Istio proxy options.
+proxy:
+  prometheus:
+    enabled: false
+    port: "9095"
+  # -- Regular expression matching compatible Istio sidecar istio-proxy
+  # container image names
+  sidecarImageRegex: "cilium/istio_proxy"
+
+# -- Configure TLS configuration in the agent.
+tls:
+  enabled: true
+  secretsBackend: local
+
+tunnel: "vxlan"
+
+etcd:
+  enabled: false
+
+operator:
+  enabled: true
+  image:
+    repository: quay.io/cilium/operator
+    useDigest: false
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+preflight:
+  enabled: false
+
+clustermesh:
+  useAPIServer: false

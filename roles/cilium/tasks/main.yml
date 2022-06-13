@@ -6,30 +6,16 @@
   fail: msg="kernel {{ ansible_kernel }} is too old for cilium installing"
   when: "KERNEL_VER|float <= 4.09"
 
-- name: node 节点创建cilium 相关目录
-  file: name={{ item }} state=directory
-  with_items:
-  - /etc/cni/net.d
-  - /var/run/cilium
-    
-- name: Optional-Mount BPF FS
-  mount:
-    fstype: "bpf"
-    src: "bpffs"
-    path: "/sys/fs/bpf"
-    state: "mounted" 
+- block:
+    - name: 创建 cilium chart 个性化设置
+      template: src=values.yaml.j2 dest={{ cluster_dir }}/yml/cilium-values.yaml
 
-- name: 配置 cilium DaemonSet yaml文件
-  template: src=cilium.yaml.j2 dest={{ cluster_dir }}/yml/cilium.yaml
-  tags: reconf
+    - name: helm 创建 cilium {{ cilium_ver }}
+      shell: "{{ base_dir }}/bin/helm upgrade cilium --install \
+              -n kube-system -f {{ cluster_dir }}/yml/cilium-values.yaml \
+              {{ base_dir }}/roles/cilium/files/cilium-{{ cilium_ver }}.tgz"
   run_once: true
-  connection: local
-
-# 只需单节点执行一次
-- name: 运行 cilium网络
-  shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/cilium.yaml"
-  run_once: true
-  connection: local
+  connection: local  
 
 # 删除原有cni配置
 - name: 删除默认cni配置
@@ -37,7 +23,7 @@
 
 # 等待网络插件部署成功，视下载镜像速度而定
 - name: 轮询等待cilium-node 运行，视下载镜像速度而定
-  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'cilium'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -owide -lk8s-app=cilium|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15
