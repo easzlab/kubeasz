@@ -11,7 +11,6 @@
   with_items:
   - /etc/cni/net.d
   - /var/run/cilium
-  - /opt/kube/images
     
 - name: Optional-Mount BPF FS
   mount:

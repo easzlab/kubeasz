@@ -1,9 +1,7 @@
 - name: 在节点创建相关目录
   file: name={{ item }} state=directory
   with_items:
-  - /etc/cni/net.d
   - /etc/calico/ssl
-  - /opt/kube/images 
 
 - name: 创建calico 证书请求
   template: src=calico-csr.json.j2 dest={{ cluster_dir }}/ssl/calico-csr.json

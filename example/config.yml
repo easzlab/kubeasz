@@ -114,9 +114,6 @@ DIRECT_ROUTING: false
 flannelVer: "__flannel__"
 flanneld_image: "easzlab.io.local:5000/easzlab/flannel:{{ flannelVer }}"
 
-# [flannel]离线镜像tar包
-flannel_offline: "flannel_{{ flannelVer }}.tar"
-
 # ------------------------------------------- calico
 # [calico]设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
 CALICO_IPV4POOL_IPIP: "Always"
@@ -133,9 +130,6 @@ calico_ver: "__calico__"
 # [calico]calico 主版本
 calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
 
-# [calico]离线镜像tar包
-calico_offline: "calico_{{ calico_ver }}.tar"
-
 # ------------------------------------------- cilium
 # [cilium]CILIUM_ETCD_OPERATOR 创建的 etcd 集群节点数 1,3,5,7...
 ETCD_CLUSTER_SIZE: 1
@@ -143,16 +137,12 @@ ETCD_CLUSTER_SIZE: 1
 # [cilium]镜像版本
 cilium_ver: "__cilium__"
 
-# [cilium]离线镜像tar包
-cilium_offline: "cilium_{{ cilium_ver }}.tar"
-
 # ------------------------------------------- kube-ovn
 # [kube-ovn]选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
 OVN_DB_NODE: "{{ groups['kube_master'][0] }}"
 
 # [kube-ovn]离线镜像tar包
 kube_ovn_ver: "__kube_ovn__"
-kube_ovn_offline: "kube_ovn_{{ kube_ovn_ver }}.tar"
 
 # ------------------------------------------- kube-router
 # [kube-router]公有云上存在限制，一般需要始终开启 ipinip；自有环境可以设置为 "subnet"
@@ -164,10 +154,6 @@ FIREWALL_ENABLE: "true"
 # [kube-router]kube-router 镜像版本
 kube_router_ver: "__kube_router__"
 busybox_ver: "1.28.4"
-
-# [kube-router]kube-router 离线镜像tar包
-kuberouter_offline: "kube-router_{{ kube_router_ver }}.tar"
-busybox_offline: "busybox_{{ busybox_ver }}.tar"
 
 
 ############################

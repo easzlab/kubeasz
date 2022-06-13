@@ -467,7 +467,6 @@ function start_kubeasz_docker() {
       --restart always \
       --volume "$BASE":"$BASE" \
       --volume /root/.kube:/root/.kube \
-      --volume /root/.bashrc:/root/.bashrc \
       --volume /root/.ssh:/root/.ssh \
       --volume /etc/docker:/etc/docker \
       easzlab/kubeasz:${KUBEASZ_VER} sleep 36000

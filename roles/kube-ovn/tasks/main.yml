@@ -2,7 +2,6 @@
   file: name={{ item }} state=directory
   with_items:
   - /etc/cni/net.d
-  - /opt/kube/images
   - /opt/kube/kube-ovn
 
 - name: 注册变量 ovn_default_gateway

@@ -1,9 +1,3 @@
-- name: 创建flannel 相关目录
-  file: name={{ item }} state=directory
-  with_items:
-  - /etc/cni/net.d
-  - /opt/kube/images
-
 - name: 下载flannel cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
