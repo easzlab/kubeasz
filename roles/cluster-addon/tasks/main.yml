@@ -30,3 +30,6 @@
 
 - import_tasks: nfs-provisioner.yml
   when: '"nfs-client-provisioner" not in pod_info.stdout and nfs_provisioner_install == "yes"'
+
+- import_tasks: cilium_connectivity_check.yml
+  when: 'cilium_connectivity_check|bool'

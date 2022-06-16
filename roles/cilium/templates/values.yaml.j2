@@ -2,6 +2,12 @@ image:
   repository: quay.io/cilium/cilium
   useDigest: false
 
+# -- Additional agent container arguments.
+{% if ENABLE_LOCAL_DNS_CACHE %}
+extraArgs:
+  - --exclude-local-address="{{ LOCAL_DNS_CACHE }}/32"
+{% endif %}
+
 resources:
   limits:
     cpu: 4000m
