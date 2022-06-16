@@ -23,8 +23,22 @@ containerRuntime:
   integration: containerd
   socketPath: unix:///run/containerd/containerd.sock
 
+{% if cilium_hubble_enabled %}
 hubble:
-  enabled: false
+  enabled: true
+  metrics:
+    enabled:
+    - dns
+    - drop
+    - tcp
+    - flow
+    - icmp
+    - http
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+{% endif %}
 
 identityAllocationMode: "crd"
 
