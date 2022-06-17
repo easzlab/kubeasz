@@ -188,6 +188,10 @@ nfs_storage_class: "managed-nfs-storage"
 nfs_server: "192.168.1.10"
 nfs_path: "/data/nfs"
 
+# network-check 自动安装
+network_check_enabled: "true"
+network_check_schedule: "*/5 * * * *"
+
 ############################
 # role:harbor
 ############################

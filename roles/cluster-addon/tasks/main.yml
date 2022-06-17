@@ -33,3 +33,6 @@
 
 - import_tasks: cilium_connectivity_check.yml
   when: 'CLUSTER_NETWORK == "cilium" and cilium_connectivity_check|bool'
+
+- import_tasks: network_check.yml
+  when: 'network_check_enabled|bool and CLUSTER_NETWORK != "cilium"'

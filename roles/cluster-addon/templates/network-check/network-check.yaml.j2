@@ -1,0 +1,416 @@
+# 
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test01-pod-to-container
+  labels:
+    name: test01-pod-to-container
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: test01-pod-to-container
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server:8080/public"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test02-pod-to-node-nodeport
+  labels:
+    name: test02-pod-to-node-nodeport
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: test02-pod-to-node-nodeport 
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-host-headless:31314/public"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test03-pod-to-multi-node-clusterip
+  labels:
+    name: test03-pod-to-multi-node-clusterip
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                    - echo-server
+                topologyKey: kubernetes.io/hostname
+          containers:
+          - name: test03-pod-to-multi-node-clusterip
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server:8080/public"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test04-pod-to-multi-node-headless
+  labels:
+    name: test04-pod-to-multi-node-headless
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                    - echo-server
+                topologyKey: kubernetes.io/hostname
+          containers:
+          - name: test04-pod-to-multi-node-headless
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-headless:8080/public"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test05-pod-to-multi-node-nodeport
+  labels:
+    name: test05-pod-to-multi-node-nodeport
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                    - echo-server
+                topologyKey: kubernetes.io/hostname
+          containers:
+          - name: test05-pod-to-multi-node-nodeport
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-host-headless:31314/public"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test06-pod-to-external-1111
+  labels:
+    name: test06-pod-to-external-1111 
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: test06-pod-to-external-1111 
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 1.1.1.1"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test07-pod-to-external-fqdn-baidu
+  labels:
+    name: test07-pod-to-external-fqdn-baidu
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: test07-pod-to-external-fqdn-baidu
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 www.baidu.com"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test08-host-to-multi-node-clusterip
+  labels:
+    name: test08-host-to-multi-node-clusterip 
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                    - echo-server
+                topologyKey: kubernetes.io/hostname
+          dnsPolicy: ClusterFirstWithHostNet
+          hostNetwork: true
+          containers:
+          - name: test08-host-to-multi-node-clusterip
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server:8080/public"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test09-host-to-multi-node-headless
+  labels:
+    name: test09-host-to-multi-node-headless
+    grp: ops-tasks
+    job: network-check
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  schedule: "{{ network_check_schedule }}"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                    - echo-server
+                topologyKey: kubernetes.io/hostname
+          dnsPolicy: ClusterFirstWithHostNet
+          hostNetwork: true
+          containers:
+          - name: test09-host-to-multi-node-headless
+            image: quay.io/cilium/alpine-curl:v1.3.0
+            imagePullPolicy: IfNotPresent
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-headless:8080/public"]
+          restartPolicy: OnFailure
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-server
+  labels:
+    name: echo-server
+    grp: ops-tasks
+    job: network-check
+spec:
+  selector:
+    matchLabels:
+      name: echo-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: echo-server
+    spec:
+      hostNetwork: false
+      containers:
+      - name: echo-server-container
+        env:
+        - name: PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+        image: quay.io/cilium/json-mock:v1.3.0
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          timeoutSeconds: 7
+          exec:
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 -o /dev/null localhost:8080"]
+        livenessProbe:
+          timeoutSeconds: 7
+          exec:
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 -o /dev/null localhost:8080"]
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-server-host
+  labels:
+    name: echo-server-host
+    grp: ops-tasks
+    job: network-check
+spec:
+  selector:
+    matchLabels:
+      name: echo-server-host
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: echo-server-host
+    spec:
+      hostNetwork: true
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: name
+                operator: In
+                values:
+                - echo-server
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: echo-server-host-container
+        env:
+        - name: PORT
+          value: "40001"
+        ports: []
+        image: quay.io/cilium/json-mock:v1.3.0
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          timeoutSeconds: 7
+          exec:
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 -o /dev/null localhost:40001"]
+        livenessProbe:
+          timeoutSeconds: 7
+          exec:
+            command: ["sh","-c","curl -sS --fail --connect-timeout 5 -o /dev/null localhost:40001"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-server
+  labels:
+    name: echo-server
+    grp: ops-tasks
+    job: network-check
+spec:
+  ports:
+  - name: http
+    port: 8080
+    nodePort: 31314
+  type: NodePort 
+  selector:
+    name: echo-server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-server-headless
+  labels:
+    name: echo-server-headless
+    grp: ops-tasks
+    job: network-check
+spec:
+  ports:
+  - name: http
+    port: 8080
+  type: ClusterIP
+  selector:
+    name: echo-server
+  clusterIP: None
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-server-host-headless
+  labels:
+    name: echo-server-host-headless
+    grp: ops-tasks
+    job: network-check
+spec:
+  ports: []
+  type: ClusterIP
+  selector:
+    name: echo-server-host
+  clusterIP: None

@@ -1,0 +1,21 @@
+- block:
+    - name: 准备 network-check 配置目录
+      file: name={{ cluster_dir }}/yml/network-check state=directory
+    
+    - name: 准备部署文件
+      template: src=network-check/{{ item }}.j2 dest={{ cluster_dir }}/yml/network-check/{{ item }}
+      with_items:
+      - "network-check.yaml"
+      - "namespace.yaml"
+    
+    - name: 创建测试namespace
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/network-check/namespace.yaml"
+    
+    - name: 创建完整测试network-check
+      shell: "{{ base_dir }}/bin/kubectl apply -n network-test -f {{ cluster_dir }}/yml/network-check/network-check.yaml"
+
+    - debug:
+        msg: "[重要]: 请查看命名空间network-test下所有pod，如果均为Completed状态，且没有重启数增长，说明网络连接测试正常。 \
+              如果有Pending状态，部分测试需要多节点集群才能完成，如果希望禁用网络测试执行(kubectl delete ns network-test)"
+  run_once: true
+  connection: local
