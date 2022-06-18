@@ -2,7 +2,7 @@
 #--------------------------------------------------
 # This script is used for: 
 # 1. to download the scripts/binaries/images needed for installing a k8s cluster with kubeasz
-# 2. to run kubeasz in a container (optional)
+# 2. to run kubeasz in a container (recommended way to run 'ezctl')
 # @author:   gjmzj
 # @usage:    ./ezdown
 # @repo:     https://github.com/easzlab/kubeasz
@@ -21,30 +21,36 @@ SYS_PKG_VER=0.4.3
 HARBOR_VER=v2.1.3
 REGISTRY_MIRROR=CN
 
-# images needed by k8s cluster
+# images downloaded by default(with '-D')
 calicoVer=v3.19.4
-flannelVer=v0.15.1
 dnsNodeCacheVer=1.21.1
 corednsVer=1.8.6
 dashboardVer=v2.5.1
 dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.5.2
 pauseVer=3.6
+
+# images not downloaded by default(only download  with '-X')
+flannelVer=v0.15.1
 nfsProvisionerVer=v4.0.2
 ciliumVer=1.11.6
-export kubeRouterVer=v0.3.1
-export kubeOvnVer=v1.5.3
-export promChartVer=35.5.1
+promChartVer=35.5.1
+
+# images not downloaded
+kubeRouterVer=v0.3.1
+kubeOvnVer=v1.5.3
+
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
   cat <<EOF
-  option: -{DdekSz}
+  option:
     -C         stop&clean all local containers
-    -D         download all into "$BASE"
+    -D         download default binaries/images into "$BASE"
     -P         download system packages for offline installing
     -R         download Registry(harbor) offline installer
     -S         start kubeasz in a container
+    -X         download extra images
     -d <ver>   set docker-ce version, default "$DOCKER_VER"
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
@@ -288,8 +294,8 @@ function get_harbor_offline_pkg() {
   docker rm -f temp_harbor
 }
 
-function get_offline_image() {
-  logger info "download offline images, then upload to the local registry"
+function get_default_images() {
+  logger info "download default images, then upload to the local registry"
 
   # calico
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
@@ -340,16 +346,6 @@ function get_offline_image() {
   docker tag "kubernetesui/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
   docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
 
-  # flannel
-  if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
-    docker pull "easzlab/flannel:$flannelVer" && \
-    docker save -o "$imageDir/flannel_$flannelVer.tar" "easzlab/flannel:$flannelVer"
-  else
-    docker load -i "$imageDir/flannel_$flannelVer.tar"
-  fi
-  docker tag "easzlab/flannel:$flannelVer" "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
-  docker push "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
-
   # dashboard-metrics-scraper
   if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
     docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
@@ -380,6 +376,28 @@ function get_offline_image() {
   docker tag "easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
   docker push "easzlab.io.local:5000/easzlab/pause:$pauseVer"
 
+  # kubeasz
+  if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
+    docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+  else
+    docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
+  fi
+}
+
+function get_extra_images() {
+  logger info "download extra images, then upload to the local registry"
+
+  # flannel
+  if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
+    docker pull "easzlab/flannel:$flannelVer" && \
+    docker save -o "$imageDir/flannel_$flannelVer.tar" "easzlab/flannel:$flannelVer"
+  else
+    docker load -i "$imageDir/flannel_$flannelVer.tar"
+  fi
+  docker tag "easzlab/flannel:$flannelVer" "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
+  docker push "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
+
   # nfs-provisioner
   if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
     docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
@@ -390,13 +408,39 @@ function get_offline_image() {
   docker tag "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
   docker push "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
 
-  # kubeasz
-  if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
-    docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+  # cilium
+  if [[ ! -f "$imageDir/cilium_$ciliumVer.tar" ]];then
+    docker pull "quay.io/cilium/cilium:v$ciliumVer" && \
+    docker pull "quay.io/cilium/operator-generic:v$ciliumVer" && \
+    docker pull "quay.io/cilium/hubble-relay:v$ciliumVer" && \
+    docker pull quay.io/cilium/hubble-ui-backend:v0.9.0 && \
+    docker pull quay.io/cilium/hubble-ui:v0.9.0 && \
+    docker pull quay.io/cilium/json-mock:v1.3.0 && \
+    docker pull quay.io/cilium/alpine-curl:v1.3.0
+    docker save -o "$imageDir/cilium_$ciliumVer.tar" "quay.io/cilium/cilium:v$ciliumVer" \
+		"quay.io/cilium/operator-generic:v$ciliumVer" \
+		"quay.io/cilium/hubble-relay:v$ciliumVer" \
+		quay.io/cilium/hubble-ui-backend:v0.9.0 \
+		quay.io/cilium/hubble-ui:v0.9.0 \
+		quay.io/cilium/json-mock:v1.3.0 \
+		quay.io/cilium/alpine-curl:v1.3.0
   else
-    docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
+    docker load -i "$imageDir/cilium_$ciliumVer.tar"
   fi
+  docker tag "quay.io/cilium/cilium:v$ciliumVer" "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
+  docker push "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
+  docker tag "quay.io/cilium/operator-generic:v$ciliumVer" "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
+  docker push "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
+  docker tag "quay.io/cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
+  docker push "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
+  docker tag quay.io/cilium/hubble-ui-backend:v0.9.0 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.0
+  docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.0
+  docker tag quay.io/cilium/hubble-ui:v0.9.0 easzlab.io.local:5000/cilium/hubble-ui:v0.9.0
+  docker push easzlab.io.local:5000/cilium/hubble-ui:v0.9.0
+  docker tag quay.io/cilium/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
+  docker push easzlab.io.local:5000/cilium/json-mock:v1.3.0
+  docker tag quay.io/cilium/alpine-curl:v1.3.0 easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+  docker push easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
 }
 
 function download_all() {
@@ -407,7 +451,7 @@ function download_all() {
   get_k8s_bin && \
   get_ext_bin && \
   start_local_registry && \
-  get_offline_image
+  get_default_images
 }
 
 function start_local_registry() {
@@ -491,7 +535,7 @@ function main() {
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
   
   ACTION=""
-  while getopts "CDPRSd:e:k:m:p:z:" OPTION; do
+  while getopts "CDPRSXd:e:k:m:p:z:" OPTION; do
       case "$OPTION" in
         C)
           ACTION="clean_container"
@@ -507,6 +551,9 @@ function main() {
           ;;
         S)
           ACTION="start_kubeasz_docker"
+          ;;
+        X)
+          ACTION="get_extra_images"
           ;;
         d)
           DOCKER_VER="$OPTARG"

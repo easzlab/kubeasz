@@ -1,10 +1,1 @@
-#
-coredns_offline: "coredns_{{ corednsVer }}.tar"
-
-metricsserver_offline: "metrics-server_{{ metricsVer }}.tar"
-
-dashboard_offline: "dashboard_{{ dashboardVer }}.tar"
-
-metricsscraper_offline: "metrics-scraper_{{ dashboardMetricsScraperVer }}.tar"
-
-nfsprovisioner_offline: "nfs-provisioner_{{ nfs_provisioner_ver }}.tar"
+# default values

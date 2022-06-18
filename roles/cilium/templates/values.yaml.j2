@@ -1,5 +1,6 @@
 image:
-  repository: quay.io/cilium/cilium
+  repository: "easzlab.io.local:5000/cilium/cilium"
+  tag: "v1.11.6"
   useDigest: false
 
 # -- Additional agent container arguments.
@@ -36,8 +37,20 @@ hubble:
     - http
   relay:
     enabled: true
+    image:
+      repository: "easzlab.io.local:5000/cilium/hubble-relay"
+      tag: "v1.11.6"
+      useDigest: false
   ui:
     enabled: true
+    backend:
+      image:
+        repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"
+        tag: "v0.9.0"
+    frontend:
+      image:
+        repository: "easzlab.io.local:5000/cilium/hubble-ui"
+        tag: "v0.9.0"
 {% endif %}
 
 identityAllocationMode: "crd"
@@ -73,7 +86,8 @@ etcd:
 operator:
   enabled: true
   image:
-    repository: quay.io/cilium/operator
+    repository: "easzlab.io.local:5000/cilium/operator"
+    tag: "v1.11.6"
     useDigest: false
   replicas: 1
   resources:

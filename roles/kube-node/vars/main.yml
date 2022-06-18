@@ -1,9 +1,6 @@
 # 设置 APISERVER 地址，使用kube-lb负载均衡监听地址
 KUBE_APISERVER: "https://127.0.0.1:{{ SECURE_PORT }}"
 
-# node local dns cache 离线镜像
-dnscache_offline: "k8s-dns-node-cache_{{ dnsNodeCacheVer }}.tar"
-
 # cgroup driver
 CGROUP_DRIVER: "{%- if CONTAINER_RUNTIME == 'containerd' -%} \
                      systemd \

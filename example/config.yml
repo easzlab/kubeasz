@@ -133,8 +133,8 @@ calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
 # ------------------------------------------- cilium
 # [cilium]镜像版本
 cilium_ver: "__cilium__"
-cilium_connectivity_check: "true"
-cilium_hubble_enabled: "true"
+cilium_connectivity_check: true
+cilium_hubble_enabled: true
 
 # ------------------------------------------- kube-ovn
 # [kube-ovn]选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
@@ -148,7 +148,7 @@ kube_ovn_ver: "__kube_ovn__"
 OVERLAY_TYPE: "full"
 
 # [kube-router]NetworkPolicy 支持开关
-FIREWALL_ENABLE: "true"
+FIREWALL_ENABLE: true
 
 # [kube-router]kube-router 镜像版本
 kube_router_ver: "__kube_router__"
@@ -189,7 +189,7 @@ nfs_server: "192.168.1.10"
 nfs_path: "/data/nfs"
 
 # network-check 自动安装
-network_check_enabled: "true"
+network_check_enabled: true
 network_check_schedule: "*/5 * * * *"
 
 ############################
