@@ -1,7 +1,6 @@
 ## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
 kubeTargetVersionOverride: "{{ K8S_VER }}"
 
-## Configuration for alertmanager
 alertmanager:
   enabled: true
   #config:
@@ -12,6 +11,9 @@ alertmanager:
   #    webhook_configs:
   #    - send_resolved: false
   #      url: http://webhook-dingtalk.monitor.svc.cluster.local:8060/dingtalk/webhook1/send
+  alertmanagerSpec:
+    image:
+      repository: easzlab.io.local:5000/prometheus/alertmanager
 
   ## Configuration for Alertmanager service
   service:
@@ -22,11 +24,15 @@ alertmanager:
 grafana:
   enabled: true
   adminPassword: Admin1234!
+  image:
+    repository: easzlab.io.local:5000/prometheus/grafana
   service:
     nodePort: 30903
     type: NodePort
   sidecar:
-    skipTlsVerify: true 
+    image:
+      repository: easzlab.io.local:5000/prometheus/k8s-sidecar
+    skipTlsVerify: true
 
 ## Component scraping the kube api server
 kubeApiServer:
@@ -101,7 +107,7 @@ kubeProxy:
 ## Configuration for kube-state-metrics subchart
 kube-state-metrics:
   image:
-    repository: easzlab/kube-state-metrics
+    repository: easzlab.io.local:5000/prometheus/kube-state-metrics
 
 ## Manages Prometheus and Alertmanager components
 prometheusOperator:
@@ -110,11 +116,16 @@ prometheusOperator:
     enabled: true
     patch:
       image:
-        repository: easzlab/kube-webhook-certgen
+        repository: easzlab.io.local:5000/prometheus/kube-webhook-certgen
+  image:
+    repository: easzlab.io.local:5000/prometheus/prometheus-operator
   service:
     nodePort: 30899
     nodePortTls: 30900
     type: NodePort
+  prometheusConfigReloader:
+    image:
+      repository: easzlab.io.local:5000/prometheus/prometheus-config-reloader
 
 ## Deploy a Prometheus instance
 prometheus:
@@ -126,6 +137,8 @@ prometheus:
     type: NodePort 
 
   prometheusSpec:
+    image:
+      repository: easzlab.io.local:5000/prometheus/prometheus
     replicas: 1
 
     secrets:
@@ -147,3 +160,7 @@ prometheus:
     ##
     #  emptyDir:
     #    medium: Memory
+
+prometheus-node-exporter:
+  image:
+    repository: easzlab.io.local:5000/prometheus/node-exporter
