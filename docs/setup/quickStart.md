@@ -1,34 +1,43 @@
 ## 快速指南
 
-以下为快速体验k8s集群的测试、开发环境--单节点部署(aio)，国内环境下比官方的minikube方便、简单很多。
+本文档适用于kubeasz 3.3.1以上版本，部署单节点集群(aio)，作为快速体验k8s集群的测试环境。
 
 ### 1.基础系统配置
 
 - 准备一台虚机配置内存2G/硬盘30G以上
-- 最小化安装`Ubuntu 16.04 server`或者`CentOS 7 Minimal`
+- 最小化安装`Ubuntu 16.04 server或者CentOS 7 Minimal`
 - 配置基础网络、更新源、SSH登录等
 
 **注意:** 确保在干净的系统上开始安装，不能使用曾经装过kubeadm或其他k8s发行版的环境
 
 ### 2.下载文件
 
-- 下载工具脚本ezdown，举例使用kubeasz版本3.0.0
+- 下载工具脚本ezdown，举例使用kubeasz版本3.3.1
 
 ``` bash
-export release=3.0.0
+export release=3.3.1
 wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 ```
 
-- 使用工具脚本下载
+- 使用工具脚本下载（更多关于ezdown的参数，运行./ezdown 查看）
 
-默认下载最新推荐k8s/docker等版本（更多关于ezdown的参数，运行./ezdown 查看）
+下载kubeasz代码、二进制、默认容器镜像
 
 ``` bash
+# 国内环境
 ./ezdown -D
+# 海外环境
+#./ezdown -D -m standard
 ```
 
-- 可选下载离线系统包 (适用于无法使用yum/apt仓库情形)
+【可选】下载额外容器镜像（cilium,flannel,prometheus等）
+
+``` bash
+./ezdown -X
+```
+
+【可选】下载离线系统包 (适用于无法使用yum/apt仓库情形)
 
 ``` bash
 ./ezdown -P
@@ -43,7 +52,7 @@ chmod +x ./ezdown
 
 ### 3.安装集群
 
-- 容器化运行 kubeasz，详见ezdown 脚本中的 start_kubeasz_docker 函数
+- 容器化运行 kubeasz
 
 ```
 ./ezdown -S
@@ -53,6 +62,8 @@ chmod +x ./ezdown
 
 ```
 docker exec -it kubeasz ezctl start-aio
+# 如果安装失败，查看日志排除后，使用如下命令重新安装aio集群
+# docker exec -it kubeasz ezctl setup default all
 ```
 
 ### 4.验证安装
@@ -75,14 +86,4 @@ $ kubectl get svc -A      # 验证集群服务状态
 在宿主机上，按照如下步骤清理
 
 - 清理集群 `docker exec -it kubeasz ezctl destroy default`
-- 清理运行的容器 `./ezdown -C`
-- 清理容器镜像 `docker system prune -a`
-- 停止docker服务 `systemctl stop docker`
-- 删除docker文件
-```
- umount /var/run/docker/netns/default
- umount /var/lib/docker/overlay
- rm -rf /var/lib/docker /var/run/docker
-```
-
-上述清理脚本执行成功后，建议重启节点，以确保清理残留的虚拟网卡、路由等信息。
+- 重启节点，以确保清理残留的虚拟网卡、路由等信息

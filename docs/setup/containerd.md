@@ -8,6 +8,7 @@
 
 ## kubeasz 集成安装 containerd
 
+- 注意：k8s 1.24以后，项目已经设置默认容器运行时为 containerd，无需手动修改
 - 安装前修改配置文件，在clusters/xxxx/hosts 中修改全局变量 `CONTAINER_RUNTIME="containerd"`
 - 其他正常执行安装即可：分步安装`ezctl setup xxxx 03`，一键安装`ezctl setup xxxx all`
 

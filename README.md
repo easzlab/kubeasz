@@ -2,7 +2,7 @@
 
 项目致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
-- **集群特性** `TLS`双向认证、`RBAC`授权、[多Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、备份恢复、[离线安装](docs/setup/offline_install.md)
+- **集群特性** `TLS`双向认证、`RBAC`授权、[Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、[离线安装](docs/setup/offline_install.md)
 - **集群版本** kubernetes v1.21, v1.22, v1.23, v1.24
 - **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 16.04/18.04/20.04
 - **运行时** [containerd](docs/setup/containerd.md) v1.6.4, docker 20.10.x (k8s < 1.24)
@@ -10,8 +10,6 @@
 
 
 **[news]** kubeasz 通过cncf一致性测试 [详情](docs/mixes/conformance.md)
-
-**[news]** 群里大佬上新一套免费[kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)，强烈推荐！
 
 推荐版本对照
 
@@ -35,7 +33,7 @@
       <td>3.1.0</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
-      <td>3.3.0</td>
+      <td>3.3.1</td>
     </tr>
   </tbody>
 </table>
@@ -43,8 +41,6 @@
 ## 快速指南
 
 单机快速体验k8s集群的测试环境--[AllinOne部署](docs/setup/quickStart.md)
-
-- 命令行工具 [ezctl介绍](docs/setup/ezctl.md)
 
 ## 安装指南
 
@@ -104,6 +100,7 @@
 
 - 微信群：k8s&kubeasz实践, 搜索微信号`badtobone`, 请备注（城市-github用户名）, 验证通过会加入群聊。
 - 推荐阅读
+  - [kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)
   - [kubernetes-the-hard-way](https://github.com/kelseyhightower/kubernetes-the-hard-way)
   - [feisky-Kubernetes 指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md)
   - [opsnull 安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster)

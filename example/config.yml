@@ -7,15 +7,6 @@ INSTALL_SOURCE: "online"
 # 可选进行系统安全加固 github.com/dev-sec/ansible-collection-hardening
 OS_HARDEN: false
 
-# 设置时间源服务器【重要：集群内机器时间必须同步】
-ntp_servers:
-  - "ntp1.aliyun.com"
-  - "time1.cloud.tencent.com"
-  - "0.cn.pool.ntp.org"
-
-# 设置允许内部时间同步的网络段，比如"10.0.0.0/8"，默认全部允许
-local_network: "0.0.0.0/0"
-
 
 ############################
 # role:deploy
@@ -97,9 +88,6 @@ KUBE_RESERVED_ENABLED: "no"
 # 系统预留设置基于 4c/8g 虚机，最小化安装系统服务，如果使用高性能物理机可以适当增加预留
 # 另外，集群安装时候apiserver等资源占用会短时较大，建议至少预留1g内存
 SYS_RESERVED_ENABLED: "no"
-
-# haproxy balance mode
-BALANCE_ALG: "roundrobin"
 
 
 ############################
@@ -189,7 +177,7 @@ nfs_server: "192.168.1.10"
 nfs_path: "/data/nfs"
 
 # network-check 自动安装
-network_check_enabled: true
+network_check_enabled: false 
 network_check_schedule: "*/5 * * * *"
 
 ############################
