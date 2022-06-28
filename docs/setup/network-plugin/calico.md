@@ -1,21 +1,21 @@
 ## 06-安装calico网络组件.md
 
-推荐阅读[calico kubernetes guide](https://docs.projectcalico.org/v3.4/getting-started/kubernetes/)
+calico 是k8s社区最流行的网络插件之一，也是k8s-conformance test 默认使用的网络插件，功能丰富，支持network policy；是当前kubeasz项目的默认网络插件。
 
-本项目提供多种网络插件可选，如果需要安装calico，请在/etc/ansible/hosts文件中设置变量 `CLUSTER_NETWORK="calico"`，更多的calico设置在`roles/calico/defaults/main.yml`文件定义。
-
-- calico-node需要在所有master节点和node节点安装 
+如果需要安装calico，请在`clusters/xxxx/hosts`文件中设置变量 `CLUSTER_NETWORK="calico"`，参考[这里](../config_guide.md)
 
 ``` bash
 roles/calico/
-├── defaults
-│   └── main.yml
 ├── tasks
-│   └── main.yml
-└── templates
-    ├── calico-csr.json.j2
-    ├── calicoctl.cfg.j2
-    └── calico-vx.y.yaml.j2
+│   └── main.yml
+├── templates
+│   ├── calico-csr.json.j2
+│   ├── calicoctl.cfg.j2
+│   ├── calico-v3.15.yaml.j2
+│   ├── calico-v3.19.yaml.j2
+│   └── calico-v3.8.yaml.j2
+└── vars
+    └── main.yml
 ```
 请在另外窗口打开`roles/calico/tasks/main.yml`文件，对照看以下讲解内容。
 
@@ -40,29 +40,28 @@ roles/calico/
   ]
 }
 ```
-- calico 使用客户端证书，所以hosts字段可以为空；后续可以看到calico证书用在四个地方：
-  - calico/node 这个docker 容器运行时访问 etcd 使用证书
-  - cni 配置文件中，cni 插件需要访问 etcd 使用证书
-  - calicoctl 操作集群网络时访问 etcd 使用证书
-  - calico/kube-controllers 同步集群网络策略时访问 etcd 使用证书
+calico 使用客户端证书，所以hosts字段可以为空；后续可以看到calico证书用在四个地方：
+
+- calico/node 这个docker 容器运行时访问 etcd 使用证书
+- cni 配置文件中，cni 插件需要访问 etcd 使用证书
+- calicoctl 操作集群网络时访问 etcd 使用证书
+- calico/kube-controllers 同步集群网络策略时访问 etcd 使用证书
 
 ### 创建 calico DaemonSet yaml文件和rbac 文件
 
 请对照 roles/calico/templates/calico.yaml.j2文件注释和以下注意内容
 
-+ 详细配置参数请参考[calico官方文档](https://docs.projectcalico.org/v2.6/reference/node/configuration)
++ 详细配置参数请参考[calico官方文档](https://projectcalico.docs.tigera.io/reference/node/configuration)
 + 配置ETCD_ENDPOINTS 、CA、证书等，所有{{ }}变量与ansible hosts文件中设置对应
 + 配置集群POD网络 CALICO_IPV4POOL_CIDR={{ CLUSTER_CIDR }}
-+ **重要**本K8S集群运行在同网段kvm虚机上，虚机间没有网络ACL限制，因此可以设置`CALICO_IPV4POOL_IPIP=off`，如果你的主机位于不同网段，或者运行在公有云上需要打开这个选项 `CALICO_IPV4POOL_IPIP=always`
-+ 配置FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT 默认允许Pod到Node的网络流量，更多[felix配置选项](https://docs.projectcalico.org/v2.6/reference/felix/configuration)
++ 配置FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT 默认允许Pod到Node的网络流量，更多[felix配置选项](https://projectcalico.docs.tigera.io/reference/felix/configuration)
 
 ### 安装calico 网络
 
 + 安装前检查主机名不能有大写字母，只能由`小写字母` `-` `.` 组成 (name must consist of lower case alphanumeric characters, '-' or '.' (regex: [a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*))(calico-node v3.0.6以上已经解决主机大写字母问题)
 + **安装前必须确保各节点主机名不重复** ，calico node name 由节点主机名决定，如果重复，那么重复节点在etcd中只存储一份配置，BGP 邻居也不会建立。
 + 安装之前必须确保`kube_master`和`kube_node`节点已经成功部署
-+ 只需要在任意装有kubectl客户端的节点运行 `kubectl apply -f`安装即可
-+ 等待15s后(视网络拉取calico相关镜像速度)，calico 网络插件安装完成，删除之前kube_node安装时默认cni网络配置
++ 轮询等待calico 网络插件安装完成，删除之前kube_node安装时默认cni网络配置
 
 ### [可选]配置calicoctl工具 [calicoctl.cfg.j2](roles/calico/templates/calicoctl.cfg.j2)
 

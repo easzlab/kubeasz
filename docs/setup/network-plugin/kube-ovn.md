@@ -1,5 +1,7 @@
 ## 06-安装kube-ovn网络组件.md
 
+(以下文档暂未更新，以插件官网文档为准)
+
 由灵雀云开源的网络组件 kube-ovn，将已被 openstack 社区采用的成熟网络虚拟化技术 ovs/ovn 引入 kubernetes 平台；为 kubernetes 网络打开了新的大门，令人耳目一新；强烈推荐大家试用该网络组件，反馈建议以帮助项目早日走向成熟。
 
 - 介绍 https://blog.csdn.net/alauda_andy/article/details/88886128

@@ -1,126 +1,46 @@
-## 03-安装容器运行时（docker or containerd）
+# 03-安装容器运行时
 
-目前k8s官方推荐使用containerd，查阅[使用文档](containerd.md)
+项目根据k8s版本提供不同的默认容器运行时：
 
-## 安装docker服务
+- k8s 版本 < 1.24 时，支持docker containerd 可选
+- k8s 版本 >= 1.24 时，仅支持 containerd
 
-### 创建docker的systemd unit文件 
+## 安装containerd
 
-``` bash
-[Unit]
-Description=Docker Application Container Engine
-Documentation=http://docs.docker.io
+作为 CNCF 毕业项目，containerd 致力于提供简洁、可靠、可扩展的容器运行时；它被设计用来集成到 kubernetes 等系统使用，而不是像 docker 那样独立使用。
 
-[Service]
-Environment="PATH={{ bin_dir }}:/bin:/sbin:/usr/bin:/usr/sbin"
-ExecStart={{ bin_dir }}/dockerd
-ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
-ExecReload=/bin/kill -s HUP $MAINPID
-Restart=on-failure
-RestartSec=5
-LimitNOFILE=infinity
-LimitNPROC=infinity
-LimitCORE=infinity
-Delegate=yes
-KillMode=process
+- 安装指南 https://github.com/containerd/cri/blob/master/docs/installation.md
+- 客户端 circtl 使用指南 https://github.com/containerd/cri/blob/master/docs/crictl.md
+- man 文档 https://github.com/containerd/containerd/tree/master/docs/man
 
-[Install]
-WantedBy=multi-user.target
-```
-+ dockerd 运行时会调用其它 docker 命令，如 docker-proxy，所以需要将 docker 命令所在的目录加到 PATH 环境变量中；
-+ docker 从 1.13 版本开始，将`iptables` 的`filter` 表的`FORWARD` 链的默认策略设置为`DROP`，从而导致 ping 其它 Node 上的 Pod IP 失败，因此必须在 `filter` 表的`FORWARD` 链增加一条默认允许规则 `iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT`
-+ 运行`dockerd --help` 查看所有可配置参数，确保默认开启 `--iptables` 和 `--ip-masq` 选项
+## kubeasz 集成安装 containerd
 
-### 配置daemon.json
+- 注意：k8s 1.24以后，项目已经设置默认容器运行时为 containerd，无需手动修改
+- 执行安装：分步安装`ezctl setup xxxx 03`，一键安装`ezctl setup xxxx all`
 
-roles/docker/templates/daemon.json.j2
+## 命令对比
 
-``` bash
-{
-  "data-root": "{{ DOCKER_STORAGE_DIR }}",
-  "exec-opts": ["native.cgroupdriver=cgroupfs"],
-{% if ENABLE_MIRROR_REGISTRY %}
-  "registry-mirrors": [
-    "https://docker.mirrors.ustc.edu.cn",
-    "http://hub-mirror.c.163.com"
-  ],
-{% endif %}
-{% if ENABLE_REMOTE_API %}
-  "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
-{% endif %}
-  "insecure-registries": {{ INSECURE_REG }},
-  "max-concurrent-downloads": 10,
-  "live-restore": true,
-  "log-driver": "json-file",
-  "log-level": "warn",
-  "log-opts": {
-    "max-size": "50m",
-    "max-file": "1"
-    },
-  "storage-driver": "overlay2"
-}
-```
-- data-root 配置容器数据目录，默认/var/lib/docker，在集群安装时要规划磁盘空间使用
-- registry-mirrors 配置国内镜像仓库加速
-- live-restore 可以重启docker daemon ，而不重启容器
-- log-opts 容器日志相关参数，设置单个容器日志超过50M则进行回卷，回卷的副本数超过1个就进行清理
+|命令           |docker         |crictl（推荐） |ctr                    |
+|:-             |:-             |:-             |:-                     |
+|查看容器列表   |docker ps      |crictl ps      |ctr -n k8s.io c ls     |
+|查看容器详情   |docker inspect |crictl inspect |ctr -n k8s.io c info   |
+|查看容器日志   |docker logs    |crictl logs    |无                     |
+|容器内执行命令 |docker exec    |crictl exec    |无                     |
+|挂载容器       |docker attach  |crictl attach  |无                     |
+|容器资源使用   |docker stats   |crictl stats   |无                     |
+|创建容器       |docker create  |crictl create  |ctr -n k8s.io c create |
+|启动容器       |docker start   |crictl start   |ctr -n k8s.io run      |
+|停止容器       |docker stop    |crictl stop    |无                     |
+|删除容器       |docker rm      |crictl rm      |ctr -n k8s.io c del    |
+|查看镜像列表   |docker images  |crictl images  |ctr -n k8s.io i ls     |
+|查看镜像详情   |docker inspect |crictl inspecti|无                     |
+|拉取镜像       |docker pull    |crictl pull    |ctr -n k8s.io i pull   |
+|推送镜像       |docker push    |无             |ctr -n k8s.io i push   |
+|删除镜像       |docker rmi     |crictl rmi     |ctr -n k8s.io i rm     |
+|查看Pod列表    |无             |crictl pods    |无                     |
+|查看Pod详情    |无             |crictl inspectp|无                     |
+|启动Pod        |无             |crictl runp    |无                     |
+|停止Pod        |无             |crictl stopp   |无                     |
 
-对于企业内部应用的docker镜像，想要在K8S平台运行的话，特别是结合开发`CI/CD` 流程，需要部署私有镜像仓库，参阅[harbor文档](../guide/harbor.md)。
-
-### 清理 iptables
-
-因为`calico`网络、`kube-proxy`等将大量使用 iptables规则，安装前清空所有`iptables`策略规则；常见发行版`Ubuntu`的 `ufw` 和 `CentOS`的 `firewalld`等基于`iptables`的防火墙最好直接卸载，避免不必要的冲突。
-
-WARNNING: 如果有自定义的iptables规则也会被一并清除，如果一定要使用自定义规则，可以集群安装完成后在应用规则
-
-``` bash
-iptables -F && iptables -X \
-        && iptables -F -t nat && iptables -X -t nat \
-        && iptables -F -t raw && iptables -X -t raw \
-        && iptables -F -t mangle && iptables -X -t mangle
-```
-+ calico 网络支持 `network-policy`，使用的`calico-kube-controllers` 会使用到`iptables` 所有的四个表 `filter` `nat` `raw` `mangle`，所以一并清理
-
-### 可选-安装docker查询镜像 tag的小工具
-
-docker官方没有提供在命令行直接查询某个镜像的tag信息的方式，可以使用一个工具脚本：
-
-``` bash
-$ docker-tag library/ubuntu
-"14.04"
-"16.04"
-"17.04"
-"latest"
-"trusty"
-"trusty-20171117"
-"xenial"
-...
-``` 
-+ 需要先apt安装轻量JSON处理程序 `jq`
-
-### 验证
-
-安装成功后验证如下：
-
-``` bash
-systemctl status docker 	# 服务状态
-journalctl -u docker 		# 运行日志
-docker version
-docker info
-```
-`iptables-save|grep FORWARD` 查看 iptables filter表 FORWARD链，最后要有一个 `-A FORWARD -j ACCEPT` 保底允许规则
-
-``` bash
-iptables-save|grep FORWARD
-:FORWARD ACCEPT [0:0]
-:FORWARD DROP [0:0]
--A FORWARD -j DOCKER-USER
--A FORWARD -j DOCKER-ISOLATION
--A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A FORWARD -o docker0 -j DOCKER
--A FORWARD -i docker0 ! -o docker0 -j ACCEPT
--A FORWARD -i docker0 -o docker0 -j ACCEPT
--A FORWARD -j ACCEPT
-```
 
 [后一篇](04-install_kube_master.md)

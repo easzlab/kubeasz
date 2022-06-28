@@ -36,19 +36,6 @@
 - name: 设置变量 CLUSTER_DNS_SVC_IP
   set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
 
-- block:
-  - name: 获取docker版本信息
-    shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
-    register: docker_ver
-
-  - name: 转换docker版本信息为浮点数
-    set_fact:
-      DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
-  connection: local
-  run_once: true
-  tags: upgrade_k8s, restart_node
-  when: "CONTAINER_RUNTIME == 'docker'"
-
 - name: 创建kubelet的配置文件
   template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
   tags: upgrade_k8s, restart_node

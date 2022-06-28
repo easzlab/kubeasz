@@ -1,13 +1,11 @@
 ## 06-安装flannel网络组件.md
 
-本项目提供多种网络插件可选，如果需要安装flannel，请在/etc/ansible/hosts文件中设置变量 `CLUSTER_NETWORK="flannel"`，更多设置请查看`roles/flannel/defaults/main.yml`
+本项目提供多种网络插件可选，如果需要安装flannel，请在`clusters/xxxx/hosts`文件中设置变量 `CLUSTER_NETWORK="flannel"`，参考[这里](../config_guide.md)
 
 `Flannel`是最早应用到k8s集群的网络插件之一，简单高效，且提供多个后端`backend`模式供选择；本文介绍以`DaemonSet Pod`方式集成到k8s集群，需要在所有master节点和node节点安装。
 
 ``` text
 roles/flannel/
-├── defaults
-│   └── main.yml
 ├── tasks
 │   └── main.yml
 └── templates
@@ -18,7 +16,7 @@ roles/flannel/
 
 ### 下载基础cni 插件
 
-请到CNI 插件最新[release](https://github.com/containernetworking/plugins/releases)页面下载[cni-v0.6.0.tgz](https://github.com/containernetworking/plugins/releases/download/v0.6.0/cni-v0.6.0.tgz)，解压后里面有很多插件，选择如下几个复制到项目 `bin`目录下
+项目已经自动下载基础cni插件，请参考这里 https://github.com/kubeasz/dockerfiles/blob/master/kubeasz-ext-bin/Dockerfile
 
 - flannel用到的插件
   - bridge
@@ -59,36 +57,14 @@ FLANNEL_IPMASQ=true
 
 请阅读 `roles/flannel/templates/kube-flannel.yaml.j2` 内容，注意：
 
-+ 注意：本安装方式，flannel 通过 apiserver 接口读取 podCidr 信息，详见 https://github.com/coreos/flannel/issues/847；因此想要修改节点pod网段掩码，请前往`roles/kube-master/defaults/main.yml`设置 
++ 注意：本安装方式，flannel 通过 apiserver 接口读取 podCidr 信息，详见 https://github.com/coreos/flannel/issues/847；因此想要修改节点pod网段掩码，请在`clusters/xxxx/config.yml` 中修改`NODE_CIDR_LEN`配置项
 + 配置相关RBAC 权限和 `service account`
-+ 配置`ConfigMap`包含 CNI配置和 flannel配置(指定backend等)，和`hosts`文件中相关设置对应
-+ `DaemonSet Pod`包含两个容器，一个容器运行flannel本身，另一个init容器部署cni 配置文件
-+ 为方便国内加速使用镜像 `jmgao1983/flannel:v0.10.0-amd64` (官方镜像在docker-hub上的转存)
-+ 特别注意：如果服务器是多网卡（例如vagrant环境），则需要在`roles/flannel/templates/kube-flannel.yaml.j2 `中增加指定环境变量，详见 [kubernetes ISSUE 39701](https://github.com/kubernetes/kubernetes/issues/39701)
-+ 更新：多网卡情况下flannel问题，理论上已解决，一般已不需要如下配置，参考 #479 https://github.com/easzlab/kubeasz/issues/479
++ 配置`ConfigMap`包含 CNI配置和 flannel配置(指定backend等)，在文件中相关设置对应
 
-``` bash
-      ...
-        env:
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: KUBERNETES_SERVICE_HOST   # 指定apiserver的主机地址
-          value: "{{ MASTER_IP }}"
-        - name: KUBERNETES_SERVICE_PORT   # 指定apiserver的服务端口
-          value: "{{ KUBE_APISERVER.split(':')[2] }}"
-       ...
-```
 ### 安装 flannel网络
 
 + 安装之前必须确保kube_master和kube_node节点已经成功部署
-+ 只需要在任意装有kubectl客户端的节点运行 kubectl create安装即可
-+ 等待15s后(视网络拉取相关镜像速度)，flannel 网络插件安装完成，删除之前kube_node安装时默认cni网络配置
++ 轮询等待flannel 网络插件安装完成，删除之前kube_node安装时默认cni网络配置
 
 ### 验证flannel网络
 

@@ -2,12 +2,4 @@
 KUBE_APISERVER: "https://127.0.0.1:{{ SECURE_PORT }}"
 
 # cgroup driver
-CGROUP_DRIVER: "{%- if CONTAINER_RUNTIME == 'containerd' -%} \
-                     systemd \
-                 {%- else -%} \
-                     {%- if DOCKER_VER|float >= 20.10 -%} \
-                         systemd \
-                     {%- else -%} \
-                         cgroupfs \
-                     {%- endif -%} \
-                 {%- endif -%}"
+CGROUP_DRIVER: "systemd"
