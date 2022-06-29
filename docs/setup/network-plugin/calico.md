@@ -66,15 +66,15 @@ calico 使用客户端证书，所以hosts字段可以为空；后续可以看�
 ### [可选]配置calicoctl工具 [calicoctl.cfg.j2](roles/calico/templates/calicoctl.cfg.j2)
 
 ``` bash
-apiVersion: v1
-kind: calicoApiConfig
+apiVersion: projectcalico.org/v3
+kind: CalicoAPIConfig
 metadata:
 spec:
-  datastoreType: "etcdv2"
+  datastoreType: "etcdv3"
   etcdEndpoints: {{ ETCD_ENDPOINTS }}
   etcdKeyFile: /etc/calico/ssl/calico-key.pem
   etcdCertFile: /etc/calico/ssl/calico.pem
-  etcdCACertFile: /etc/calico/ssl/ca.pem
+  etcdCACertFile: {{ ca_dir }}/ca.pem
 ```
 
 ### 验证calico网络
@@ -155,11 +155,5 @@ ETCDCTL_API=3 etcdctl --endpoints="http://127.0.0.1:2379" get --prefix /calico
 ETCDCTL_API=3 etcdctl --endpoints="http://127.0.0.1:2379" get --prefix /calico/ipam/v2/host
 ```
 
-+ calico 2.x 版本默认使用 etcd v2存储，**登录集群的一个etcd 节点**，查看命令：
-
-``` bash
-# 查看所有calico相关数据
-etcdctl --endpoints=http://127.0.0.1:2379 --ca-file=/etc/kubernetes/ssl/ca.pem ls /calico
-```
 
 ## 下一步：[设置 BGP Route Reflector](calico-bgp-rr.md)

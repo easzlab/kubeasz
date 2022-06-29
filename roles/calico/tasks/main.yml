@@ -66,3 +66,6 @@
   retries: 15
   delay: 15
   ignore_errors: true
+
+- import_tasks: calico-rr.yml
+  when: 'CALICO_RR_ENABLED|bool'

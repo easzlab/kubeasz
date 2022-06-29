@@ -112,6 +112,14 @@ IP_AUTODETECTION_METHOD: "can-reach={{ groups['kube_master'][0] }}"
 # [calico]设置calico 网络 backend: brid, vxlan, none
 CALICO_NETWORKING_BACKEND: "brid"
 
+# [calico]设置calico 是否使用route reflectors
+# 如果集群规模超过50个节点，建议启用该特性
+CALICO_RR_ENABLED: false
+
+# CALICO_RR_NODES 配置route reflectors的节点，如果未设置默认使用集群master节点 
+# CALICO_RR_NODES: ["192.168.1.1", "192.168.1.2"]
+CALICO_RR_NODES: []
+
 # [calico]更新支持calico 版本: [v3.3.x] [v3.4.x] [v3.8.x] [v3.15.x]
 calico_ver: "__calico__"
 
