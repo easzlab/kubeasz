@@ -42,7 +42,7 @@ hubble:
       tag: "v1.11.6"
       useDigest: false
   ui:
-    enabled: {% if cilium_hubble_ui_enabled %}true{% else %}false{% endif %}
+    enabled: {%- if cilium_hubble_ui_enabled -%}true{%- else -%}false{%- endif -%}
     backend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"

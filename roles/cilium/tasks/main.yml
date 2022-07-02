@@ -35,3 +35,11 @@
   retries: 15
   delay: 8
   ignore_errors: true
+
+# hubble-relay 可能需要重启一下
+- name: 重启hubble-relay pod
+  shell: "{{ base_dir }}/bin/kubectl -n kube-system scale deploy hubble-relay --replicas=0 && sleep 5 && \
+            {{ base_dir }}/bin/kubectl -n kube-system scale deploy hubble-relay --replicas=1"
+  run_once: true
+  connection: local
+  when: "cilium_hubble_enabled|bool"
