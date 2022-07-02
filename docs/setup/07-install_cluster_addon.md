@@ -29,5 +29,5 @@ kubeasz 默认不安装上述插件，可以在配置文件(clusters/xxx/config.
 
 ## 下一步
 
-- [创建ex_lb节点组](ex_lb.md), 向集群外提供高可用apiserver
+- [创建ex_lb节点组](ex-lb.md), 向集群外提供高可用apiserver
 - [创建集群持久化存储](08-cluster-storage.md)

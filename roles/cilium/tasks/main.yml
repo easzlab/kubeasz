@@ -17,6 +17,12 @@
   run_once: true
   connection: local  
 
+- name: 下载client工具
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - cilium
+  - hubble
+
 # 删除原有cni配置
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent

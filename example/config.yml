@@ -131,6 +131,7 @@ calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
 cilium_ver: "__cilium__"
 cilium_connectivity_check: true
 cilium_hubble_enabled: true
+cilium_hubble_ui_enabled: false
 
 # ------------------------------------------- kube-ovn
 # [kube-ovn]选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
