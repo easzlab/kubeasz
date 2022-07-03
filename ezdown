@@ -28,7 +28,7 @@ corednsVer=1.9.3
 dashboardVer=v2.5.1
 dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.5.2
-pauseVer=3.6
+pauseVer=3.7
 
 # images not downloaded by default(only download  with '-X')
 ciliumVer=1.11.6
