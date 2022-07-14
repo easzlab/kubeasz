@@ -59,7 +59,7 @@ chmod +x ./ezdown
 ```
 
 - 使用默认配置安装 aio 集群
-
+如果多个网卡，需要加HOST_IP环境变量，-e HOST_IP=<xx.x.x.x> ,如 -e HOST_IP=192.168.56.101
 ```
 docker exec -it kubeasz ezctl start-aio
 # 如果安装失败，查看日志排除后，使用如下命令重新安装aio集群
