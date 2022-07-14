@@ -17,6 +17,8 @@
 ``` bash
 # ezctl 集成部署组件，xxxx 代表集群部署名
 # dashboard 部署文件位于 /etc/kubeasz/clusters/xxxx/yml/dashboard/ 目录
+# docker exec -e HOST_IP=192.168.56.111 -it kubeasz bash
+# ezctl default 07
 ./ezctl setup xxxx 07
 ```
 
