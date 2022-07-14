@@ -95,4 +95,4 @@ users:
 - 1.[Dashboard docs](https://github.com/kubernetes/dashboard/blob/master/docs/README.md)
 - 2.[a-read-only-kubernetes-dashboard](https://blog.cowger.us/2018/07/03/a-read-only-kubernetes-dashboard.html)
 
-### 安装演示视频连接[k8s dashboard部署,和简单介绍](https://www.bilibili.com/video/BV11t4y147jJ)
+#### 安装演示视频链接[k8s dashboard部署,和简单介绍](https://www.bilibili.com/video/BV11t4y147jJ)
