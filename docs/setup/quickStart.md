@@ -87,3 +87,7 @@ $ kubectl get svc -A      # 验证集群服务状态
 - 清理集群 `docker exec -it kubeasz ezctl destroy default`
 - 删除集群文件 rm -rf /etc/kubeasz/clusters/default
 - 重启节点，以确保清理残留的虚拟网卡、路由等信息
+
+
+### 安装演示视频连接[单机快速体验k8s集群的测试环境](https://www.bilibili.com/video/BV1rS4y1J7oh)
+
