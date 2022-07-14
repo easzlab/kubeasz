@@ -4,7 +4,7 @@
 
 ### 1.基础系统配置
 
-- 准备一台虚机配置内存2G/硬盘30G以上
+- 准备一台虚机配置CPU 2核/内存2G/硬盘30G以上
 - 最小化安装`Ubuntu 16.04 server或者CentOS 7 Minimal`
 - 配置基础网络、更新源、SSH登录等
 
@@ -58,8 +58,7 @@ chmod +x ./ezdown
 ./ezdown -S
 ```
 
-- 使用默认配置安装 aio 集群
-如果多个网卡，需要加HOST_IP环境变量，-e HOST_IP=<xx.x.x.x> ,如 -e HOST_IP=192.168.56.101
+- 使用默认配置安装 aio 集群,如果多个网卡，需要加HOST_IP环境变量，-e HOST_IP=<xx.x.x.x> ,如 -e HOST_IP=192.168.56.101
 ```
 docker exec -it kubeasz ezctl start-aio
 # 如果安装失败，查看日志排除后，使用如下命令重新安装aio集群
@@ -86,4 +85,5 @@ $ kubectl get svc -A      # 验证集群服务状态
 在宿主机上，按照如下步骤清理
 
 - 清理集群 `docker exec -it kubeasz ezctl destroy default`
+- 删除集群文件 rm -rf /etc/kubeasz/clusters/default
 - 重启节点，以确保清理残留的虚拟网卡、路由等信息
