@@ -19,6 +19,16 @@
 
 ## 安装流程
 
+``` bash
+cat playbooks/04.kube-master.yml
+- hosts: kube_master
+  roles:
+  - kube-lb        # 四层负载均衡，监听在127.0.0.1:6443，转发到真实master节点apiserver服务
+  - kube-master    #
+  - kube-node      # 因为网络、监控等daemonset组件，master节点也推荐安装kubelet和kube-proxy服务
+  ... 
+```
+
 ### 创建 kubernetes 证书签名请求
 
 ``` bash
@@ -57,10 +67,10 @@
   ]
 }
 ```
-- kubernetes apiserver 使用对等证书，创建时hosts字段需要配置：
-  - 如果配置 ex_lb，需要把 EX_APISERVER_VIP 也配置进去
-  - 如果需要外部访问 apiserver，可选在config.yml配置 MASTER_CERT_HOSTS
-  - `kubectl get svc` 将看到集群中由api-server 创建的默认服务 `kubernetes`，因此也要把 `kubernetes` 服务名和各个服务域名也添加进去
+kubernetes apiserver 使用对等证书，创建时hosts字段需要配置：
+- 如果配置 ex_lb，需要把 EX_APISERVER_VIP 也配置进去
+- 如果需要外部访问 apiserver，可选在config.yml配置 MASTER_CERT_HOSTS
+- `kubectl get svc` 将看到集群中由api-server 创建的默认服务 `kubernetes`，因此也要把 `kubernetes` 服务名和各个服务域名也添加进去
 
 ### 创建apiserver的服务配置文件
 
@@ -72,7 +82,6 @@ After=network.target
 
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
-  --advertise-address={{ inventory_hostname }} \
   --allow-privileged=true \
   --anonymous-auth=false \
   --api-audiences=api,istio-ca \
@@ -87,7 +96,8 @@ ExecStart={{ bin_dir }}/kube-apiserver \
   --kubelet-certificate-authority={{ ca_dir }}/ca.pem \
   --kubelet-client-certificate={{ ca_dir }}/kubernetes.pem \
   --kubelet-client-key={{ ca_dir }}/kubernetes-key.pem \
-  --service-account-issuer=kubernetes.default.svc \
+  --secure-port={{ SECURE_PORT }} \
+  --service-account-issuer=https://kubernetes.default.svc \
   --service-account-signing-key-file={{ ca_dir }}/ca-key.pem \
   --service-account-key-file={{ ca_dir }}/ca.pem \
   --service-cluster-ip-range={{ SERVICE_CIDR }} \
@@ -113,7 +123,6 @@ WantedBy=multi-user.target
 ```
 + Kubernetes 对 API 访问需要依次经过认证、授权和准入控制(admission controll)，认证解决用户是谁的问题，授权解决用户能做什么的问题，Admission Control则是资源管理方面的作用。
 + 关于authorization-mode=Node,RBAC v1.7+支持Node授权，配合NodeRestriction准入控制来限制kubelet仅可访问node、endpoint、pod、service以及secret、configmap、PV和PVC等相关的资源；需要注意的是v1.7中Node 授权是默认开启的，v1.8中需要显式配置开启，否则 Node无法正常工作
-+ 缺省情况下 kubernetes 对象保存在 etcd /registry 路径下，可以通过 --etcd-prefix 参数进行调整
 + 详细参数配置请参考`kube-apiserver --help`，关于认证、授权和准入控制请[阅读](https://github.com/feiskyer/kubernetes-handbook/blob/master/components/apiserver.md)
 + 增加了访问kubelet使用的证书配置，防止匿名访问kubelet的安全漏洞，详见[漏洞说明](../mixes/01.fix_kubelet_annoymous_access.md)
 
@@ -126,8 +135,10 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart={{ bin_dir }}/kube-controller-manager \
-  --bind-address={{ inventory_hostname }} \
   --allocate-node-cidrs=true \
+  --authentication-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --authorization-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --bind-address=0.0.0.0 \
   --cluster-cidr={{ CLUSTER_CIDR }} \
   --cluster-name=kubernetes \
   --cluster-signing-cert-file={{ ca_dir }}/ca.pem \
@@ -161,7 +172,9 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart={{ bin_dir }}/kube-scheduler \
-  --bind-address={{ inventory_hostname }} \
+  --authentication-kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
+  --authorization-kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
+  --bind-address=0.0.0.0 \
   --kubeconfig=/etc/kubernetes/kube-scheduler.kubeconfig \
   --leader-elect=true \
   --v=2

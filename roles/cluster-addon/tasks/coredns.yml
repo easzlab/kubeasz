@@ -1,19 +1,3 @@
-- name: 尝试推送离线coredns镜像（若执行失败，可忽略）
-  copy: src={{ base_dir }}/down/{{ coredns_offline }} dest=/opt/kube/images/{{ coredns_offline }}
-  when: 'coredns_offline in download_info.stdout'
-
-- name: 获取coredns离线镜像推送情况
-  command: "ls /opt/kube/images"
-  register: image_info
-
-- name: 导入coredns的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ coredns_offline }}"
-  when: 'coredns_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
-
-- name: 导入coredns的离线镜像（若执行失败，可忽略）
-  shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ coredns_offline }}"
-  when: 'coredns_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
-
 - name: 准备 DNS的部署文件
   template: src=dns/coredns.yaml.j2 dest={{ cluster_dir }}/yml/coredns.yaml
   run_once: true

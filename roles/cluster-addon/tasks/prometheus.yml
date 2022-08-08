@@ -33,17 +33,14 @@
             --from-file=etcd-client-key=etcd-client-key.pem"
       when: '"etcd-client-cert" not in secrets_info.stdout'
 
-    # 判断 kubernetes 版本
-    - name: 注册变量 K8S_VER
-      shell: "{{ base_dir }}/bin/kube-apiserver --version|cut -d' ' -f2|cut -d'v' -f2"
-      register: K8S_VER
-    
+    - debug: var="K8S_VER"
+
     - name: 创建 prom chart 个性化设置
       template: src=prometheus/values.yaml.j2 dest={{ cluster_dir }}/yml/prom-values.yaml
 
     - name: helm 创建 kube-prometheus-stack {{ prom_chart_ver }}
-      shell: "{{ base_dir }}/bin/helm install -n {{ prom_namespace }} prometheus \
-              -f {{ cluster_dir }}/yml/prom-values.yaml \
+      shell: "{{ base_dir }}/bin/helm upgrade prometheus --install \
+              -n {{ prom_namespace }} -f {{ cluster_dir }}/yml/prom-values.yaml \
               {{ base_dir }}/roles/cluster-addon/files/kube-prometheus-stack-{{ prom_chart_ver }}.tgz"
   run_once: true
   connection: local

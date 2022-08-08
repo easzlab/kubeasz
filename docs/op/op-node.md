@@ -10,15 +10,22 @@
 新增`kube_node`节点大致流程为：(参考ezctl 里面add-node函数 和 playbooks/22.addnode.yml)
 - [可选]新节点安装 chrony 时间同步
 - 新节点预处理 prepare
-- 新节点安装 docker 服务
+- 新节点安装 container runtime
 - 新节点安装 kube_node 服务
 - 新节点安装网络插件相关
 
 ### 操作步骤
 
-首先配置 ssh 免密码登录新增节点，然后执行 (假设待增加节点为 192.168.1.11，k8s集群名为 test-k8s)：
+执行如下 (假设待增加节点为 192.168.1.11，k8s集群名为 test-k8s)：
 
 ``` bash
+# ssh 免密码登录
+$ ssh-copy-id 192.168.1.11
+
+# 部分操作系统需要配置python软链接
+$ ssh 192.168.1.11 ln -s /usr/bin/python3 /usr/bin/python
+
+# 新增节点
 $ ezctl add-node test-k8s 192.168.1.11
 ```
 
@@ -36,9 +43,11 @@ $ kubectl get pod -n kube-system
 
 ## 2.增加非标准ssh端口节点
 
-假设待添加节点192.168.2.1，ssh 端口 10022；配置免密登录 ssh-copy-id -p 10022 192.168.2.1，按提示输入密码，然后执行 
+假设待添加节点192.168.2.1，ssh 端口 10022；然后执行 
 
 ``` bash
+$ ssh-copy-id -p 10022 192.168.2.1
+$ ssh -p10022 192.168.2.1 ln -s /usr/bin/python3 /usr/bin/python
 $ ezctl add-node test-k8s 192.168.2.1 ansible_ssh_port=10022
 ```
 

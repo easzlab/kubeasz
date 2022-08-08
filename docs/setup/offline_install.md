@@ -1,28 +1,35 @@
 # 离线安装集群
 
-kubeasz 2.0.1 开始支持**完全离线安装**，目前已测试 `Ubuntu1604|1804` `CentOS7` `Debian9|10` 系统。
+kubeasz 2.0.1 开始支持**完全离线安装**，目前已支持 `Ubuntu1604|1804|2004` `CentOS7` `Debian9|10` 系统。
 
 ## 离线文件准备
 
 在一台能够访问互联网的服务器上执行：
 
-- 下载工具脚本ezdown，举例使用kubeasz版本3.0.0
+- 下载工具脚本ezdown，举例使用kubeasz版本3.3.1
 
 ``` bash
-export release=3.0.0
+export release=3.3.1
 wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 ```
 
-- 使用工具脚本下载
+- 使用工具脚本下载（更多关于ezdown的参数，运行./ezdown 查看）
 
-默认下载最新推荐k8s/docker等版本（更多关于ezdown的参数，运行./ezdown 查看）
+下载kubeasz代码、二进制、默认容器镜像
 
 ``` bash
+# 国内环境
 ./ezdown -D
 ```
 
-- 可选下载离线系统包 (适用于无法使用yum/apt仓库情形)
+下载额外容器镜像（cilium,flannel,prometheus等）
+
+``` bash
+./ezdown -X
+```
+
+下载离线系统包 (适用于无法使用yum/apt仓库情形)
 
 ``` bash
 ./ezdown -P
@@ -35,19 +42,15 @@ chmod +x ./ezdown
 - `/etc/kubeasz/down` 包含集群安装时需要的离线容器镜像
 - `/etc/kubeasz/down/packages` 包含集群安装时需要的系统基础软件
 
-离线文件不包括：
-
-- 管理端 ansible 安装，但可以使用容器化方式运行 kubeasz 安装命令
-- 其他更多 kubernetes 插件镜像
-
 ## 离线安装
 
-上述下载完成后，把`/etc/kubeasz`整个目录复制到目标离线服务器相同目录，然后在离线服务器上运行：
+上述下载完成后，把`/etc/kubeasz`整个目录复制到目标离线服务器相同目录，然后在离线服务器/etc/kubeasz目录下执行：
 
-- 离线安装 docker，检查本地文件，正常会提示所有文件已经下载完成
+- 离线安装 docker，检查本地文件，正常会提示所有文件已经下载完成，并上传到本地私有镜像仓库
 
 ```
 ./ezdown -D
+./ezdown -X
 ```
 
 - 启动 kubeasz 容器

@@ -20,9 +20,21 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
 
 ## etcd 集群节点操作
 
-首先确认配置 ssh 免密码登录，然后执行 (假设待操作节点为 192.168.1.11，集群名称test-k8s)：
+执行如下 (假设待操作节点为 192.168.1.11，集群名称test-k8s)：
 
-- 增加 etcd 节点：`$ ezctl add-etcd test-k8s 192.168.1.11`
+- 增加 etcd 节点：
+
+``` bash
+# ssh 免密码登录
+$ ssh-copy-id 192.168.1.11
+
+# 部分操作系统需要配置python软链接
+$ ssh 192.168.1.11 ln -s /usr/bin/python3 /usr/bin/python
+
+# 新增节点
+$ ezctl add-etcd test-k8s 192.168.1.11
+```
+
 - 删除 etcd 节点：`$ ezctl del-etcd test-k8s 192.168.1.11`
 
 具体操作流程参考 ezctl中 add-etcd/del-etcd 相关函数和playbooks/ 目录的操作剧本

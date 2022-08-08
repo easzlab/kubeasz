@@ -1,0 +1,105 @@
+image:
+  repository: "easzlab.io.local:5000/cilium/cilium"
+  tag: "v1.11.6"
+  useDigest: false
+
+# -- Additional agent container arguments.
+{% if ENABLE_LOCAL_DNS_CACHE %}
+extraArgs:
+  - --exclude-local-address="{{ LOCAL_DNS_CACHE }}/32"
+{% endif %}
+
+resources:
+  limits:
+    cpu: 4000m
+    memory: 4Gi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+cni:
+  binPath: {{ bin_dir }}
+
+containerRuntime:
+  integration: containerd
+  socketPath: unix:///run/containerd/containerd.sock
+
+{% if cilium_hubble_enabled %}
+hubble:
+  enabled: true
+  metrics:
+    enabled:
+    - dns
+    - drop
+    - tcp
+    - flow
+    - icmp
+    - http
+  relay:
+    enabled: true
+    image:
+      repository: "easzlab.io.local:5000/cilium/hubble-relay"
+      tag: "v1.11.6"
+      useDigest: false
+  ui:
+    enabled: {%- if cilium_hubble_ui_enabled -%}true{%- else -%}false{%- endif -%}
+    backend:
+      image:
+        repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"
+        tag: "v0.9.0"
+    frontend:
+      image:
+        repository: "easzlab.io.local:5000/cilium/hubble-ui"
+        tag: "v0.9.0"
+{% endif %}
+
+identityAllocationMode: "crd"
+
+ipam:
+  # ref: https://docs.cilium.io/en/stable/concepts/networking/ipam/
+  mode: "cluster-pool"
+  operator:
+    clusterPoolIPv4PodCIDRList: ["{{ CLUSTER_CIDR }}"]
+    clusterPoolIPv4MaskSize: 24
+
+l7Proxy: true
+
+# -- Configure Istio proxy options.
+proxy:
+  prometheus:
+    enabled: false
+    port: "9095"
+  # -- Regular expression matching compatible Istio sidecar istio-proxy
+  # container image names
+  sidecarImageRegex: "cilium/istio_proxy"
+
+# -- Configure TLS configuration in the agent.
+tls:
+  enabled: true
+  secretsBackend: local
+
+tunnel: "vxlan"
+
+etcd:
+  enabled: false
+
+operator:
+  enabled: true
+  image:
+    repository: "easzlab.io.local:5000/cilium/operator"
+    tag: "v1.11.6"
+    useDigest: false
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+preflight:
+  enabled: false
+
+clustermesh:
+  useAPIServer: false

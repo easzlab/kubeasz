@@ -5,6 +5,7 @@ plugin_dir = ""
 required_plugins = []
 root = "{{ CONTAINERD_STORAGE_DIR }}" 
 state = "/run/containerd"
+temp = ""
 version = 2
 
 [cgroup]
@@ -23,6 +24,7 @@ version = 2
   max_recv_message_size = 16777216
   max_send_message_size = 16777216
   tcp_address = ""
+  tcp_tls_ca = ""
   tcp_tls_cert = ""
   tcp_tls_key = ""
   uid = 0
@@ -41,6 +43,7 @@ version = 2
     startup_delay = "100ms"
 
   [plugins."io.containerd.grpc.v1.cri"]
+    device_ownership_from_security_context = false
     disable_apparmor = false
     disable_cgroup = false
     disable_hugetlb_controller = true
@@ -48,6 +51,8 @@ version = 2
     disable_tcp_service = true
     enable_selinux = false
     enable_tls_streaming = false
+    enable_unprivileged_icmp = false
+    enable_unprivileged_ports = false
     ignore_image_defined_volumes = false
     max_concurrent_downloads = 3
     max_container_log_line_size = 16384
@@ -73,6 +78,7 @@ version = 2
       default_runtime_name = "runc"
       disable_snapshot_annotations = true
       discard_unpacked_layers = false
+      ignore_rdt_not_enabled_errors = false
       no_pivot = false
       snapshotter = "overlayfs"
 
@@ -126,15 +132,18 @@ version = 2
       key_model = "node"
 
     [plugins."io.containerd.grpc.v1.cri".registry]
-      config_path = ""
 
       [plugins."io.containerd.grpc.v1.cri".registry.auths]
 
       [plugins."io.containerd.grpc.v1.cri".registry.configs]
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."easzlab.io.local:5000".tls]
+          insecure_skip_verify = true
 
       [plugins."io.containerd.grpc.v1.cri".registry.headers]
 
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."easzlab.io.local:5000"]
+          endpoint = ["http://easzlab.io.local:5000"]
 {% if ENABLE_MIRROR_REGISTRY %}
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
           endpoint = ["https://docker.mirrors.ustc.edu.cn", "http://hub-mirror.c.163.com"]

@@ -2,7 +2,7 @@
 #--------------------------------------------------
 # This script is used for: 
 # 1. to download the scripts/binaries/images needed for installing a k8s cluster with kubeasz
-# 2. to run kubeasz in a container (optional)
+# 2. to run kubeasz in a container (recommended way to run 'ezctl')
 # @author:   gjmzj
 # @usage:    ./ezdown
 # @repo:     https://github.com/easzlab/kubeasz
@@ -13,39 +13,44 @@ set -o errexit
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=20.10.9
-KUBEASZ_VER=3.2.0
-K8S_BIN_VER=v1.23.1
-EXT_BIN_VER=1.0.0
-SYS_PKG_VER=0.4.2
+DOCKER_VER=20.10.16
+KUBEASZ_VER=3.3.1
+K8S_BIN_VER=v1.24.2
+EXT_BIN_VER=1.2.0
+SYS_PKG_VER=0.4.3
 HARBOR_VER=v2.1.3
 REGISTRY_MIRROR=CN
 
-# images needed by k8s cluster
-calicoVer=v3.19.3
-flannelVer=v0.15.1
+# images downloaded by default(with '-D')
+calicoVer=v3.19.4
 dnsNodeCacheVer=1.21.1
-corednsVer=1.8.6
-dashboardVer=v2.4.0
-dashboardMetricsScraperVer=v1.0.7
+corednsVer=1.9.3
+dashboardVer=v2.5.1
+dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.5.2
-pauseVer=3.6
+pauseVer=3.7
+
+# images not downloaded by default(only download  with '-X')
+ciliumVer=1.11.6
+flannelVer=v0.15.1
 nfsProvisionerVer=v4.0.2
-export ciliumVer=v1.4.1
-export kubeRouterVer=v0.3.1
-export kubeOvnVer=v1.5.3
-export promChartVer=12.10.6
-export traefikChartVer=10.3.0
+promChartVer=35.5.1
+
+# images not downloaded
+kubeRouterVer=v0.3.1
+kubeOvnVer=v1.5.3
+
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
   cat <<EOF
-  option: -{DdekSz}
+  option:
     -C         stop&clean all local containers
-    -D         download all into "$BASE"
+    -D         download default binaries/images into "$BASE"
     -P         download system packages for offline installing
     -R         download Registry(harbor) offline installer
     -S         start kubeasz in a container
+    -X         download extra images
     -d <ver>   set docker-ce version, default "$DOCKER_VER"
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
@@ -140,6 +145,7 @@ EOF
     "https://docker.mirrors.ustc.edu.cn",
     "http://hub-mirror.c.163.com"
   ],
+  "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",
@@ -155,6 +161,7 @@ EOF
     cat > /etc/docker/daemon.json << EOF
 {
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
+  "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",
@@ -208,6 +215,7 @@ function get_kubeasz() {
   [[ -d "$BASE/roles/kube-node" ]] && { logger warn "kubeasz already existed"; return 0; }
 
   logger info "downloading kubeasz: $KUBEASZ_VER"
+  docker ps -a |grep -q temp_easz && { logger debug "remove existing container"; docker rm -f temp_easz; }
   logger debug " run a temporary container"
   docker run -d --name temp_easz easzlab/kubeasz:${KUBEASZ_VER} || { logger error "download failed."; exit 1; }
 
@@ -230,6 +238,7 @@ function get_k8s_bin() {
   [[ -f "$BASE/bin/kubelet" ]] && { logger warn "kubernetes binaries existed"; return 0; }
   
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
+  docker ps -a |grep -q temp_k8s_bin && { logger debug "remove existing container"; docker rm -f temp_k8s_bin; }
   docker pull easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
   logger debug "run a temporary container" && \
   docker run -d --name temp_k8s_bin easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
@@ -245,6 +254,7 @@ function get_ext_bin() {
   [[ -f "$BASE/bin/etcdctl" ]] && { logger warn "extra binaries existed"; return 0; }
 
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
+  docker ps -a |grep -q temp_ext_bin && { logger debug "remove existing container"; docker rm -f temp_ext_bin; }
   docker pull "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "run a temporary container" && \
   docker run -d --name temp_ext_bin "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
@@ -259,7 +269,7 @@ function get_ext_bin() {
 function get_sys_pkg() {
   [[ -f "$BASE/down/packages/chrony_xenial.tar.gz" ]] && { logger warn "system packages existed"; return 0; }
 
-  docker ps -a |grep temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
+  docker ps -a |grep -q temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
   logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
   docker pull "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "run a temporary container" && \
@@ -273,7 +283,7 @@ function get_sys_pkg() {
 function get_harbor_offline_pkg() {
   [[ -f "$BASE/down/harbor-offline-installer-$HARBOR_VER.tgz" ]] && { logger warn "harbor-offline existed"; return 0; }
 
-  docker ps -a |grep temp_harbor && { logger debug "remove existing container"; docker rm -f temp_harbor; }
+  docker ps -a |grep -q temp_harbor && { logger debug "remove existing container"; docker rm -f temp_harbor; }
   logger info "downloading harbor-offline:$HARBOR_VER"
   docker pull "easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "run a temporary container" && \
@@ -284,54 +294,196 @@ function get_harbor_offline_pkg() {
   docker rm -f temp_harbor
 }
 
-function get_offline_image() {
-  imageDir="$BASE/down"
-  logger info "downloading offline images"
+function get_default_images() {
+  logger info "download default images, then upload to the local registry"
 
+  # calico
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
     docker pull "calico/cni:$calicoVer" && \
     docker pull "calico/pod2daemon-flexvol:$calicoVer" && \
     docker pull "calico/kube-controllers:$calicoVer" && \
     docker pull "calico/node:$calicoVer" && \
     docker save -o "$imageDir/calico_$calicoVer.tar" "calico/cni:$calicoVer" "calico/kube-controllers:$calicoVer" "calico/node:$calicoVer" "calico/pod2daemon-flexvol:$calicoVer"
+  else
+    docker load -i "$imageDir/calico_$calicoVer.tar"
   fi
+  docker tag "calico/cni:$calicoVer" "easzlab.io.local:5000/calico/cni:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/cni:$calicoVer"
+  docker tag "calico/pod2daemon-flexvol:$calicoVer" "easzlab.io.local:5000/calico/pod2daemon-flexvol:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/pod2daemon-flexvol:$calicoVer"
+  docker tag "calico/kube-controllers:$calicoVer" "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
+  docker tag "calico/node:$calicoVer" "easzlab.io.local:5000/calico/node:$calicoVer"
+  docker push "easzlab.io.local:5000/calico/node:$calicoVer"
+
+  # coredns
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
     docker pull "coredns/coredns:$corednsVer" && \
     docker save -o "$imageDir/coredns_$corednsVer.tar" "coredns/coredns:$corednsVer"
+  else
+    docker load -i "$imageDir/coredns_$corednsVer.tar"
   fi
+  docker tag "coredns/coredns:$corednsVer" "easzlab.io.local:5000/coredns/coredns:$corednsVer"
+  docker push "easzlab.io.local:5000/coredns/coredns:$corednsVer"
+
+  # dns-node-cache
   if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
     docker pull "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
     docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" 
+  else
+    docker load -i "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar"
   fi
+  docker tag "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
+  docker push "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
+
+  # dashboard
   if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
     docker pull "kubernetesui/dashboard:$dashboardVer" && \
     docker save -o "$imageDir/dashboard_$dashboardVer.tar" "kubernetesui/dashboard:$dashboardVer"
+  else
+    docker load -i "$imageDir/dashboard_$dashboardVer.tar"
   fi
-  if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
-    docker pull "easzlab/flannel:$flannelVer" && \
-    docker save -o "$imageDir/flannel_$flannelVer.tar" "easzlab/flannel:$flannelVer"
-  fi
+  docker tag "kubernetesui/dashboard:$dashboardVer" "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+  docker push "easzlab.io.local:5000/kubernetesui/dashboard:$dashboardVer"
+
+  # dashboard-metrics-scraper
   if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
     docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
     docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+  else
+    docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
   fi
+  docker tag "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+  docker push "easzlab.io.local:5000/kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
+
+  # metrics-server
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
     docker pull "easzlab/metrics-server:$metricsVer" && \
     docker save -o "$imageDir/metrics-server_$metricsVer.tar" "easzlab/metrics-server:$metricsVer"
+  else
+    docker load -i "$imageDir/metrics-server_$metricsVer.tar"
   fi
+  docker tag "easzlab/metrics-server:$metricsVer" "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
+  docker push "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
+
+  # pause
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
     docker pull "easzlab/pause:$pauseVer" && \
     docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer"
-    /bin/cp -u "$imageDir/pause_$pauseVer.tar" "$imageDir/pause.tar"
+  else
+    docker load -i "$imageDir/pause_$pauseVer.tar"
   fi
-  if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
-    docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
-    docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
-  fi
+  docker tag "easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+  docker push "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+
+  # kubeasz
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
     docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+  else
+    docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
   fi
+}
+
+function get_extra_images() {
+  logger info "download extra images, then upload to the local registry"
+
+  # flannel
+  if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
+    docker pull "easzlab/flannel:$flannelVer" && \
+    docker save -o "$imageDir/flannel_$flannelVer.tar" "easzlab/flannel:$flannelVer"
+  else
+    docker load -i "$imageDir/flannel_$flannelVer.tar"
+  fi
+  docker tag "easzlab/flannel:$flannelVer" "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
+  docker push "easzlab.io.local:5000/easzlab/flannel:$flannelVer"
+
+  # nfs-provisioner
+  if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
+    docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
+    docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+  else
+    docker load -i "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar"
+  fi
+  docker tag "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+  docker push "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+
+  # cilium
+  if [[ ! -f "$imageDir/cilium_$ciliumVer.tar" ]];then
+    docker pull "quay.io/cilium/cilium:v$ciliumVer" && \
+    docker pull "quay.io/cilium/operator-generic:v$ciliumVer" && \
+    docker pull "quay.io/cilium/hubble-relay:v$ciliumVer" && \
+    docker pull quay.io/cilium/hubble-ui-backend:v0.9.0 && \
+    docker pull quay.io/cilium/hubble-ui:v0.9.0 && \
+    docker pull quay.io/cilium/json-mock:v1.3.0 && \
+    docker pull quay.io/cilium/alpine-curl:v1.3.0
+    docker save -o "$imageDir/cilium_$ciliumVer.tar" "quay.io/cilium/cilium:v$ciliumVer" \
+		"quay.io/cilium/operator-generic:v$ciliumVer" \
+		"quay.io/cilium/hubble-relay:v$ciliumVer" \
+		quay.io/cilium/hubble-ui-backend:v0.9.0 \
+		quay.io/cilium/hubble-ui:v0.9.0 \
+		quay.io/cilium/json-mock:v1.3.0 \
+		quay.io/cilium/alpine-curl:v1.3.0
+  else
+    docker load -i "$imageDir/cilium_$ciliumVer.tar"
+  fi
+  docker tag "quay.io/cilium/cilium:v$ciliumVer" "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
+  docker push "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
+  docker tag "quay.io/cilium/operator-generic:v$ciliumVer" "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
+  docker push "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
+  docker tag "quay.io/cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
+  docker push "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
+  docker tag quay.io/cilium/hubble-ui-backend:v0.9.0 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.0
+  docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.0
+  docker tag quay.io/cilium/hubble-ui:v0.9.0 easzlab.io.local:5000/cilium/hubble-ui:v0.9.0
+  docker push easzlab.io.local:5000/cilium/hubble-ui:v0.9.0
+  docker tag quay.io/cilium/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
+  docker push easzlab.io.local:5000/cilium/json-mock:v1.3.0
+  docker tag quay.io/cilium/alpine-curl:v1.3.0 easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+  docker push easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+
+  # prometheus chart
+  if [[ ! -f "$imageDir/prometheus-chart_$promChartVer.tar" ]];then
+    docker pull easzlab/kube-state-metrics:v2.4.1 && \
+    docker pull easzlab/kube-webhook-certgen:v1.1.1 && \
+    docker pull grafana/grafana:8.5.3 && \
+    docker pull quay.io/kiwigrid/k8s-sidecar:1.15.6 && \
+    docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.56.3 && \
+    docker pull quay.io/prometheus-operator/prometheus-operator:v0.56.3 && \
+    docker pull quay.io/prometheus/alertmanager:v0.24.0 && \
+    docker pull quay.io/prometheus/node-exporter:v1.3.1 && \
+    docker pull quay.io/prometheus/prometheus:v2.35.0 && \
+    docker save -o "$imageDir/prometheus-chart_$promChartVer.tar" \
+        easzlab/kube-state-metrics:v2.4.1 \
+        easzlab/kube-webhook-certgen:v1.1.1 \
+        grafana/grafana:8.5.3 \
+        quay.io/kiwigrid/k8s-sidecar:1.15.6 \
+        quay.io/prometheus-operator/prometheus-config-reloader:v0.56.3 \
+        quay.io/prometheus-operator/prometheus-operator:v0.56.3 \
+        quay.io/prometheus/alertmanager:v0.24.0 \
+        quay.io/prometheus/node-exporter:v1.3.1 \
+        quay.io/prometheus/prometheus:v2.35.0
+  else
+    docker load -i "$imageDir/prometheus-chart_$promChartVer.tar"
+  fi
+  docker tag easzlab/kube-state-metrics:v2.4.1 easzlab.io.local:5000/prometheus/kube-state-metrics:v2.4.1
+  docker push easzlab.io.local:5000/prometheus/kube-state-metrics:v2.4.1
+  docker tag easzlab/kube-webhook-certgen:v1.1.1 easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.1.1
+  docker push easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.1.1
+  docker tag grafana/grafana:8.5.3 easzlab.io.local:5000/prometheus/grafana:8.5.3
+  docker push easzlab.io.local:5000/prometheus/grafana:8.5.3
+  docker tag quay.io/kiwigrid/k8s-sidecar:1.15.6 easzlab.io.local:5000/prometheus/k8s-sidecar:1.15.6
+  docker push easzlab.io.local:5000/prometheus/k8s-sidecar:1.15.6
+  docker tag quay.io/prometheus-operator/prometheus-config-reloader:v0.56.3 easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.56.3
+  docker push easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.56.3
+  docker tag quay.io/prometheus-operator/prometheus-operator:v0.56.3 easzlab.io.local:5000/prometheus/prometheus-operator:v0.56.3
+  docker push easzlab.io.local:5000/prometheus/prometheus-operator:v0.56.3
+  docker tag quay.io/prometheus/alertmanager:v0.24.0 easzlab.io.local:5000/prometheus/alertmanager:v0.24.0
+  docker push easzlab.io.local:5000/prometheus/alertmanager:v0.24.0
+  docker tag quay.io/prometheus/node-exporter:v1.3.1 easzlab.io.local:5000/prometheus/node-exporter:v1.3.1
+  docker push easzlab.io.local:5000/prometheus/node-exporter:v1.3.1
+  docker tag quay.io/prometheus/prometheus:v2.35.0 easzlab.io.local:5000/prometheus/prometheus:v2.35.0
+  docker push easzlab.io.local:5000/prometheus/prometheus:v2.35.0
 }
 
 function download_all() {
@@ -341,11 +493,38 @@ function download_all() {
   get_kubeasz && \
   get_k8s_bin && \
   get_ext_bin && \
-  get_offline_image
+  start_local_registry && \
+  get_default_images
 }
+
+function start_local_registry() {
+  docker ps -a --format="{{ .Names }}"|grep registry > /dev/null 2>&1 && \
+  { logger warn "registry is already running"; return 0; }
+
+  if [[ ! -f "$imageDir/registry-2.tar" ]];then
+    docker pull "registry:2" && \
+    docker save -o "$imageDir/registry-2.tar" "registry:2"
+  fi
+
+  logger info "start local registry ..."
+  docker load -i "$imageDir/registry-2.tar" > /dev/null
+  mkdir -p /opt/kube/registry
+  docker run -d \
+        --name registry \
+        --network host \
+        --restart always \
+        --volume /opt/kube/registry:/var/lib/registry \
+        registry:2
+
+  sed -i "/easzlab.io.local/d" /etc/hosts
+  echo "127.0.0.1  easzlab.io.local" >> /etc/hosts
+}
+
 
 function start_kubeasz_docker() {
   [[ -d "$BASE/roles/kube-node" ]] || { logger error "not initialized. try 'ezdown -D' first."; exit 1; }
+  docker ps -a --format="{{ .Names }}"|grep kubeasz > /dev/null 2>&1 && \
+  { logger warn "kubeasz container is already existed"; return 0; }
 
   logger info "try to run kubeasz in a container"
   # get host's IP
@@ -367,8 +546,9 @@ function start_kubeasz_docker() {
     ln -s /usr/bin/python3 /usr/bin/python
   fi
 
-  # 
-  docker load -i "$BASE/down/kubeasz_$KUBEASZ_VER.tar"
+  # create cmd alias in /root/.bashrc
+  sed -i '/docker exec/d' /root/.bashrc
+  echo "alias dk='docker exec -it kubeasz'  # generated by kubeasz" >> /root/.bashrc
 
   # run kubeasz docker container
   docker run --detach \
@@ -379,6 +559,7 @@ function start_kubeasz_docker() {
       --volume "$BASE":"$BASE" \
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh:/root/.ssh \
+      --volume /etc/docker:/etc/docker \
       easzlab/kubeasz:${KUBEASZ_VER} sleep 36000
 }
 
@@ -391,6 +572,7 @@ function clean_container() {
 ### Main Lines ##################################################
 function main() {
   BASE="/etc/kubeasz"
+  imageDir="$BASE/down"
 
   # check if use bash shell
   readlink /proc/$$/exe|grep -q "bash" || { logger error "you should use bash shell, not sh"; exit 1; }
@@ -400,7 +582,7 @@ function main() {
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
   
   ACTION=""
-  while getopts "CDPRSd:e:k:m:p:z:" OPTION; do
+  while getopts "CDPRSXd:e:k:m:p:z:" OPTION; do
       case "$OPTION" in
         C)
           ACTION="clean_container"
@@ -416,6 +598,9 @@ function main() {
           ;;
         S)
           ACTION="start_kubeasz_docker"
+          ;;
+        X)
+          ACTION="get_extra_images"
           ;;
         d)
           DOCKER_VER="$OPTARG"

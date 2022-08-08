@@ -1,9 +1,3 @@
-- name: 创建flannel 相关目录
-  file: name={{ item }} state=directory
-  with_items:
-  - /etc/cni/net.d
-  - /opt/kube/images
-
 - name: 下载flannel cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
@@ -13,59 +7,19 @@
   - loopback
   - portmap
 
-# 【可选】推送离线docker 镜像，可以忽略执行错误
-- block:
-    - name: 检查是否已下载离线flannel镜像
-      command: "ls {{ base_dir }}/down"
-      register: download_info
-      connection: local
-      run_once: true
-    
-    - name: 尝试推送离线docker 镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
-      when: 'item in download_info.stdout'
-      with_items:
-      - "pause.tar"
-      - "{{ flannel_offline }}"
-      ignore_errors: true
-
-    - name: 获取flannel离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info
-
-    # 如果目录下有离线镜像，就把它导入到node节点上
-    - name: 导入 flannel的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
-      with_items:
-      - "pause.tar"
-      - "{{ flannel_offline }}"
-      ignore_errors: true
-      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'docker'"
-
-    - name: 导入 flannel的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
-      with_items:
-      - "pause.tar"
-      - "{{ flannel_offline }}"
-      ignore_errors: true
-      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
-
 - name: 配置 flannel DaemonSet yaml文件
   template: src=kube-flannel.yaml.j2 dest={{ cluster_dir }}/yml/flannel.yaml
   run_once: true
   connection: local
 
-# 只需单节点执行一次
 - name: 运行 flannel网络
   shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/flannel.yaml"
   run_once: true
   connection: local
 
-# 删除原有cni配置
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
-# 等待网络插件部署成功，视下载镜像速度而定
 - name: 轮询等待flannel 运行，视下载镜像速度而定
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status

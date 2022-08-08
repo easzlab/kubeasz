@@ -1,49 +1,38 @@
 ## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
-kubeTargetVersionOverride: "{{ K8S_VER.stdout }}"
+kubeTargetVersionOverride: "{{ K8S_VER }}"
 
-## Configuration for alertmanager
 alertmanager:
   enabled: true
-  config:
-    global:
-      resolve_timeout: 5m
-    route:
-      group_by: ['job']
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 12h
-      receiver: 'null'
-      routes:
-      - match:
-          alertname: Watchdog
-        receiver: 'null'
-    receivers:
-    - name: 'null'
+  #config:
+  #  route:
+  #    receiver: dingtalk
+  #  receivers:
+  #  - name: dingtalk
+  #    webhook_configs:
+  #    - send_resolved: false
+  #      url: http://webhook-dingtalk.monitor.svc.cluster.local:8060/dingtalk/webhook1/send
+  alertmanagerSpec:
+    image:
+      repository: easzlab.io.local:5000/prometheus/alertmanager
 
   ## Configuration for Alertmanager service
   service:
     nodePort: 30902
     type: NodePort 
 
-  alertmanagerSpec:
-    image:
-      repository: quay.io/prometheus/alertmanager
-      tag: v0.21.0
-
-    replicas: 1
-    retention: 120h
-
-    nodeSelector: {}
-
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 grafana:
   enabled: true
-  defaultDashboardsEnabled: true
   adminPassword: Admin1234!
-
+  image:
+    repository: easzlab.io.local:5000/prometheus/grafana
   service:
     nodePort: 30903
-    type: NodePort 
+    type: NodePort
+  sidecar:
+    image:
+      repository: easzlab.io.local:5000/prometheus/k8s-sidecar
+    skipTlsVerify: true
 
 ## Component scraping the kube api server
 kubeApiServer:
@@ -52,7 +41,6 @@ kubeApiServer:
 ## Component scraping the kubelet and kubelet-hosted cAdvisor
 kubelet:
   enabled: true
-  namespace: kube-system
 
 ## Component scraping the kube controller manager
 kubeControllerManager:
@@ -61,6 +49,13 @@ kubeControllerManager:
 {% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
+  service:
+    port: 10257
+    targetPort: 10257
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
+    serverName: localhost
 
 ## Component scraping coreDns. Use either this or kubeDns
 coreDns:
@@ -73,9 +68,6 @@ kubeEtcd:
 {% for h in groups['etcd'] %}
   - {{ h }}
 {% endfor %}
-
-  ## Configure secure access to the etcd cluster by loading a secret into prometheus and
-  ## specifying security configuration below. For example, with a secret named etcd-client-cert
   serviceMonitor:
     scheme: https
     insecureSkipVerify: true 
@@ -92,6 +84,12 @@ kubeScheduler:
 {% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
+  service:
+    port: 10259
+    targetPort: 10259
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
 
 ## Component scraping kube proxy
 kubeProxy:
@@ -106,47 +104,28 @@ kubeProxy:
 {% endif %}
 {% endfor %}
 
+## Configuration for kube-state-metrics subchart
+kube-state-metrics:
+  image:
+    repository: easzlab.io.local:5000/prometheus/kube-state-metrics
+
 ## Manages Prometheus and Alertmanager components
 prometheusOperator:
   enabled: true
-
-  ## Namespaces to scope the interaction of the Prometheus Operator and the apiserver (allow list).
-  ## This is mutually exclusive with denyNamespaces. Setting this to an empty object will disable the configuration
-  namespaces: {}
-    # releaseNamespace: true
-    # additional:
-    # - kube-system
-
-  ## Namespaces not to scope the interaction of the Prometheus Operator (deny list).
-  denyNamespaces: []
-
-  ## Filter namespaces to look for prometheus-operator custom resources
-  ##
-  alertmanagerInstanceNamespaces: []
-  prometheusInstanceNamespaces: []
-  thanosRulerInstanceNamespaces: []
-
+  admissionWebhooks:
+    enabled: true
+    patch:
+      image:
+        repository: easzlab.io.local:5000/prometheus/kube-webhook-certgen
+  image:
+    repository: easzlab.io.local:5000/prometheus/prometheus-operator
   service:
     nodePort: 30899
     nodePortTls: 30900
-    type: NodePort 
-
-  nodeSelector: {}
-
-  ## Prometheus-operator image
-  image:
-    repository: quay.io/prometheus-operator/prometheus-operator
-    tag: v0.44.0
-
-  ## Configmap-reload image to use for reloading configmaps
-  configmapReloadImage:
-    repository: docker.io/jimmidyson/configmap-reload
-    tag: v0.4.0
-
-  ## Prometheus-config-reloader image to use for config and rule reloading
-  prometheusConfigReloaderImage:
-    repository: quay.io/prometheus-operator/prometheus-config-reloader
-    tag: v0.44.0
+    type: NodePort
+  prometheusConfigReloader:
+    image:
+      repository: easzlab.io.local:5000/prometheus/prometheus-config-reloader
 
 ## Deploy a Prometheus instance
 prometheus:
@@ -157,17 +136,9 @@ prometheus:
     nodePort: 30901
     type: NodePort 
 
-  ## Settings affecting prometheusSpec
-  ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
   prometheusSpec:
-    ## APIServerConfig
-    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#apiserverconfig
-    apiserverConfig: {}
-
     image:
-      repository: quay.io/prometheus/prometheus
-      tag: v2.22.1
-
+      repository: easzlab.io.local:5000/prometheus/prometheus
     replicas: 1
 
     secrets:
@@ -189,3 +160,7 @@ prometheus:
     ##
     #  emptyDir:
     #    medium: Memory
+
+prometheus-node-exporter:
+  image:
+    repository: easzlab.io.local:5000/prometheus/node-exporter

@@ -18,3 +18,12 @@ subjects:
   name: admin-user
   namespace: kube-system
 
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: admin-user
+  namespace: kube-system
+  annotations:
+    kubernetes.io/service-account.name: "admin-user"

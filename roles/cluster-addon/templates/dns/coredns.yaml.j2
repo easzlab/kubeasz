@@ -133,7 +133,7 @@ spec:
         kubernetes.io/os: linux
       containers:
       - name: coredns
-        image: coredns/coredns:{{ corednsVer }}
+        image: easzlab.io.local:5000/coredns/coredns:{{ corednsVer }}
         imagePullPolicy: IfNotPresent
         resources:
           limits:

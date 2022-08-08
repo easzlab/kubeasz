@@ -30,6 +30,7 @@
 SECURE_PORT="6443"
 
 # Cluster container-runtime supported: docker, containerd
+# if k8s version >= 1.24, docker is not supported
 CONTAINER_RUNTIME="containerd"
 
 # Network plugins supported: calico, flannel, kube-router, cilium, kube-ovn

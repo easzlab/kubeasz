@@ -7,15 +7,6 @@ INSTALL_SOURCE: "online"
 # 可选进行系统安全加固 github.com/dev-sec/ansible-collection-hardening
 OS_HARDEN: false
 
-# 设置时间源服务器【重要：集群内机器时间必须同步】
-ntp_servers:
-  - "ntp1.aliyun.com"
-  - "time1.cloud.tencent.com"
-  - "0.cn.pool.ntp.org"
-
-# 设置允许内部时间同步的网络段，比如"10.0.0.0/8"，默认全部允许
-local_network: "0.0.0.0/0"
-
 
 ############################
 # role:deploy
@@ -48,7 +39,7 @@ ETCD_WAL_DIR: ""
 ENABLE_MIRROR_REGISTRY: true
 
 # [containerd]基础容器镜像
-SANDBOX_IMAGE: "easzlab/pause:__pause__"
+SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
 
 # [containerd]容器持久化存储目录
 CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
@@ -61,7 +52,7 @@ DOCKER_STORAGE_DIR: "/var/lib/docker"
 ENABLE_REMOTE_API: false
 
 # [docker]信任的HTTP仓库
-INSECURE_REG: '["127.0.0.1/8"]'
+INSECURE_REG: '["http://easzlab.io.local:5000"]'
 
 
 ############################
@@ -70,7 +61,7 @@ INSECURE_REG: '["127.0.0.1/8"]'
 # k8s 集群 master 节点证书配置，可以添加多个ip和域名（比如增加公网ip和域名）
 MASTER_CERT_HOSTS:
   - "10.1.1.1"
-  - "k8s.test.io"
+  - "k8s.easzlab.io"
   #- "www.test.com"
 
 # node 节点上 pod 网段掩码长度（决定每个节点最多能分配的pod ip地址）
@@ -98,9 +89,6 @@ KUBE_RESERVED_ENABLED: "no"
 # 另外，集群安装时候apiserver等资源占用会短时较大，建议至少预留1g内存
 SYS_RESERVED_ENABLED: "no"
 
-# haproxy balance mode
-BALANCE_ALG: "roundrobin"
-
 
 ############################
 # role:network [flannel,calico,cilium,kube-ovn,kube-router]
@@ -112,10 +100,7 @@ DIRECT_ROUTING: false
 
 # [flannel] flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
 flannelVer: "__flannel__"
-flanneld_image: "easzlab/flannel:{{ flannelVer }}"
-
-# [flannel]离线镜像tar包
-flannel_offline: "flannel_{{ flannelVer }}.tar"
+flanneld_image: "easzlab.io.local:5000/easzlab/flannel:{{ flannelVer }}"
 
 # ------------------------------------------- calico
 # [calico]设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
@@ -127,24 +112,26 @@ IP_AUTODETECTION_METHOD: "can-reach={{ groups['kube_master'][0] }}"
 # [calico]设置calico 网络 backend: brid, vxlan, none
 CALICO_NETWORKING_BACKEND: "brid"
 
+# [calico]设置calico 是否使用route reflectors
+# 如果集群规模超过50个节点，建议启用该特性
+CALICO_RR_ENABLED: false
+
+# CALICO_RR_NODES 配置route reflectors的节点，如果未设置默认使用集群master节点 
+# CALICO_RR_NODES: ["192.168.1.1", "192.168.1.2"]
+CALICO_RR_NODES: []
+
 # [calico]更新支持calico 版本: [v3.3.x] [v3.4.x] [v3.8.x] [v3.15.x]
 calico_ver: "__calico__"
 
 # [calico]calico 主版本
 calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
 
-# [calico]离线镜像tar包
-calico_offline: "calico_{{ calico_ver }}.tar"
-
 # ------------------------------------------- cilium
-# [cilium]CILIUM_ETCD_OPERATOR 创建的 etcd 集群节点数 1,3,5,7...
-ETCD_CLUSTER_SIZE: 1
-
 # [cilium]镜像版本
 cilium_ver: "__cilium__"
-
-# [cilium]离线镜像tar包
-cilium_offline: "cilium_{{ cilium_ver }}.tar"
+cilium_connectivity_check: true
+cilium_hubble_enabled: false
+cilium_hubble_ui_enabled: false
 
 # ------------------------------------------- kube-ovn
 # [kube-ovn]选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
@@ -152,22 +139,17 @@ OVN_DB_NODE: "{{ groups['kube_master'][0] }}"
 
 # [kube-ovn]离线镜像tar包
 kube_ovn_ver: "__kube_ovn__"
-kube_ovn_offline: "kube_ovn_{{ kube_ovn_ver }}.tar"
 
 # ------------------------------------------- kube-router
 # [kube-router]公有云上存在限制，一般需要始终开启 ipinip；自有环境可以设置为 "subnet"
 OVERLAY_TYPE: "full"
 
 # [kube-router]NetworkPolicy 支持开关
-FIREWALL_ENABLE: "true"
+FIREWALL_ENABLE: true
 
 # [kube-router]kube-router 镜像版本
 kube_router_ver: "__kube_router__"
 busybox_ver: "1.28.4"
-
-# [kube-router]kube-router 离线镜像tar包
-kuberouter_offline: "kube-router_{{ kube_router_ver }}.tar"
-busybox_offline: "busybox_{{ busybox_ver }}.tar"
 
 
 ############################
@@ -190,11 +172,6 @@ dashboard_install: "yes"
 dashboardVer: "__dashboard__"
 dashboardMetricsScraperVer: "__dash_metrics__"
 
-# ingress 自动安装
-ingress_install: "no"
-ingress_backend: "traefik"
-traefik_chart_ver: "__traefik_chart__"
-
 # prometheus 自动安装
 prom_install: "no"
 prom_namespace: "monitor"
@@ -208,12 +185,16 @@ nfs_storage_class: "managed-nfs-storage"
 nfs_server: "192.168.1.10"
 nfs_path: "/data/nfs"
 
+# network-check 自动安装
+network_check_enabled: false 
+network_check_schedule: "*/5 * * * *"
+
 ############################
 # role:harbor
 ############################
 # harbor version，完整版本号
 HARBOR_VER: "__harbor__"
-HARBOR_DOMAIN: "harbor.yourdomain.com"
+HARBOR_DOMAIN: "harbor.easzlab.io.local"
 HARBOR_TLS_PORT: 8443
 
 # if set 'false', you need to put certs named harbor.pem and harbor-key.pem in directory 'down'

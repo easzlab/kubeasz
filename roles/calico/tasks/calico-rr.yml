@@ -1,0 +1,37 @@
+- block:
+    - name: 选择rr节点(master节点)
+      set_fact: NODE_IPS="{% for host in groups['kube_master'] %}{{ host }} {% endfor %}"
+      when: "CALICO_RR_NODES|length == 0"
+
+    - name: 选择rr节点
+      set_fact: NODE_IPS="{% for host in CALICO_RR_NODES %}{{ host }} {% endfor %}"
+      when: "CALICO_RR_NODES|length > 0"
+
+    - name: 显示rr节点
+      debug: var="NODE_IPS"
+
+    - name: 配置routeReflectorClusterID 和 node label
+      shell: 'for ip in {{ NODE_IPS }};do \
+                node_name=$({{ bin_dir }}/calicoctl get node -owide|grep " $ip/"|cut -d" " -f1) && \
+                {{ bin_dir }}/kubectl label node "$ip" route-reflector=true --overwrite && \
+                {{ bin_dir }}/calicoctl patch node "$node_name" \
+                -p "{\"spec\": {\"bgp\": {\"routeReflectorClusterID\": \"244.0.0.1\"}}}"; \
+             done'
+
+    - name: 配置 calico bgp yaml文件
+      template: src={{ item }}.j2 dest=/etc/calico/{{ item }}
+      with_items:
+      - "bgp-default.yaml"
+      - "bgp-rr.yaml"
+
+    - name: 应用 calico bgp 配置
+      shell: "{{ bin_dir }}/calicoctl apply -f /etc/calico/bgp-rr.yaml && \
+            sleep 5 && \
+            {{ bin_dir }}/calicoctl apply -f /etc/calico/bgp-default.yaml && sleep 2"
+  run_once: true
+
+- name: 查看bgp连接
+  shell: "{{ bin_dir }}/calicoctl node status"
+  register: bgp_status
+
+- debug: var="bgp_status.stdout_lines"

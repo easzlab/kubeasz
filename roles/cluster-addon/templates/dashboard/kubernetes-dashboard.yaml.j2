@@ -182,9 +182,12 @@ spec:
       labels:
         k8s-app: kubernetes-dashboard
     spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: kubernetes-dashboard
-          image: kubernetesui/dashboard:{{ dashboardVer }}
+          image: easzlab.io.local:5000/kubernetesui/dashboard:{{ dashboardVer }}
           ports:
             - containerPort: 8443
               protocol: TCP
@@ -270,7 +273,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dashboard-metrics-scraper
-          image: kubernetesui/metrics-scraper:{{ dashboardMetricsScraperVer }}
+          image: easzlab.io.local:5000/kubernetesui/metrics-scraper:{{ dashboardMetricsScraperVer }}
           ports:
             - containerPort: 8000
               protocol: TCP

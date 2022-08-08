@@ -27,11 +27,10 @@
   - 'HELM_TLS_ENABLE'
   when: 'DEL_ENV == "yes"'
 
-  #- name: remove binaries and offline images
+  #- name: remove binaries
   #  file: name={{ item }} state=absent
   #  with_items:
   #  - "/opt/kube/bin"
-  #  - "/opt/kube/images"
   #  when: 'DEL_ETCD == "yes" and DEL_NODE == "yes" and DEL_MASTER == "yes"'
 
 - name: 重启提示 WARNNING

@@ -48,7 +48,7 @@ kubectl logs -n kube-system kubernetes-dashboard-698d4c759b-67gzg
 
 ``` bash
 # 获取 Bearer Token，找到输出中 ‘token:’ 开头的后面部分
-$ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+$ kubectl describe -n kube-system secrets admin-user 
 ```
 
 - Token令牌方式登录（只读）
@@ -57,7 +57,7 @@ $ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | g
 
 ``` bash
 # 获取 Bearer Token，找到输出中 ‘token:’ 开头的后面部分
-$ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep read-user | awk '{print $1}')
+$ kubectl describe -n kube-system secrets dashboard-read-user 
 ```
 
 - Kubeconfig登录（admin）

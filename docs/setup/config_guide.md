@@ -21,15 +21,12 @@
 
 ## clusters/xxxx/config.yml
 
-主要包括集群某个具体组件的个性化配置，具体组件的配置项可能会不断增加；
+主要包括集群某个具体组件的个性化配置，具体组件的配置项可能会不断增加；可以在不做任何配置更改情况下使用默认值创建集群
 
-- 可以在不做任何配置更改情况下使用默认值创建集群
-- 可以根据实际需要配置 k8s 集群，常用举例
-  - 配置使用离线安装系统包：INSTALL_SOURCE: "offline" （需要ezdown -P 下载离线系统软件）
-  - 配置集群节点安全加固：OS_HARDEN: true
-  - 配置CA证书以及其签发证书的有效期
-  - 配置 docker 国内镜像加速：ENABLE_MIRROR_REGISTRY: true
-  - 配置 docker 容器存储目录：DOCKER_STORAGE_DIR: "/var/lib/docker"
-  - 配置 apiserver 支持公网域名：MASTER_CERT_HOSTS
-  - 配置 cluster-addon 组件安装
-  - ...
+根据实际需要配置 k8s 集群，常用举例
+
+- 配置使用离线安装系统包：INSTALL_SOURCE: "offline" （需要ezdown -P 下载离线系统软件）
+- 配置CA证书以及其签发证书的有效期
+- 配置 apiserver 支持公网域名：MASTER_CERT_HOSTS
+- 配置 cluster-addon 组件安装
+- ...

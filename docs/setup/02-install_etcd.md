@@ -48,7 +48,7 @@ Documentation=https://github.com/coreos
 
 [Service]
 Type=notify
-WorkingDirectory=/var/lib/etcd/
+WorkingDirectory={{ ETCD_DATA_DIR }}
 ExecStart={{ bin_dir }}/etcd \
   --name=etcd-{{ inventory_hostname }} \
   --cert-file={{ ca_dir }}/etcd.pem \
@@ -64,11 +64,12 @@ ExecStart={{ bin_dir }}/etcd \
   --initial-cluster-token=etcd-cluster-0 \
   --initial-cluster={{ ETCD_NODES }} \
   --initial-cluster-state={{ CLUSTER_STATE }} \
-  --data-dir=/var/lib/etcd \
+  --data-dir={{ ETCD_DATA_DIR }} \
+  --wal-dir={{ ETCD_WAL_DIR }} \
   --snapshot-count=50000 \
   --auto-compaction-retention=1 \
-  --max-request-bytes=10485760 \
   --auto-compaction-mode=periodic \
+  --max-request-bytes=10485760 \
   --quota-backend-bytes=8589934592
 Restart=always
 RestartSec=15
@@ -78,10 +79,12 @@ OOMScoreAdjust=-999
 [Install]
 WantedBy=multi-user.target
 ```
+
 + 完整参数列表请使用 `etcd --help` 查询
 + 注意etcd 即需要服务器证书也需要客户端证书，为方便使用一个peer 证书代替两个证书
 + `--initial-cluster-state` 值为 `new` 时，`--name` 的参数值必须位于 `--initial-cluster` 列表中
-+ `--snapshot-count` `--auto-compaction-retention` 一些性能优化参数，请查阅etcd项目
++ `--snapshot-count` `--auto-compaction-retention` 一些性能优化参数，请查阅etcd项目文档
++ 设置`--data-dir` 和`--wal-dir` 使用不同磁盘目录，可以避免磁盘io竞争，提高性能，具体请参考etcd项目文档
 
 ### 验证etcd集群状态
 

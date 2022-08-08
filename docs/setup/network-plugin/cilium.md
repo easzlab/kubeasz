@@ -9,216 +9,98 @@
 - 高性能负载均衡，支持DSR
 - 支持事件、策略跟踪和监控集成
 
-## 开始使用 cilium
+cilium 项目当前文档比较完整，建议仔细阅读下[官网文档]()
 
-以下为简要翻译 `cilium doc`上的一个应用示例[原文](http://docs.cilium.io/en/stable/gettingstarted/minikube/#step-2-deploy-the-demo-application)，部署在单节点k8s 环境的实践。
+## kubeasz 集成安装 cilium
+
+kubeasz 3.3.1 更新重写了cilium 安装流程，使用helm charts 方式，配置文件在 roles/cilium/templates/values.yaml.j2，请阅读原charts中values.yaml 文件后自定义修改。
+
+- 相关镜像已经离线打包并推送到本地镜像仓库，通过 `ezdown -X` 命令下载cilium等额外镜像
 
 ### 0.升级内核并重启
 
 - Linux kernel >= 4.9.17，请阅读文档[升级内核](guide/kernel_upgrade.md)
 - etcd >= 3.1.0 or consul >= 0.6.4
 
-### 1.选择cilium网络后安装k8s(allinone)
+### 1.选择cilium网络后安装
 
-- 参考[快速指南](quickStart.md)，设置 ansible hosts 文件中变量 `CLUSTER_NETWORK="cilium"` 
+- 参考[快速指南](quickStart.md)，设置`/etc/kubeasz/clusters/xxx/hosts`文件中变量 `CLUSTER_NETWORK="cilium"` 
+- 执行集群安装 `dk ezctl setup xxx all`
 
-### 2.部署示例应用
+注意默认安装后集成了cilium_connectivity_check 和 cilium_hubble，可以在`/etc/kubeasz/clusters/xxx/config.yml`配置关闭
 
-官方文档用几个`pod/svc` 抽象一个有趣的应用场景（星战迷）：星战中帝国方建造了被称为“终极武器”的“死星”，它是一个卫星大小的战斗空间站，它的核心是使用凯伯晶体（Kyber Crystal）的超级激光炮，剧中它的首秀就以完全火力摧毁了“杰达圣城”（Jedha）。下面将用运行于 k8s上的 pod/svc/cilium 等模拟“死星“的一个“飞船登陆”系统安全策略设计。
+- cilium_connectivity_check：检查集群cilium网络是否工作正常，非常实用
+- cilium_hubble：很酷很实用的监控、策略追踪排查工具
 
-- deploy/deathstar：作为控制整个“死星”的飞船登陆管理系统，它暴露一个SVC，提供HTTP REST 接口给飞船请求登陆使用；
-- pod/tiefighter：作为“帝国”方的常规战斗飞船，它会调用上述 HTTP 接口，请求登陆“死星”；
-- pod/xwing：作为“盟军”方的飞行舰，它也尝试调用 HTTP 接口，请求登陆“死星”；
+Cilium CLI 和 Hubble CLI 二进制已经默认包含在kubeasz-ext-bin 1.2.0版本中 https://github.com/kubeasz/dockerfiles/blob/master/kubeasz-ext-bin/Dockerfile
 
-![cilium_http_gsg](../../../pics/cilium_http_gsg.jpg)
+### 2.验证
 
-根据文件[http-sw-app.yaml](../../../roles/cilium/files/star_war_example/http-sw-app.yaml) 创建 `$ kubectl create -f http-sw-app.yaml` 后，验证如下：
+一键安装完成后如下，注意cilium_connectivity_check 中带`multi-node`的检查任务需要多节点集群才能完成
 
-``` bash
-$ kubectl get pods,svc
-NAME                             READY     STATUS    RESTARTS   AGE
-pod/deathstar-5fc7c7795d-djf2q   1/1       Running   0          4h
-pod/deathstar-5fc7c7795d-hrgst   1/1       Running   0          4h
-pod/tiefighter                   1/1       Running   0          4h
-pod/xwing                        1/1       Running   0          4h
-
-NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-service/deathstar    ClusterIP   10.68.242.130   <none>        80/TCP    4h
-service/kubernetes   ClusterIP   10.68.0.1       <none>        443/TCP   5h
 ```
-每个 POD 在 `cilium` 中都表示为 `Endpoint`，初始每个 `Endpoint` 的”进出安全策略“状态均为 `Disabled`，如下：(已省略部分无关 POD 信息)
-
-``` bash
-$ kubectl exec -n kube-system cilium-6t5vx -- cilium endpoint list
-ENDPOINT   POLICY (ingress)   POLICY (egress)   IDENTITY   LABELS (source:key[=value])                                    IPv6                  IPv4           STATUS   
-           ENFORCEMENT        ENFORCEMENT                                                                                                                      
-643        Disabled           Disabled          31371      k8s:class=deathstar                                            f00d::ac14:0:0:283    172.20.0.246   ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=empire                                                                                              
-1011       Disabled           Disabled          31371      k8s:class=deathstar                                            f00d::ac14:0:0:3f3    172.20.0.63    ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=empire                                                                                              
-32030      Disabled           Disabled          5350       k8s:class=tiefighter                                           f00d::ac14:0:0:7d1e   172.20.0.201   ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=empire                                                                                              
-45943      Disabled           Disabled          14309      k8s:class=xwing                                                f00d::ac14:0:0:b377   172.20.0.189   ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=alliance                                                                                            
-52035      Disabled           Disabled          4          reserved:health                                                f00d::ac14:0:0:cb43   172.20.0.92    ready   
+kubectl get pod -A
+NAMESPACE     NAME                                                    READY   STATUS    RESTARTS   AGE
+cilium-test   echo-a-5dd478f5d8-74xg5                                 1/1     Running   0          3m10s
+cilium-test   echo-b-78c79f6cdd-t9vk6                                 1/1     Running   0          3m10s
+cilium-test   echo-b-host-75c44b897-c8f5m                             1/1     Running   0          3m10s
+cilium-test   host-to-b-multi-node-clusterip-7895fd494c-92cb2         1/1     Running   0          2m59s
+cilium-test   host-to-b-multi-node-headless-74bbc877b5-ffxxx          1/1     Running   0          2m59s
+cilium-test   pod-to-a-allowed-cnp-598fc5c547-b885q                   1/1     Running   0          2m59s
+cilium-test   pod-to-a-b8b456c99-r6272                                1/1     Running   0          2m59s
+cilium-test   pod-to-a-denied-cnp-c78c44f5c-7xhkw                     1/1     Running   0          2m59s
+cilium-test   pod-to-b-intra-node-nodeport-6ccdb55779-j8gnd           1/1     Running   0          2m59s
+cilium-test   pod-to-b-multi-node-clusterip-55d8448b5c-5b4nj          1/1     Running   0          2m59s
+cilium-test   pod-to-b-multi-node-headless-5fbf655bb9-pszpr           1/1     Running   0          2m59s
+cilium-test   pod-to-b-multi-node-nodeport-65f5b95569-qglb7           1/1     Running   0          2m59s
+cilium-test   pod-to-external-1111-64496c754c-bvqlt                   1/1     Running   0          2m59s
+cilium-test   pod-to-external-fqdn-allow-baidu-cnp-6f96597855-c84zs   1/1     Running   0          2m59s
+kube-system   cilium-7trcs                                            1/1     Running   0          3m42s
+kube-system   cilium-hvclp                                            1/1     Running   0          3m42s
+kube-system   cilium-operator-8566689975-vcxpp                        1/1     Running   0          3m42s
+kube-system   cilium-pw2sv                                            1/1     Running   0          3m42s
+kube-system   cilium-qppnc                                            1/1     Running   0          3m42s
+kube-system   coredns-84b58f6b4-m8x7s                                 1/1     Running   0          3m20s
+kube-system   dashboard-metrics-scraper-864d79d497-92l2w              1/1     Running   0          3m14s
+kube-system   hubble-relay-655dc744d7-8d9n7                           1/1     Running   0          3m42s
+kube-system   hubble-ui-54599d7967-lfkvk                              2/2     Running   0          3m42s
+kube-system   kubernetes-dashboard-5fc74cf5c6-pqdvc                   1/1     Running   0          3m14s
+kube-system   metrics-server-69797698d4-2jbg8                         1/1     Running   0          3m17s
+kube-system   node-local-dns-5n8gc                                    1/1     Running   0          3m19s
+kube-system   node-local-dns-5pm2p                                    1/1     Running   0          3m19s
+kube-system   node-local-dns-9x229                                    1/1     Running   0          3m19s
+kube-system   node-local-dns-jz8lj                                    1/1     Running   0          3m19s
 ```
 
-### 3.检查初始状态
+检查 cilium 节点状态
 
-当然“死星”应该只允许“帝国”的飞船着陆，因为没有应用任何策略，所以初始状态下“帝国”和“联盟”的飞船都可以登陆，如下测试：
+```
+cilium status
+    /¯¯\
+ /¯¯\__/¯¯\    Cilium:         OK
+ \__/¯¯\__/    Operator:       OK
+ /¯¯\__/¯¯\    Hubble:         OK
+ \__/¯¯\__/    ClusterMesh:    disabled
+    \__/
 
-``` bash
-$ kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
-Ship landed # 成功着陆
-$ kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
-Ship landed # 成功着陆
+DaemonSet         cilium             Desired: 4, Ready: 4/4, Available: 4/4
+Deployment        cilium-operator    Desired: 1, Ready: 1/1, Available: 1/1
+Deployment        hubble-relay       Desired: 1, Ready: 1/1, Available: 1/1
+Deployment        hubble-ui          Desired: 1, Ready: 1/1, Available: 1/1
+Containers:       cilium             Running: 4
+                  cilium-operator    Running: 1
+                  hubble-relay       Running: 1
+                  hubble-ui          Running: 1
+Cluster Pods:     17/17 managed by Cilium
+Image versions    hubble-relay       easzlab.io.local:5000/cilium/hubble-relay:v1.11.6: 1
+                  hubble-ui          easzlab.io.local:5000/cilium/hubble-ui:v0.9.0: 1
+                  hubble-ui          easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.0: 1
+                  cilium             easzlab.io.local:5000/cilium/cilium:v1.11.6: 4
+                  cilium-operator    easzlab.io.local:5000/cilium/operator-generic:v1.11.6: 1
 ```
 
-### 4.应用 L3/L4 策略
+## cilium network policy
 
-现在我们应用策略，仅让带有标签 `org=empire`的飞船登陆“死星”；那么带有标签 `org=alliance`的“联盟”飞船将禁止登陆；这个就是我们熟悉的传统L3/L4 防火墙策略，并跟踪连接（会话）状态；
+cilium network policy 提供了比k8s network policy更丰富的网络安全策略功能，有兴趣的请阅读官网文档，以下是一个有趣的小例子：
 
-![cilium_http_l3_l4_gsg](../../../pics/cilium_http_l3_l4_gsg.jpg)
-
-根据文件[sw_l3_l4_policy.yaml](../../../roles/cilium/files/star_war_example/sw_l3_l4_policy.yaml) 创建 `$ kubectl apply -f sw_l3_l4_policy.yaml` 后，验证如下：
-
-``` bash
-$ kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
-Ship landed # 成功着陆
-
-$ kubectl exec xwing -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
-# 失败超时
-```
-
-### 5.查看安全策略
-
-再次执行 `cilium endpoint list`，可以看到标签带`deathstar`的 POD 已经应用了 `Ingress`方向的策略：
-
-``` bash
-# kubectl exec -n kube-system cilium-6t5vx -- cilium endpoint list
-ENDPOINT   POLICY (ingress)   POLICY (egress)   IDENTITY   LABELS (source:key[=value])                                    IPv6                  IPv4           STATUS   
-           ENFORCEMENT        ENFORCEMENT                                                                                                                      
-643        Enabled            Disabled          31371      k8s:class=deathstar                                            f00d::ac14:0:0:283    172.20.0.246   ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=empire                                                                                              
-1011       Enabled            Disabled          31371      k8s:class=deathstar                                            f00d::ac14:0:0:3f3    172.20.0.63    ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=empire                                                                                              
-32030      Disabled           Disabled          5350       k8s:class=tiefighter                                           f00d::ac14:0:0:7d1e   172.20.0.201   ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=empire                                                                                              
-45943      Disabled           Disabled          14309      k8s:class=xwing                                                f00d::ac14:0:0:b377   172.20.0.189   ready   
-                                                           k8s:io.cilium.k8s.policy.serviceaccount=default                                                             
-                                                           k8s:io.kubernetes.pod.namespace=default                                                                     
-                                                           k8s:org=alliance                                                                                            
-52035      Disabled           Disabled          4          reserved:health                                                f00d::ac14:0:0:cb43   172.20.0.92    ready   
-```
-
-查看具体策略内容 `kubectl describe cnp rule1`
-
-### 6. L7 安全策略
-
-上述的策略可以进行简单的安全防护了，但是“死星”的这个系统还有很多复杂的功能；比如它还提供了一个内部维护接口，如果被不合理调用将带来严重灾难性后果，也许“联盟”勇士劫持了一架“帝国”飞船正在进行这个任务（虽然我们内心希望他能够成功摧毁“死星”）。不幸的是“死星”系统设计者考虑到这个风险，它有办法严格限制每架飞船能够请求的权限。
-
-没有限制飞船请求权限时，如下运行：
-
-``` bash
-$ kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
-Panic: deathstar exploded
-
-goroutine 1 [running]:
-main.HandleGarbage(0x2080c3f50, 0x2, 0x4, 0x425c0, 0x5, 0xa)
-        /code/src/github.com/empire/deathstar/
-        temp/main.go:9 +0x64
-main.main()
-        /code/src/github.com/empire/deathstar/
-        temp/main.go:5 +0x85
-```
-
-![cilium_http_l3_l4_l7_gsg](../../../pics/cilium_http_l3_l4_l7_gsg.jpg)
-
-限制L7 的安全策略，根据文件[sw_l3_l4_l7_policy.yaml](../../../roles/cilium/files/star_war_example/sw_l3_l4_l7_policy.yaml) 创建 `$ kubectl apply -f sw_l3_l4_l7_policy.yaml` 后，验证如下：
-
-``` bash
-$ kubectl exec tiefighter -- curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
-Ship landed
-$ kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
-Access denied
-```
-
-我们同样可以使用 `kubectl desribe cnp`检查更新的策略，或者使用 `cilium` 命令行：
-
-``` bash
-$ kubectl exec -n kube-system cilium-6t5vx -- cilium policy get
-[
-  {
-    "endpointSelector": {
-      "matchLabels": {
-        "any:class": "deathstar",
-        "any:org": "empire",
-        "k8s:io.kubernetes.pod.namespace": "default"
-      }
-    },
-    "ingress": [
-      {
-        "fromEndpoints": [
-          {
-            "matchLabels": {
-              "any:org": "empire",
-              "k8s:io.kubernetes.pod.namespace": "default"
-            }
-          }
-        ],
-        "toPorts": [
-          {
-            "ports": [
-              {
-                "port": "80",
-                "protocol": "TCP"
-              }
-            ],
-            "rules": {
-              "http": [
-                {
-                  "path": "/v1/request-landing",
-                  "method": "POST"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    "labels": [
-      {
-        "key": "io.cilium.k8s.policy.name",
-        "value": "rule1",
-        "source": "k8s"
-      },
-      {
-        "key": "io.cilium.k8s.policy.namespace",
-        "value": "default",
-        "source": "k8s"
-      }
-    ]
-  }
-]
-Revision: 267
-```
-我们看到 `cilium` 可以实现 `7层 HTTP `协议的请求方法（GET/PUT/POST等）、路径（/v1/request-landing）等等安全策略；另外，它还可以防护其他应用（如：Kafka, gRPC, Elasticsearch），可以去官网文档示例学习！
-
-## 参考资料
-
-- [cilium github](https://github.com/cilium/cilium)
-- [cilium doc](http://docs.cilium.io)
+- [星战死星登陆系统](cilium-example.md)

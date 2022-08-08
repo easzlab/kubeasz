@@ -2,7 +2,6 @@
   file: name={{ item }} state=directory
   with_items:
   - /etc/cni/net.d
-  - /opt/kube/images
   - /opt/kube/kube-ovn
 
 - name: 注册变量 ovn_default_gateway
@@ -23,43 +22,6 @@
 
 - name: 配置 kubectl plugin
   template: src=kubectl-ko.j2 dest=/usr/local/bin/kubectl-ko mode=0755
-
-# 【可选】推送离线镜像，可以忽略执行错误
-- block:
-    - name: 检查是否已下载离线kube_ovn镜像
-      command: "ls {{ base_dir }}/down"
-      register: download_info
-      connection: local
-      run_once: true
-    
-    - name: 尝试推送离线docker 镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ item }} dest=/opt/kube/images/{{ item }}
-      when: 'item in download_info.stdout'
-      with_items:
-      - "pause.tar"
-      - "{{ kube_ovn_offline }}"
-      ignore_errors: true
-
-    - name: 获取kube_ovn离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info
-
-    # 如果目录下有离线镜像，就把它导入到node节点上
-    - name: 导入 kube_ovn的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ item }}"
-      with_items:
-      - "pause.tar"
-      - "{{ kube_ovn_offline }}"
-      ignore_errors: true
-      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'docker'"
-
-    - name: 导入 kube_ovn的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ item }}"
-      with_items:
-      - "pause.tar"
-      - "{{ kube_ovn_offline }}"
-      ignore_errors: true
-      when: "item in image_info.stdout and CONTAINER_RUNTIME == 'containerd'"
 
 # 只需单节点执行一次
 - name: 运行 kube-ovn网络

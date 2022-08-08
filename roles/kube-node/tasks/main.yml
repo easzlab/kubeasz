@@ -36,19 +36,6 @@
 - name: 设置变量 CLUSTER_DNS_SVC_IP
   set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
 
-- block:
-  - name: 获取docker版本信息
-    shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
-    register: docker_ver
-
-  - name: 转换docker版本信息为浮点数
-    set_fact:
-      DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
-  connection: local
-  run_once: true
-  tags: upgrade_k8s, restart_node
-  when: "CONTAINER_RUNTIME == 'docker'"
-
 - name: 创建kubelet的配置文件
   template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
   tags: upgrade_k8s, restart_node
@@ -117,26 +104,3 @@
 - name: 设置node节点role
   shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=node --overwrite"
   ignore_errors: true
-
-- block:
-    - name: 获取已下载离线镜像信息
-      command: "ls {{ base_dir }}/down"
-      register: download_info
-      connection: local
-
-    - name: 尝试推送离线dnscache镜像（若执行失败，可忽略）
-      copy: src={{ base_dir }}/down/{{ dnscache_offline }} dest=/opt/kube/images/{{ dnscache_offline }}
-      when: 'dnscache_offline in download_info.stdout'
-
-    - name: 获取dnscache离线镜像推送情况
-      command: "ls /opt/kube/images"
-      register: image_info
-
-    - name: 导入dnscache的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/docker load -i /opt/kube/images/{{ dnscache_offline }}"
-      when: 'dnscache_offline in image_info.stdout and CONTAINER_RUNTIME == "docker"'
-
-    - name: 导入dnscache的离线镜像（若执行失败，可忽略）
-      shell: "{{ bin_dir }}/ctr -n=k8s.io images import /opt/kube/images/{{ dnscache_offline }}"
-      when: 'dnscache_offline in image_info.stdout and CONTAINER_RUNTIME == "containerd"'
-  when: "ENABLE_LOCAL_DNS_CACHE|bool"

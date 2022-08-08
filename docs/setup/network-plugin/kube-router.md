@@ -1,5 +1,7 @@
 # kube-router 网络组件
 
+(以下文档暂未更新，以插件官网文档为准)
+
 kube-router是一个简单、高效的网络插件，它提供一揽子解决方案：  
 - 基于GoBGP 提供Pod 网络互联（Routing）
 - 使用ipsets优化的iptables 提供网络策略支持（Firewall/NetworkPolicy）

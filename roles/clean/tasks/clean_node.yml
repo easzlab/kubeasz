@@ -117,7 +117,6 @@
     - "/var/lib/calico/"
     - "/var/log/calico/"
     - "/etc/cilium/"
-    - "/var/run/cilium/"
     - "/sys/fs/bpf/tc/"
     - "/var/lib/cni/"
     - "/var/lib/kube-router/"
@@ -130,35 +129,6 @@
     - "/etc/origin/ovn/"
     - "/etc/ovn/"
     - "/var/log/ovn/"
-
-#  - name: cleanup networks1
-#    shell: "ip link del tunl0; \
-#        ip link del flannel.1; \
-#        ip link del cni0; \
-#        ip link del mynet0; \
-#        ip link del kube-bridge; \
-#        ip link del dummy0; \
-#        ip link del kube-ipvs0; \
-#        ip link del cilium_net; \
-#        ip link del cilium_vxlan; \
-#        ip link del ovn0; \
-#        ip link del ovs-system"
-#    ignore_errors: true
-#
-#  - name: cleanup networks2
-#    shell: "systemctl restart networking; \
-#        systemctl restart network"
-#    ignore_errors: true
-#
-#  - name: cleanup 'calico' routes
-#    shell: "for rt in `ip route|grep bird|sed 's/blackhole //'|awk '{print $1}'`;do ip route del $rt;done;"
-#    when: "CLUSTER_NETWORK == 'calico'"
-#    ignore_errors: true
-#
-#  - name: cleanup iptables
-#    shell: "iptables -F && iptables -X \
-#        && iptables -F -t nat && iptables -X -t nat \
-#        && iptables -F -t raw && iptables -X -t raw \
-#        && iptables -F -t mangle && iptables -X -t mangle"
+    ignore_errors: true
 
   when: "inventory_hostname in groups['kube_master'] or inventory_hostname in groups['kube_node']"

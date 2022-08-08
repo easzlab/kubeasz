@@ -207,13 +207,17 @@ kubectl config set-context default --cluster=kubernetes --user=kube-proxy --kube
 kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 ```
 
+### 创建kube-controller-manager 和 kube-scheduler 组件的kubeconfig 文件
+
+过程与创建kube-proxy.kubeconfig 类似，略。
+
 ## prepare 角色
 
 请在另外窗口打开[roles/prepare/tasks/main.yml](../../roles/prepare/tasks/main.yml) 文件，比较简单直观
 
 1. 设置基础操作系统软件和系统参数，请阅读脚本中的注释内容
-1. 创建一些基础文件目录
-1. 分发kubeconfig配置文件
+1. 创建一些基础文件目录、环境变量以及添加本地镜像仓库`easzlab.io.local`的域名解析
+1. 分发kubeconfig等配置文件
 
 
 [后一篇](02-install_etcd.md)

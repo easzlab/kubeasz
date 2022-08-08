@@ -4,8 +4,10 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart={{ bin_dir }}/kube-controller-manager \
-  --bind-address=0.0.0.0 \
   --allocate-node-cidrs=true \
+  --authentication-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --authorization-kubeconfig=/etc/kubernetes/kube-controller-manager.kubeconfig \
+  --bind-address=0.0.0.0 \
   --cluster-cidr={{ CLUSTER_CIDR }} \
   --cluster-name=kubernetes \
   --cluster-signing-cert-file={{ ca_dir }}/ca.pem \

@@ -50,11 +50,4 @@
       retries: 8
       delay: 2
       tags: upgrade
-
-    - name: 添加 crictl 命令自动补全
-      lineinfile:
-        dest: ~/.bashrc
-        state: present
-        regexp: 'crictl completion'
-        line: 'source <(crictl completion)'
   when: "'NoFound' in containerd_svc.stdout"
