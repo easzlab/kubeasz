@@ -2,12 +2,12 @@
 
 - block:
     - name: 获取是否已创建命名空间{{ prom_namespace }}
-      shell: "{{ base_dir }}/bin/kubectl get ns"
+      shell: "{{ base_dir }}/bin/kubectl get ns {{ prom_namespace }}"
       register: ns_info
     
     - name: 创建命名空间{{ prom_namespace }}
       shell: "{{ base_dir }}/bin/kubectl create ns {{ prom_namespace }}"
-      when: "prom_namespace not in ns_info.stdout"
+      when: '"Active" not in ns_info.stdout'
     
     - name: get etcd-client-cert info
       shell: "{{ base_dir }}/bin/kubectl get secrets -n {{ prom_namespace }}"
