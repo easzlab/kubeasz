@@ -103,7 +103,8 @@ flannelVer: "__flannel__"
 flanneld_image: "easzlab.io.local:5000/easzlab/flannel:{{ flannelVer }}"
 
 # ------------------------------------------- calico
-# [calico] IPIP隧道模式可选项有: [Always, CrossSubnet, Never],跨子网可以配置为Always与CrossSubnet(公有云建议使用always比较省事，其他的话需要修改各自公# 有云的网络配置，具体可以参考各个公有云说明),其次CrossSubnet为隧道+BGP路由混合模式可以提升网络性能，同子网配置为Never即可.
+# [calico] IPIP隧道模式可选项有: [Always, CrossSubnet, Never],跨子网可以配置为Always与CrossSubnet(公有云建议使用always比较省事，其他的话需要修改各自公有云的网络配置，具体可以参考各个公有云说明)
+# 其次CrossSubnet为隧道+BGP路由混合模式可以提升网络性能，同子网配置为Never即可.
 CALICO_IPV4POOL_IPIP: "Always"
 
 # [calico]设置 calico-node使用的host IP，bgp邻居通过该地址建立，可手工指定也可以自动发现
