@@ -121,7 +121,7 @@ CALICO_RR_ENABLED: false
 # CALICO_RR_NODES: ["192.168.1.1", "192.168.1.2"]
 CALICO_RR_NODES: []
 
-# [calico]更新支持calico 版本: [v3.3.x] [v3.4.x] [v3.8.x] [v3.15.x]
+# [calico]更新支持calico 版本: ["3.19", "3.23"]
 calico_ver: "__calico__"
 
 # [calico]calico 主版本

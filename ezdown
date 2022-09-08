@@ -15,20 +15,20 @@ set -o errexit
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=20.10.16
 KUBEASZ_VER=3.3.1
-K8S_BIN_VER=v1.24.2
+K8S_BIN_VER=v1.25.0
 EXT_BIN_VER=1.2.0
 SYS_PKG_VER=0.4.3
 HARBOR_VER=v2.1.3
 REGISTRY_MIRROR=CN
 
 # images downloaded by default(with '-D')
-calicoVer=v3.19.4
+calicoVer=v3.23.3
 dnsNodeCacheVer=1.21.1
 corednsVer=1.9.3
 dashboardVer=v2.5.1
 dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.5.2
-pauseVer=3.7
+pauseVer=3.8
 
 # images not downloaded by default(only download  with '-X')
 ciliumVer=1.11.6
@@ -300,17 +300,14 @@ function get_default_images() {
   # calico
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
     docker pull "calico/cni:$calicoVer" && \
-    docker pull "calico/pod2daemon-flexvol:$calicoVer" && \
     docker pull "calico/kube-controllers:$calicoVer" && \
     docker pull "calico/node:$calicoVer" && \
-    docker save -o "$imageDir/calico_$calicoVer.tar" "calico/cni:$calicoVer" "calico/kube-controllers:$calicoVer" "calico/node:$calicoVer" "calico/pod2daemon-flexvol:$calicoVer"
+    docker save -o "$imageDir/calico_$calicoVer.tar" "calico/cni:$calicoVer" "calico/kube-controllers:$calicoVer" "calico/node:$calicoVer"
   else
     docker load -i "$imageDir/calico_$calicoVer.tar"
   fi
   docker tag "calico/cni:$calicoVer" "easzlab.io.local:5000/calico/cni:$calicoVer"
   docker push "easzlab.io.local:5000/calico/cni:$calicoVer"
-  docker tag "calico/pod2daemon-flexvol:$calicoVer" "easzlab.io.local:5000/calico/pod2daemon-flexvol:$calicoVer"
-  docker push "easzlab.io.local:5000/calico/pod2daemon-flexvol:$calicoVer"
   docker tag "calico/kube-controllers:$calicoVer" "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
   docker push "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
   docker tag "calico/node:$calicoVer" "easzlab.io.local:5000/calico/node:$calicoVer"

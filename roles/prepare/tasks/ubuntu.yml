@@ -4,7 +4,6 @@
   with_items:
     - ufw
     - lxd
-    - lxd-client
     - lxcfs
     - lxc-common
   when: ansible_distribution == "Ubuntu"
