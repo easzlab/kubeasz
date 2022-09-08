@@ -552,7 +552,7 @@ function main() {
   cd "$BASE"
 
   # check bash shell
-  readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell only"; exit 1; }
+  readlink /proc/$$/exe|grep -q "bash" || { logger error "you should use bash shell only"; exit 1; }
 
   # check 'ansible' executable
   which ansible > /dev/null 2>&1 || { logger error "need 'ansible', try: 'pip install ansible'"; usage; exit 1; }
