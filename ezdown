@@ -34,7 +34,7 @@ pauseVer=3.8
 ciliumVer=1.11.6
 flannelVer=v0.15.1
 nfsProvisionerVer=v4.0.2
-promChartVer=35.5.1
+promChartVer=39.11.0
 
 # images not downloaded
 kubeRouterVer=v0.3.1
@@ -441,46 +441,46 @@ function get_extra_images() {
 
   # prometheus chart
   if [[ ! -f "$imageDir/prometheus-chart_$promChartVer.tar" ]];then
-    docker pull easzlab/kube-state-metrics:v2.4.1 && \
-    docker pull easzlab/kube-webhook-certgen:v1.1.1 && \
-    docker pull grafana/grafana:8.5.3 && \
-    docker pull quay.io/kiwigrid/k8s-sidecar:1.15.6 && \
-    docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.56.3 && \
-    docker pull quay.io/prometheus-operator/prometheus-operator:v0.56.3 && \
+    docker pull easzlab/kube-state-metrics:v2.5.0 && \
+    docker pull easzlab/kube-webhook-certgen:v1.2.0 && \
+    docker pull grafana/grafana:9.0.5 && \
+    docker pull quay.io/kiwigrid/k8s-sidecar:1.19.2 && \
+    docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.58.0 && \
+    docker pull quay.io/prometheus-operator/prometheus-operator:v0.58.0 && \
     docker pull quay.io/prometheus/alertmanager:v0.24.0 && \
     docker pull quay.io/prometheus/node-exporter:v1.3.1 && \
-    docker pull quay.io/prometheus/prometheus:v2.35.0 && \
+    docker pull quay.io/prometheus/prometheus:v2.37.0 && \
     docker save -o "$imageDir/prometheus-chart_$promChartVer.tar" \
-        easzlab/kube-state-metrics:v2.4.1 \
-        easzlab/kube-webhook-certgen:v1.1.1 \
-        grafana/grafana:8.5.3 \
-        quay.io/kiwigrid/k8s-sidecar:1.15.6 \
-        quay.io/prometheus-operator/prometheus-config-reloader:v0.56.3 \
-        quay.io/prometheus-operator/prometheus-operator:v0.56.3 \
+        easzlab/kube-state-metrics:v2.5.0 \
+        easzlab/kube-webhook-certgen:v1.2.0 \
+        grafana/grafana:9.0.5 \
+        quay.io/kiwigrid/k8s-sidecar:1.19.2 \
+        quay.io/prometheus-operator/prometheus-config-reloader:v0.58.0 \
+        quay.io/prometheus-operator/prometheus-operator:v0.58.0 \
         quay.io/prometheus/alertmanager:v0.24.0 \
         quay.io/prometheus/node-exporter:v1.3.1 \
-        quay.io/prometheus/prometheus:v2.35.0
+        quay.io/prometheus/prometheus:v2.37.0
   else
     docker load -i "$imageDir/prometheus-chart_$promChartVer.tar"
   fi
-  docker tag easzlab/kube-state-metrics:v2.4.1 easzlab.io.local:5000/prometheus/kube-state-metrics:v2.4.1
-  docker push easzlab.io.local:5000/prometheus/kube-state-metrics:v2.4.1
-  docker tag easzlab/kube-webhook-certgen:v1.1.1 easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.1.1
-  docker push easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.1.1
-  docker tag grafana/grafana:8.5.3 easzlab.io.local:5000/prometheus/grafana:8.5.3
-  docker push easzlab.io.local:5000/prometheus/grafana:8.5.3
-  docker tag quay.io/kiwigrid/k8s-sidecar:1.15.6 easzlab.io.local:5000/prometheus/k8s-sidecar:1.15.6
-  docker push easzlab.io.local:5000/prometheus/k8s-sidecar:1.15.6
-  docker tag quay.io/prometheus-operator/prometheus-config-reloader:v0.56.3 easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.56.3
-  docker push easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.56.3
-  docker tag quay.io/prometheus-operator/prometheus-operator:v0.56.3 easzlab.io.local:5000/prometheus/prometheus-operator:v0.56.3
-  docker push easzlab.io.local:5000/prometheus/prometheus-operator:v0.56.3
+  docker tag easzlab/kube-state-metrics:v2.5.0 easzlab.io.local:5000/prometheus/kube-state-metrics:v2.5.0
+  docker push easzlab.io.local:5000/prometheus/kube-state-metrics:v2.5.0
+  docker tag easzlab/kube-webhook-certgen:v1.2.0 easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.2.0
+  docker push easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.2.0
+  docker tag grafana/grafana:9.0.5 easzlab.io.local:5000/prometheus/grafana:9.0.5
+  docker push easzlab.io.local:5000/prometheus/grafana:9.0.5
+  docker tag quay.io/kiwigrid/k8s-sidecar:1.19.2 easzlab.io.local:5000/prometheus/k8s-sidecar:1.19.2
+  docker push easzlab.io.local:5000/prometheus/k8s-sidecar:1.19.2
+  docker tag quay.io/prometheus-operator/prometheus-config-reloader:v0.58.0 easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.58.0
+  docker push easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.58.0
+  docker tag quay.io/prometheus-operator/prometheus-operator:v0.58.0 easzlab.io.local:5000/prometheus/prometheus-operator:v0.58.0
+  docker push easzlab.io.local:5000/prometheus/prometheus-operator:v0.58.0
   docker tag quay.io/prometheus/alertmanager:v0.24.0 easzlab.io.local:5000/prometheus/alertmanager:v0.24.0
   docker push easzlab.io.local:5000/prometheus/alertmanager:v0.24.0
   docker tag quay.io/prometheus/node-exporter:v1.3.1 easzlab.io.local:5000/prometheus/node-exporter:v1.3.1
   docker push easzlab.io.local:5000/prometheus/node-exporter:v1.3.1
-  docker tag quay.io/prometheus/prometheus:v2.35.0 easzlab.io.local:5000/prometheus/prometheus:v2.35.0
-  docker push easzlab.io.local:5000/prometheus/prometheus:v2.35.0
+  docker tag quay.io/prometheus/prometheus:v2.37.0 easzlab.io.local:5000/prometheus/prometheus:v2.37.0
+  docker push easzlab.io.local:5000/prometheus/prometheus:v2.37.0
 }
 
 function download_all() {

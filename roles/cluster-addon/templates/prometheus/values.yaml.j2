@@ -1,38 +1,31 @@
 ## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
 kubeTargetVersionOverride: "{{ K8S_VER }}"
 
+## Configuration for alertmanager
 alertmanager:
   enabled: true
-  #config:
-  #  route:
-  #    receiver: dingtalk
-  #  receivers:
-  #  - name: dingtalk
-  #    webhook_configs:
-  #    - send_resolved: false
-  #      url: http://webhook-dingtalk.monitor.svc.cluster.local:8060/dingtalk/webhook1/send
   alertmanagerSpec:
     image:
-      repository: easzlab.io.local:5000/prometheus/alertmanager
+      repository: easzlab.io.local:5000/prometheus/alertmanager 
 
-  ## Configuration for Alertmanager service
   service:
     nodePort: 30902
-    type: NodePort 
+    type: NodePort
 
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 grafana:
   enabled: true
   adminPassword: Admin1234!
   image:
-    repository: easzlab.io.local:5000/prometheus/grafana
+    repository: easzlab.io.local:5000/prometheus/grafana 
   service:
     nodePort: 30903
     type: NodePort
   sidecar:
     image:
-      repository: easzlab.io.local:5000/prometheus/k8s-sidecar
+      repository: easzlab.io.local:5000/prometheus/k8s-sidecar 
     skipTlsVerify: true
+
 
 ## Component scraping the kube api server
 kubeApiServer:
@@ -70,12 +63,11 @@ kubeEtcd:
 {% endfor %}
   serviceMonitor:
     scheme: https
-    insecureSkipVerify: true 
+    insecureSkipVerify: true
     serverName: localhost
     caFile: /etc/prometheus/secrets/etcd-client-cert/etcd-ca
     certFile: /etc/prometheus/secrets/etcd-client-cert/etcd-client
     keyFile: /etc/prometheus/secrets/etcd-client-cert/etcd-client-key
-
 
 ## Component scraping kube scheduler
 kubeScheduler:
@@ -104,10 +96,22 @@ kubeProxy:
 {% endif %}
 {% endfor %}
 
+kubeStateMetrics:
+  enabled: true
+
 ## Configuration for kube-state-metrics subchart
 kube-state-metrics:
   image:
-    repository: easzlab.io.local:5000/prometheus/kube-state-metrics
+    repository: easzlab.io.local:5000/prometheus/kube-state-metrics 
+
+## Deploy node exporter as a daemonset to all nodes
+nodeExporter:
+  enabled: true
+
+## Configuration for prometheus-node-exporter subchart
+prometheus-node-exporter:
+  image:
+    repository: easzlab.io.local:5000/prometheus/node-exporter 
 
 ## Manages Prometheus and Alertmanager components
 prometheusOperator:
@@ -115,6 +119,7 @@ prometheusOperator:
   admissionWebhooks:
     enabled: true
     patch:
+      enabled: true
       image:
         repository: easzlab.io.local:5000/prometheus/kube-webhook-certgen
   image:
@@ -130,37 +135,15 @@ prometheusOperator:
 ## Deploy a Prometheus instance
 prometheus:
   enabled: true
-
-  ## Configuration for Prometheus service
   service:
     nodePort: 30901
-    type: NodePort 
+    type: NodePort
 
   prometheusSpec:
     image:
       repository: easzlab.io.local:5000/prometheus/prometheus
     replicas: 1
-
     secrets:
     - etcd-client-cert
 
     storageSpec: {}
-    ## Using PersistentVolumeClaim
-    ##
-    #  volumeClaimTemplate:
-    #    spec:
-    #      storageClassName: gluster
-    #      accessModes: ["ReadWriteOnce"]
-    #      resources:
-    #        requests:
-    #          storage: 50Gi
-    #    selector: {}
-
-    ## Using tmpfs volume
-    ##
-    #  emptyDir:
-    #    medium: Memory
-
-prometheus-node-exporter:
-  image:
-    repository: easzlab.io.local:5000/prometheus/node-exporter
