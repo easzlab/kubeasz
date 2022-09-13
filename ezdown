@@ -23,7 +23,7 @@ REGISTRY_MIRROR=CN
 
 # images downloaded by default(with '-D')
 calicoVer=v3.23.3
-dnsNodeCacheVer=1.21.1
+dnsNodeCacheVer=1.22.8
 corednsVer=1.9.3
 dashboardVer=v2.5.1
 dashboardMetricsScraperVer=v1.0.8
