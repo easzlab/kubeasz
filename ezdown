@@ -16,7 +16,7 @@ set -o errexit
 DOCKER_VER=20.10.16
 KUBEASZ_VER=3.3.1
 K8S_BIN_VER=v1.25.0
-EXT_BIN_VER=1.2.0
+EXT_BIN_VER=1.2.1
 SYS_PKG_VER=0.4.3
 HARBOR_VER=v2.1.3
 REGISTRY_MIRROR=CN
@@ -31,7 +31,7 @@ metricsVer=v0.5.2
 pauseVer=3.8
 
 # images not downloaded by default(only download  with '-X')
-ciliumVer=1.11.6
+ciliumVer=1.12.1
 flannelVer=v0.15.1
 nfsProvisionerVer=v4.0.2
 promChartVer=39.11.0
@@ -407,34 +407,34 @@ function get_extra_images() {
 
   # cilium
   if [[ ! -f "$imageDir/cilium_$ciliumVer.tar" ]];then
-    docker pull "quay.io/cilium/cilium:v$ciliumVer" && \
-    docker pull "quay.io/cilium/operator-generic:v$ciliumVer" && \
-    docker pull "quay.io/cilium/hubble-relay:v$ciliumVer" && \
-    docker pull quay.io/cilium/hubble-ui-backend:v0.9.0 && \
-    docker pull quay.io/cilium/hubble-ui:v0.9.0 && \
-    docker pull quay.io/cilium/json-mock:v1.3.0 && \
-    docker pull quay.io/cilium/alpine-curl:v1.3.0
-    docker save -o "$imageDir/cilium_$ciliumVer.tar" "quay.io/cilium/cilium:v$ciliumVer" \
-		"quay.io/cilium/operator-generic:v$ciliumVer" \
-		"quay.io/cilium/hubble-relay:v$ciliumVer" \
-		quay.io/cilium/hubble-ui-backend:v0.9.0 \
-		quay.io/cilium/hubble-ui:v0.9.0 \
-		quay.io/cilium/json-mock:v1.3.0 \
+    docker pull "cilium/cilium:v$ciliumVer" && \
+    docker pull "cilium/operator-generic:v$ciliumVer" && \
+    docker pull "cilium/hubble-relay:v$ciliumVer" && \
+    docker pull cilium/hubble-ui-backend:v0.9.1 && \
+    docker pull cilium/hubble-ui:v0.9.1 && \
+    docker pull cilium/json-mock:v1.3.0 && \
+    docker pull quay.io/cilium/alpine-curl:v1.3.0 && \
+    docker save -o "$imageDir/cilium_$ciliumVer.tar" "cilium/cilium:v$ciliumVer" \
+		"cilium/operator-generic:v$ciliumVer" \
+		"cilium/hubble-relay:v$ciliumVer" \
+		cilium/hubble-ui-backend:v0.9.1 \
+		cilium/hubble-ui:v0.9.1 \
+		cilium/json-mock:v1.3.0 \
 		quay.io/cilium/alpine-curl:v1.3.0
   else
     docker load -i "$imageDir/cilium_$ciliumVer.tar"
   fi
-  docker tag "quay.io/cilium/cilium:v$ciliumVer" "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
+  docker tag "cilium/cilium:v$ciliumVer" "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
   docker push "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
-  docker tag "quay.io/cilium/operator-generic:v$ciliumVer" "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
+  docker tag "cilium/operator-generic:v$ciliumVer" "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
   docker push "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
-  docker tag "quay.io/cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
+  docker tag "cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
   docker push "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
-  docker tag quay.io/cilium/hubble-ui-backend:v0.9.0 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.0
-  docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.0
-  docker tag quay.io/cilium/hubble-ui:v0.9.0 easzlab.io.local:5000/cilium/hubble-ui:v0.9.0
-  docker push easzlab.io.local:5000/cilium/hubble-ui:v0.9.0
-  docker tag quay.io/cilium/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
+  docker tag cilium/hubble-ui-backend:v0.9.1 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.1
+  docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.9.1
+  docker tag cilium/hubble-ui:v0.9.1 easzlab.io.local:5000/cilium/hubble-ui:v0.9.1
+  docker push easzlab.io.local:5000/cilium/hubble-ui:v0.9.1
+  docker tag cilium/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
   docker push easzlab.io.local:5000/cilium/json-mock:v1.3.0
   docker tag quay.io/cilium/alpine-curl:v1.3.0 easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
   docker push easzlab.io.local:5000/cilium/alpine-curl:v1.3.0

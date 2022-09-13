@@ -133,7 +133,7 @@ spec:
       - name: echo-b-host-container
         env:
         - name: PORT
-          value: "41000"
+          value: "31000"
         ports: []
         image: easzlab.io.local:5000/cilium/json-mock:v1.3.0
         imagePullPolicy: IfNotPresent
@@ -148,7 +148,7 @@ spec:
             - "5"
             - -o
             - /dev/null
-            - localhost:41000
+            - localhost:31000
         livenessProbe:
           timeoutSeconds: 7
           exec:
@@ -160,7 +160,7 @@ spec:
             - "5"
             - -o
             - /dev/null
-            - localhost:41000
+            - localhost:31000
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
