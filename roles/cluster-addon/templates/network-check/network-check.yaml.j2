@@ -19,7 +19,7 @@ spec:
         spec:
           containers:
           - name: test01-pod-to-container
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server:8080/public"]
           restartPolicy: OnFailure
@@ -44,7 +44,7 @@ spec:
         spec:
           containers:
           - name: test02-pod-to-node-nodeport 
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-host-headless:31314/public"]
           restartPolicy: OnFailure
@@ -79,7 +79,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
           containers:
           - name: test03-pod-to-multi-node-clusterip
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server:8080/public"]
           restartPolicy: OnFailure
@@ -114,7 +114,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
           containers:
           - name: test04-pod-to-multi-node-headless
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-headless:8080/public"]
           restartPolicy: OnFailure
@@ -149,7 +149,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
           containers:
           - name: test05-pod-to-multi-node-nodeport
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-host-headless:31314/public"]
           restartPolicy: OnFailure
@@ -174,7 +174,7 @@ spec:
         spec:
           containers:
           - name: test06-pod-to-external-1111 
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 1.1.1.1"]
           restartPolicy: OnFailure
@@ -199,7 +199,7 @@ spec:
         spec:
           containers:
           - name: test07-pod-to-external-fqdn-baidu
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 www.baidu.com"]
           restartPolicy: OnFailure
@@ -236,7 +236,7 @@ spec:
           hostNetwork: true
           containers:
           - name: test08-host-to-multi-node-clusterip
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server:8080/public"]
           restartPolicy: OnFailure
@@ -273,7 +273,7 @@ spec:
           hostNetwork: true
           containers:
           - name: test09-host-to-multi-node-headless
-            image: easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+            image: easzlab.io.local:5000/centos:7
             imagePullPolicy: IfNotPresent
             command: ["sh","-c","curl -sS --fail --connect-timeout 5 echo-server-headless:8080/public"]
           restartPolicy: OnFailure

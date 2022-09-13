@@ -62,7 +62,7 @@ data:
         }
         reload
         loop
-        bind {{ LOCAL_DNS_CACHE }} 
+        bind {{ LOCAL_DNS_CACHE }}
         forward . {{ CLUSTER_DNS_SVC_IP }} {
                 force_tcp
         }
@@ -74,7 +74,7 @@ data:
         cache 30
         reload
         loop
-        bind {{ LOCAL_DNS_CACHE }} 
+        bind {{ LOCAL_DNS_CACHE }}
         forward . {{ CLUSTER_DNS_SVC_IP }} {
                 force_tcp
         }
@@ -85,7 +85,7 @@ data:
         cache 30
         reload
         loop
-        bind {{ LOCAL_DNS_CACHE }} 
+        bind {{ LOCAL_DNS_CACHE }}
         forward . {{ CLUSTER_DNS_SVC_IP }} {
                 force_tcp
         }
@@ -96,7 +96,7 @@ data:
         cache 30
         reload
         loop
-        bind {{ LOCAL_DNS_CACHE }} 
+        bind {{ LOCAL_DNS_CACHE }}
         forward . __PILLAR__UPSTREAM__SERVERS__
         prometheus :9253
         }

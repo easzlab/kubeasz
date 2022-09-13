@@ -238,6 +238,7 @@ function get_k8s_bin() {
   [[ -f "$BASE/bin/kubelet" ]] && { logger warn "kubernetes binaries existed"; return 0; }
   
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
+  rm -rf "$BASE/k8s_bin_tmp"
   docker ps -a |grep -q temp_k8s_bin && { logger debug "remove existing container"; docker rm -f temp_k8s_bin; }
   docker pull easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
   logger debug "run a temporary container" && \
@@ -254,6 +255,7 @@ function get_ext_bin() {
   [[ -f "$BASE/bin/etcdctl" ]] && { logger warn "extra binaries existed"; return 0; }
 
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
+  rm -rf "$BASE/extra_bin_tmp"
   docker ps -a |grep -q temp_ext_bin && { logger debug "remove existing container"; docker rm -f temp_ext_bin; }
   docker pull "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "run a temporary container" && \
@@ -413,14 +415,14 @@ function get_extra_images() {
     docker pull cilium/hubble-ui-backend:v0.9.1 && \
     docker pull cilium/hubble-ui:v0.9.1 && \
     docker pull cilium/json-mock:v1.3.0 && \
-    docker pull quay.io/cilium/alpine-curl:v1.3.0 && \
+    docker pull centos:7 && \
     docker save -o "$imageDir/cilium_$ciliumVer.tar" "cilium/cilium:v$ciliumVer" \
 		"cilium/operator-generic:v$ciliumVer" \
 		"cilium/hubble-relay:v$ciliumVer" \
 		cilium/hubble-ui-backend:v0.9.1 \
 		cilium/hubble-ui:v0.9.1 \
 		cilium/json-mock:v1.3.0 \
-		quay.io/cilium/alpine-curl:v1.3.0
+		centos:7
   else
     docker load -i "$imageDir/cilium_$ciliumVer.tar"
   fi
@@ -436,8 +438,8 @@ function get_extra_images() {
   docker push easzlab.io.local:5000/cilium/hubble-ui:v0.9.1
   docker tag cilium/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
   docker push easzlab.io.local:5000/cilium/json-mock:v1.3.0
-  docker tag quay.io/cilium/alpine-curl:v1.3.0 easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
-  docker push easzlab.io.local:5000/cilium/alpine-curl:v1.3.0
+  docker tag centos:7 easzlab.io.local:5000/centos:7
+  docker push easzlab.io.local:5000/centos:7
 
   # prometheus chart
   if [[ ! -f "$imageDir/prometheus-chart_$promChartVer.tar" ]];then
