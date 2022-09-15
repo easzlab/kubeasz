@@ -1,8 +1,7 @@
-- name: 下载flannel cni plugins
+- name: 下载cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
   - bridge
-  - flannel
   - host-local
   - loopback
   - portmap
