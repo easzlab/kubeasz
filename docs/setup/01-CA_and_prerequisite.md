@@ -27,32 +27,30 @@ kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 
 #### 创建 CA 配置文件 [ca-config.json.j2](../../roles/deploy/templates/ca-config.json.j2)
 ``` bash
 {
-  "signing": {
-    "default": {
-      "expiry": "{{ CERT_EXPIRY }}"
-    },
-    "profiles": {
-      "kubernetes": {
-        "usages": [
-            "signing",
-            "key encipherment",
-            "server auth",
-            "client auth"
-        ],
-        "expiry": "{{ CERT_EXPIRY }}"
-      }
-    },
-    "profiles": {
-      "kcfg": {
-        "usages": [
-            "signing",
-            "key encipherment",
-            "client auth"
-        ],
-        "expiry": "{{ CUSTOM_EXPIRY }}"
-      }
+    "signing":{
+        "default":{
+            "expiry":"{{ CERT_EXPIRY }}"
+        },
+        "profiles":{
+            "kubernetes":{
+                "usages":[
+                    "signing",
+                    "key encipherment",
+                    "server auth",
+                    "client auth"
+                ],
+                "expiry":"{{ CERT_EXPIRY }}"
+            },
+            "kcfg":{
+                "usages":[
+                    "signing",
+                    "key encipherment",
+                    "client auth"
+                ],
+                "expiry":"{{ CUSTOM_EXPIRY }}"
+            }
+        }
     }
-  }
 }
 ```
 + `signing`：表示该证书可用于签名其它证书；生成的 ca.pem 证书中 `CA=TRUE`；
