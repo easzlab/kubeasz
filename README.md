@@ -1,4 +1,4 @@
-# ![kubeasz](pics/logo_kubeasz.png)
+<img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">
 
 项目致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
