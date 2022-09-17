@@ -3,9 +3,9 @@
 项目致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
 - **集群特性** `TLS`双向认证、`RBAC`授权、[Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、[离线安装](docs/setup/offline_install.md)
-- **集群版本** kubernetes v1.21, v1.22, v1.23, v1.24
-- **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 16.04/18.04/20.04
-- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.4, docker 20.10.x (k8s < 1.24)
+- **集群版本** kubernetes v1.22, v1.23, v1.24, v1.25
+- **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 16.04/18.04/20.04/22.04
+- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.8, docker 20.10.x (k8s < 1.24)
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 
@@ -17,23 +17,23 @@
   <thead>
     <tr>
       <td>Kubernetes version</td>
-      <td>1.19</td>
       <td>1.20</td>
       <td>1.21</td>
       <td>1.22</td>
       <td>1.23</td>
       <td>1.24</td>
+      <td>1.25</td>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>kubeasz version</td>
-      <td>2.2.2</td>
       <td>3.0.1</td>
       <td>3.1.0</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
       <td>3.3.1</td>
+      <td>3.4.0</td>
     </tr>
   </tbody>
 </table>
