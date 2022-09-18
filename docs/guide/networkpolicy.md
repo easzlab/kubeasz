@@ -140,7 +140,7 @@ spec:
 
 #### 拒绝其他namespaces访问服务
 
-![deny_from_other_namespaces](../../pics/deny_from_other_namespaces.gif)
+![deny_from_other_namespaces](https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/img/4.gif)
 
 + 场景1：你的k8s集群应用按照namespaces区分生产、测试环境，你要确保生产环境不会受到测试环境错误访问影响
 + 场景2：你的k8s集群有多租户应用采用namespaces区分的，你要确保多租户之间的应用隔离
@@ -165,7 +165,7 @@ spec:
 
 + 场景：暴露特定Pod的特定端口给外部访问
 
-![allow_from_external](../../pics/allow_from_external.gif)
+![allow_from_external](https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/img/8.gif)
 
 ``` bash
 # 创建示例应用待暴露服务

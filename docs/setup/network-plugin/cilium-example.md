@@ -1,6 +1,6 @@
 ## 开始使用 cilium
 
-以下为简要翻译 `cilium doc`上的一个应用示例[原文](http://docs.cilium.io/en/stable/gettingstarted/minikube/#step-2-deploy-the-demo-application)，部署在单节点k8s 环境的实践。
+以下为简要翻译 `cilium doc`上的一个应用示例[原文](https://docs.cilium.io/en/stable/gettingstarted/http/)，部署在单节点k8s 环境的实践。
 
 ### 部署示例应用
 
@@ -10,7 +10,7 @@
 - pod/tiefighter：作为“帝国”方的常规战斗飞船，它会调用上述 HTTP 接口，请求登陆“死星”；
 - pod/xwing：作为“盟军”方的飞行舰，它也尝试调用 HTTP 接口，请求登陆“死星”；
 
-![cilium_http_gsg](../../../pics/cilium_http_gsg.jpg)
+![cilium_http_gsg](https://docs.cilium.io/en/stable/_images/cilium_http_gsg.png)
 
 根据文件[http-sw-app.yaml](../../../roles/cilium/files/star_war_example/http-sw-app.yaml) 创建 `$ kubectl create -f http-sw-app.yaml` 后，验证如下：
 
@@ -66,7 +66,7 @@ Ship landed # 成功着陆
 
 现在我们应用策略，仅让带有标签 `org=empire`的飞船登陆“死星”；那么带有标签 `org=alliance`的“联盟”飞船将禁止登陆；这个就是我们熟悉的传统L3/L4 防火墙策略，并跟踪连接（会话）状态；
 
-![cilium_http_l3_l4_gsg](../../../pics/cilium_http_l3_l4_gsg.jpg)
+![cilium_http_l3_l4_gsg](https://docs.cilium.io/en/stable/_images/cilium_http_l3_l4_gsg.png)
 
 根据文件[sw_l3_l4_policy.yaml](../../../roles/cilium/files/star_war_example/sw_l3_l4_policy.yaml) 创建 `$ kubectl apply -f sw_l3_l4_policy.yaml` 后，验证如下：
 
@@ -126,7 +126,7 @@ main.main()
         temp/main.go:5 +0x85
 ```
 
-![cilium_http_l3_l4_l7_gsg](../../../pics/cilium_http_l3_l4_l7_gsg.jpg)
+![cilium_http_l3_l4_l7_gsg](https://docs.cilium.io/en/stable/_images/cilium_http_l3_l4_l7_gsg.png)
 
 限制L7 的安全策略，根据文件[sw_l3_l4_l7_policy.yaml](../../../roles/cilium/files/star_war_example/sw_l3_l4_l7_policy.yaml) 创建 `$ kubectl apply -f sw_l3_l4_l7_policy.yaml` 后，验证如下：
 
