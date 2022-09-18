@@ -10,7 +10,7 @@
 - pod/tiefighter：作为“帝国”方的常规战斗飞船，它会调用上述 HTTP 接口，请求登陆“死星”；
 - pod/xwing：作为“盟军”方的飞行舰，它也尝试调用 HTTP 接口，请求登陆“死星”；
 
-![cilium_http_gsg](https://docs.cilium.io/en/stable/_images/cilium_http_gsg.png)
+<img alt="cilium_http_gsg" width="400" height="300" src="https://docs.cilium.io/en/stable/_images/cilium_http_gsg.png">
 
 根据文件[http-sw-app.yaml](../../../roles/cilium/files/star_war_example/http-sw-app.yaml) 创建 `$ kubectl create -f http-sw-app.yaml` 后，验证如下：
 
@@ -66,7 +66,7 @@ Ship landed # 成功着陆
 
 现在我们应用策略，仅让带有标签 `org=empire`的飞船登陆“死星”；那么带有标签 `org=alliance`的“联盟”飞船将禁止登陆；这个就是我们熟悉的传统L3/L4 防火墙策略，并跟踪连接（会话）状态；
 
-![cilium_http_l3_l4_gsg](https://docs.cilium.io/en/stable/_images/cilium_http_l3_l4_gsg.png)
+<img alt="cilium_http_l3_l4_gsg" width="400" height="300" src="https://docs.cilium.io/en/stable/_images/cilium_http_l3_l4_gsg.png">
 
 根据文件[sw_l3_l4_policy.yaml](../../../roles/cilium/files/star_war_example/sw_l3_l4_policy.yaml) 创建 `$ kubectl apply -f sw_l3_l4_policy.yaml` 后，验证如下：
 
@@ -126,7 +126,7 @@ main.main()
         temp/main.go:5 +0x85
 ```
 
-![cilium_http_l3_l4_l7_gsg](https://docs.cilium.io/en/stable/_images/cilium_http_l3_l4_l7_gsg.png)
+<img alt="cilium_http_l3_l4_l7_gsg" width="400" height="300" src="https://docs.cilium.io/en/stable/_images/cilium_http_l3_l4_l7_gsg.png">
 
 限制L7 的安全策略，根据文件[sw_l3_l4_l7_policy.yaml](../../../roles/cilium/files/star_war_example/sw_l3_l4_l7_policy.yaml) 创建 `$ kubectl apply -f sw_l3_l4_l7_policy.yaml` 后，验证如下：
 
