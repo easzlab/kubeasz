@@ -13,7 +13,7 @@ set -o errexit
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=20.10.16
+DOCKER_VER=20.10.18
 KUBEASZ_VER=3.4.0
 K8S_BIN_VER=v1.25.1
 EXT_BIN_VER=1.3.0
@@ -51,6 +51,7 @@ function usage() {
     -R         download Registry(harbor) offline installer
     -S         start kubeasz in a container
     -X         download extra images
+    -a <arc>   set architecture, default auto-detected by (uname -p)
     -d <ver>   set docker-ce version, default "$DOCKER_VER"
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
@@ -82,26 +83,26 @@ function logger() {
 
 function download_docker() {
   if [[ "$REGISTRY_MIRROR" == CN ]];then
-    DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/x86_64/docker-${DOCKER_VER}.tgz"
+    DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   else
-    DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VER}.tgz"
+    DOCKER_URL="https://download.docker.com/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   fi
 
   if [[ -f "$BASE/down/docker-${DOCKER_VER}.tgz" ]];then
     logger warn "docker binaries already existed"
   else
-    logger info "downloading docker binaries, version $DOCKER_VER"
+    logger info "downloading docker binaries, arch:$ARCH, version:$DOCKER_VER"
     if [[ -e /usr/bin/wget ]];then
       wget -c --no-check-certificate "$DOCKER_URL" || { logger error "downloading docker failed"; exit 1; }
     else
       curl -k -C- -O --retry 3 "$DOCKER_URL" || { logger error "downloading docker failed"; exit 1; }
     fi
-    /bin/mv -f "./docker-$DOCKER_VER.tgz" "$BASE/down"
+    mv -f "./docker-$DOCKER_VER.tgz" "$BASE/down"
   fi
 
   tar zxf "$BASE/down/docker-$DOCKER_VER.tgz" -C "$BASE/down" && \
-  /bin/cp -f "$BASE"/down/docker/* "$BASE/bin" && \
-  /bin/mv -f "$BASE"/down/docker/* /opt/kube/bin && \
+  cp -f "$BASE"/down/docker/* "$BASE/bin" && \
+  mv -f "$BASE"/down/docker/* /opt/kube/bin && \
   ln -sf /opt/kube/bin/docker /bin/docker 
 }
 
@@ -580,11 +581,14 @@ function main() {
   readlink /proc/$$/exe|grep -q "bash" || { logger error "you should use bash shell, not sh"; exit 1; }
   # check if use with root
   [[ "$EUID" -ne 0 ]] && { logger error "you should run this script as root"; exit 1; }
-  
+
+  # get architecture
+  ARCH=$(uname -p)
+
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
   
   ACTION=""
-  while getopts "CDPRSXd:e:k:m:p:z:" OPTION; do
+  while getopts "CDPRSXa:d:e:k:m:p:z:" OPTION; do
       case "$OPTION" in
         C)
           ACTION="clean_container"
@@ -603,6 +607,9 @@ function main() {
           ;;
         X)
           ACTION="get_extra_images"
+          ;;
+        a)
+          ARCH="$OPTARG"
           ;;
         d)
           DOCKER_VER="$OPTARG"
