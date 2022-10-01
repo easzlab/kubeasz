@@ -1,6 +1,9 @@
 name: Mirroring
 
-on: [push, delete]
+on:
+  push:
+    branches:
+      - 'master'
 
 jobs:
   to_gitee:
