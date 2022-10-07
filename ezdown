@@ -2,11 +2,10 @@
 #--------------------------------------------------
 # This script is used for: 
 # 1. to download the scripts/binaries/images needed for installing a k8s cluster with kubeasz
-# 2. to run kubeasz in a container (recommended way to run 'ezctl')
+# 2. to run kubeasz in a container (recommended)
 # @author:   gjmzj
 # @usage:    ./ezdown
 # @repo:     https://github.com/easzlab/kubeasz
-# @ref:      https://github.com/kubeasz/dockerfiles
 #--------------------------------------------------
 set -o nounset
 set -o errexit
@@ -15,9 +14,9 @@ set -o errexit
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=20.10.18
 KUBEASZ_VER=3.4.0
-K8S_BIN_VER=v1.25.1
-EXT_BIN_VER=1.3.0
-SYS_PKG_VER=0.4.3
+K8S_BIN_VER=v1.25.2
+EXT_BIN_VER=1.5.1
+SYS_PKG_VER=0.5.1
 HARBOR_VER=v2.1.3
 REGISTRY_MIRROR=CN
 
