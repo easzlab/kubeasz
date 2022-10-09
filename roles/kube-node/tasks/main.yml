@@ -3,7 +3,6 @@
   with_items:
   - /var/lib/kubelet
   - /var/lib/kube-proxy
-  - /etc/cni/net.d
 
 - name: 下载 kubelet,kube-proxy 二进制和基础 cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -15,12 +14,6 @@
   - host-local
   - loopback
   tags: upgrade_k8s
-
-- name: 替换 kubeconfig 的 apiserver 地址
-  lineinfile:
-    dest: /root/.kube/config
-    regexp: "^    server"
-    line: "    server: {{ KUBE_APISERVER }}"
 
 ##----------kubelet 配置部分--------------
 # 创建 kubelet 相关证书及 kubelet.kubeconfig
@@ -53,6 +46,9 @@
   tags: upgrade_k8s, restart_node
 
 ##-------kube-proxy部分----------------
+- name: 分发 kube-proxy.kubeconfig配置文件
+  copy: src={{ cluster_dir }}/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
+
 - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
   lineinfile:
     dest: /etc/kubernetes/kube-proxy.kubeconfig
@@ -94,13 +90,15 @@
   tags: reload-kube-proxy, upgrade_k8s, restart_node
 
 - name: 轮询等待node达到Ready状态
-  shell: "{{ bin_dir }}/kubectl get node {{ inventory_hostname }}|awk 'NR>1{print $2}'"
+  shell: "{{ base_dir }}/bin/kubectl get node {{ inventory_hostname }}|awk 'NR>1{print $2}'"
   register: node_status
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
   retries: 8 
   delay: 8
   tags: upgrade_k8s, restart_node
+  connection: local
 
 - name: 设置node节点role
-  shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=node --overwrite"
+  shell: "{{ base_dir }}/bin/kubectl label node {{ inventory_hostname }} kubernetes.io/role=node --overwrite"
   ignore_errors: true
+  connection: local

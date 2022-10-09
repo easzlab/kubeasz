@@ -10,13 +10,18 @@
     - name: 显示rr节点
       debug: var="NODE_IPS"
 
-    - name: 配置routeReflectorClusterID 和 node label
+    - name: 配置routeReflectorClusterID
       shell: 'for ip in {{ NODE_IPS }};do \
                 node_name=$({{ bin_dir }}/calicoctl get node -owide|grep " $ip/"|cut -d" " -f1) && \
-                {{ bin_dir }}/kubectl label node "$ip" route-reflector=true --overwrite && \
                 {{ bin_dir }}/calicoctl patch node "$node_name" \
-                -p "{\"spec\": {\"bgp\": {\"routeReflectorClusterID\": \"244.0.0.1\"}}}"; \
+                  -p "{\"spec\": {\"bgp\": {\"routeReflectorClusterID\": \"244.0.0.1\"}}}"; \
              done'
+
+    - name: node label
+      shell: 'for ip in {{ NODE_IPS }};do \
+                {{ base_dir }}/bin/kubectl label node "$ip" route-reflector=true --overwrite;
+             done'
+      connection: local
 
     - name: 配置 calico bgp yaml文件
       template: src={{ item }}.j2 dest=/etc/calico/{{ item }}

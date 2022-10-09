@@ -28,13 +28,14 @@
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
 # 等待网络插件部署成功，视下载镜像速度而定
-- name: 轮询等待cilium-node 运行，视下载镜像速度而定
-  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -owide -lk8s-app=cilium|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+- name: 轮询等待cilium-node 运行
+  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-system -owide -lk8s-app=cilium|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15
   delay: 8
   ignore_errors: true
+  connection: local
 
 # hubble-relay 可能需要重启一下
 - name: 重启hubble-relay pod
