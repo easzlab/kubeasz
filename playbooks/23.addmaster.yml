@@ -18,10 +18,12 @@
   # 
   tasks:
   - name: Making master nodes SchedulingDisabled
-    shell: "{{ bin_dir }}/kubectl cordon {{ NODE_TO_ADD }} "
+    shell: "{{ base_dir }}/bin/kubectl cordon {{ NODE_TO_ADD }} "
     when: "inventory_hostname not in groups['kube_node']"
     ignore_errors: true
+    connection: local
 
   - name: Setting master role name
-    shell: "{{ bin_dir }}/kubectl label node {{ NODE_TO_ADD }} kubernetes.io/role=master --overwrite"
+    shell: "{{ base_dir }}/bin/kubectl label node {{ NODE_TO_ADD }} kubernetes.io/role=master --overwrite"
     ignore_errors: true
+    connection: local

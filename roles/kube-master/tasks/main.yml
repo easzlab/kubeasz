@@ -7,9 +7,6 @@
   - kubectl
   tags: upgrade_k8s
 
-- name: 分发 kubeconfig配置文件
-  copy: src={{ cluster_dir }}/kubectl.kubeconfig dest=/root/.kube/config mode=0400
-
 - name: 分发controller/scheduler kubeconfig配置文件
   copy: src={{ cluster_dir }}/{{ item }} dest=/etc/kubernetes/{{ item }}
   with_items:
@@ -68,7 +65,6 @@
     regexp: "^    server"
     line: "    server: https://127.0.0.1:{{ SECURE_PORT }}"
   with_items:
-  - "/root/.kube/config"
   - "/etc/kubernetes/kube-controller-manager.kubeconfig"
   - "/etc/kubernetes/kube-scheduler.kubeconfig"
 
@@ -116,20 +112,31 @@
   delay: 3
   tags: upgrade_k8s, restart_master
 
-- name: 以轮询的方式等待master服务启动完成
-  command: "{{ bin_dir }}/kubectl get node"
-  register: result
-  until:    result.rc == 0
-  retries:  5
-  delay: 6
-  tags: upgrade_k8s, restart_master
+- block:
+    - name: 复制kubectl.kubeconfig
+      shell: 'cd {{ cluster_dir }} && cp -f kubectl.kubeconfig {{ inventory_hostname }}-kubectl.kubeconfig'
 
-- name: 获取user:kubernetes是否已经绑定对应角色
-  shell: "{{ bin_dir }}/kubectl get clusterrolebindings|grep kubernetes-crb || echo 'notfound'"
-  register: crb_info
-  run_once: true
+    - name: 替换 kubeconfig 的 apiserver 地址
+      lineinfile:
+        dest: "{{ cluster_dir }}/{{ inventory_hostname }}-kubectl.kubeconfig"
+        regexp: "^    server"
+        line: "    server: https://{{ inventory_hostname }}:{{ SECURE_PORT }}"
 
-- name: 创建user:kubernetes角色绑定
-  command: "{{ bin_dir }}/kubectl create clusterrolebinding kubernetes-crb --clusterrole=cluster-admin --user=kubernetes"
-  run_once: true
-  when: "'notfound' in crb_info.stdout"
+    - name: 轮询等待master服务启动完成
+      command: "{{ base_dir }}/bin/kubectl --kubeconfig={{ cluster_dir }}/{{ inventory_hostname }}-kubectl.kubeconfig get node"
+      register: result
+      until:    result.rc == 0
+      retries:  5
+      delay: 6
+      tags: upgrade_k8s, restart_master
+
+    - name: 获取user:kubernetes是否已经绑定对应角色
+      shell: "{{ base_dir }}/bin/kubectl get clusterrolebindings|grep kubernetes-crb || echo 'notfound'"
+      register: crb_info
+      run_once: true
+
+    - name: 创建user:kubernetes角色绑定
+      command: "{{ base_dir }}/bin/kubectl create clusterrolebinding kubernetes-crb --clusterrole=cluster-admin --user=kubernetes"
+      run_once: true
+      when: "'notfound' in crb_info.stdout"
+  connection: local
