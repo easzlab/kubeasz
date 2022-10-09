@@ -27,7 +27,7 @@
   shell: "cd {{ cluster_dir }}/ssl && \
 	 {{ base_dir }}/bin/cfssl gencert -initca ca-csr.json | {{ base_dir }}/bin/cfssljson -bare ca" 
 
-#----------- 创建配置文件: /root/.kube/config
+#----------- 创建配置文件: kubectl.kubeconfig
 - import_tasks: create-kubectl-kubeconfig.yml
   tags: create_kctl_cfg
 

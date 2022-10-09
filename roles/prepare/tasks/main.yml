@@ -59,18 +59,3 @@
     state: present
     regexp: 'easzlab.io.local'
     line: "{{ ansible_env.SSH_CLIENT.split(' ')[0] }}    easzlab.io.local"
-
-- block:
-    - name: 分发 kubeconfig配置文件
-      copy: src={{ cluster_dir }}/kubectl.kubeconfig dest=/root/.kube/config mode=0400
-
-    - name: 分发 kube-proxy.kubeconfig配置文件
-      copy: src={{ cluster_dir }}/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
-
-    - name: 分发controller/scheduler kubeconfig配置文件
-      copy: src={{ cluster_dir }}/{{ item }} dest=/etc/kubernetes/{{ item }}
-      with_items:
-      - kube-controller-manager.kubeconfig
-      - kube-scheduler.kubeconfig
-      when: "inventory_hostname in groups['kube_master']"
-  when: "inventory_hostname in groups['kube_master'] or inventory_hostname in groups['kube_node']"

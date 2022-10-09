@@ -20,9 +20,10 @@
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
 - name: 轮询等待flannel 运行，视下载镜像速度而定
-  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15
   delay: 8
   ignore_errors: true
+  connection: local

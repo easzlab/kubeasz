@@ -1,19 +1,38 @@
+- block:
+    - name: 创建calico 证书请求
+      template: src=calico-csr.json.j2 dest={{ cluster_dir }}/ssl/calico-csr.json
+
+    - name: 创建 calico证书和私钥
+      shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
+            -ca=ca.pem \
+            -ca-key=ca-key.pem \
+            -config=ca-config.json \
+            -profile=kubernetes calico-csr.json|{{ base_dir }}/bin/cfssljson -bare calico"
+
+    - name: get calico-etcd-secrets info
+      shell: "{{ base_dir }}/bin/kubectl get secrets -n kube-system"
+      register: secrets_info
+
+    - name: 创建 calico-etcd-secrets
+      shell: "cd {{ cluster_dir }}/ssl && \
+            {{ base_dir }}/bin/kubectl create secret generic -n kube-system calico-etcd-secrets \
+            --from-file=etcd-ca=ca.pem \
+            --from-file=etcd-key=calico-key.pem \
+            --from-file=etcd-cert=calico.pem"
+      when: '"calico-etcd-secrets" not in secrets_info.stdout'
+
+    - name: 配置 calico DaemonSet yaml文件
+      template: src=calico-{{ calico_ver_main }}.yaml.j2 dest={{ cluster_dir }}/yml/calico.yaml
+
+    - name: 运行 calico网络
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/calico.yaml"
+  run_once: true
+  connection: local
+
 - name: 在节点创建相关目录
   file: name={{ item }} state=directory
   with_items:
   - /etc/calico/ssl
-
-- name: 创建calico 证书请求
-  template: src=calico-csr.json.j2 dest={{ cluster_dir }}/ssl/calico-csr.json
-  connection: local
-
-- name: 创建 calico证书和私钥
-  shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
-        -ca=ca.pem \
-        -ca-key=ca-key.pem \
-        -config=ca-config.json \
-        -profile=kubernetes calico-csr.json|{{ base_dir }}/bin/cfssljson -bare calico"
-  connection: local
 
 - name: 分发calico证书相关
   copy: src={{ cluster_dir }}/ssl/{{ item }} dest=/etc/calico/ssl/{{ item }}
@@ -21,30 +40,6 @@
   - ca.pem
   - calico.pem
   - calico-key.pem
-
-- name: get calico-etcd-secrets info
-  shell: "{{ bin_dir }}/kubectl get secrets -n kube-system"
-  register: secrets_info
-  run_once: true
-
-- name: 创建 calico-etcd-secrets
-  shell: "cd /etc/calico/ssl && \
-        {{ bin_dir }}/kubectl create secret generic -n kube-system calico-etcd-secrets \
-        --from-file=etcd-ca=ca.pem \
-        --from-file=etcd-key=calico-key.pem \
-        --from-file=etcd-cert=calico.pem"
-  when: '"calico-etcd-secrets" not in secrets_info.stdout'
-  run_once: true
-
-- name: 配置 calico DaemonSet yaml文件
-  template: src=calico-{{ calico_ver_main }}.yaml.j2 dest={{ cluster_dir }}/yml/calico.yaml
-  run_once: true
-  connection: local
-
-- name: 运行 calico网络
-  shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/calico.yaml"
-  run_once: true
-  connection: local
 
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
@@ -59,13 +54,14 @@
 - name: 准备 calicoctl配置文件
   template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg
 
-- name: 轮询等待calico-node 运行，视下载镜像速度而定
-  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'calico-node'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+- name: 轮询等待calico-node 运行
+  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-system -o wide|grep 'calico-node'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15
   delay: 15
   ignore_errors: true
+  connection: local
 
 - import_tasks: calico-rr.yml
   when: 'CALICO_RR_ENABLED|bool'

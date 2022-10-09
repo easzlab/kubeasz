@@ -1,45 +1,39 @@
-- name: 创建相关目录
-  file: name={{ item }} state=directory
-  with_items:
-  - /etc/cni/net.d
-  - /opt/kube/kube-ovn
+- block:
+    - name: 注册变量 ovn_default_gateway
+      shell: echo {{ CLUSTER_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+1}'
+      register: ovn_default_gateway
 
-- name: 注册变量 ovn_default_gateway
-  shell: echo {{ CLUSTER_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+1}'
-  register: ovn_default_gateway
+    - name: 设置变量 kube_ovn_default_gateway
+      set_fact: kube_ovn_default_gateway={{ ovn_default_gateway.stdout }}
 
-- name: 设置变量 kube_ovn_default_gateway
-  set_fact: kube_ovn_default_gateway={{ ovn_default_gateway.stdout }}
+    - name: 创建配置文件
+      template: src={{ item }}.j2 dest={{ cluster_dir }}/yml/{{ item }}
+      with_items:
+      - crd.yaml
+      - kube-ovn.yaml
+      - ovn.yaml
 
-- name: 配置 crd.yaml 文件
-  template: src=crd.yaml.j2 dest=/opt/kube/kube-ovn/crd.yaml
-
-- name: 配置 kube-ovn.yaml 文件
-  template: src=kube-ovn.yaml.j2 dest=/opt/kube/kube-ovn/kube-ovn.yaml
-
-- name: 配置 ovn.yaml 文件
-  template: src=ovn.yaml.j2 dest=/opt/kube/kube-ovn/ovn.yaml
-
-- name: 配置 kubectl plugin
-  template: src=kubectl-ko.j2 dest=/usr/local/bin/kubectl-ko mode=0755
-
-# 只需单节点执行一次
-- name: 运行 kube-ovn网络
-  shell: "{{ bin_dir }}/kubectl label node {{ OVN_DB_NODE }} kube-ovn/role=master --overwrite && \
-    {{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/crd.yaml && sleep 5 && \
-	{{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/ovn.yaml && sleep 5 && \
-	{{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/kube-ovn.yaml"
+    - name: 运行 kube-ovn网络
+      shell: "{{ base_dir }}/bin/kubectl label node {{ OVN_DB_NODE }} kube-ovn/role=master --overwrite && \
+        {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/crd.yaml && sleep 5 && \
+        {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/ovn.yaml && sleep 5 && \
+        {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/kube-ovn.yaml"
   run_once: true
+  connection: local
 
 # 删除原有cni配置
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
+- name: 配置 kubectl plugin
+  template: src=kubectl-ko.j2 dest=/usr/local/bin/kubectl-ko mode=0755
+
 # 等待网络插件部署成功，视下载镜像速度而定
 - name: 轮询等待kube-ovn 运行，视下载镜像速度而定
-  shell: "{{ bin_dir }}/kubectl get pod -n kube-ovn -o wide|grep 'kube-ovn-cni'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-ovn -o wide|grep 'kube-ovn-cni'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15
   delay: 8
   ignore_errors: true
+  connection: local
