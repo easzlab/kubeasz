@@ -1,8 +1,10 @@
 <img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">
 
-项目致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
+**kubeasz** 致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
-- **集群特性** `TLS`双向认证、`RBAC`授权、[Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、[离线安装](docs/setup/offline_install.md)
+**kubeasz** 从每一个单独部件组装到完整的集群，提供最大的灵活配置能力，几乎可以设置任何组件的任何参数；并且对大规模集群创建预置了一套运行良好的默认配置，甚至可以完全自动化创建带`Route Reflector`的`Calico`集群。
+
+- **集群特性** [Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、[离线安装](docs/setup/offline_install.md)、[多架构支持(amd64/arm64)](docs/setup/multi_platform.md)
 - **集群版本** kubernetes v1.22, v1.23, v1.24, v1.25
 - **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 16.04/18.04/20.04/22.04
 - **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.8, docker 20.10.x (k8s < 1.24)
@@ -33,7 +35,7 @@
       <td>3.1.1</td>
       <td>3.2.0</td>
       <td>3.3.1</td>
-      <td>3.4.0</td>
+      <td>3.4.1</td>
     </tr>
   </tbody>
 </table>
