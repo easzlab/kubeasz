@@ -51,7 +51,7 @@ function usage() {
     -R         download Registry(harbor) offline installer
     -S         start kubeasz in a container
     -X         download extra images
-    -a <arc>   set architecture, default auto-detected by (uname -p)
+    -a <arc>   set architecture, default auto-detected by (uname -m)
     -d <ver>   set docker-ce version, default "$DOCKER_VER"
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
@@ -583,7 +583,7 @@ function main() {
   [[ "$EUID" -ne 0 ]] && { logger error "you should run this script as root"; exit 1; }
 
   # get architecture
-  ARCH=$(uname -p)
+  ARCH=$(uname -m)
 
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
   
