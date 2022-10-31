@@ -15,4 +15,5 @@
   - "/etc/systemd/system/kube-apiserver.service"
   - "/etc/systemd/system/kube-controller-manager.service"
   - "/etc/systemd/system/kube-scheduler.service"
+  ignore_errors: true
   when: "inventory_hostname in groups['kube_master']"

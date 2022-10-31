@@ -22,4 +22,5 @@
     - "/etc/systemd/system/l4lb.service"
     - "/etc/systemd/system/keepalived.service"
     - "/usr/local/sbin/keepalived"
+  ignore_errors: true
   when: "inventory_hostname in groups['ex_lb']"
