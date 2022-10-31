@@ -11,4 +11,5 @@
       - "/var/log/chrony"
       - "/var/run/chrony"
       - "/etc/systemd/system/chronyd.service"
+  ignore_errors: true
   when: "groups['chrony']|length > 0"

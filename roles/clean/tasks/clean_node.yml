@@ -25,6 +25,7 @@
     - "/etc/kube-lb/"
     - "/etc/kubernetes/"
     - "/root/.kube/config"
+    ignore_errors: true
 
 # to clean container runtime and networking
   - block:
