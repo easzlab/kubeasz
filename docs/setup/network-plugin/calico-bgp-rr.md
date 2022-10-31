@@ -92,12 +92,14 @@ IPv6 BGP status
 No IPv6 peers found.
 ```
 
-## kubeasz 启用 route reflector
+## kubeasz 自动安装启用 route reflector
 
 - 修改`/etc/kubeasz/clusters/xxx/config.yml`文件，设置配置项`CALICO_RR_ENABLED: true` 
 - 重新执行网络安装 `dk ezctl setup xxx 07`
 
-## 详解route reflector 安装过程
+执行完成，检查bgp连接验证即可。
+
+### 附：手动安装route reflector 过程讲解
 
 - 选择并配置 Route Reflector 节点
 
