@@ -1,7 +1,7 @@
 name: Close inactive issues
 on:
   schedule:
-    - cron: "1 10 * * *"
+    - cron: "1 21 * * *"
 
 jobs:
   close-issues:
@@ -12,8 +12,9 @@ jobs:
     steps:
       - uses: actions/stale@v5
         with:
+          operations-per-run: 50
           days-before-issue-stale: 30
-          days-before-issue-close: 14
+          days-before-issue-close: 7
           stale-issue-label: "stale"
           stale-issue-message: "This issue is stale because it has been open for 30 days with no activity."
           close-issue-message: "This issue was closed because it has been inactive for 14 days since being marked as stale."
