@@ -58,6 +58,7 @@
   - kubernetes-key.pem
   - aggregator-proxy.pem
   - aggregator-proxy-key.pem
+  tags: change_cert
 
 - name: 替换 kubeconfig 的 apiserver 地址
   lineinfile:
