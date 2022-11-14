@@ -5,18 +5,13 @@
   file: name={{ ETCD_DATA_DIR }}/member state=absent
 
 - name: 生成备份目录
-  file: name=/etcd_backup state=directory
-
-- name: 准备指定的备份etcd 数据
-  copy: 
-    src: "{{ cluster_dir }}/backup/{{ db_to_restore }}"
-    dest: "/etcd_backup/snapshot.db"
+  file: name={{ cluster_dir }}/backup state=directory
 
 - name: 清理上次备份恢复数据
-  file: name=/etcd_backup/etcd-{{ inventory_hostname }}.etcd state=absent
+  file: name={{ cluster_dir }}/backup/etcd-{{ inventory_hostname }}.etcd state=absent
 
 - name: etcd 数据恢复
-  shell: "cd /etcd_backup && \
+  shell: "cd {{ cluster_dir }}/backup && \
 	ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot restore snapshot.db \
 	--name etcd-{{ inventory_hostname }} \
 	--initial-cluster {{ ETCD_NODES }} \
@@ -24,7 +19,7 @@
 	--initial-advertise-peer-urls https://{{ inventory_hostname }}:2380"
 
 - name: 恢复数据至etcd 数据目录
-  shell: "cp -rf /etcd_backup/etcd-{{ inventory_hostname }}.etcd/member {{ ETCD_DATA_DIR }}/"
+  shell: "cp -rf {{ cluster_dir }}/backup/etcd-{{ inventory_hostname }}.etcd/member {{ ETCD_DATA_DIR }}/"
 
 - name: 重启etcd 服务
   service: name=etcd state=restarted
