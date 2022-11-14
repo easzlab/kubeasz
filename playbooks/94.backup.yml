@@ -36,7 +36,7 @@
 
   # step2: backup data on the healthy member
   - name: make a backup on the etcd node
-    shell: "mkdir -p /etcd_backup && cd /etcd_backup && \
+    shell: "mkdir -p {{ cluster_dir }}/backup/ && cd {{ cluster_dir }}/backup/ && \
         ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot save snapshot_{{ timestamp.stdout }}.db"
     args:
       warn: false
@@ -44,7 +44,7 @@
 
   - name: fetch the backup data
     fetch:
-      src: /etcd_backup/snapshot_{{ timestamp.stdout }}.db
+      src: {{ cluster_dir }}/backup/snapshot_{{ timestamp.stdout }}.db
       dest: "{{ cluster_dir }}/backup/"
       flat: yes
     delegate_to: "{{ RUNNING_NODE.stdout }}"
