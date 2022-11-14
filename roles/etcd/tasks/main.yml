@@ -49,3 +49,21 @@
   retries: 8
   delay: 8
   tags: upgrade_etcd, restart_etcd
+
+- name: 创建 etcd 备份脚本
+  template: src=etcdtools.sh.j2 dest={{ cluster_dir }}/backup/etcdtools.sh
+  connection: local
+
+- name: 创建 etcd 定时任务脚本
+  template: src=etcd_backup.sh.j2 dest={{ cluster_dir }}/backup/etcd_backup.sh
+  connection: local
+
+- name: 启动 etcd 定时备份
+  cron: 
+    name: "backup etcd data daily"
+    minute: "0"
+    hour: "1"
+    job: "bash {{ cluster_dir }}/backup/etcd_backup.sh"
+  
+
+

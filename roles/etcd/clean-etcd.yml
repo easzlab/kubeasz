@@ -14,5 +14,12 @@
     with_items:
     - {{ ETCD_DATA_DIR }}
     - {{ ETCD_WAL_DIR }}
+    - {{ cluster_dir }}/backup
     - "/backup/k8s"
     - "/etc/systemd/system/etcd.service"
+
+- name: 移除定时任务
+  cron:
+    name: "backup etcd data daily"
+    state: absent
+  
