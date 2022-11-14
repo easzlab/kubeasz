@@ -1,0 +1,84 @@
+#!/bin/bash
+
+BACKUP_DIR="{{ cluster_dir }}/backup"
+CACERT="{{ ca_dir }}/ca.pem"
+ETCD_KEY="{{ ca_dir }}/etcd-key.pem"
+ETCD_CERT="{{ ca_dir }}/etcd.pem"
+
+save_snapshot(){
+    
+    local save_dir=$1
+    if [ -z ${save_dir} ];then
+        [ ! -d "${BACKUP_DIR}" ] && mkdir -p ${BACKUP_DIR}
+        snapshot=${BACKUP_DIR}/snapshot.db
+    else
+        [ ! -d "${save_dir}" ] && mkdir -p ${save_dir}
+        snapshot=${save_dir}/snapshot.db
+    fi
+    save_file=${snapshot}-$(date +%Y%m%d%H%M%S.%N)
+    local service_file="/etc/systemd/system/etcd.service"
+    if [ ! -f "${service_file}" ];then
+        echo "[ERROR]: File ${service_file} does not exist!"
+        exit 1
+    fi
+
+    local INITIAL_CLUSTER=$(sed -n 's/.*--initial-cluster=\(.*\)/\1/p' ${service_file}|awk '{print $1}')
+	local ENDPOINTS_ARRAY=(${INITIAL_CLUSTER//,/ })
+	
+	local ETCD_NODE_ARRAY=`for ENDPOINT in ${ENDPOINTS_ARRAY[@]};do \
+	echo $ENDPOINT |awk -F '=' '{print $2}'|awk -F '//' '{print $2}' |awk -F ':' '{print $1}';\
+	done`
+	
+    local health_etcd_nodes=`for etcd_node in ${ETCD_NODE_ARRAY}; 
+	    do ETCDCTL_API=3 /etc/kubeasz/bin/etcdctl \
+		--endpoints=https://${etcd_node}:2379  \
+		--cacert={{ cluster_dir }}/ssl/ca.pem  \
+		--cert={{ cluster_dir }}/ssl/etcd.pem   \
+		--key={{ cluster_dir }}/ssl/etcd-key.pem  \
+		endpoint health  |grep "is healthy"|sed -n "1p"|cut -d: -f2|cut -d/ -f3; \
+		done;`
+	
+	health_etcd_node=`echo $health_etcd_nodes |awk -F ' ' '{print $1}'`
+			    
+    export ETCDCTL_API=3
+    {{ base_dir }}/bin/etcdctl --cert=${ETCD_CERT} --key=${ETCD_KEY} \
+        --cacert=${CACERT} --endpoints=https://${health_etcd_node}:2379  snapshot save ${save_file}
+    if [ $? -ne 0 ];then
+        echo "[ERROR]: Failed to save snapshot ${save_file}!"
+        exit 1
+    fi
+	yes |cp  ${save_file} ${snapshot}
+}  
+	
+
+
+usage(){
+
+    echo
+    echo "Script: $0" 
+    echo "Version: 1.0.0"
+
+    echo "
+Description: This script is used to back up etcd data."
+
+    echo
+    echo "Usage: "
+    echo "       `basename $0` [get][help][export][{{ base_dir }}/bin/etcdctl][import][status]"
+    echo
+    echo "       help"
+    echo "           Output help information"
+    echo
+    echo "       export  <backup dir>"
+    echo "           Export etcd snapshot file to backup directory"
+    echo
+    echo 
+    exit 0
+}
+
+
+case $1 in
+export)
+    save_snapshot $2;;
+*)
+    usage ;;
+esac

@@ -1,0 +1,5 @@
+#!/bin/bash
+# 删除 10 天以上的备份文件，并生成新的备份
+sudo find {{ cluster_dir }}/backup/ -name "snapshot*.db*" -type f -mtime +10 -exec rm {} \;
+
+bash {{ cluster_dir }}/backup/etcdtools.sh export
