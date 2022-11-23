@@ -143,8 +143,8 @@ EOF
 {
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "registry-mirrors": [
-    "https://docker.mirrors.ustc.edu.cn",
-    "http://hub-mirror.c.163.com"
+    "https://docker.nju.edu.cn/",
+    "https://kuamavit.mirror.aliyuncs.com"
   ],
   "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,

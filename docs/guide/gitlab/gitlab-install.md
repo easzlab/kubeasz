@@ -1,4 +1,4 @@
-# 安装 gitlab
+# 安装 gitlab [Deprecated]
 
 gitlab 是深受企业用户喜爱的基于 git 的代码管理系统。安装 gitlab 最理想的方式是利用 gitlab charts 部署到 k8s 集群上，但此方式还未成熟，期待后续推出更成熟稳定版本；本文使用 Docker 方式安装 gitlab:
 
