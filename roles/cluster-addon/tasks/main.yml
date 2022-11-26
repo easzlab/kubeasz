@@ -1,8 +1,6 @@
 - name: 获取所有已经创建的POD信息
   command: "{{ base_dir }}/bin/kubectl get pod --all-namespaces"
   register: pod_info
-  connection: local
-  run_once: true
 
 - name: 注册变量 DNS_SVC_IP
   shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
@@ -32,7 +30,7 @@
   when: '"nfs-client-provisioner" not in pod_info.stdout and nfs_provisioner_install == "yes"'
 
 - import_tasks: cilium_connectivity_check.yml
-  when: 'CLUSTER_NETWORK == "cilium" and cilium_connectivity_check|bool'
+  when: 'CLUSTER_NETWORK == "cilium"'
 
 - import_tasks: network_check.yml
   when: 'network_check_enabled|bool and CLUSTER_NETWORK != "cilium"'

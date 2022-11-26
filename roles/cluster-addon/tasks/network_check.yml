@@ -17,5 +17,4 @@
     - debug:
         msg: "[重要]: 请查看命名空间network-test下所有pod，如果均为Completed状态，且没有重启数增长，说明网络连接测试正常。 \
               如果有Pending状态，部分测试需要多节点集群才能完成，如果希望禁用网络测试执行(kubectl delete ns network-test)"
-  run_once: true
-  connection: local
+  when: 'network_check_enabled|bool'

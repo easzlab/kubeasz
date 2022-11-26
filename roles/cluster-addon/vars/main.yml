@@ -1,1 +1,4 @@
 # default values
+
+# CHANGE_CA: when set true, force to change ca certs
+CHANGE_CA: false
