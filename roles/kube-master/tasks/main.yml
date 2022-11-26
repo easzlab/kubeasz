@@ -143,7 +143,7 @@
       run_once: true
 
     - name: 创建user:kubernetes角色绑定
-      command: "{{ base_dir }}/bin/kubectl create clusterrolebinding kubernetes-crb --clusterrole=cluster-admin --user=kubernetes"
+      command: "{{ base_dir }}/bin/kubectl create clusterrolebinding kubernetes-crb --clusterrole=system:kubelet-api-admin --user=kubernetes"
       run_once: true
       when: "'notfound' in crb_info.stdout"
   connection: local
