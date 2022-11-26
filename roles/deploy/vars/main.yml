@@ -4,3 +4,6 @@ KUBE_APISERVER: "https://{{ groups['kube_master'][0] }}:{{ SECURE_PORT }}"
 #
 ADD_KCFG: false
 CUSTOM_EXPIRY: "438000h"
+
+# CHANGE_CA: when set true, force to change ca certs
+CHANGE_CA: false

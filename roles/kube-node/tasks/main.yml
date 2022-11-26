@@ -18,6 +18,7 @@
 ##----------kubelet 配置部分--------------
 # 创建 kubelet 相关证书及 kubelet.kubeconfig
 - import_tasks: create-kubelet-kubeconfig.yml
+  tags: force_change_certs
 
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
@@ -43,17 +44,19 @@
 
 - name: 开启kubelet 服务
   shell: systemctl daemon-reload && systemctl restart kubelet
-  tags: upgrade_k8s, restart_node
+  tags: upgrade_k8s, restart_node, force_change_certs
 
 ##-------kube-proxy部分----------------
 - name: 分发 kube-proxy.kubeconfig配置文件
   copy: src={{ cluster_dir }}/kube-proxy.kubeconfig dest=/etc/kubernetes/kube-proxy.kubeconfig
+  tags: force_change_certs
 
 - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
   lineinfile:
     dest: /etc/kubernetes/kube-proxy.kubeconfig
     regexp: "^    server"
     line: "    server: {{ KUBE_APISERVER }}"
+  tags: force_change_certs
 
 - name: 创建kube-proxy 配置
   template: src=kube-proxy-config.yaml.j2 dest=/var/lib/kube-proxy/kube-proxy-config.yaml
@@ -69,7 +72,7 @@
 
 - name: 开启kube-proxy 服务
   shell: systemctl daemon-reload && systemctl restart kube-proxy
-  tags: reload-kube-proxy, upgrade_k8s, restart_node
+  tags: reload-kube-proxy, upgrade_k8s, restart_node, force_change_certs
 
 # 轮询等待kube-proxy启动完成
 - name: 轮询等待kube-proxy启动
@@ -78,7 +81,7 @@
   until: '"active" in kubeproxy_status.stdout'
   retries: 4
   delay: 2
-  tags: reload-kube-proxy, upgrade_k8s, restart_node
+  tags: reload-kube-proxy, upgrade_k8s, restart_node, force_change_certs
 
 # 轮询等待kubelet启动完成
 - name: 轮询等待kubelet启动
@@ -87,7 +90,7 @@
   until: '"active" in kubelet_status.stdout'
   retries: 4
   delay: 2
-  tags: reload-kube-proxy, upgrade_k8s, restart_node
+  tags: reload-kube-proxy, upgrade_k8s, restart_node, force_change_certs
 
 - name: 轮询等待node达到Ready状态
   shell: "{{ base_dir }}/bin/kubectl get node {{ inventory_hostname }}|awk 'NR>1{print $2}'"
@@ -95,7 +98,7 @@
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
   retries: 8 
   delay: 8
-  tags: upgrade_k8s, restart_node
+  tags: upgrade_k8s, restart_node, force_change_certs
   connection: local
 
 - name: 设置node节点role
