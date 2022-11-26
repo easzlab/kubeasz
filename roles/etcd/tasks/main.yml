@@ -12,6 +12,7 @@
   template: src=etcd-csr.json.j2 dest={{ cluster_dir }}/ssl/etcd-csr.json
   connection: local
   run_once: true
+  tags: force_change_certs
 
 - name: 创建 etcd证书和私钥
   shell: "cd {{ cluster_dir }}/ssl && {{ base_dir }}/bin/cfssl gencert \
@@ -21,6 +22,7 @@
         -profile=kubernetes etcd-csr.json | {{ base_dir }}/bin/cfssljson -bare etcd"
   connection: local
   run_once: true
+  tags: force_change_certs
 
 - name: 分发etcd证书相关
   copy: src={{ cluster_dir }}/ssl/{{ item }} dest={{ ca_dir }}/{{ item }}
@@ -28,6 +30,7 @@
   - ca.pem
   - etcd.pem
   - etcd-key.pem
+  tags: force_change_certs
 
 - name: 创建etcd的systemd unit文件
   template: src=etcd.service.j2 dest=/etc/systemd/system/etcd.service
@@ -40,7 +43,7 @@
 - name: 开启etcd服务
   shell: systemctl daemon-reload && systemctl restart etcd
   ignore_errors: true
-  tags: upgrade_etcd, restart_etcd
+  tags: upgrade_etcd, restart_etcd, force_change_certs
 
 - name: 以轮询的方式等待服务同步完成
   shell: "systemctl is-active etcd.service"
@@ -48,4 +51,4 @@
   until: '"active" in etcd_status.stdout'
   retries: 8
   delay: 8
-  tags: upgrade_etcd, restart_etcd
+  tags: upgrade_etcd, restart_etcd, force_change_certs
