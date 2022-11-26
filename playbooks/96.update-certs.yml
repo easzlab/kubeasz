@@ -41,7 +41,6 @@
   - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
 
 # to install cluster-addons
-- hosts:
-  - kube_node
+- hosts: localhost
   roles:
   - cluster-addon

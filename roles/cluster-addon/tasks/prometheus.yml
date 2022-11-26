@@ -42,5 +42,4 @@
       shell: "{{ base_dir }}/bin/helm upgrade prometheus --install \
               -n {{ prom_namespace }} -f {{ cluster_dir }}/yml/prom-values.yaml \
               {{ base_dir }}/roles/cluster-addon/files/kube-prometheus-stack-{{ prom_chart_ver }}.tgz"
-  run_once: true
-  connection: local
+  when: 'prom_install == "yes"'
