@@ -11,11 +11,19 @@
   run_once: true
   connection: local
 
+- name: 删除 kube-router DaemonSet
+  shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/kube-router.yaml || echo true; sleep 3"
+  run_once: true
+  connection: local
+  tags: force_change_certs
+  when: 'CHANGE_CA|bool'
+
 # 只需单节点执行一次
 - name: 运行 kube-router DaemonSet
   shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/kube-router.yaml"
   run_once: true
   connection: local
+  tags: force_change_certs
 
 # 删除原有cni配置
 - name: 删除默认cni配置 
@@ -30,3 +38,4 @@
   delay: 8
   ignore_errors: true
   connection: local
+  tags: force_change_certs

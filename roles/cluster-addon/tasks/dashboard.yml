@@ -9,6 +9,12 @@
       - "admin-user-sa-rbac.yaml"
       - "read-user-sa-rbac.yaml"
 
+    - name: 删除 dashboard部署
+      shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/dashboard/ || echo true; sleep 3"
+      tags: force_change_certs
+      when: 'CHANGE_CA|bool'
+
     - name: 创建 dashboard部署
       shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/dashboard/"
+      tags: force_change_certs
   when: 'dashboard_install == "yes"'
