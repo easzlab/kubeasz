@@ -2,6 +2,12 @@
     - name: 准备 metrics-server的部署文件
       template: src=metrics-server/components.yaml.j2 dest={{ cluster_dir }}/yml/metrics-server.yaml
 
+    - name: 删除 metrics-server部署
+      shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/metrics-server.yaml || echo true; sleep 3"
+      tags: force_change_certs
+      when: 'CHANGE_CA|bool'
+
     - name: 创建 metrics-server部署
       shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/metrics-server.yaml"
+      tags: force_change_certs
   when: 'metricsserver_install == "yes"'

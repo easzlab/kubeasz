@@ -12,22 +12,22 @@
 - debug: var="CLUSTER_DNS_SVC_IP"
 
 - import_tasks: coredns.yml
-  when: '"coredns" not in pod_info.stdout and dns_install == "yes"'
+  when: '"coredns" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: nodelocaldns.yml
-  when: '"node-local-dns" not in pod_info.stdout and ENABLE_LOCAL_DNS_CACHE|bool'
+  when: '"node-local-dns" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: metrics-server.yml
-  when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
+  when: '"metrics-server" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: dashboard.yml
-  when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
+  when: '"kubernetes-dashboard" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: prometheus.yml
   when: 'prom_install == "yes"'
 
 - import_tasks: nfs-provisioner.yml
-  when: '"nfs-client-provisioner" not in pod_info.stdout and nfs_provisioner_install == "yes"'
+  when: '"nfs-client-provisioner" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: cilium_connectivity_check.yml
   when: 'CLUSTER_NETWORK == "cilium"'

@@ -23,7 +23,11 @@
             -ca-key=ca-key.pem \
             -config=ca-config.json \
             -profile=kubernetes etcd-client-csr.json|{{ base_dir }}/bin/cfssljson -bare etcd-client"
-      when: '"etcd-client-cert" not in secrets_info.stdout'
+      when: '"etcd-client-cert" not in secrets_info.stdout or CHANGE_CA|bool'
+
+    - name: 删除 etcd-client-cert
+      shell: "{{ base_dir }}/bin/kubectl delete secret -n {{ prom_namespace }} etcd-client-cert || echo true"
+      when: 'CHANGE_CA|bool'
     
     - name: 创建 etcd-client-cert
       shell: "cd {{ cluster_dir }}/ssl && \
@@ -31,15 +35,20 @@
             --from-file=etcd-ca=ca.pem \
             --from-file=etcd-client=etcd-client.pem \
             --from-file=etcd-client-key=etcd-client-key.pem"
-      when: '"etcd-client-cert" not in secrets_info.stdout'
+      when: '"etcd-client-cert" not in secrets_info.stdout or CHANGE_CA|bool'
 
     - debug: var="K8S_VER"
 
     - name: 创建 prom chart 个性化设置
       template: src=prometheus/values.yaml.j2 dest={{ cluster_dir }}/yml/prom-values.yaml
 
+    - name: helm 删除 kube-prometheus-stack {{ prom_chart_ver }}
+      shell: "{{ base_dir }}/bin/helm delete prometheus -n {{ prom_namespace }} || echo true; sleep 3"
+      when: 'CHANGE_CA|bool'
+
     - name: helm 创建 kube-prometheus-stack {{ prom_chart_ver }}
       shell: "{{ base_dir }}/bin/helm upgrade prometheus --install \
               -n {{ prom_namespace }} -f {{ cluster_dir }}/yml/prom-values.yaml \
               {{ base_dir }}/roles/cluster-addon/files/kube-prometheus-stack-{{ prom_chart_ver }}.tgz"
   when: 'prom_install == "yes"'
+  tags: force_change_certs

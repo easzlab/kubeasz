@@ -10,10 +10,16 @@
     - name: 创建 cilium chart 个性化设置
       template: src=values.yaml.j2 dest={{ cluster_dir }}/yml/cilium-values.yaml
 
+    - name: helm 删除 cilium {{ cilium_ver }}
+      shell: "{{ base_dir }}/bin/helm delete cilium -n kube-system || echo true; sleep 3"
+      tags: force_change_certs
+      when: 'CHANGE_CA|bool'
+
     - name: helm 创建 cilium {{ cilium_ver }}
       shell: "{{ base_dir }}/bin/helm upgrade cilium --install \
               -n kube-system -f {{ cluster_dir }}/yml/cilium-values.yaml \
               {{ base_dir }}/roles/cilium/files/cilium-{{ cilium_ver }}.tgz"
+      tags: force_change_certs
   run_once: true
   connection: local  
 
@@ -36,6 +42,7 @@
   delay: 8
   ignore_errors: true
   connection: local
+  tags: force_change_certs
 
 # hubble-relay 可能需要重启一下
 - name: 重启hubble-relay pod
@@ -44,3 +51,4 @@
   run_once: true
   connection: local
   when: "cilium_hubble_enabled|bool"
+  tags: force_change_certs

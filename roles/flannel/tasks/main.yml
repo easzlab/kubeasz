@@ -11,10 +11,18 @@
   run_once: true
   connection: local
 
+- name: 删除 flannel网络
+  shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/flannel.yaml || echo true; sleep 3"
+  run_once: true
+  connection: local
+  tags: force_change_certs
+  when: 'CHANGE_CA|bool'
+
 - name: 运行 flannel网络
   shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/flannel.yaml"
   run_once: true
   connection: local
+  tags: force_change_certs
 
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
@@ -27,3 +35,4 @@
   delay: 8
   ignore_errors: true
   connection: local
+  tags: force_change_certs
