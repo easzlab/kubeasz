@@ -465,7 +465,7 @@ function renew-ca() {
     logger warn "WARNNING: this script should be used with greate caution"
     logger warn "WARNNING: it will recreate CA certs and all of the others certs used in the cluster"
 
-    COMMAND="ansible-playbook -i clusters/$1/hosts -e CHANGE_CA=true -e @clusters/$1/config.yml playbooks/96.update-certs.yml -t force_change_certs"
+    COMMAND="ansible-playbook -i clusters/$1/hosts -e @clusters/$1/config.yml -e CHANGE_CA=true playbooks/96.update-certs.yml -t force_change_certs"
     echo "$COMMAND"
     logger info "cluster:$1 process begins in 5s, press any key to abort:\n"
     ! (read -r -t5 -n1) || { logger warn "process abort"; return 1; }
