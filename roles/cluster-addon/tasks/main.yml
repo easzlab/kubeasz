@@ -1,6 +1,7 @@
 - name: 获取所有已经创建的POD信息
   command: "{{ base_dir }}/bin/kubectl get pod --all-namespaces"
   register: pod_info
+  tags: force_change_certs
 
 - name: 注册变量 DNS_SVC_IP
   shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'

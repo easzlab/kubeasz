@@ -2,6 +2,14 @@
 # Force to recreate CA certs and all of the others certs used in the cluster. 
 # It should be used when the admin.conf leaked, and a new one will be created in place of the leaked one.
 
+# backup old certs
+- hosts: localhost
+  tasks:
+  - name: backup old certs
+    shell: "cd {{ cluster_dir }} && \
+         cp -r ssl ssl-$(date +'%Y%m%d%H%M')"
+    tags: force_change_certs
+
 # to create CA, kubeconfig, kube-proxy.kubeconfig etc.
 # need to set 'CHANGE_CA=true'
 - hosts: localhost
