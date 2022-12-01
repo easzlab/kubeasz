@@ -62,7 +62,7 @@ kubernetes 系统各组件需要使用 TLS 证书对通信进行加密，使用 
 #### 创建 CA 证书签名请求 [ca-csr.json.j2](../../roles/deploy/templates/ca-csr.json.j2)
 ``` bash
 {
-  "CN": "kubernetes",
+  "CN": "kubernetes-ca",
   "key": {
     "algo": "rsa",
     "size": 2048

@@ -146,13 +146,17 @@ version = 2
           endpoint = ["http://easzlab.io.local:5000"]
 {% if ENABLE_MIRROR_REGISTRY %}
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-          endpoint = ["https://docker.mirrors.ustc.edu.cn", "http://hub-mirror.c.163.com"]
+          endpoint = ["https://docker.nju.edu.cn/", "https://kuamavit.mirror.aliyuncs.com"]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."gcr.io"]
-          endpoint = ["https://gcr.mirrors.ustc.edu.cn"]
+          endpoint = ["https://gcr.nju.edu.cn"]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."k8s.gcr.io"]
-          endpoint = ["https://gcr.mirrors.ustc.edu.cn/google-containers/"]
+          endpoint = ["https://gcr.nju.edu.cn/google-containers/"]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."quay.io"]
-          endpoint = ["https://quay.mirrors.ustc.edu.cn"]
+          endpoint = ["https://quay.nju.edu.cn"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."ghcr.io"]
+          endpoint = ["https://ghcr.nju.edu.cn"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."nvcr.io"]
+          endpoint = ["https://ngc.nju.edu.cn"]
 {% endif %}
 
     [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]

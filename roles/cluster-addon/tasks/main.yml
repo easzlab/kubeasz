@@ -1,8 +1,7 @@
 - name: 获取所有已经创建的POD信息
   command: "{{ base_dir }}/bin/kubectl get pod --all-namespaces"
   register: pod_info
-  connection: local
-  run_once: true
+  tags: force_change_certs
 
 - name: 注册变量 DNS_SVC_IP
   shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
@@ -14,25 +13,25 @@
 - debug: var="CLUSTER_DNS_SVC_IP"
 
 - import_tasks: coredns.yml
-  when: '"coredns" not in pod_info.stdout and dns_install == "yes"'
+  when: '"coredns" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: nodelocaldns.yml
-  when: '"node-local-dns" not in pod_info.stdout and ENABLE_LOCAL_DNS_CACHE|bool'
+  when: '"node-local-dns" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: metrics-server.yml
-  when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
+  when: '"metrics-server" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: dashboard.yml
-  when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
+  when: '"kubernetes-dashboard" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: prometheus.yml
   when: 'prom_install == "yes"'
 
 - import_tasks: nfs-provisioner.yml
-  when: '"nfs-client-provisioner" not in pod_info.stdout and nfs_provisioner_install == "yes"'
+  when: '"nfs-client-provisioner" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: cilium_connectivity_check.yml
-  when: 'CLUSTER_NETWORK == "cilium" and cilium_connectivity_check|bool'
+  when: 'CLUSTER_NETWORK == "cilium"'
 
 - import_tasks: network_check.yml
   when: 'network_check_enabled|bool and CLUSTER_NETWORK != "cilium"'

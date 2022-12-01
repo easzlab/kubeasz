@@ -1,0 +1,54 @@
+# Note: this scripts should be used with caution.
+# Force to recreate CA certs and all of the others certs used in the cluster. 
+# It should be used when the admin.conf leaked, and a new one will be created in place of the leaked one.
+
+# backup old certs
+- hosts: localhost
+  tasks:
+  - name: backup old certs
+    shell: "cd {{ cluster_dir }} && \
+         cp -r ssl ssl-$(date +'%Y%m%d%H%M')"
+    tags: force_change_certs
+
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc.
+# need to set 'CHANGE_CA=true'
+- hosts: localhost
+  roles:
+  - deploy
+
+# to install etcd cluster
+# to run with '-t force_change_certs'
+- hosts: etcd
+  roles:
+  - etcd
+
+# to set up 'kube_master' nodes
+# to run with '-t force_change_certs'
+- hosts: kube_master
+  roles:
+  - kube-master
+
+# to set up 'kube_node' nodes
+# to run with '-t force_change_certs'
+- hosts:
+  - kube_master
+  - kube_node
+  roles:
+  - kube-node 
+
+# to install network plugin, only one can be choosen
+# to run with '-t force_change_certs'
+- hosts:
+  - kube_master
+  - kube_node
+  roles:
+  - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
+  - { role: cilium, when: "CLUSTER_NETWORK == 'cilium'" }
+  - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
+  - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
+  - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
+
+# to install cluster-addons
+- hosts: localhost
+  roles:
+  - cluster-addon

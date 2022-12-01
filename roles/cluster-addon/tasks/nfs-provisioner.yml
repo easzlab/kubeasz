@@ -1,17 +1,13 @@
-- name: 准备 nfs-provisioner 配置目录
-  file: name={{ cluster_dir }}/yml/nfs-provisioner state=directory
-  run_once: true
-  connection: local
+- block:
+    - name: 准备 nfs-provisioner 配置目录
+      file: name={{ cluster_dir }}/yml/nfs-provisioner state=directory
 
-- name: 准备 nfs-provisioner部署文件
-  template: src=nfs-provisioner/{{ item }}.j2 dest={{ cluster_dir }}/yml/nfs-provisioner/{{ item }}
-  with_items:
-  - "nfs-provisioner.yaml"
-  - "test-pod.yaml"
-  run_once: true
-  connection: local
+    - name: 准备 nfs-provisioner部署文件
+      template: src=nfs-provisioner/{{ item }}.j2 dest={{ cluster_dir }}/yml/nfs-provisioner/{{ item }}
+      with_items:
+      - "nfs-provisioner.yaml"
+      - "test-pod.yaml"
 
-- name: 创建 nfs-provisioner部署
-  shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/nfs-provisioner/nfs-provisioner.yaml"
-  run_once: true
-  connection: local
+    - name: 创建 nfs-provisioner部署
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/nfs-provisioner/nfs-provisioner.yaml"
+  when: 'nfs_provisioner_install == "yes"'

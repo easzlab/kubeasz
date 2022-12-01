@@ -16,6 +16,9 @@ OS_HARDEN: false
 CA_EXPIRY: "876000h"
 CERT_EXPIRY: "438000h"
 
+# force to recreate CA and other certs, not suggested to set 'true'
+CHANGE_CA: false
+
 # kubeconfig 配置参数
 CLUSTER_NAME: "cluster1"
 CONTEXT_NAME: "context-{{ CLUSTER_NAME }}"

@@ -9,9 +9,8 @@
             -config=ca-config.json \
             -profile=kubernetes calico-csr.json|{{ base_dir }}/bin/cfssljson -bare calico"
 
-    - name: get calico-etcd-secrets info
-      shell: "{{ base_dir }}/bin/kubectl get secrets -n kube-system"
-      register: secrets_info
+    - name: 删除旧 calico-etcd-secrets
+      shell: "{{ base_dir }}/bin/kubectl -n kube-system delete secrets calico-etcd-secrets || echo NotFound"
 
     - name: 创建 calico-etcd-secrets
       shell: "cd {{ cluster_dir }}/ssl && \
@@ -19,15 +18,19 @@
             --from-file=etcd-ca=ca.pem \
             --from-file=etcd-key=calico-key.pem \
             --from-file=etcd-cert=calico.pem"
-      when: '"calico-etcd-secrets" not in secrets_info.stdout'
 
     - name: 配置 calico DaemonSet yaml文件
       template: src=calico-{{ calico_ver_main }}.yaml.j2 dest={{ cluster_dir }}/yml/calico.yaml
+
+    - name: 删除 calico网络
+      shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/calico.yaml || echo NotFound; sleep 3"
+      when: 'CHANGE_CA|bool'
 
     - name: 运行 calico网络
       shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/calico.yaml"
   run_once: true
   connection: local
+  tags: force_change_certs
 
 - name: 在节点创建相关目录
   file: name={{ item }} state=directory
@@ -40,6 +43,7 @@
   - ca.pem
   - calico.pem
   - calico-key.pem
+  tags: force_change_certs
 
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
@@ -62,6 +66,8 @@
   delay: 15
   ignore_errors: true
   connection: local
+  tags: force_change_certs
 
 - import_tasks: calico-rr.yml
   when: 'CALICO_RR_ENABLED|bool'
+  tags: force_change_certs

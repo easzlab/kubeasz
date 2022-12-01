@@ -14,36 +14,42 @@
 - name: 读取ca证书stat信息
   stat: path="{{ cluster_dir }}/ssl/ca.pem"
   register: p
+  tags: force_change_certs
 
 - name: 准备CA配置文件和签名请求
   template: src={{ item }}.j2 dest={{ cluster_dir }}/ssl/{{ item }}
   with_items:
   - "ca-config.json"
   - "ca-csr.json"
-  when: p.stat.isreg is not defined
+  when: "p.stat.isreg is not defined or CHANGE_CA|bool"
+  tags: force_change_certs
 
 - name: 生成 CA 证书和私钥
-  when: p.stat.isreg is not defined
+  when: "p.stat.isreg is not defined or CHANGE_CA|bool"
+  tags: force_change_certs
   shell: "cd {{ cluster_dir }}/ssl && \
 	 {{ base_dir }}/bin/cfssl gencert -initca ca-csr.json | {{ base_dir }}/bin/cfssljson -bare ca" 
 
 #----------- 创建配置文件: kubectl.kubeconfig
 - import_tasks: create-kubectl-kubeconfig.yml
-  tags: create_kctl_cfg
+  tags: create_kctl_cfg, force_change_certs
 
 #----------- 创建个性化客户端配置文件
 - import_tasks: add-custom-kubectl-kubeconfig.yml
-  tags: add-kcfg
+  tags: add-kcfg, force_change_certs
   when: "ADD_KCFG|bool"
 
 #------------创建配置文件: kube-proxy.kubeconfig
 - import_tasks: create-kube-proxy-kubeconfig.yml
+  tags: force_change_certs
 
 #------------创建配置文件: kube-controller-manager.kubeconfig
 - import_tasks: create-kube-controller-manager-kubeconfig.yml
+  tags: force_change_certs
 
 #------------创建配置文件: kube-scheduler.kubeconfig
 - import_tasks: create-kube-scheduler-kubeconfig.yml
+  tags: force_change_certs
 
 # ansible 控制端一些易用性配置
 - name: 本地创建 ezdown/ezctl 工具的软连接

@@ -20,7 +20,7 @@ Cluster setups:
     destroy     <cluster>            to destroy the k8s cluster
     backup      <cluster>            to backup the cluster state (etcd snapshot)
     restore     <cluster>            to restore the cluster state from backups
-    start-aio		             to quickly setup an all-in-one cluster with 'default' settings
+    start-aio		             to quickly setup an all-in-one cluster with default settings
 
 Cluster ops:
     add-etcd    <cluster>  <ip>      to add a etcd-node to the etcd cluster
@@ -31,6 +31,7 @@ Cluster ops:
     del-node    <cluster>  <ip>      to delete a work node from the k8s cluster
 
 Extra operation:
+    kca-renew   <cluster>            to force renew CA certs and all the other certs (with caution)
     kcfg-adm    <cluster>  <args>    to manage client kubeconfig of the k8s cluster
 
 Use "ezctl help <command>" for more information about a given command.
@@ -79,6 +80,11 @@ function help-info() {
             ;;
         (del-node)
             echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
+            ;;
+        (kca-renew)
+	    echo -e "WARNNING: this command should be used with caution"
+	    echo -e "force to recreate CA certs and all of the others certs used in the cluster"
+	    echo -e "it should be used only when the admin.conf leaked"
             ;;
         (kcfg-adm)
 	    usage-kcfg-adm
@@ -453,6 +459,21 @@ function start-aio(){
 }
 
 ### Extra functions #############################################
+function renew-ca() {
+    [[ -d "clusters/$1" ]] || { logger error "invalid cluster, run 'ezctl new $1' first"; return 1; }
+
+    logger warn "WARNNING: this script should be used with greate caution"
+    logger warn "WARNNING: it will recreate CA certs and all of the others certs used in the cluster"
+
+    COMMAND="ansible-playbook -i clusters/$1/hosts -e @clusters/$1/config.yml -e CHANGE_CA=true playbooks/96.update-certs.yml -t force_change_certs"
+    echo "$COMMAND"
+    logger info "cluster:$1 process begins in 5s, press any key to abort:\n"
+    ! (read -r -t5 -n1) || { logger warn "process abort"; return 1; }
+
+    ${COMMAND} || return 1
+}
+
+
 EXPIRY=4800h        # default cert will expire in 200 days
 USER_TYPE=admin     # admin/view, admin=clusterrole:cluster-admin view=clusterrole:view 
 USER_NAME=user
@@ -631,6 +652,10 @@ function main() {
           start-aio
           ;;
       ### extra operations ##############################
+      (kca-renew)
+          [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+          renew-ca "$2"
+          ;;
       (kcfg-adm)
           [ "$#" -gt 2 ] || { usage-kcfg-adm >&2; exit 2; }
           kcfg-adm "${@:2}"
