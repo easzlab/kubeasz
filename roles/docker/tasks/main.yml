@@ -77,7 +77,7 @@
       template: src=daemon.json.j2 dest=/etc/docker/daemon.json
     
     - name: flush-iptables
-      shell: "iptables -P INPUT ACCEPT \
+      shell: "source /etc/profile; iptables -P INPUT ACCEPT \
             && iptables -P FORWARD ACCEPT \
             && iptables -P OUTPUT ACCEPT \
             && iptables -F && iptables -X \
