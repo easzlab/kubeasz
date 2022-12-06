@@ -211,6 +211,30 @@ EOF
   systemctl daemon-reload && systemctl restart docker && sleep 4
 }
 
+
+function download_docker_compose() {
+  if [[ "$REGISTRY_MIRROR" == CN ]];then
+    DOCKER_COMPOSE_URL="https://get.daocloud.io/docker/compose/releases/download/${DOCKER_COMPOSE_VER}/docker-compose-linux-${ARCH}"
+  else
+    DOCKER_COMPOSE_URL="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VER}/docker-compose-linux-${ARCH}"
+  fi
+
+  if [[ -f "$BASE/down/docker-compose-linux-${ARCH}" ]];then
+    logger warn "docker-compose binaries already existed"
+  else
+    logger info "downloading docker-compose binaries, arch:$ARCH, version:$DOCKER_VER"
+    if [[ -e /usr/bin/wget ]];then
+      wget -c --no-check-certificate "$DOCKER_COMPOSE_URL" || { logger error "downloading docker-compose failed"; exit 1; }
+    else
+      curl -L --retry 3 "$DOCKER_COMPOSE_URL" > "./docker-compose-linux-${ARCH}"  || { logger error "downloading docker-compose failed"; exit 1; }
+    fi
+    mv -f "./docker-compose-linux-${ARCH}" "$BASE/down"
+  fi
+
+  cp -f  "$BASE/down/docker-compose-linux-${ARCH}"  "$BASE/bin/docker-compose"
+}
+
+
 function get_kubeasz() {
   # check if kubeasz already existed
   [[ -d "$BASE/roles/kube-node" ]] && { logger warn "kubeasz already existed"; return 0; }
@@ -492,6 +516,7 @@ function get_extra_images() {
 function download_all() {
   mkdir -p /opt/kube/bin "$BASE/down" "$BASE/bin"
   download_docker && \
+  download_docker_compose && \
   install_docker && \
   get_kubeasz && \
   get_k8s_bin && \
