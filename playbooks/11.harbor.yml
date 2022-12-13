@@ -93,6 +93,7 @@
       regexp: '{{ harbor_hostname }}'
       line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
     when: 'ansible_distribution in ["Ubuntu","Debian"]'
+    ignore_errors: true
 
   - name: Adding cloud-init hosts template (redhat) entry for the HARBOR DOMAIN
     lineinfile:
@@ -101,3 +102,4 @@
       regexp: '{{ harbor_hostname }}'
       line: "{{ groups['harbor'][0] }} {{ harbor_hostname }}"
     when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
+    ignore_errors: true
