@@ -198,6 +198,7 @@ network_check_schedule: "*/5 * * * *"
 # harbor version，完整版本号
 HARBOR_VER: "__harbor__"
 HARBOR_DOMAIN: "harbor.easzlab.io.local"
+HARBOR_PATH: /var/data
 HARBOR_TLS_PORT: 8443
 
 # if set 'false', you need to put certs named harbor.pem and harbor-key.pem in directory 'down'

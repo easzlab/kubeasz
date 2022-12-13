@@ -27,7 +27,7 @@ database:
   max_open_conns: 1000
 
 # The default data volume
-data_volume: /var/data
+data_volume: {{ HARBOR_PATH }}
 
 # Clair configuration
 clair:
