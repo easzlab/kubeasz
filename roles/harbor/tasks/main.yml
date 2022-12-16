@@ -1,12 +1,12 @@
-- name: 创建 /var/data 目录
+- name: 创建 {{ HARBOR_PATH }} 目录
   file:
-    path: /var/data
+    path: "{{ HARBOR_PATH }}"
     state: directory
     mode: 0755
 
-# 注册变量 result，如果 /var/data 目录下存在 registry 目录说明已经安装过 harbor，则不进行安装
+# 注册变量 result，如果 {{ HARBOR_PATH }} 目录下存在 registry 目录说明已经安装过 harbor，则不进行安装
 - name: 注册变量 result
-  command: ls /var/data
+  command: ls {{ HARBOR_PATH }}
   register: result
 
 - block:
@@ -28,13 +28,13 @@
   - name: 下发 harbor 离线安装包
     copy:
       src: "{{ base_dir }}/down/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
-      dest: "/var/data/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+      dest: "{{ HARBOR_PATH }}/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
 
   - name: 解压 harbor 离线安装包
-    shell: "cd /var/data && tar zxf harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+    shell: "cd {{ HARBOR_PATH }} && tar zxf harbor-offline-installer-{{ HARBOR_VER }}.tgz"
 
   - name: 导入 harbor 所需 docker images
-    shell: "{{ bin_dir }}/docker load -i /var/data/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
+    shell: "{{ bin_dir }}/docker load -i {{ HARBOR_PATH }}/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
   
   - block:
     - name: 创建 harbor 证书请求
@@ -65,10 +65,10 @@
     when: 'not HARBOR_SELF_SIGNED_CERT|bool'
   
   - name: 准备 harbor 配置文件
-    template: src=harbor-{{ HARBOR_VER_MAIN }}.yml.j2 dest=/var/data/harbor/harbor.yml
+    template: src=harbor-{{ HARBOR_VER_MAIN }}.yml.j2 dest={{ HARBOR_PATH }}/harbor/harbor.yml
 
     #- name: 配置 harbor.yml 文件
-    #template: src=harbor-{{ HARBOR_VER_MAIN }}.yml.j2 dest=/var/data/harbor/harbor.yml
+    #template: src=harbor-{{ HARBOR_VER_MAIN }}.yml.j2 dest={{ HARBOR_PATH }}/harbor/harbor.yml
     #when: HARBOR_VER_MAIN in ["v1.8", "v1.9", "v1.10"]
 
   - set_fact: HARBOR_INST_OPS="{{ HARBOR_INST_OPS }} --with-chartmuseum"
@@ -86,7 +86,7 @@
   - debug: var="HARBOR_INST_OPS"
 
   - name: 安装 harbor
-    shell: "cd /var/data/harbor && \
+    shell: "cd {{ HARBOR_PATH }}/harbor && \
             export PATH={{ bin_dir }}:$PATH && \
             ./install.sh {{ HARBOR_INST_OPS }} >> /tmp/harbor-`date +'%Y%m%d%H%M%S'`.log 2>&1"
   when: '"registry" not in result.stdout'
