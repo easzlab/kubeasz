@@ -23,13 +23,6 @@
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
 
-- name: 注册变量 DNS_SVC_IP
-  shell: echo {{ SERVICE_CIDR }}|cut -d/ -f1|awk -F. '{print $1"."$2"."$3"."$4+2}'
-  register: DNS_SVC_IP
-
-- name: 设置变量 CLUSTER_DNS_SVC_IP
-  set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
-
 - name: 创建kubelet的配置文件
   template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
   tags: upgrade_k8s, restart_node
