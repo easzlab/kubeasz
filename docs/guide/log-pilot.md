@@ -15,7 +15,7 @@
 - 3.安装 Log-Pilot
 
 ``` bash
-kubectl apply -f /etc/ansible/manifests/efk/log-pilot/log-pilot-filebeat.yaml
+kubectl apply -f /etc/kubeasz/manifests/efk/log-pilot/log-pilot-filebeat.yaml
 ```
 
 - 4.创建示例应用，采集日志
