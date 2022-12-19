@@ -14,7 +14,7 @@ Mariadb 是从 MySQL 衍生出来的开源关系型数据库，目前兼容 mysq
 按照惯例，直接把 chart 下载到本地，然后把配置复制 values.yaml 出来进行修改，这样方便以后整体更新 chart，安装实际使用需要修改配置文件
 
 ``` bash
-$ cd /etc/ansible/manifests/mariadb-cluster
+$ cd /etc/kubeasz/manifests/mariadb-cluster
 # 编辑 my-values.yaml 修改以下部分
 
 service:
@@ -67,7 +67,7 @@ slave:
 使用 helm 安装
 
 ``` bash
-$ cd /etc/ansible/manifests/mariadb-cluster
+$ cd /etc/kubeasz/manifests/mariadb-cluster
 $ helm install --name mariadb --namespace default -f my-values.yaml ./mariadb
 ```
 

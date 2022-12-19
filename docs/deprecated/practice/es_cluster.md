@@ -55,7 +55,7 @@ epoch      timestamp cluster       status node.total node.data shards pri relo i
 - 3.安装 elasticsearch chart  
 
 ``` bash
-$ cd /etc/ansible/manifests/es-cluster
+$ cd /etc/kubeasz/manifests/es-cluster
 # 如果你的helm安装没有启用tls证书，请忽略以下--tls参数
 $ helm install --tls --name es-cluster --namespace elastic -f es-values.yaml elasticsearch
 ```
@@ -84,7 +84,7 @@ $ curl $NODE_IP:29200/_cat/health
 
 $ curl $NODE_IP:29200/_cat/indices?v
 health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
-root@k8s401:/etc/ansible# curl 10.100.97.41:29200/_cat/nodes?
+root@k8s401:/etc/kubeasz# curl 10.100.97.41:29200/_cat/nodes?
 172.31.2.4 27 80 5 0.09 0.11 0.21 mi - es-cluster-elasticsearch-master-0
 172.31.1.7 30 97 3 0.39 0.29 0.27 i  - es-cluster-elasticsearch-client-778df74c8f-skh8l
 172.31.3.7 20 97 3 0.11 0.17 0.18 i  - es-cluster-elasticsearch-client-778df74c8f-7fj4k
