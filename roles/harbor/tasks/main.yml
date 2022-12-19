@@ -90,3 +90,10 @@
             export PATH={{ bin_dir }}:$PATH && \
             ./install.sh {{ HARBOR_INST_OPS }} >> /tmp/harbor-`date +'%Y%m%d%H%M%S'`.log 2>&1"
   when: '"registry" not in result.stdout'
+
+- name: 检测 harbor 端口是否正常
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: "{{ HARBOR_TLS_PORT }}"
+    timeout: 60
+  run_once: true
