@@ -2,8 +2,10 @@ name: Mirroring
 
 on:
   push:
-    branches:
-      - 'master'
+    #branches:
+    #  - 'master'
+    tags:
+      - '*.*.*'
 
 jobs:
   to_gitee:
