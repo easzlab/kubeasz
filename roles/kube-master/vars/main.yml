@@ -1,3 +1,6 @@
 # etcd 集群服务地址列表, 根据etcd组成员自动生成
 TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
+
+# kubernetes.default.svc 地址根据SERVICE_CIDR 设置为网段的第一个地址
+CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR.split('.')[0] }}.{{ SERVICE_CIDR.split('.')[1] }}.{{ SERVICE_CIDR.split('.')[2] }}.{{ SERVICE_CIDR.split('.')[3]|int + 1 }}"

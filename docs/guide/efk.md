@@ -15,8 +15,8 @@
 ### 安装
 
 ``` bash
-$ kubectl apply -f /etc/ansible/manifests/efk/
-$ kubectl apply -f /etc/ansible/manifests/efk/es-without-pv/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-without-pv/
 ```
 
 ### 验证
@@ -75,12 +75,12 @@ Kibana is running at https://192.168.1.10:8443/api/v1/namespaces/kube-system/ser
 
 ``` bash
 # 如果之前已经安装了默认的EFK，请用以下两个命令先删除它
-$ kubectl delete -f /etc/ansible/manifests/efk/
-$ kubectl delete -f /etc/ansible/manifests/efk/es-without-pv/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/es-without-pv/
 
 # 安装静态PV 的 EFK
-$ kubectl apply -f /etc/ansible/manifests/efk/
-$ kubectl apply -f /etc/ansible/manifests/efk/es-static-pv/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-static-pv/
 ```
 + 目录`es-static-pv` 下首先是利用 NFS服务预定义了三个 PV资源，然后在 `es-statefulset.yaml`定义中使用 `volumeClaimTemplates` 去匹配使用预定义的 PV资源；注意 PV参数：`accessModes` `storageClassName` `storage`容量大小必须两边匹配。 
 
@@ -138,13 +138,13 @@ es0  es1  es2
 
 ``` bash
 # 如果之前已经安装了默认的EFK或者静态PV EFK，请用以下命令先删除它
-$ kubectl delete -f /etc/ansible/manifests/efk/
-$ kubectl delete -f /etc/ansible/manifests/efk/es-without-pv/
-$ kubectl delete -f /etc/ansible/manifests/efk/es-static-pv/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/es-without-pv/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/es-static-pv/
 
 # 安装动态PV 的 EFK
-$ kubectl apply -f /etc/ansible/manifests/efk/
-$ kubectl apply -f /etc/ansible/manifests/efk/es-dynamic-pv/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-dynamic-pv/
 ```
 + 首先 `nfs-client-provisioner.yaml` 创建一个工作 POD，它监听集群的 PVC请求，并当 PVC请求来到时调用 `nfs-client` 去请求 `nfs-server`的存储资源，成功后即动态生成对应的 PV资源。
 + `nfs-dynamic-storageclass.yaml` 定义 NFS存储类型的类型名 `nfs-dynamic-class`，然后在 `es-statefulset.yaml`中必须使用这个类型名才能动态请求到资源。
@@ -208,7 +208,7 @@ $ curl -X DELETE elasticsearch-logging:9200/logstash-xxxx.xx.xx
 基于 alpine:3.8 创建镜像`es-index-rotator` [查看Dockerfile](../../dockerfiles/es-index-rotator/Dockerfile)，然后创建一个cronjob去完成清理任务
 
 ```
-$ kubectl apply -f /etc/ansible/manifests/efk/es-index-rotator/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-index-rotator/
 ```
 
 #### 验证日志清理

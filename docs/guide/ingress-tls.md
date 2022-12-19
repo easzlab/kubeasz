@@ -21,7 +21,7 @@ $ kubectl -n kube-system create secret tls traefik-cert --key=tls.key --cert=tls
 ## 3.创建 traefik-controller，增加 traefik.toml 配置文件及https 端口暴露等，详见该 yaml 文件
 
 ``` bash
-$ kubectl apply -f /etc/ansible/manifests/ingress/traefik/tls/traefik-controller.yaml
+$ kubectl apply -f /etc/kubeasz/manifests/ingress/traefik/tls/traefik-controller.yaml
 ```
 
 ## 4.创建 https ingress 例子
@@ -47,7 +47,7 @@ spec:
   tls:
   - secretName: traefik-cert
 # 创建https ingress
-$ kubectl apply -f /etc/ansible/manifests/ingress/traefik/tls/hello-tls.ing.yaml
+$ kubectl apply -f /etc/kubeasz/manifests/ingress/traefik/tls/hello-tls.ing.yaml
 # 注意根据hello示例，需要在default命名空间创建对应的secret: traefik-cert
 $ kubectl create secret tls traefik-cert --key=tls.key --cert=tls.crt
 ```
@@ -78,9 +78,9 @@ https://hello.test.com:23457
 $ kubectl get svc -n kube-system | grep dashboard
 kubernetes-dashboard      NodePort    10.68.211.168   <none>        443:39308/TCP	3d11h
 ```
-前提2：`/etc/ansible/manifests/ingress/traefik/tls/traefik-controller.yaml`的配置文件`traefik.toml`开启了`insecureSkipVerify = true`
+前提2：`/etc/kubeasz/manifests/ingress/traefik/tls/traefik-controller.yaml`的配置文件`traefik.toml`开启了`insecureSkipVerify = true`
 
-配置 dashboard ingress：`kubectl apply -f /etc/ansible/manifests/ingress/traefik/tls/k8s-dashboard.ing.yaml` 内容如下：
+配置 dashboard ingress：`kubectl apply -f /etc/kubeasz/manifests/ingress/traefik/tls/k8s-dashboard.ing.yaml` 内容如下：
 
 ```
 apiVersion: networking.k8s.io/v1beta1 
