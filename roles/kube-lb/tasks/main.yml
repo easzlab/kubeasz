@@ -32,3 +32,16 @@
   retries: 3
   delay: 3
   tags: restart_kube-lb
+
+- name: 检查 kube-lb 的 kube-apiserver 是否正常
+  uri:
+    url: "https://{{ EX_APISERVER_VIP }}:{{ EX_APISERVER_PORT }}"
+    validate_certs: no
+    client_cert: "{{ cluster_dir }}/ssl/admin.pem"
+    client_key: "{{ cluster_dir }}/ssl/admin-key.pem"
+  register: result
+  until: result.status == 200
+  retries: 2
+  delay: 5
+  run_once: true
+  connection: local
