@@ -1,4 +1,4 @@
-<img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">
+<img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">  <a href="docs/mixes/conformance.md"><img align="right" alt="conformance-icon" width="75" height="100" src="https://www.cncf.io/wp-content/uploads/2020/07/certified_kubernetes_color-1.png"></a>
 
 **kubeasz** 致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
@@ -19,23 +19,21 @@
   <thead>
     <tr>
       <td>Kubernetes version</td>
-      <td>1.20</td>
-      <td>1.21</td>
       <td>1.22</td>
       <td>1.23</td>
       <td>1.24</td>
       <td>1.25</td>
+      <td>1.26</td>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>kubeasz version</td>
-      <td>3.0.1</td>
-      <td>3.1.0</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
       <td>3.3.1</td>
       <td>3.4.2</td>
+      <td>3.5.0</td>
     </tr>
   </tbody>
 </table>
