@@ -18,7 +18,7 @@ KUBEASZ_VER=3.4.2
 K8S_BIN_VER=v1.26.0
 EXT_BIN_VER=1.6.3
 SYS_PKG_VER=0.5.2
-HARBOR_VER=v2.1.3
+HARBOR_VER=v2.1.5
 REGISTRY_MIRROR=CN
 
 # images downloaded by default(with '-D')
