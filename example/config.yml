@@ -200,6 +200,7 @@ HARBOR_VER: "__harbor__"
 HARBOR_DOMAIN: "harbor.easzlab.io.local"
 HARBOR_PATH: /var/data
 HARBOR_TLS_PORT: 8443
+HARBOR_REGISTRY: "{{ HARBOR_DOMAIN }}:{{ HARBOR_TLS_PORT }}"
 
 # if set 'false', you need to put certs named harbor.pem and harbor-key.pem in directory 'down'
 HARBOR_SELF_SIGNED_CERT: true

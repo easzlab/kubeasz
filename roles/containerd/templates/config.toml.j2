@@ -139,11 +139,16 @@ version = 2
         [plugins."io.containerd.grpc.v1.cri".registry.configs."easzlab.io.local:5000".tls]
           insecure_skip_verify = true
 
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."{{ HARBOR_REGISTRY }}".tls]
+          insecure_skip_verify = true
+
       [plugins."io.containerd.grpc.v1.cri".registry.headers]
 
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."easzlab.io.local:5000"]
           endpoint = ["http://easzlab.io.local:5000"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."{{ HARBOR_REGISTRY }}"]
+          endpoint = ["https://{{ HARBOR_REGISTRY }}"]
 {% if ENABLE_MIRROR_REGISTRY %}
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
           endpoint = ["https://docker.nju.edu.cn/", "https://kuamavit.mirror.aliyuncs.com"]
