@@ -31,7 +31,7 @@ metricsVer=v0.5.2
 pauseVer=3.9
 
 # images not downloaded by default(only download  with '-X')
-ciliumVer=1.12.2
+ciliumVer=1.12.4
 flannelVer=v0.19.2
 nfsProvisionerVer=v4.0.2
 promChartVer=39.11.0
