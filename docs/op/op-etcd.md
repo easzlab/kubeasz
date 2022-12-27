@@ -9,13 +9,31 @@ Etcd 集群支持在线改变集群成员节点，可以增加、修改、删除
 
 ## 备份 etcd 数据
 
-可以根据需要进行定期备份（使用 crontab），或者手动在任意正常 etcd 节点上执行备份：
+1. 手动在任意正常 etcd 节点上执行备份：
 
 ``` bash
 # snapshot备份
 $ ETCDCTL_API=3 etcdctl snapshot save backup.db
 # 查看备份
 $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
+```
+
+2. 使用 kubeasz 备份
+_cluster_name_ 为 k8s-01
+
+``` bash 
+ezctl backup k8s-01
+```
+
+使用 crontab 定时备份示例(使用 容器化的 kubeasz，每日01:01 备份)
+```
+1 1 * * * /usr/bin/docker exec -i kubeasz ezctl backup k8s-01
+```
+
+备份文件在 
+
+```
+{{ base_dir }}/clusters/k8s-01/backup
 ```
 
 ## etcd 集群节点操作
