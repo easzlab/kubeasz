@@ -1,11 +1,11 @@
-<img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">
+<img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">  <a href="docs/mixes/conformance.md"><img align="right" alt="conformance-icon" width="75" height="100" src="https://www.cncf.io/wp-content/uploads/2020/07/certified_kubernetes_color-1.png"></a>
 
 **kubeasz** 致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
 **kubeasz** 从每一个单独部件组装到完整的集群，提供最灵活的配置能力，几乎可以设置任何组件的任何参数；同时又为集群创建预置一套运行良好的默认配置，甚至自动化创建适合大规模集群的[BGP Route Reflector网络模式](docs/setup/network-plugin/calico-bgp-rr.md)。
 
 - **集群特性** [Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、[离线安装](docs/setup/offline_install.md)、[多架构支持(amd64/arm64)](docs/setup/multi_platform.md)
-- **集群版本** kubernetes v1.22, v1.23, v1.24, v1.25
+- **集群版本** kubernetes v1.22, v1.23, v1.24, v1.25, v1.26
 - **操作系统** CentOS/RedHat 7/8, Debian 9/10, Ubuntu 16.04/18.04/20.04/22.04
 - **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.8, docker 20.10.x (k8s < 1.24)
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
@@ -19,23 +19,21 @@
   <thead>
     <tr>
       <td>Kubernetes version</td>
-      <td>1.20</td>
-      <td>1.21</td>
       <td>1.22</td>
       <td>1.23</td>
       <td>1.24</td>
       <td>1.25</td>
+      <td>1.26</td>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>kubeasz version</td>
-      <td>3.0.1</td>
-      <td>3.1.0</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
       <td>3.3.1</td>
       <td>3.4.2</td>
+      <td>3.5.0</td>
     </tr>
   </tbody>
 </table>
