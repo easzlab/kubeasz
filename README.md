@@ -7,7 +7,7 @@
 - **集群特性** [Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、[离线安装](docs/setup/offline_install.md)、[多架构支持(amd64/arm64)](docs/setup/multi_platform.md)
 - **集群版本** kubernetes v1.22, v1.23, v1.24, v1.25, v1.26
 - **操作系统** CentOS/RedHat 7/8, Debian 9/10, Ubuntu 16.04/18.04/20.04/22.04
-- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.8, docker 20.10.x (k8s < 1.24)
+- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.x, docker 20.10.x (k8s < 1.24)
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 
@@ -31,8 +31,8 @@
       <td>kubeasz version</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
-      <td>3.3.1</td>
-      <td>3.4.2</td>
+      <td>3.3.2</td>
+      <td>3.4.3</td>
       <td>3.5.0</td>
     </tr>
   </tbody>
