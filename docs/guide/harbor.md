@@ -43,7 +43,6 @@ HARBOR_SELF_SIGNED_CERT: true
 # install component
 HARBOR_WITH_NOTARY: false
 HARBOR_WITH_TRIVY: false
-HARBOR_WITH_CLAIR: false
 HARBOR_WITH_CHARTMUSEUM: true
 ```
 

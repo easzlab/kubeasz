@@ -80,9 +80,6 @@
   - set_fact: HARBOR_INST_OPS="{{ HARBOR_INST_OPS }} --with-trivy"
     when: "HARBOR_WITH_TRIVY|bool"
 
-  - set_fact: HARBOR_INST_OPS="{{ HARBOR_INST_OPS }} --with-clair"
-    when: "HARBOR_WITH_CLAIR|bool"
-
   - debug: var="HARBOR_INST_OPS"
 
   - name: 安装 harbor
