@@ -22,7 +22,7 @@ HARBOR_VER=v2.6.3
 REGISTRY_MIRROR=CN
 
 # images downloaded by default(with '-D')
-calicoVer=v3.23.5
+calicoVer=v3.24.5
 dnsNodeCacheVer=1.22.13
 corednsVer=1.9.3
 dashboardVer=v2.7.0
