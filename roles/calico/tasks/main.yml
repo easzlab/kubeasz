@@ -59,7 +59,7 @@
   template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg
 
 - name: 轮询等待calico-node 运行
-  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-system -o wide|grep 'calico-node'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-system -o wide|grep 'calico-node'|grep ' {{ K8S_NODENAME }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15
