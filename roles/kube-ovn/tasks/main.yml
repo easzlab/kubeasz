@@ -38,7 +38,7 @@
 
 # 等待网络插件部署成功，视下载镜像速度而定
 - name: 轮询等待kube-ovn 运行，视下载镜像速度而定
-  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-ovn -o wide|grep 'kube-ovn-cni'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-ovn -o wide|grep 'kube-ovn-cni'|grep ' {{ K8S_NODENAME }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15

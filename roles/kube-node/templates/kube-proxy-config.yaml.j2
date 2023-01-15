@@ -12,6 +12,6 @@ conntrack:
   tcpEstablishedTimeout: 24h0m0s
 healthzBindAddress: 0.0.0.0:10256
 # hostnameOverride 值必须与 kubelet 的对应一致，否则 kube-proxy 启动后会找不到该 Node，从而不会创建任何 iptables 规则
-hostnameOverride: "{{ inventory_hostname }}"
+hostnameOverride: "{{ K8S_NODENAME }}"
 metricsBindAddress: 0.0.0.0:10249
 mode: "{{ PROXY_MODE }}"

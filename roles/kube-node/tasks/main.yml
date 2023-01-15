@@ -93,7 +93,7 @@
   tags: reload-kube-proxy, upgrade_k8s, restart_node, force_change_certs
 
 - name: 轮询等待node达到Ready状态
-  shell: "{{ base_dir }}/bin/kubectl get node {{ inventory_hostname }}|awk 'NR>1{print $2}'"
+  shell: "{{ base_dir }}/bin/kubectl get node {{ K8S_NODENAME }}|awk 'NR>1{print $2}'"
   register: node_status
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
   retries: 8 
@@ -101,7 +101,16 @@
   tags: upgrade_k8s, restart_node, force_change_certs
   connection: local
 
-- name: 设置node节点role
-  shell: "{{ base_dir }}/bin/kubectl label node {{ inventory_hostname }} kubernetes.io/role=node --overwrite"
+- block:
+  - name: Setting worker role name
+    shell: "{{ base_dir }}/bin/kubectl label node {{ K8S_NODENAME }} kubernetes.io/role=node --overwrite"
+
+  - name: Setting master role name
+    shell: "{{ base_dir }}/bin/kubectl label node {{ K8S_NODENAME }} kubernetes.io/role=master --overwrite"
+    when: "inventory_hostname in groups['kube_master']"
+
+  - name: Making master nodes SchedulingDisabled
+    shell: "{{ base_dir }}/bin/kubectl cordon {{ K8S_NODENAME }} "
+    when: "inventory_hostname not in groups['kube_node']"
   ignore_errors: true
   connection: local

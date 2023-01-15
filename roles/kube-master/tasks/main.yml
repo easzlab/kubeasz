@@ -110,18 +110,18 @@
 
 - block:
     - name: 复制kubectl.kubeconfig
-      shell: 'cd {{ cluster_dir }} && cp -f kubectl.kubeconfig {{ inventory_hostname }}-kubectl.kubeconfig'
+      shell: 'cd {{ cluster_dir }} && cp -f kubectl.kubeconfig {{ K8S_NODENAME }}-kubectl.kubeconfig'
       tags: upgrade_k8s, restart_master, force_change_certs
 
     - name: 替换 kubeconfig 的 apiserver 地址
       lineinfile:
-        dest: "{{ cluster_dir }}/{{ inventory_hostname }}-kubectl.kubeconfig"
+        dest: "{{ cluster_dir }}/{{ K8S_NODENAME }}-kubectl.kubeconfig"
         regexp: "^    server"
         line: "    server: https://{{ inventory_hostname }}:{{ SECURE_PORT }}"
       tags: upgrade_k8s, restart_master, force_change_certs
 
     - name: 轮询等待master服务启动完成
-      command: "{{ base_dir }}/bin/kubectl --kubeconfig={{ cluster_dir }}/{{ inventory_hostname }}-kubectl.kubeconfig get node"
+      command: "{{ base_dir }}/bin/kubectl --kubeconfig={{ cluster_dir }}/{{ K8S_NODENAME }}-kubectl.kubeconfig get node"
       register: result
       until:    result.rc == 0
       retries:  5
