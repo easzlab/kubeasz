@@ -2,13 +2,13 @@
 [etcd]
 192.168.1.1
 
-# master node(s)
+# master node(s), set unique 'k8s_nodename' for each node
 [kube_master]
-192.168.1.1
+192.168.1.1 k8s_nodename=''
 
-# work node(s)
+# work node(s), set unique 'k8s_nodename' for each node
 [kube_node]
-192.168.1.1
+192.168.1.1 k8s_nodename=''
 
 # [optional] harbor server, a private docker registry
 # 'NEW_INSTALL': 'true' to install a harbor server; 'false' to integrate with existed one
@@ -63,3 +63,10 @@ cluster_dir="{{ base_dir }}/clusters/_cluster_name_"
 
 # CA and other components cert/key Directory
 ca_dir="/etc/kubernetes/ssl"
+
+# set unique 'k8s_nodename' for each node, if not set(default:'') ip add will be used
+K8S_NODENAME: "{%- if k8s_nodename != '' -%} \
+                    {{ k8s_nodename }} \
+               {%- else -%} \
+                    {{ inventory_hostname }} \
+               {%- endif -%}"
