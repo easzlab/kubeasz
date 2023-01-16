@@ -20,8 +20,14 @@
   - name: debug info
     debug: var="DRAIN_OPT"
 
-  - name: run kubectl drain @{{ NODE_TO_DEL }}
-    shell: "{{ base_dir }}/bin/kubectl drain {{ NODE_TO_DEL }} {{ DRAIN_OPT }}"
+  - name: get the node name to delete
+    shell: "{{ base_dir }}/bin/kubectl get node -owide|grep ' {{ NODE_TO_DEL }} '|awk '{print $1}'"
+    register: NODE_NAME
+
+  - debug: var="NODE_NAME.stdout"
+
+  - name: run kubectl drain @{{ NODE_NAME.stdout }}
+    shell: "{{ base_dir }}/bin/kubectl drain {{ NODE_NAME.stdout }} {{ DRAIN_OPT }}"
     #ignore_errors: true
 
   - name: clean node {{ NODE_TO_DEL }}
@@ -36,8 +42,8 @@
 
   - debug: var="CLEAN_STATUS"
 
-  - name: run kubectl delete node {{ NODE_TO_DEL }}
-    shell: "{{ base_dir }}/bin/kubectl delete node {{ NODE_TO_DEL }}"
+  - name: run kubectl delete node {{ NODE_NAME.stdout }}
+    shell: "{{ base_dir }}/bin/kubectl delete node {{ NODE_NAME.stdout }}"
     ignore_errors: true
 
   # lineinfile is inadequate to delete lines between some specific line range
