@@ -324,7 +324,7 @@ function add-node() {
     sed -n '/^\[kube_master/,/^\[harbor/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " && { logger error "node $2 already existed in $BASE/clusters/$1/hosts"; return 2; }
 
     # add '/usr/bin/python' soft link, needed in some OS (ubuntu 16.04+) 
-    ssh "$2" ln -s /usr/bin/python3 /usr/bin/python || echo ""
+    ssh "$2" ln -s /usr/bin/python3 /usr/bin/python > /dev/null 2>&1 || echo ""
 
     logger info "add $2 into 'kube_node' group"
     NODE_INFO="${@:2}"
@@ -342,7 +342,7 @@ function add-master() {
     sed -n '/^\[kube_master/,/^\[kube_node/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " && { logger error "master $2 already existed!"; return 2; }
 
     # add '/usr/bin/python' soft link, needed in some OS (ubuntu 16.04+) 
-    ssh "$2" ln -s /usr/bin/python3 /usr/bin/python || echo ""
+    ssh "$2" ln -s /usr/bin/python3 /usr/bin/python > /dev/null 2>&1 || echo ""
 
     logger info "add $2 into 'kube_master' group"
     MASTER_INFO="${@:2}"
@@ -366,7 +366,7 @@ function add-etcd() {
     sed -n '/^\[etcd/,/^\[kube_master/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " && { logger error "etcd $2 already existed!"; return 2; }
 
     # add '/usr/bin/python' soft link, needed in some OS (ubuntu 16.04+) 
-    ssh "$2" ln -s /usr/bin/python3 /usr/bin/python || echo ""
+    ssh "$2" ln -s /usr/bin/python3 /usr/bin/python > /dev/null 2>&1 || echo ""
 
     logger info "add $2 into 'etcd' group"
     ETCD_INFO="${@:2}"
