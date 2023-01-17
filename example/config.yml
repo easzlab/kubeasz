@@ -27,8 +27,11 @@ CONTEXT_NAME: "context-{{ CLUSTER_NAME }}"
 K8S_VER: "__k8s_ver__"
 
 # set unique 'k8s_nodename' for each node, if not set(default:'') ip add will be used
+# CAUTION: 'k8s_nodename' must consist of lower case alphanumeric characters, '-' or '.',
+# and must start and end with an alphanumeric character (e.g. 'example.com'),
+# regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*'
 K8S_NODENAME: "{%- if k8s_nodename != '' -%} \
-                    {{ k8s_nodename }} \
+                    {{ k8s_nodename|replace('_', '-')|lower }} \
                {%- else -%} \
                     {{ inventory_hostname }} \
                {%- endif -%}"

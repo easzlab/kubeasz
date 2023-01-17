@@ -5,14 +5,19 @@
 192.168.1.3
 
 # master node(s), set unique 'k8s_nodename' for each node
+# CAUTION: 'k8s_nodename' must consist of lower case alphanumeric characters, '-' or '.',
+# and must start and end with an alphanumeric character
 [kube_master]
-192.168.1.1 k8s_nodename=''
-192.168.1.2 k8s_nodename=''
+192.168.1.1 k8s_nodename='master-01'
+192.168.1.2 k8s_nodename='master-02'
+192.168.1.3 k8s_nodename='master-03'
 
 # work node(s), set unique 'k8s_nodename' for each node
+# CAUTION: 'k8s_nodename' must consist of lower case alphanumeric characters, '-' or '.',
+# and must start and end with an alphanumeric character
 [kube_node]
-192.168.1.3 k8s_nodename=''
-192.168.1.4 k8s_nodename=''
+192.168.1.4 k8s_nodename='worker-01'
+192.168.1.5 k8s_nodename='worker-02'
 
 # [optional] harbor server, a private docker registry
 # 'NEW_INSTALL': 'true' to install a harbor server; 'false' to integrate with existed one
