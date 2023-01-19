@@ -107,7 +107,7 @@
 
 ## 贡献&致谢
 
-请阅读[项目分支说明](docs/mixes/branch.md), 欢迎提[Issues](https://github.com/easzlab/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目！感谢您的关注与支持！
+欢迎提[Issues](https://github.com/easzlab/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目！感谢您的关注与支持！
 - [如何 PR](docs/mixes/HowToContribute.md)
 - [如何捐赠](docs/mixes/donate.md)
 
