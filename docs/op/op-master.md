@@ -25,6 +25,9 @@ $ ssh 192.168.1.11 ln -s /usr/bin/python3 /usr/bin/python
 
 # 新增节点
 $ ezctl add-master test-k8s 192.168.1.11
+
+# 同理，重复上面步骤再新增节点并自定义nodename
+$ ezctl add-master test-k8s 192.168.1.12 k8s_nodename=master-03
 ```
 
 ### 验证
