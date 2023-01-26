@@ -31,9 +31,9 @@
       <td>kubeasz version</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
-      <td>3.3.1</td>
-      <td>3.4.3</td>
-      <td>3.5.0</td>
+      <td>3.3.3</td>
+      <td>3.4.4</td>
+      <td>3.5.1</td>
     </tr>
   </tbody>
 </table>
