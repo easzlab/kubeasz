@@ -22,7 +22,6 @@
       - socat               # 用于port forwarding
     state: present
   when: 'INSTALL_SOURCE != "offline"'
-  ignore_errors: true
 
 # 离线安装基础软件包
 - import_tasks: offline.yml
