@@ -2,7 +2,8 @@
   "CN": "system:node:{{ K8S_NODENAME }}",
   "hosts": [
     "127.0.0.1",
-    "{{ inventory_hostname }}"
+    "{{ inventory_hostname }}",
+    "{{ K8S_NODENAME }}"
   ],
   "key": {
     "algo": "rsa",
