@@ -74,6 +74,18 @@
   shell: systemctl daemon-reload && systemctl restart kube-proxy
   tags: reload-kube-proxy, upgrade_k8s, restart_node, force_change_certs
 
+# 设置k8s_nodename 在/etc/hosts 地址解析
+- name: 设置k8s_nodename 在/etc/hosts 地址解析
+  lineinfile:
+    dest: /etc/hosts
+    state: present
+    regexp: "{{ K8S_NODENAME }}"
+    line: "{{ inventory_hostname }}    {{ K8S_NODENAME }}"
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups.kube_master }}"
+  when: "inventory_hostname != K8S_NODENAME"
+
+
 # 轮询等待kube-proxy启动完成
 - name: 轮询等待kube-proxy启动
   shell: "systemctl is-active kube-proxy.service"
