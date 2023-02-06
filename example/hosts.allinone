@@ -6,7 +6,7 @@
 # CAUTION: 'k8s_nodename' must consist of lower case alphanumeric characters, '-' or '.',
 # and must start and end with an alphanumeric character
 [kube_master]
-192.168.1.1 k8s_nodename=''
+192.168.1.1
 
 # work node(s), set unique 'k8s_nodename' for each node
 # CAUTION: 'k8s_nodename' must consist of lower case alphanumeric characters, '-' or '.',
