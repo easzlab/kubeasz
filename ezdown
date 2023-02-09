@@ -118,7 +118,7 @@ Documentation=http://docs.docker.io
 [Service]
 Environment="PATH=/opt/kube/bin:/bin:/sbin:/usr/bin:/usr/sbin"
 ExecStart=/opt/kube/bin/dockerd
-ExecStartPost=/sbin/iptables -P FORWARD ACCEPT
+ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
 ExecReload=/bin/kill -s HUP \$MAINPID
 Restart=on-failure
 RestartSec=5
