@@ -30,6 +30,7 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
 ExecStart={{ bin_dir }}/kubelet \
   --config=/var/lib/kubelet/config.yaml \
   --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
+  --container-runtime=remote \
   --hostname-override={{ K8S_NODENAME }} \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --root-dir={{ KUBELET_ROOT_DIR }} \
