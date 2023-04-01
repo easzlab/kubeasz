@@ -6,23 +6,20 @@
     - name: 准备containerd相关目录
       file: name={{ item }} state=directory
       with_items:
-      - "{{ bin_dir }}"
+      - "{{ bin_dir }}/containerd-bin"
       - "/etc/containerd"
 
     - name: 加载内核模块 overlay
       modprobe: name=overlay state=present
 
     - name: 下载 containerd 二进制文件
-      copy: src={{ base_dir }}/bin/containerd-bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-      with_items:
-      - containerd
-      - containerd-shim
-      - containerd-shim-runc-v1
-      - containerd-shim-runc-v2
-      - crictl
-      - ctr
-      - runc
+      copy: src={{ item }} dest={{ bin_dir }}/containerd-bin/ mode=0755
+      with_fileglob:
+      - {{ base_dir }}/bin/containerd-bin/*
       tags: upgrade
+
+    - name: 下载 crictl
+      copy: src={{ base_dir }}/bin/crictl dest={{ bin_dir }}/crictl mode=0755
 
     - name: 添加 crictl 自动补全
       lineinfile:
