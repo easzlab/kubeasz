@@ -69,7 +69,7 @@ version = 2
     unset_seccomp_profile = ""
 
     [plugins."io.containerd.grpc.v1.cri".cni]
-      bin_dir = "{{ bin_dir }}"
+      bin_dir = "/opt/cni/bin"
       conf_dir = "/etc/cni/net.d"
       conf_template = "/etc/cni/net.d/10-default.conf"
       max_conf_num = 1

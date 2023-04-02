@@ -1,11 +1,3 @@
-- name: 下载cni plugins
-  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-  with_items:
-  - bridge
-  - host-local
-  - loopback
-  - portmap
-
 - name: 准备配置 kube-router DaemonSet (without IPVS)
   template: src=kuberouter.yaml.j2 dest={{ cluster_dir }}/yml/kube-router.yaml
   run_once: true

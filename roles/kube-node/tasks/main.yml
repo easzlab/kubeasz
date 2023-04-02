@@ -3,17 +3,21 @@
   with_items:
   - /var/lib/kubelet
   - /var/lib/kube-proxy
+  - /etc/cni/net.d
+  - /opt/cni/bin
 
-- name: 下载 kubelet,kube-proxy 二进制和基础 cni plugins
+- name: 下载 kubelet,kube-proxy 二进制
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
   - kubectl
   - kubelet
   - kube-proxy
-  - bridge
-  - host-local
-  - loopback
   tags: upgrade_k8s
+
+- name: 下载 cni plugins 二进制文件
+  copy: src={{ item }} dest=/opt/cni/bin/ mode=0755
+  with_fileglob:
+  - {{ base_dir }}/bin/cni-bin/*
 
 - name: 添加 kubectl 自动补全
   lineinfile:

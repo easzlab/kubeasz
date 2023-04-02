@@ -1,11 +1,3 @@
-- name: 下载cni plugins
-  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-  with_items:
-  - bridge
-  - host-local
-  - loopback
-  - portmap
-
 - name: 配置 flannel DaemonSet yaml文件
   template: src=kube-flannel.yaml.j2 dest={{ cluster_dir }}/yml/flannel.yaml
   run_once: true
