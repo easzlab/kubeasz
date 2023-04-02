@@ -184,7 +184,7 @@ spec:
           path: /run/flannel
       - name: cni-plugin
         hostPath:
-          path: {{ bin_dir }}
+          path: /opt/cni/bin 
       - name: cni
         hostPath:
           path: /etc/cni/net.d
