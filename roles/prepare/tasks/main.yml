@@ -21,7 +21,6 @@
   - "{{ bin_dir }}"
   - "{{ ca_dir }}"
   - /root/.kube
-  - /etc/cni/net.d
 
 # 某些系统没有/usr/bin/python，需要配置一个软链接，否则connection: local的任务会失败
 # 如果仍旧出现任务失败，重新执行一遍即可 https://github.com/ansible/ansible/issues/64903

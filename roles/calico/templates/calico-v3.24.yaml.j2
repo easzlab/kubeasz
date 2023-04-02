@@ -521,7 +521,7 @@ spec:
         # Used to install CNI.
         - name: cni-bin-dir
           hostPath:
-            path: {{ bin_dir }}
+            path: /opt/cni/bin 
         - name: cni-net-dir
           hostPath:
             path: /etc/cni/net.d
