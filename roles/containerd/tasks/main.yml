@@ -15,7 +15,7 @@
     - name: 下载 containerd 二进制文件
       copy: src={{ item }} dest={{ bin_dir }}/containerd-bin/ mode=0755
       with_fileglob:
-      - {{ base_dir }}/bin/containerd-bin/*
+      - "{{ base_dir }}/bin/containerd-bin/*"
       tags: upgrade
 
     - name: 下载 crictl

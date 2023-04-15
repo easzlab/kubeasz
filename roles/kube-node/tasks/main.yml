@@ -17,7 +17,7 @@
 - name: 下载 cni plugins 二进制文件
   copy: src={{ item }} dest=/opt/cni/bin/ mode=0755
   with_fileglob:
-  - {{ base_dir }}/bin/cni-bin/*
+  - "{{ base_dir }}/bin/cni-bin/*"
 
 - name: 添加 kubectl 自动补全
   lineinfile:
