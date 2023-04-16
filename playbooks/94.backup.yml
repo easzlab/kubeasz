@@ -43,8 +43,6 @@
               --cert={{ cluster_dir }}/ssl/etcd.pem \
               --key={{ cluster_dir }}/ssl/etcd-key.pem \
         snapshot save snapshot_{{ timestamp.stdout }}.db"
-    args:
-      warn: false
 
   - name: update the latest backup
     shell: 'cd {{ cluster_dir }}/backup/ && /bin/cp -f snapshot_{{ timestamp.stdout }}.db snapshot.db'
