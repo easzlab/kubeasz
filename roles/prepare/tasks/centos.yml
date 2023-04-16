@@ -4,8 +4,6 @@
     - firewalld
     - python-firewall
     - firewalld-filesystem
-  args:
-      warn: false
   ignore_errors: true
 
 - name: 安装基础软件包

@@ -10,8 +10,6 @@
 
   - name: umount kubelet filesystems
     shell: "mount | grep '/var/lib/kubelet'| awk '{print $3}'|xargs umount || exit 0"
-    args:
-      warn: false
     ignore_errors: true
 
   - name: remove files and dirs of 'kube_node' nodes
@@ -50,20 +48,14 @@
   
         - name: umount docker filesystem-3
           shell: "echo /var/lib/docker/overlay2/*/merged|xargs umount || exit 0"
-          args:
-            warn: false
           ignore_errors: true
 
         - name: umount docker filesystem-4
           shell: "echo /var/lib/docker/containers/*/mounts/shm|xargs umount || exit 0"
-          args:
-            warn: false
           ignore_errors: true
 
         - name: umount docker filesystem-5
           shell: "echo /var/run/docker/netns/*|xargs umount || exit 0"
-          args:
-            warn: false
           ignore_errors: true
 
         - name: remove files and dirs
@@ -92,8 +84,6 @@
 
       - name: umount containerd filesystems
         shell: "mount | grep 'containerd/io.containerd'| awk '{print $3}'|xargs umount || exit 0"
-        args:
-          warn: false
         ignore_errors: true
 
       - name: remove files and dirs
