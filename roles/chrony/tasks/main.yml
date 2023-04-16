@@ -13,8 +13,6 @@
 - name: yum 卸载 ntp
   shell: 'yum remove -y ntp'
   when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
-  args:
-      warn: false
   ignore_errors: true
 
 - name: 下载二进制文件chronyd
