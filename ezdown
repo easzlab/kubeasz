@@ -14,9 +14,9 @@ set -o pipefail
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=20.10.22
-KUBEASZ_VER=3.3.4
-K8S_BIN_VER=v1.24.10
-EXT_BIN_VER=1.6.6
+KUBEASZ_VER=3.3.5
+K8S_BIN_VER=v1.24.13
+EXT_BIN_VER=1.7.1
 SYS_PKG_VER=0.5.2
 HARBOR_VER=v2.6.3
 REGISTRY_MIRROR=CN
