@@ -4,20 +4,27 @@
 - name: 清除etcd 数据目录
   file: name={{ ETCD_DATA_DIR }}/member state=absent
 
-- name: 清除 etcd 备份目录
-  file: name={{ cluster_dir }}/backup/etcd-restore state=absent
-  delegate_to: 127.0.0.1 
-  run_once: true
+- name: 清理上次备份恢复数据
+  file: name=/etcd_backup state=absent
+
+- name: 生成备份目录
+  file: name=/etcd_backup state=directory
+
+- name: 准备指定的备份etcd 数据
+  copy:
+    src: "{{ cluster_dir }}/backup/{{ db_to_restore }}"
+    dest: "/etcd_backup/snapshot.db"
 
 - name: etcd 数据恢复
-  shell: "cd {{ cluster_dir }}/backup && \
-	ETCDCTL_API=3 {{ base_dir }}/bin/etcdctl snapshot restore snapshot.db \
-	 --data-dir={{ cluster_dir }}/backup/etcd-restore"
-  delegate_to: 127.0.0.1
-  run_once: true
+  shell: "cd /etcd_backup && \
+	ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot restore snapshot.db \
+	--name etcd-{{ inventory_hostname }} \
+	--initial-cluster {{ ETCD_NODES }} \
+	--initial-cluster-token etcd-cluster-0 \
+	--initial-advertise-peer-urls https://{{ inventory_hostname }}:2380"
 
-- name: 分发恢复文件到 etcd 各个节点
-  copy: src={{ cluster_dir }}/backup/etcd-restore/member dest={{ ETCD_DATA_DIR }}
+- name: 恢复数据至etcd 数据目录
+  shell: "cp -rf /etcd_backup/etcd-{{ inventory_hostname }}.etcd/member {{ ETCD_DATA_DIR }}/"
 
 - name: 重启etcd 服务
   service: name=etcd state=restarted

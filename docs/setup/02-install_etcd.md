@@ -102,6 +102,14 @@ for ip in ${NODE_IPS}; do
   --cert=/etc/kubernetes/ssl/etcd.pem \
   --key=/etc/kubernetes/ssl/etcd-key.pem \
   endpoint health; done
+
+for ip in ${NODE_IPS}; do
+  ETCDCTL_API=3 etcdctl \
+  --endpoints=https://${ip}:2379  \
+  --cacert=/etc/kubernetes/ssl/ca.pem \
+  --cert=/etc/kubernetes/ssl/etcd.pem \
+  --key=/etc/kubernetes/ssl/etcd-key.pem \
+  --write-out=table endpoint status; done
 ```
 预期结果：
 
