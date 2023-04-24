@@ -32,7 +32,7 @@ pauseVer=3.9
 
 # images not downloaded by default(only download  with '-X')
 ciliumVer=1.13.2
-flannelVer=v0.19.2
+flannelVer=v0.21.4
 nfsProvisionerVer=v4.0.2
 promChartVer=39.11.0
 
@@ -390,16 +390,16 @@ function get_extra_images() {
 
   # flannel
   if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
-    docker pull "rancher/mirrored-flannelcni-flannel:$flannelVer" && \
-    docker pull "rancher/mirrored-flannelcni-flannel-cni-plugin:v1.1.0" && \
-    docker save -o "$imageDir/flannel_$flannelVer.tar" "rancher/mirrored-flannelcni-flannel:$flannelVer" "rancher/mirrored-flannelcni-flannel-cni-plugin:v1.1.0"
+    docker pull "flannel/flannel:$flannelVer" && \
+    docker pull "flannel/flannel-cni-plugin:v1.1.2" && \
+    docker save -o "$imageDir/flannel_$flannelVer.tar" "flannel/flannel:$flannelVer" "flannel/flannel-cni-plugin:v1.1.2"
   else
     docker load -i "$imageDir/flannel_$flannelVer.tar"
   fi
-  docker tag "rancher/mirrored-flannelcni-flannel:$flannelVer" "easzlab.io.local:5000/flannelcni/flannel:$flannelVer"
-  docker push "easzlab.io.local:5000/flannelcni/flannel:$flannelVer"
-  docker tag "rancher/mirrored-flannelcni-flannel-cni-plugin:v1.1.0" "easzlab.io.local:5000/flannelcni/flannel-cni-plugin:v1.1.0"
-  docker push "easzlab.io.local:5000/flannelcni/flannel-cni-plugin:v1.1.0"
+  docker tag "flannel/flannel:$flannelVer" "easzlab.io.local:5000/flannel/flannel:$flannelVer"
+  docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
+  docker tag "flannel/flannel-cni-plugin:v1.1.2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
+  docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
 
   # nfs-provisioner
   if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
