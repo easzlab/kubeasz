@@ -17,9 +17,6 @@ resources:
     cpu: 100m
     memory: 512Mi
 
-cni:
-  binPath: /opt/cni/bin 
-
 containerRuntime:
   integration: containerd
   socketPath: unix:///run/containerd/containerd.sock
@@ -42,11 +39,11 @@ hubble:
     backend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"
-        tag: "v0.9.2"
+        tag: "v0.11.0"
     frontend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui"
-        tag: "v0.9.2"
+        tag: "v0.11.0"
 {% endif %}
 
 identityAllocationMode: "crd"
@@ -58,6 +55,7 @@ ipam:
     clusterPoolIPv4PodCIDRList: ["{{ CLUSTER_CIDR }}"]
     clusterPoolIPv4MaskSize: 24
 
+# -- Enable Layer 7 network policy.
 l7Proxy: true
 
 # -- Configure Istio proxy options.
