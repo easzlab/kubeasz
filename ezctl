@@ -237,6 +237,20 @@ function setup() {
     COMMAND="ansible-playbook -i clusters/$1/hosts -e @clusters/$1/config.yml $EXTRA_ARGS playbooks/$PLAY_BOOK"
     echo "$COMMAND"
 
+    k8s_ver=$(bin/kube-apiserver --version|cut -d' ' -f2)
+    etcd_ver=v$(bin/etcd --version|grep 'etcd Version'|cut -d' ' -f3)
+    network_cni=$(grep CLUSTER_NETWORK clusters/$1/hosts|cut -d'"' -f2)
+    network_cni_ver=$(grep ${network_cni}Ver ezdown|cut -d'=' -f2|head -n1)
+
+    cat <<EOF
+*** Component Version *********************
+*******************************************
+*   kubernetes:     ${k8s_ver}
+*   etcd:           ${etcd_ver}
+*   ${network_cni}:         ${network_cni_ver}
+*******************************************
+EOF
+
     logger info "cluster:$1 setup step:$2 begins in 5s, press any key to abort:\n"
     ! (read -r -t5 -n1) || { logger warn "setup abort"; return 1; }
 
