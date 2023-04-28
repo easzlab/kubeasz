@@ -6,3 +6,6 @@ CGROUP_DRIVER: "systemd"
 
 # coredns 服务地址，根据SERVICE_CIDR 设置，默认选择网段第二个地址
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR.split('.')[0] }}.{{ SERVICE_CIDR.split('.')[1] }}.{{ SERVICE_CIDR.split('.')[2] }}.{{ SERVICE_CIDR.split('.')[3]|int + 2 }}"
+
+# pod-max-pids
+POD_MAX_PIDS: 1024

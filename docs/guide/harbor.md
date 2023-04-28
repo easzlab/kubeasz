@@ -198,7 +198,7 @@ type: kubernetes.io/dockerconfigjson
 # 停止 harbor
  docker-compose down -v
 # 修改配置
- vim harbor.cfg
+ vim harbor.yml
 # 执行./prepare已更新配置到docker-compose.yml文件
  ./prepare
 # 启动 harbor
