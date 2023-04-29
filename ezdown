@@ -27,7 +27,7 @@ dnsNodeCacheVer=1.22.13
 corednsVer=1.9.3
 dashboardVer=v2.7.0
 dashboardMetricsScraperVer=v1.0.8
-metricsVer=v0.5.2
+metricsVer=v0.6.3
 pauseVer=3.9
 
 # images not downloaded by default(only download  with '-X')

@@ -9,6 +9,7 @@
 - 2.需要在集群中运行deployment处理请求
 
 从kubeasz 0.1.0 开始，metrics-server已经默认集成安装，请查看`/etc/kubeasz/clusters/xxxx/config.yml`中的设置
+- 参考：https://github.com/kubernetes-sigs/metrics-server
 
 ## 前提
 
