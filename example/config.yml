@@ -65,8 +65,9 @@ DOCKER_STORAGE_DIR: "/var/lib/docker"
 ENABLE_REMOTE_API: false
 
 # [docker]信任的HTTP仓库
-INSECURE_REG: '["http://easzlab.io.local:5000"]'
-
+INSECURE_REG:
+  - "http://easzlab.io.local:5000"
+  - "https://{{ HARBOR_REGISTRY }}"
 
 ############################
 # role:kube-master

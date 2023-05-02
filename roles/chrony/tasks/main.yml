@@ -5,14 +5,8 @@
   - "/var/lib/chrony"
   - "/var/log/chrony"
 
-- name: apt 卸载 ntp
-  shell: 'apt remove -y ntp'
-  when: 'ansible_distribution in ["Ubuntu","Debian"]'
-  ignore_errors: true
-
-- name: yum 卸载 ntp
-  shell: 'yum remove -y ntp'
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]'
+- name: 卸载 ntp
+  package: name=ntp state=absent
   ignore_errors: true
 
 - name: 下载二进制文件chronyd
