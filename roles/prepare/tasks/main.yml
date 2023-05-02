@@ -1,8 +1,8 @@
-- import_tasks: ubuntu.yml
-  when: 'ansible_distribution in ["Ubuntu","Debian"]'
+- import_tasks: debian.yml
+  when: 'ansible_distribution_file_variety in ["Debian"]'
 
-- import_tasks: centos.yml
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon","Aliyun"]' 
+- import_tasks: redhat.yml
+  when: 'ansible_distribution_file_variety in ["RedHat"]' 
 
 # 公共系统参数设置
 - import_tasks: common.yml

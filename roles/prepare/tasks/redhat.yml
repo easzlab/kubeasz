@@ -1,13 +1,14 @@
 - name: 删除centos/redhat默认安装
-  shell: "yum remove -y {{ item }}"
-  with_items:
-    - firewalld
-    - python-firewall
-    - firewalld-filesystem
+  package:
+    name:
+      - firewalld
+      - python-firewall
+      - firewalld-filesystem
+    state: absent
   ignore_errors: true
 
 - name: 安装基础软件包
-  yum: 
+  package: 
     name: 
       - conntrack-tools     # ipvs 模式需要
       - libseccomp          # 安装containerd需要

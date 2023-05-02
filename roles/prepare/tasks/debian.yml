@@ -6,18 +6,18 @@
 
 # 删除默认安装
 - name: 删除ubuntu默认安装
-  shell: "apt remove -y {{ item }}"
-  with_items:
-    - ufw
-    - lxd
-    - lxcfs
-    - lxc-common
-  when: ansible_distribution == "Ubuntu"
+  package:
+    name:
+      - ufw
+      - lxd
+      - lxcfs
+      - lxc-common
+    state: absent
   ignore_errors: true
 
 # 安装基础软件包
 - name: 安装 ubuntu/debian基础软件
-  apt: 
+  package: 
     name:
       - conntrack           # network connection cleanup 用到
       - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
