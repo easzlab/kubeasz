@@ -18,12 +18,12 @@ KUBEASZ_VER=3.5.3
 K8S_BIN_VER=v1.26.4
 EXT_BIN_VER=1.7.1
 SYS_PKG_VER=0.5.2
-HARBOR_VER=v2.6.3
+HARBOR_VER=v2.6.4
 REGISTRY_MIRROR=CN
 
 # images downloaded by default(with '-D')
 calicoVer=v3.24.5
-dnsNodeCacheVer=1.22.13
+dnsNodeCacheVer=1.22.20
 corednsVer=1.9.3
 dashboardVer=v2.7.0
 dashboardMetricsScraperVer=v1.0.8
