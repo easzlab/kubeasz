@@ -1,3 +1,9 @@
+# 系统基础软件环境
+- name: apt更新缓存刷新
+  apt: update_cache=yes cache_valid_time=72000
+  ignore_errors: true
+  when: 'INSTALL_SOURCE != "offline"'
+
 # 删除默认安装
 - name: 删除ubuntu默认安装
   shell: "apt remove -y {{ item }}"
@@ -13,16 +19,10 @@
 - name: 安装 ubuntu/debian基础软件
   apt: 
     name:
-      - bash-completion     # bash命令补全工具，需要重新登录服务器生效
       - conntrack           # network connection cleanup 用到
-      - ipset               # ipvs 模式需要
-      - ipvsadm             # ipvs 模式需要
       - jq                  # 轻量JSON处理程序，安装docker查询镜像需要
       - libseccomp2         # 安装containerd需要
       - nfs-common          # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
-      - psmisc              # 安装psmisc 才能使用命令killall，keepalive的监测脚本需要
-      - rsync               # 文件同步工具，分发证书等配置文件需要
-      - socat               # 用于port forwarding
     state: present
   when: 'INSTALL_SOURCE != "offline"'
 
@@ -42,11 +42,3 @@
 
 - name: 重启 journald 服务
   service: name=systemd-journald state=restarted
-
-- name: Configuration iptables
-  shell: 'iptables -F \
-    && iptables -t nat -F \
-    && iptables -t mangle -F \
-    && iptables -X \
-    && update-alternatives --set iptables /usr/sbin/iptables-legacy'
-  when: ansible_distribution == "Debian" and ansible_distribution_version|int >= 10

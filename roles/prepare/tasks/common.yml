@@ -10,9 +10,17 @@
     state: absent
     backup: 'yes'
 
-- name: 转换内核版本为浮点数
-  set_fact:
-    KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
+- name: 安装基础软件包
+  package:
+    name:
+      - bash-completion     # bash命令补全工具，需要重新登录服务器生效
+      - ipset               # ipvs 模式需要
+      - ipvsadm             # ipvs 模式需要
+      - psmisc              # 安装psmisc 才能使用命令killall，keepalive的监测脚本需要
+      - rsync               # 文件同步工具，分发证书等配置文件需要
+      - socat               # 用于port forwarding
+    state: present
+  when: 'INSTALL_SOURCE != "offline"'
 
 - name: 加载内核模块
   modprobe: name={{ item }} state=present
@@ -59,6 +67,20 @@
     reload: yes
   when: fs_may_detach_mounts.stat.exists|bool
 
+- name: 查看是否需要设置 net.ipv4.tcp_tw_recycle
+  stat:
+    path: /proc/sys/net/ipv4/tcp_tw_recycle
+  register: tcp_tw_recycle
+  ignore_errors: true
+
+- name: 设置tcp_tw_recycle
+  sysctl:
+    sysctl_file: "/etc/sysctl.d/95-k8s-sysctl.conf"
+    name: net.ipv4.tcp_tw_recycle
+    value: 0
+    state: present
+    reload: yes
+  when: tcp_tw_recycle.stat.exists|bool
 
 - name: 生效系统参数
   shell: "source /etc/profile; sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
