@@ -38,6 +38,20 @@
   template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
   tags: upgrade_k8s, restart_node
 
+- name: 检查文件/run/systemd/resolve/resolv.conf
+  stat: path="/run/systemd/resolve/resolv.conf"
+  register: resolv
+  tags: upgrade_k8s, restart_node
+
+- name: 替换resolvConf 配置
+  lineinfile:
+    dest: /var/lib/kubelet/config.yaml
+    state: present
+    regexp: 'resolvConf'
+    line: 'resolvConf: /run/systemd/resolve/resolv.conf'
+  when: "resolv.stat.isreg is defined"
+  tags: upgrade_k8s, restart_node
+
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
   tags: upgrade_k8s, restart_node

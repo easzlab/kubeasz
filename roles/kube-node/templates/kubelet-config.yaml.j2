@@ -71,11 +71,7 @@ podPidsLimit: {{ POD_MAX_PIDS }}
 port: 10250
 # disable readOnlyPort 
 readOnlyPort: 0
-{% if ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int > 16 %}
-resolvConf: /run/systemd/resolve/resolv.conf
-{% else %}
 resolvConf: /etc/resolv.conf
-{% endif %}
 runtimeRequestTimeout: 2m0s
 serializeImagePulls: true
 streamingConnectionIdleTimeout: 4h0m0s

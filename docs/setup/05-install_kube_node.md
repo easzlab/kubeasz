@@ -30,9 +30,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 WorkingDirectory=/var/lib/kubelet
-{% if ansible_distribution == "Debian" and ansible_distribution_version|int >= 10 %}
 ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
-{% endif %}
 {% if KUBE_RESERVED_ENABLED == "yes" or SYS_RESERVED_ENABLED == "yes" %}
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpu/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/cpuacct/podruntime.slice
@@ -48,10 +46,8 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/systemd/system.slice
 
-{% if ansible_distribution != "Debian" %}
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
-{% endif %}
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
   --config=/var/lib/kubelet/config.yaml \
