@@ -3,11 +3,9 @@ kubeTargetVersionOverride: "{{ K8S_VER }}"
 
 ## Configuration for alertmanager
 alertmanager:
-  enabled: true
   alertmanagerSpec:
     image:
-      repository: easzlab.io.local:5000/prometheus/alertmanager 
-
+      registry: easzlab.io.local:5000
   service:
     nodePort: 30902
     type: NodePort
@@ -15,6 +13,7 @@ alertmanager:
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 grafana:
   enabled: true
+  adminUser: admin
   adminPassword: Admin1234!
   image:
     repository: easzlab.io.local:5000/prometheus/grafana 
@@ -61,6 +60,9 @@ kubeEtcd:
 {% for h in groups['etcd'] %}
   - {{ h }}
 {% endfor %}
+  service:
+    port: 2379
+    targetPort: 2379
   serviceMonitor:
     scheme: https
     insecureSkipVerify: true
@@ -102,16 +104,14 @@ kubeStateMetrics:
 ## Configuration for kube-state-metrics subchart
 kube-state-metrics:
   image:
-    repository: easzlab.io.local:5000/prometheus/kube-state-metrics 
-
-## Deploy node exporter as a daemonset to all nodes
-nodeExporter:
-  enabled: true
+    registry: easzlab.io.local:5000
+    repository: prometheus/kube-state-metrics
 
 ## Configuration for prometheus-node-exporter subchart
 prometheus-node-exporter:
   image:
-    repository: easzlab.io.local:5000/prometheus/node-exporter 
+    registry: easzlab.io.local:5000
+    repository: prometheus/node-exporter
 
 ## Manages Prometheus and Alertmanager components
 prometheusOperator:
@@ -121,16 +121,20 @@ prometheusOperator:
     patch:
       enabled: true
       image:
-        repository: easzlab.io.local:5000/prometheus/kube-webhook-certgen
+        registry: easzlab.io.local:5000
+        repository: prometheus/kube-webhook-certgen
+        tag: v1.5.1
   image:
-    repository: easzlab.io.local:5000/prometheus/prometheus-operator
+    registry: easzlab.io.local:5000
+    repository: prometheus/prometheus-operator
   service:
     nodePort: 30899
     nodePortTls: 30900
     type: NodePort
   prometheusConfigReloader:
     image:
-      repository: easzlab.io.local:5000/prometheus/prometheus-config-reloader
+      registry: easzlab.io.local:5000
+      repository: prometheus/prometheus-config-reloader
 
 ## Deploy a Prometheus instance
 prometheus:
@@ -141,7 +145,7 @@ prometheus:
 
   prometheusSpec:
     image:
-      repository: easzlab.io.local:5000/prometheus/prometheus
+      registry: easzlab.io.local:5000
     replicas: 1
     secrets:
     - etcd-client-cert
