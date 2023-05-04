@@ -10,18 +10,6 @@
     state: absent
     backup: 'yes'
 
-- name: 安装基础软件包
-  package:
-    name:
-      - bash-completion     # bash命令补全工具，需要重新登录服务器生效
-      - ipset               # ipvs 模式需要
-      - ipvsadm             # ipvs 模式需要
-      - psmisc              # 安装psmisc 才能使用命令killall，keepalive的监测脚本需要
-      - rsync               # 文件同步工具，分发证书等配置文件需要
-      - socat               # 用于port forwarding
-    state: present
-  when: 'INSTALL_SOURCE != "offline"'
-
 - name: 加载内核模块
   modprobe: name={{ item }} state=present
   with_items:
