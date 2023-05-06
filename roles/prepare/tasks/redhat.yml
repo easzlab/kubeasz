@@ -43,6 +43,7 @@
     state: present
     regexp: 'ModLoad imjournal'
     line: '#$ModLoad imjournal # provides access to the systemd journal'
+  ignore_errors: true
 
 - name: 禁止rsyslog获取journald日志2
   lineinfile:
@@ -50,6 +51,8 @@
     state: present
     regexp: 'IMJournalStateFile'
     line: '#$IMJournalStateFile imjournal.state'
+  ignore_errors: true
 
 - name: 重启rsyslog服务
   service: name=rsyslog state=restarted
+  ignore_errors: true

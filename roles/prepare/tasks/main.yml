@@ -2,7 +2,13 @@
   when: 'ansible_distribution_file_variety in ["Debian"]'
 
 - import_tasks: redhat.yml
-  when: 'ansible_distribution_file_variety in ["RedHat"]' 
+  when: 'ansible_distribution_file_variety in ["RedHat"]'
+
+- import_tasks: suse.yml
+  when: 'ansible_distribution_file_variety in ["SUSE"]'
+
+- import_tasks: redhat.yml
+  when: 'ansible_distribution in ["Anolis OS"]'
 
 # 公共系统参数设置
 - import_tasks: common.yml

@@ -1,0 +1,18 @@
+- name: 安装基础软件包
+  package: 
+    name:
+      - bash-completion     # bash命令补全工具，需要重新登录服务器生效
+      - conntrack-tools     # ipvs 模式需要
+      - ipset               # ipvs 模式需要
+      - ipvsadm             # ipvs 模式需要
+      - libseccomp2         # 安装containerd需要
+      - nfs-client          # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
+      - psmisc              # 安装psmisc 才能使用命令killall，keepalive的监测脚本需要
+      - rsync               # 文件同步工具，分发证书等配置文件需要
+      - socat               # 用于port forwarding
+    state: present
+  when: 'INSTALL_SOURCE != "offline"'
+
+# 离线安装基础软件包
+- import_tasks: offline.yml
+  when: 'INSTALL_SOURCE == "offline"'

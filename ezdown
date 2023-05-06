@@ -13,11 +13,11 @@ set -o pipefail
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=20.10.22
+DOCKER_VER=20.10.24
 KUBEASZ_VER=3.5.3
 K8S_BIN_VER=v1.26.4
 EXT_BIN_VER=1.7.1
-SYS_PKG_VER=0.5.2
+SYS_PKG_VER=1.0.0
 HARBOR_VER=v2.6.4
 REGISTRY_MIRROR=CN
 
@@ -47,7 +47,7 @@ function usage() {
   option:
     -C         stop&clean all local containers
     -D         download default binaries/images into "$BASE"
-    -P         download system packages for offline installing
+    -P <OS>    download system packages of the OS (ubuntu_22,debian_11,...)
     -R         download Registry(harbor) offline installer
     -S         start kubeasz in a container
     -X         download extra images
@@ -56,8 +56,32 @@ function usage() {
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
     -m <str>   set docker registry mirrors, default "CN"(used in Mainland,China)
-    -p <ver>   set kubeasz-sys-pkg version, default "$SYS_PKG_VER"
     -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
+EOF
+}
+
+function usage-down-sys-pkg(){
+  echo -e "\033[33mUsage:\033[0m ezdown -P <OS>"
+  cat <<EOF
+available OSes:
+    almalinux_8       to down package for AlmaLinux 8
+    almalinux_9       to down package for AlmaLinux 9
+    centos_7          to down package for CentOS 7
+    debian_10         to down package for Debian 10
+    debian_11         to down package for Debian 11
+    fedora_34         to down package for Fedora 34
+    fedora_35         to down package for Fedora 35
+    fedora_36         to down package for Fedora 36
+    fedora_37         to down package for Fedora 37
+    opensuse_leap_15  to down package for openSUSE Leap 15
+    rocky_8           to down package for Rocky Linux 8
+    rocky_9           to down package for Rocky Linux 9
+    ubuntu_16         to down package for Ubuntu 16.04
+    ubuntu_18         to down package for Ubuntu 18.04
+    ubuntu_20         to down package for Ubuntu 20.04
+    ubuntu_22         to down package for Ubuntu 22.04
+examples:
+    ./ezdown -P ubuntu_22
 EOF
 }
 
@@ -588,7 +612,7 @@ function main() {
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
   
   ACTION=""
-  while getopts "CDPRSXa:d:e:k:m:p:z:" OPTION; do
+  while getopts "CDP:RSXa:d:e:k:m:z:" OPTION; do
       case "$OPTION" in
         C)
           ACTION="clean_container"
@@ -598,6 +622,9 @@ function main() {
           ;;
         P)
           ACTION="get_sys_pkg"
+          [[ $OPTARG =~ (ubuntu_[0-9]+|centos_[0-9]+|debian_[0-9]+|fedora_[0-9]+|almalinux_[0-9]+|opensuse_leap_[0-9]+|rocky_[0-9]+) ]] || \
+          { usage-down-sys-pkg; exit 1; }
+          SYS_PKG_VER="${SYS_PKG_VER}_$OPTARG"
           ;;
         R)
           ACTION="get_harbor_offline_pkg"
@@ -622,9 +649,6 @@ function main() {
           ;;
         m)
           REGISTRY_MIRROR="$OPTARG"
-          ;;
-        p)
-          SYS_PKG_VER="$OPTARG"
           ;;
         z)
           KUBEASZ_VER="$OPTARG"
