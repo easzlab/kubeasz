@@ -62,6 +62,7 @@ kubeAPIBurst: 100
 kubeAPIQPS: 50
 makeIPTablesUtilChains: true
 maxOpenFiles: 1000000
+maxParallelImagePulls: 5
 maxPods: {{ MAX_PODS }}
 nodeLeaseDurationSeconds: 40
 nodeStatusReportFrequency: 1m0s
@@ -73,7 +74,7 @@ port: 10250
 readOnlyPort: 0
 resolvConf: /etc/resolv.conf
 runtimeRequestTimeout: 2m0s
-serializeImagePulls: true
+serializeImagePulls: false
 streamingConnectionIdleTimeout: 4h0m0s
 syncFrequency: 1m0s
 {% if SYS_RESERVED_ENABLED == "yes" %}
