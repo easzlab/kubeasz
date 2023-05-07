@@ -5,9 +5,8 @@
 **kubeasz** 从每一个单独部件组装到完整的集群，提供最灵活的配置能力，几乎可以设置任何组件的任何参数；同时又为集群创建预置一套运行良好的默认配置，甚至自动化创建适合大规模集群的[BGP Route Reflector网络模式](docs/setup/network-plugin/calico-bgp-rr.md)。
 
 - **集群特性** [Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、[离线安装](docs/setup/offline_install.md)、[多架构支持(amd64/arm64)](docs/setup/multi_platform.md)
-- **集群版本** kubernetes v1.22, v1.23, v1.24, v1.25, v1.26
-- **操作系统** CentOS/RedHat 7/8, Debian 9/10, Ubuntu 16.04/18.04/20.04/22.04
-- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.x, docker 20.10.x (k8s < 1.24)
+- **集群版本** kubernetes v1.24, v1.25, v1.26, v1.27
+- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.x
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 
@@ -19,24 +18,36 @@
   <thead>
     <tr>
       <td>Kubernetes version</td>
-      <td>1.22</td>
-      <td>1.23</td>
       <td>1.24</td>
       <td>1.25</td>
       <td>1.26</td>
+      <td>1.27</td>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>kubeasz version</td>
-      <td>3.1.1</td>
-      <td>3.2.0</td>
-      <td>3.3.4</td>
-      <td>3.4.5</td>
-      <td>3.5.2</td>
+      <td>3.3.5</td>
+      <td>3.4.6</td>
+      <td>3.5.3</td>
+      <td>3.6.0</td>
     </tr>
   </tbody>
 </table>
+
+## 支持系统
+
+- **Alibaba Linux** 2.1903, 3.2104([notes](docs/setup/multi_os.md#Alibaba))
+- **Alma Linux** 8, 9
+- **Anolis OS** 8.x RHCK, 8.x ANCK([notes](docs/setup/multi_os.md#Anolis))
+- **CentOS/RHEL** 7, 8, 9
+- **Debian** 10, 11([notes](docs/setup/multi_os.md#Debian))
+- **Fedora** 34, 35, 36, 37
+- **openSUSE** Leap 15.x([notes](docs/setup/multi_os.md#openSUSE))
+- **Rocky Linux** 8, 9
+- **Ubuntu** 16.04, 18.04, 20.04, 22.04
+
+能够支持大部分使用systemd的linux发行版，如果安装有问题先请查看[文档](docs/setup/multi_os.md)；如果某个能够支持安装的系统没有在列表中，欢迎提PR 告知。
 
 ## 快速指南
 

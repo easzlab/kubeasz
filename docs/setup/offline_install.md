@@ -1,15 +1,20 @@
 # 离线安装集群
 
-kubeasz 2.0.1 开始支持**完全离线安装**，目前已支持 `Ubuntu1604|1804|2004` `CentOS7` `Debian9|10` 系统。
+使用kubeasz 离线安装 k8s集群需要下载四个部分：
+
+- kubeasz 项目代码
+- 二进制文件（k8s、etcd、containerd等组件）
+- 容器镜像文件（calico、coredns、metrics-server等容器镜像）
+- 系统软件安装包（ipset、libseccomp2等，仅无法使用本地yum/apt源时需要）
 
 ## 离线文件准备
 
 在一台能够访问互联网的服务器上执行：
 
-- 下载工具脚本ezdown，举例使用kubeasz版本3.3.1
+- 下载工具脚本ezdown，举例使用kubeasz版本3.6.0
 
 ``` bash
-export release=3.3.1
+export release=3.6.0
 wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 ```
@@ -23,7 +28,7 @@ chmod +x ./ezdown
 ./ezdown -D
 ```
 
-下载额外容器镜像（cilium,flannel,prometheus等）
+[可选]如果需要更多组件，请下载额外容器镜像（cilium,flannel,prometheus等）
 
 ``` bash
 ./ezdown -X
@@ -32,7 +37,8 @@ chmod +x ./ezdown
 下载离线系统包 (适用于无法使用yum/apt仓库情形)
 
 ``` bash
-./ezdown -P
+# 如果操作系统是ubuntu 22.04
+./ezdown -P ubuntu_22
 ```
 
 上述脚本运行成功后，所有文件（kubeasz代码、二进制、离线镜像）均已整理好放入目录`/etc/kubeasz`
@@ -59,7 +65,7 @@ chmod +x ./ezdown
 ./ezdown -S
 ```
 
-- 设置参数允许离线安装
+- 设置参数允许离线安装系统软件包
 
 ```
 sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' /etc/kubeasz/example/config.yml 
@@ -67,8 +73,10 @@ sed -i 's/^INSTALL_SOURCE.*$/INSTALL_SOURCE: "offline"/g' /etc/kubeasz/example/c
 
 - 举例安装单节点集群，参考 https://github.com/easzlab/kubeasz/blob/master/docs/setup/quickStart.md
 
-```
-docker exec -it kubeasz ezctl start-aio
+``` bash
+source ~/.bashrc
+dk ezctl start-aio
+# 或者执行 docker exec -it kubeasz ezctl start-aio
 ```
 
 - 多节点集群，进入kubeasz 容器内 `docker exec -it kubeasz bash`，参考https://github.com/easzlab/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md 进行集群规划和设置后使用./ezctl 命令安装
