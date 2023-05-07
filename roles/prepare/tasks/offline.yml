@@ -1,34 +1,36 @@
 # 离线安装基础系统包
+# 仅当机器无法从本地yum/apt源安装时使用
+# 执行前需要预先运行类似 ./ezdown -P debian_10 下载离线安装包
+
+- name: 检查是否已下载离线软件包{{ SYS_PKG_NAME }}
+  stat:
+    path: "{{ base_dir }}/down/packages/{{ SYS_PKG_NAME }}"
+  register: pkg
+  connection: local
+  run_once: true
+
 - name: 准备离线安装包目录
   file: name=/opt/kube/packages/basic state=directory
 
 - block:
-  - name: 分发{{ ansible_distribution_release }}离线包
+  - name: 分发离线软件包{{ SYS_PKG_NAME }}
     copy:
-      src: "{{ base_dir }}/down/packages/basic_{{ ansible_distribution_release }}.tar.gz"
-      dest: "/opt/kube/packages/basic/basic_{{ ansible_distribution_release }}.tar.gz"
+      src: "{{ base_dir }}/down/packages/{{ SYS_PKG_NAME }}"
+      dest: "/opt/kube/packages/basic/{{ SYS_PKG_NAME }}"
 
   # 离线安装包可能需要安装多次才能成功
-  - name: 安装{{ ansible_distribution_release }} 离线包
-    shell: 'cd /opt/kube/packages/basic && tar zxf basic_{{ ansible_distribution_release }}.tar.gz && \
+  - name: 安装离线软件包{{ SYS_PKG_NAME }}
+    shell: 'cd /opt/kube/packages/basic && tar zxf {{ SYS_PKG_NAME }} && \
            dpkg -i *.deb > /tmp/install_basic.log 2>&1'
     register: install_info
     until: not install_info.failed
     retries: 3
     delay: 1
-  when: 'ansible_distribution in ["Ubuntu","Debian"]' 
-  ignore_errors: true
+    when: 'ansible_distribution_file_variety in ["Debian"]'
 
-- block:
-  - name: 分发 basic_centos7 离线包
-    copy:
-      src: "{{ base_dir }}/down/packages/basic_centos7.tar.gz"
-      dest: "/opt/kube/packages/basic/basic_centos7.tar.gz"
-
-  - name: 安装 basic_centos7 离线包
-    shell: 'cd /opt/kube/packages/basic && tar zxf basic_centos7.tar.gz && \
+  - name: 安装离线软件包{{ SYS_PKG_NAME }}
+    shell: 'cd /opt/kube/packages/basic && tar zxf {{ SYS_PKG_NAME }} && \
            rpm -Uvh --force --nodeps *.rpm > /tmp/install_basic.log 2>&1'
-  when:
-  - 'ansible_distribution in ["CentOS","RedHat"]'
-  - 'ansible_distribution_major_version == "7"'
+    when: 'ansible_distribution_file_variety in ["RedHat", "SUSE"]'
+  when: 'pkg.stat.exists|bool'
   ignore_errors: true
