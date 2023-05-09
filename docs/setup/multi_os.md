@@ -38,30 +38,13 @@ apt install iptables -y
 ``` bash
 # 修改使用dnf包管理
 sed -i 's/package/dnf/g' /etc/kubeasz/roles/prepare/tasks/redhat.yml
-
-# 指定python版本，xxxx为集群名
-source ~/.bashrc
-dk ezctl setup xxxx all -e ansible_python_interpreter=/usr/bin/python3
-```
-
-## Anolis
-
-- Anolis OS 8.x RHCK：需要指定python版本
-- Anolis OS 8.x ANCK：需要指定python版本
-
-``` bash
-source ~/.bashrc
-dk ezctl setup xxxx all -e ansible_python_interpreter=/usr/bin/python3
 ```
 
 ## openSUSE
 
-- openSUSE Leap 15.4：需要安装iptables和指定python版本
+- openSUSE Leap 15.4：需要安装iptables
 
 ``` bash
 zypper install iptables
 ln -s /usr/sbin/iptables /sbin/iptables
-
-source ~/.bashrc
-dk ezctl setup xxxx all -e ansible_python_interpreter=/usr/bin/python3
 ```

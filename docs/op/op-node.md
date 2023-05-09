@@ -22,9 +22,6 @@
 # ssh 免密码登录
 $ ssh-copy-id 192.168.1.11
 
-# 部分操作系统需要配置python软链接
-$ ssh 192.168.1.11 ln -s /usr/bin/python3 /usr/bin/python
-
 # 新增节点
 $ ezctl add-node test-k8s 192.168.1.11
 
@@ -50,7 +47,6 @@ $ kubectl get pod -n kube-system
 
 ``` bash
 $ ssh-copy-id -p 10022 192.168.2.1
-$ ssh -p10022 192.168.2.1 ln -s /usr/bin/python3 /usr/bin/python
 $ ezctl add-node test-k8s 192.168.2.1 ansible_ssh_port=10022
 ```
 

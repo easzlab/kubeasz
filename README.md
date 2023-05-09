@@ -39,7 +39,7 @@
 
 - **Alibaba Linux** 2.1903, 3.2104([notes](docs/setup/multi_os.md#Alibaba))
 - **Alma Linux** 8, 9
-- **Anolis OS** 8.x RHCK, 8.x ANCK([notes](docs/setup/multi_os.md#Anolis))
+- **Anolis OS** 8.x RHCK, 8.x ANCK
 - **CentOS/RHEL** 7, 8, 9
 - **Debian** 10, 11([notes](docs/setup/multi_os.md#Debian))
 - **Fedora** 34, 35, 36, 37

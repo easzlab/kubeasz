@@ -4,8 +4,6 @@ CNCF 一致性认证项目(https://github.com/cncf/k8s-conformance) 可以很方
 
 # kubeasz 通过一致性测试
 
-Cheers! 
-
 自kubeasz 3.0.0 版本，k8s v1.20.2开始，正式通过cncf一致性认证，成为cncf 官方认证安装工具；后续k8s主要版本发布或者kubeasz有大版本更新，会优先确保通过集群一致性认证。
 
 - v1.27 [进行中]()
@@ -56,18 +54,18 @@ chmod +x ./ezdown
 
 ```
 ./ezdown -S
-docker exec -it kubeasz ezctl start-aio
+source ~/.bashrc
+dk ezctl start-aio
 ```
 
 (3) Add two worker nodes
 
 ```
 ssh-copy-id ${worker1_ip}
-ssh ${worker1_ip} ln -s /usr/bin/python3 /usr/bin/python
-docker exec -it kubeasz ezctl add-node default ${worker1_ip}
+dk ezctl add-node default ${worker1_ip}
+
 ssh-copy-id ${worker2_ip}
-ssh ${worker2_ip} ln -s /usr/bin/python3 /usr/bin/python
-docker exec -it kubeasz ezctl add-node default ${worker2_ip}
+dk ezctl add-node default ${worker2_ip}
 ```
 
 ## Run Conformance Test
@@ -77,16 +75,12 @@ The standard tool for running these tests is
 regularly built and kept up to date to execute against all
 currently supported versions of kubernetes.
 
-Download a [binary release](https://github.com/heptio/sonobuoy/releases) of the CLI, or build it yourself by running:
-
-```
-$ go get -u -v github.com/heptio/sonobuoy
-```
+Download a [binary release](https://github.com/heptio/sonobuoy/releases) of the CLI
 
 Deploy a Sonobuoy pod to your cluster with:
 
 ```
-$ sonobuoy run --mode=certified-conformance
+$ sonobuoy run --plugin-env=e2e.E2E_EXTRA_ARGS="--ginkgo.v" --mode=certified-conformance 
 ```
 
 **NOTE:** You can run the command synchronously by adding the flag `--wait` but be aware that running the Conformance tests can take an hour or more.

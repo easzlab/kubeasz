@@ -46,9 +46,6 @@ ezctl backup k8s-01
 # ssh 免密码登录
 $ ssh-copy-id 192.168.1.11
 
-# 部分操作系统需要配置python软链接
-$ ssh 192.168.1.11 ln -s /usr/bin/python3 /usr/bin/python
-
 # 新增节点
 $ ezctl add-etcd test-k8s 192.168.1.11
 ```

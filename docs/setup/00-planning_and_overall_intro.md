@@ -50,9 +50,6 @@
 ``` bash
 #$IP为所有节点地址包括自身，按照提示输入yes 和root密码
 ssh-copy-id $IP 
-
-# 为每个节点设置python软链接
-ssh $IP ln -s /usr/bin/python3 /usr/bin/python
 ```
 
 ### 4.在部署节点编排k8s安装
