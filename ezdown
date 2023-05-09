@@ -571,12 +571,6 @@ function start_kubeasz_docker() {
     ssh-keyscan -t ecdsa -H "$host_ip" >> /root/.ssh/known_hosts
   fi
 
-  # create a link '/usr/bin/python' in Ubuntu1604
-  if [[ ! -e /usr/bin/python && -e /usr/bin/python3 ]]; then
-    logger debug "create a soft link '/usr/bin/python'"
-    ln -s /usr/bin/python3 /usr/bin/python
-  fi
-
   # run kubeasz docker container
   docker run --detach \
       --env HOST_IP="$host_ip" \

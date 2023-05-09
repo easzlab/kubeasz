@@ -75,3 +75,6 @@ ca_dir="/etc/kubernetes/ssl"
 
 # Default 'k8s_nodename' is empty
 k8s_nodename=''
+
+# Default python interpreter
+ansible_python_interpreter=/usr/bin/python3
