@@ -25,6 +25,7 @@ kubeasz 3.3.1 更新重写了cilium 安装流程，使用helm charts 方式，�
 ### 1.选择cilium网络后安装
 
 - 参考[快速指南](quickStart.md)，设置`/etc/kubeasz/clusters/xxx/hosts`文件中变量 `CLUSTER_NETWORK="cilium"` 
+- 下载额外镜像 `./ezdown -X cilium 和 ./ezdown -X network-check`
 - 执行集群安装 `dk ezctl setup xxx all`
 
 注意默认安装后集成了cilium_connectivity_check 和 cilium_hubble，可以在`/etc/kubeasz/clusters/xxx/config.yml`配置关闭

@@ -22,7 +22,7 @@
   when: '"nfs-client-provisioner" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: cilium_connectivity_check.yml
-  when: 'CLUSTER_NETWORK == "cilium"'
+  when: 'CLUSTER_NETWORK == "cilium" and network_check_enabled|bool'
 
 - import_tasks: network_check.yml
   when: 'network_check_enabled|bool and CLUSTER_NETWORK != "cilium"'

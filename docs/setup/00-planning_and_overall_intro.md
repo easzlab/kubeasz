@@ -76,7 +76,10 @@ chmod +x ./ezdown
 【可选】下载额外容器镜像（cilium,flannel,prometheus等）
 
 ``` bash
-./ezdown -X
+# 按需下载
+./ezdown -X flannel
+./ezdown -X prometheus
+...
 ```
 
 【可选】下载离线系统包 (适用于无法使用yum/apt仓库情形)

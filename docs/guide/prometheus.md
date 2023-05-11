@@ -6,7 +6,7 @@
 kubeasz 集成安装
 
 - 1.修改 /etc/kubeasz/clusters/xxxx/config.yml 中配置项 prom_install: "yes"
-- 2.下载镜像 /etc/kubeasz/ezdown -X
+- 2.下载镜像 /etc/kubeasz/ezdown -X prometheus
 - 3.安装 /etc/kubeasz/ezctl setup xxxx 07
 
 生成的charts自定义配置在/etc/kubeasz/clusters/xxxx/yml/prom-values.yaml

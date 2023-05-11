@@ -23,7 +23,7 @@ test09-host-to-multi-node-headless    */5 * * * *   False     1        6d3h     
 
 ## 启用网络检测
 
-- 下载额外容器镜像 `./ezdown -X`
+- 下载额外容器镜像 `./ezdown -X network-check`
 
 - 配置集群，在配置文件`/etc/kubeasz/clusters/xxx/config.yml` (xxx为集群名) 修改如下选项
 

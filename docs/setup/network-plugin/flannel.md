@@ -1,29 +1,14 @@
 ## 06-安装flannel网络组件.md
 
-本项目提供多种网络插件可选，如果需要安装flannel，请在`clusters/xxxx/hosts`文件中设置变量 `CLUSTER_NETWORK="flannel"`，参考[这里](../config_guide.md)
-
 `Flannel`是最早应用到k8s集群的网络插件之一，简单高效，且提供多个后端`backend`模式供选择；本文介绍以`DaemonSet Pod`方式集成到k8s集群，需要在所有master节点和node节点安装。
 
-``` text
-roles/flannel/
-├── tasks
-│   └── main.yml
-└── templates
-    └── kube-flannel.yaml.j2
-```
+### kubeasz 集成安装flannel
 
-请在另外窗口打开`roles/flannel/tasks/main.yml`文件，对照看以下讲解内容。
+- 参考[快速指南](quickStart.md)，设置`/etc/kubeasz/clusters/xxx/hosts`文件中变量 `CLUSTER_NETWORK="flannel"`
+- 下载额外镜像 `./ezdown -X flannel`
+- 执行集群安装 `dk ezctl setup xxx all`
 
-### 下载基础cni 插件
-
-项目已经自动下载基础cni插件，请参考这里 https://github.com/kubeasz/dockerfiles/blob/master/kubeasz-ext-bin/Dockerfile
-
-- flannel用到的插件
-  - bridge
-  - flannel
-  - host-local
-  - loopback
-  - portmap
+### 配置介绍
 
 Flannel CNI 插件的配置文件可以包含多个`plugin` 或由其调用其他`plugin`；`Flannel DaemonSet Pod`运行以后会生成`/run/flannel/subnet.env `文件，例如：
 
@@ -53,18 +38,13 @@ FLANNEL_IPMASQ=true
   - [flannel cni 插件](https://github.com/containernetworking/plugins/tree/master/plugins/meta/flannel)
   - [更多 cni 插件](https://github.com/containernetworking/plugins)
 
-### 准备`Flannel DaemonSet` yaml配置文件
+- `Flannel DaemonSet` yaml配置文件
 
 请阅读 `roles/flannel/templates/kube-flannel.yaml.j2` 内容，注意：
 
 + 注意：本安装方式，flannel 通过 apiserver 接口读取 podCidr 信息，详见 https://github.com/coreos/flannel/issues/847；因此想要修改节点pod网段掩码，请在`clusters/xxxx/config.yml` 中修改`NODE_CIDR_LEN`配置项
 + 配置相关RBAC 权限和 `service account`
 + 配置`ConfigMap`包含 CNI配置和 flannel配置(指定backend等)，在文件中相关设置对应
-
-### 安装 flannel网络
-
-+ 安装之前必须确保kube_master和kube_node节点已经成功部署
-+ 轮询等待flannel 网络插件安装完成，删除之前kube_node安装时默认cni网络配置
 
 ### 验证flannel网络
 

@@ -31,7 +31,9 @@ chmod +x ./ezdown
 [可选]如果需要更多组件，请下载额外容器镜像（cilium,flannel,prometheus等）
 
 ``` bash
-./ezdown -X
+./ezdown -X flannel
+./ezdown -X prometheus
+...
 ```
 
 下载离线系统包 (适用于无法使用yum/apt仓库情形)
@@ -56,7 +58,9 @@ chmod +x ./ezdown
 
 ```
 ./ezdown -D
-./ezdown -X
+./ezdown -X flannel
+./ezdown -X prometheus
+...
 ```
 
 - 启动 kubeasz 容器

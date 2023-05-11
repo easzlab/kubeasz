@@ -239,8 +239,8 @@ function setup() {
 
     k8s_ver=$(bin/kube-apiserver --version|cut -d' ' -f2)
     etcd_ver=v$(bin/etcd --version|grep 'etcd Version'|cut -d' ' -f3)
-    network_cni=$(grep CLUSTER_NETWORK clusters/$1/hosts|cut -d'"' -f2)
-    network_cni_ver=$(grep ${network_cni}Ver ezdown|cut -d'=' -f2|head -n1)
+    network_cni=$(grep CLUSTER_NETWORK "clusters/$1/hosts"|cut -d'"' -f2)
+    network_cni_ver=$(grep "${network_cni}Ver" ezdown|cut -d'=' -f2|head -n1)
 
     cat <<EOF
 *** Component Version *********************
@@ -315,7 +315,7 @@ function list() {
             else
                 echo -e "==> cluster $i:\t$c"
             fi
-            let "i++"
+            ((i++))
         fi
     done
 }
@@ -479,9 +479,9 @@ function renew-ca() {
 }
 
 
-EXPIRY=4800h        # default cert will expire in 200 days
-USER_TYPE=admin     # admin/view, admin=clusterrole:cluster-admin view=clusterrole:view 
-USER_NAME=user
+EXPIRY="4800h"        # default cert will expire in 200 days
+USER_TYPE="admin"     # admin/view, admin=clusterrole:cluster-admin view=clusterrole:view 
+USER_NAME="user"
 function kcfg-adm() {
     OPTIND=2
     ACTION=""
