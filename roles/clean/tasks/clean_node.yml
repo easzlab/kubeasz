@@ -110,15 +110,13 @@
     - "/sys/fs/bpf/tc/"
     - "/var/lib/cni/"
     - "/var/lib/kube-router/"
-    - "/opt/kube/kube-ovn/"
     - "/var/run/openvswitch/"
-    - "/etc/origin/openvswitch/"
-    - "/etc/openvswitch/"
-    - "/var/log/openvswitch/"
     - "/var/run/ovn/"
+    - "/etc/origin/openvswitch/"
     - "/etc/origin/ovn/"
-    - "/etc/ovn/"
+    - "/var/log/openvswitch/"
     - "/var/log/ovn/"
+    - "/var/log/kube-ovn/"
     ignore_errors: true
 
   when: "inventory_hostname in groups['kube_master'] or inventory_hostname in groups['kube_node']"

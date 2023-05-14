@@ -33,13 +33,10 @@ pauseVer=3.9
 # images not downloaded by default(only download  with '-X')
 ciliumVer=1.13.2
 flannelVer=v0.21.4
+kubeRouterVer=v0.3.1
+kubeOvnVer=v1.11.5
 nfsProvisionerVer=v4.0.2
 promChartVer=45.23.0
-
-# images not downloaded
-kubeRouterVer=v0.3.1
-kubeOvnVer=v1.5.3
-
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
@@ -316,7 +313,7 @@ function get_ext_bin() {
 }
 
 function get_sys_pkg() {
-  [[ -f "$BASE/down/packages/chrony_xenial.tar.gz" ]] && { logger warn "system packages existed"; return 0; }
+  [[ -f "$BASE/down/packages/$1.tgz" ]] && { logger warn "system packages for $1 existed"; return 0; }
 
   docker ps -a |grep -q temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
   logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
@@ -468,6 +465,18 @@ function get_extra_images() {
       docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
       docker tag "flannel/flannel-cni-plugin:v1.1.2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
       docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
+      ;;
+
+    # kube-ovn images
+    kube-ovn)
+      if [[ ! -f "$imageDir/kube-ovn_$kubeOvnVer.tar" ]];then
+        docker pull "kubeovn/kube-ovn:$kubeOvnVer" && \
+        docker save -o "$imageDir/kube-ovn_$kubeOvnVer.tar" "kubeovn/kube-ovn:$kubeOvnVer"
+      else
+        docker load -i "$imageDir/kube-ovn_$kubeOvnVer.tar"
+      fi
+      docker tag "kubeovn/kube-ovn:$kubeOvnVer" "easzlab.io.local:5000/kubeovn/kube-ovn:$kubeOvnVer"
+      docker push "easzlab.io.local:5000/kubeovn/kube-ovn:$kubeOvnVer"
       ;;
 
     # network-check images
@@ -655,7 +664,7 @@ function main() {
           [[ $OPTARG =~ (ubuntu_[0-9]+|centos_[0-9]+|debian_[0-9]+|fedora_[0-9]+|almalinux_[0-9]+|opensuse_leap_[0-9]+|rocky_[0-9]+) ]] || \
           { usage-down-sys-pkg; exit 1; }
           SYS_PKG_VER="${SYS_PKG_VER}_$OPTARG"
-          ACTION="get_sys_pkg"
+          ACTION="get_sys_pkg $OPTARG"
           ;;
         R)
           ACTION="get_harbor_offline_pkg"

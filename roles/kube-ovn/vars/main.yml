@@ -1,3 +1,3 @@
-kube_ovn_default_cidr: "{{ CLUSTER_CIDR }}"
-kube_ovn_node_switch_cidr: 100.64.0.0/16
-kube_ovn_enable_mirror: true
+# CLUSTER_CIDR_GW 作为 POD_GATEWAY，选取CLUSTER_CIDR 网段中的第一个地址
+
+CLUSTER_CIDR_GW: "{{ CLUSTER_CIDR.split('.')[0] }}.{{ CLUSTER_CIDR.split('.')[1] }}.{{ CLUSTER_CIDR.split('.')[2] }}.{{ CLUSTER_CIDR.split('.')[3]|int + 1 }}"
