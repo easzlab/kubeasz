@@ -148,9 +148,6 @@ cilium_hubble_enabled: false
 cilium_hubble_ui_enabled: false
 
 # ------------------------------------------- kube-ovn
-# [kube-ovn]选择 OVN DB and OVN Control Plane 节点，默认为第一个master节点
-OVN_DB_NODE: "{{ groups['kube_master'][0] }}"
-
 # [kube-ovn]离线镜像tar包
 kube_ovn_ver: "__kube_ovn__"
 

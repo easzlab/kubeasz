@@ -3,8 +3,23 @@
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
 - block:
-    - name: 准备安装文件install
-      template: src=install.sh.j2 dest={{ cluster_dir }}/yml/install.sh
+    - name: 准备安装相关文件
+      template: src={{ item }}.j2 dest={{ cluster_dir }}/yml/{{ item }}
+      with_items:
+      - "install.sh"
+      - "coredns.yaml"
+
+    - name: 准备dnscache的部署文件
+      template: src=nodelocaldns-ipvs.yaml.j2 dest={{ cluster_dir }}/yml/nodelocaldns.yaml
+      when: "PROXY_MODE == 'ipvs'"
+
+    - name: 准备dnscache的部署文件
+      template: src=nodelocaldns-iptables.yaml.j2 dest={{ cluster_dir }}/yml/nodelocaldns.yaml
+      when: "PROXY_MODE == 'iptables'"
+
+    - name: 创建coredns,dnscache部署
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/coredns.yaml && \
+			  {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/nodelocaldns.yaml"
 
     - name: 安装kube-ovn网络
       shell: 'export PATH="{{ base_dir }}/bin/:$PATH"; cd {{ cluster_dir }}/yml/ && \
@@ -15,7 +30,7 @@
 
 # 等待网络插件部署成功
 - name: 轮询等待kube-ovn 运行，视下载镜像速度而定
-  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-ovn -o wide|grep 'kube-ovn-cni'|grep ' {{ K8S_NODENAME }} '|awk '{print $3}'"
+  shell: "{{ base_dir }}/bin/kubectl get pod -n kube-system -o wide|grep 'kube-ovn-cni'|grep ' {{ K8S_NODENAME }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
   retries: 15
