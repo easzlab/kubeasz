@@ -239,15 +239,15 @@ function setup() {
 
     k8s_ver=$(bin/kube-apiserver --version|cut -d' ' -f2)
     etcd_ver=v$(bin/etcd --version|grep 'etcd Version'|cut -d' ' -f3)
-    network_cni=$(grep CLUSTER_NETWORK "clusters/$1/hosts"|cut -d'"' -f2)
-    network_cni_ver=$(grep "${network_cni}Ver" ezdown|cut -d'=' -f2|head -n1)
+    network_cni=$(grep CLUSTER_NETWORK "clusters/$1/hosts"|cut -d'"' -f2|sed 's/-//g')
+    network_cni_ver=$(grep -i "${network_cni}Ver" ezdown|cut -d'=' -f2|head -n1)
 
     cat <<EOF
 *** Component Version *********************
 *******************************************
-*   kubernetes:     ${k8s_ver}
-*   etcd:           ${etcd_ver}
-*   ${network_cni}:         ${network_cni_ver}
+*   kubernetes: ${k8s_ver}
+*   etcd: ${etcd_ver}
+*   ${network_cni}: ${network_cni_ver}
 *******************************************
 EOF
 

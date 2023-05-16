@@ -160,7 +160,6 @@ FIREWALL_ENABLE: true
 
 # [kube-router]kube-router 镜像版本
 kube_router_ver: "__kube_router__"
-busybox_ver: "1.28.4"
 
 
 ############################

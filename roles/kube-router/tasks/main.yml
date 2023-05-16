@@ -1,18 +1,14 @@
-- name: 准备配置 kube-router DaemonSet (without IPVS)
-  template: src=kuberouter.yaml.j2 dest={{ cluster_dir }}/yml/kube-router.yaml
-  run_once: true
-  connection: local
+- block:
+    - name: 准备配置 kube-router DaemonSet
+      template: src=kuberouter.yaml.j2 dest={{ cluster_dir }}/yml/kube-router.yaml
 
-- name: 删除 kube-router DaemonSet
-  shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/kube-router.yaml || echo true; sleep 3"
-  run_once: true
-  connection: local
-  tags: force_change_certs
-  when: 'CHANGE_CA|bool'
+    - name: 删除 kube-router DaemonSet
+      shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/kube-router.yaml || echo true; sleep 3"
+      when: 'CHANGE_CA|bool'
 
-# 只需单节点执行一次
-- name: 运行 kube-router DaemonSet
-  shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/kube-router.yaml"
+    # 只需单节点执行一次
+    - name: 运行 kube-router DaemonSet
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/kube-router.yaml"
   run_once: true
   connection: local
   tags: force_change_certs

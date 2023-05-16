@@ -33,7 +33,7 @@ pauseVer=3.9
 # images not downloaded by default(only download  with '-X')
 ciliumVer=1.13.2
 flannelVer=v0.21.4
-kubeRouterVer=v0.3.1
+kubeRouterVer=v1.5.4
 kubeOvnVer=v1.11.5
 nfsProvisionerVer=v4.0.2
 promChartVer=45.23.0
@@ -477,6 +477,18 @@ function get_extra_images() {
       fi
       docker tag "kubeovn/kube-ovn:$kubeOvnVer" "easzlab.io.local:5000/kubeovn/kube-ovn:$kubeOvnVer"
       docker push "easzlab.io.local:5000/kubeovn/kube-ovn:$kubeOvnVer"
+      ;;
+
+    # kube-router images
+    kube-router)
+      if [[ ! -f "$imageDir/kube-router_$kubeRouterVer.tar" ]];then
+        docker pull "cloudnativelabs/kube-router:$kubeRouterVer" && \
+        docker save -o "$imageDir/kube-router_$kubeRouterVer.tar" "cloudnativelabs/kube-router:$kubeRouterVer"
+      else
+        docker load -i "$imageDir/kube-router_$kubeRouterVer.tar"
+      fi
+      docker tag "cloudnativelabs/kube-router:$kubeRouterVer" "easzlab.io.local:5000/cloudnativelabs/kube-router:$kubeRouterVer"
+      docker push "easzlab.io.local:5000/cloudnativelabs/kube-router:$kubeRouterVer"
       ;;
 
     # network-check images
