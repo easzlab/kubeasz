@@ -316,7 +316,7 @@ spec:
             - name: IP_AUTODETECTION_METHOD
               value: "{{ IP_AUTODETECTION_METHOD }}"
             # Enable IPIP
-{% if CALICO_NETWORKING_BACKEND == "brid" %}
+{% if CALICO_NETWORKING_BACKEND == "bird" %}
             - name: CALICO_IPV4POOL_IPIP
               value: "{{ CALICO_IPV4POOL_IPIP }}"
 {% endif %}
@@ -378,7 +378,7 @@ spec:
               command:
               - /bin/calico-node
               - -felix-live
-{% if CALICO_NETWORKING_BACKEND == "brid" %}
+{% if CALICO_NETWORKING_BACKEND == "bird" %}
               - -bird-live
 {% endif %}
             periodSeconds: 10
@@ -389,7 +389,7 @@ spec:
               command:
               - /bin/calico-node
               - -felix-ready
-{% if CALICO_NETWORKING_BACKEND == "brid" %}
+{% if CALICO_NETWORKING_BACKEND == "bird" %}
               - -bird-ready
 {% endif %}
             periodSeconds: 10
