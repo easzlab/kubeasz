@@ -18,6 +18,9 @@
 - import_tasks: prometheus.yml
   when: 'prom_install == "yes"'
 
+- import_tasks: local-storage.yml
+  when: '"local-path-provisioner" not in pod_info.stdout or CHANGE_CA|bool'
+
 - import_tasks: nfs-provisioner.yml
   when: '"nfs-client-provisioner" not in pod_info.stdout or CHANGE_CA|bool'
 

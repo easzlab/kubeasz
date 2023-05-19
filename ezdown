@@ -23,8 +23,8 @@ REGISTRY_MIRROR=CN
 
 # images downloaded by default(with '-D')
 calicoVer=v3.24.5
-dnsNodeCacheVer=1.22.20
 corednsVer=1.9.3
+dnsNodeCacheVer=1.22.20
 dashboardVer=v2.7.0
 dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.6.3
@@ -35,6 +35,7 @@ ciliumVer=1.13.2
 flannelVer=v0.21.4
 kubeRouterVer=v1.5.4
 kubeOvnVer=v1.11.5
+localpathProvisionerVer=v0.0.24
 nfsProvisionerVer=v4.0.2
 promChartVer=45.23.0
 
@@ -85,13 +86,14 @@ function usage-down-ext-img(){
   echo -e "\033[33mUsage:\033[0m ezdown -X <opt>"
   cat <<EOF
 available options:
-    cilium            to download images of cilium
-    flannel           to download images of flannel
-    kube-ovn          to download images of kube-ovn
-    kube-router       to download images of kube-router
-    network-check     to download images of network-check
-    nfs-provisioner   to download images of nfs-provisioner
-    prometheus        to download images of prometheus 
+    cilium                   to download images of cilium
+    flannel                  to download images of flannel
+    kube-ovn                 to download images of kube-ovn
+    kube-router              to download images of kube-router
+    local-path-provisioner   to download images of local-path-provisioner
+    network-check            to download images of network-check
+    nfs-provisioner          to download images of nfs-provisioner
+    prometheus               to download images of prometheus 
 examples:
     ./ezdown -X prometheus
 EOF
@@ -489,6 +491,18 @@ function get_extra_images() {
       fi
       docker tag "cloudnativelabs/kube-router:$kubeRouterVer" "easzlab.io.local:5000/cloudnativelabs/kube-router:$kubeRouterVer"
       docker push "easzlab.io.local:5000/cloudnativelabs/kube-router:$kubeRouterVer"
+      ;;
+
+    # local-path-provisioner image
+    local-path-provisioner)
+      if [[ ! -f "$imageDir/local-path-provisioner_$localpathProvisionerVer.tar" ]];then
+        docker pull "rancher/local-path-provisioner:$localpathProvisionerVer" && \
+        docker save -o "$imageDir/local-path-provisioner_$localpathProvisionerVer.tar" "rancher/local-path-provisioner:$localpathProvisionerVer"
+      else
+        docker load -i "$imageDir/local-path-provisioner_$localpathProvisionerVer.tar"
+      fi
+      docker tag "rancher/local-path-provisioner:$localpathProvisionerVer" "easzlab.io.local:5000/rancher/local-path-provisioner:$localpathProvisionerVer"
+      docker push "easzlab.io.local:5000/rancher/local-path-provisioner:$localpathProvisionerVer"
       ;;
 
     # network-check images

@@ -158,6 +158,7 @@ function new() {
     dashboardVer=$(grep 'dashboardVer=' ezdown|cut -d'=' -f2)
     dashboardMetricsScraperVer=$(grep 'dashboardMetricsScraperVer=' ezdown|cut -d'=' -f2)
     metricsVer=$(grep 'metricsVer=' ezdown|cut -d'=' -f2)
+    localpathProvisionerVer=$(grep 'localpathProvisionerVer=' ezdown|cut -d'=' -f2)
     nfsProvisionerVer=$(grep 'nfsProvisionerVer=' ezdown|cut -d'=' -f2)
     pauseVer=$(grep 'pauseVer=' ezdown|cut -d'=' -f2)
     promChartVer=$(grep 'promChartVer=' ezdown|cut -d'=' -f2)
@@ -177,6 +178,7 @@ function new() {
 	   -e "s/__dns_node_cache__/$dnsNodeCacheVer/g" \
 	   -e "s/__dashboard__/$dashboardVer/g" \
 	   -e "s/__dash_metrics__/$dashboardMetricsScraperVer/g" \
+	   -e "s/__local_path_provisioner__/$localpathProvisionerVer/g" \
 	   -e "s/__nfs_provisioner__/$nfsProvisionerVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__harbor__/$harborVer/g" \
