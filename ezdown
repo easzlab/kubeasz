@@ -629,6 +629,14 @@ function start_kubeasz_docker() {
   docker ps -a --format="{{ .Names }}"|grep kubeasz > /dev/null 2>&1 && \
   docker rm -f kubeasz > /dev/null
 
+  if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
+    logger info "downloading kubeasz: $KUBEASZ_VER"
+    docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+  else
+    docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
+  fi
+
   logger info "try to run kubeasz in a container"
   # get host's IP
   host_if=$(ip route|grep default|head -n1|cut -d' ' -f5)

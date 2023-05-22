@@ -188,7 +188,7 @@ prom_namespace: "monitor"
 prom_chart_ver: "__prom_chart__"
 
 # local-storage (local-path-provisioner) 自动安装
-local_path_provisioner_install: "yes"
+local_path_provisioner_install: "no"
 local_path_provisioner_ver: "__local_path_provisioner__"
 # 设置默认本地存储路径
 local_path_provisioner_dir: "/opt/local-path-provisioner"

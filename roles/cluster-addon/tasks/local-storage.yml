@@ -5,9 +5,9 @@
     - name: 准备 local-storage部署文件
       template: src=local-storage/{{ item }}.j2 dest={{ cluster_dir }}/yml/local-storage/{{ item }}
       with_items:
-      - "local-storage.yaml"
+      - "local-path-storage.yaml"
       - "test-pod.yaml"
 
     - name: 创建 local-storage部署
-      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/local-storage/local-storage.yaml"
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/local-storage/local-path-storage.yaml"
   when: 'local_path_provisioner_install == "yes"'
