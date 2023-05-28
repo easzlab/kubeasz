@@ -187,6 +187,13 @@ prom_install: "no"
 prom_namespace: "monitor"
 prom_chart_ver: "__prom_chart__"
 
+# kubeapps 自动安装，如果选择安装，默认同时安装local-storage（提供storageClass: "local-path"）
+kubeapps_install: "no"
+kubeapps_install_namespace: "kubeapps"
+kubeapps_working_namespace: "default"
+kubeapps_storage_class: "local-path"
+kubeapps_chart_ver: "__kubeapps_chart__"
+
 # local-storage (local-path-provisioner) 自动安装
 local_path_provisioner_install: "no"
 local_path_provisioner_ver: "__local_path_provisioner__"

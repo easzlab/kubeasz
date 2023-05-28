@@ -10,4 +10,4 @@
 
     - name: 创建 local-storage部署
       shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/local-storage/local-path-storage.yaml"
-  when: 'local_path_provisioner_install == "yes"'
+  when: 'local_path_provisioner_install == "yes" or (kubeapps_install == "yes" and kubeapps_storage_class == "local-path")'

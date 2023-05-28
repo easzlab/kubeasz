@@ -38,6 +38,7 @@ kubeOvnVer=v1.11.5
 localpathProvisionerVer=v0.0.24
 nfsProvisionerVer=v4.0.2
 promChartVer=45.23.0
+kubeappsVer=12.4.3
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
@@ -90,6 +91,7 @@ available options:
     flannel                  to download images of flannel
     kube-ovn                 to download images of kube-ovn
     kube-router              to download images of kube-router
+    kubeapps                 to download images of kubeapps
     local-path-provisioner   to download images of local-path-provisioner
     network-check            to download images of network-check
     nfs-provisioner          to download images of nfs-provisioner
@@ -467,6 +469,39 @@ function get_extra_images() {
       docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
       docker tag "flannel/flannel-cni-plugin:v1.1.2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
       docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
+      ;;
+
+    # kubeapps images
+    kubeapps)
+      if [[ ! -f "$imageDir/kubeapps_$kubeappsVer.tar" ]];then
+        docker pull "bitnami/kubeapps-apis:2.7.0-debian-11-r10" && \
+        docker pull "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" && \
+        docker pull "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" && \
+        docker pull "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" && \
+        docker pull "bitnami/nginx:1.23.4-debian-11-r18" && \
+        docker pull "bitnami/postgresql:15.3.0-debian-11-r0" && \
+        docker save -o "$imageDir/kubeapps_$kubeappsVer.tar" \
+                    "bitnami/kubeapps-apis:2.7.0-debian-11-r10" \
+                    "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" \
+                    "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" \
+                    "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" \
+                    "bitnami/nginx:1.23.4-debian-11-r18" \
+                    "bitnami/postgresql:15.3.0-debian-11-r0"
+      else
+        docker load -i "$imageDir/kubeapps_$kubeappsVer.tar"
+      fi
+      docker tag "bitnami/kubeapps-apis:2.7.0-debian-11-r10" "easzlab.io.local:5000/bitnami/kubeapps-apis:2.7.0-debian-11-r10"
+      docker tag "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" "easzlab.io.local:5000/bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0"
+      docker tag "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" "easzlab.io.local:5000/bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0"
+      docker tag "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" "easzlab.io.local:5000/bitnami/kubeapps-dashboard:2.7.0-debian-11-r12"
+      docker tag "bitnami/nginx:1.23.4-debian-11-r18" "easzlab.io.local:5000/bitnami/nginx:1.23.4-debian-11-r18"
+      docker tag "bitnami/postgresql:15.3.0-debian-11-r0" "easzlab.io.local:5000/bitnami/postgresql:15.3.0-debian-11-r0"
+      docker push "easzlab.io.local:5000/bitnami/kubeapps-apis:2.7.0-debian-11-r10"
+      docker push "easzlab.io.local:5000/bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0"
+      docker push "easzlab.io.local:5000/bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0"
+      docker push "easzlab.io.local:5000/bitnami/kubeapps-dashboard:2.7.0-debian-11-r12"
+      docker push "easzlab.io.local:5000/bitnami/nginx:1.23.4-debian-11-r18"
+      docker push "easzlab.io.local:5000/bitnami/postgresql:15.3.0-debian-11-r0"
       ;;
 
     # kube-ovn images

@@ -1,0 +1,24 @@
+# https://github.com/bitnami/charts/tree/main/bitnami/kubeapps 
+
+- block:
+    - name: prepare some dirs
+      file: name={{ cluster_dir }}/yml/kubeapps/token state=directory
+
+    - name: 创建 kubeapps chart 个性化设置
+      template: src=kubeapps/values.yaml.j2 dest={{ cluster_dir }}/yml/kubeapps/values.yaml
+
+    - name: 准备临时用户tokens
+      template: src=kubeapps/{{ item }}.j2 dest={{ cluster_dir }}/yml/kubeapps/token/{{ item }}
+      with_items:
+      - "kubeapps-admin-token.yaml"
+      - "single-namespace-edit-token.yaml"
+      - "single-namespace-view-token.yaml"
+
+    - name: helm 创建 kubeapps
+      shell: "{{ base_dir }}/bin/helm upgrade kubeapps --install --create-namespace \
+              -n {{ kubeapps_install_namespace }} -f {{ cluster_dir }}/yml/kubeapps/values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/kubeapps-{{ kubeapps_chart_ver }}.tgz"
+
+    - name: 创建临时用户tokens
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/kubeapps/token/"
+  when: 'kubeapps_install == "yes"'

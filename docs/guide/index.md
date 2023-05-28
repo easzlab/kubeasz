@@ -6,7 +6,7 @@
 - 安装 [dashboard](dashboard.md)
 - 安装 [metrics-server](metrics-server.md)
 - 安装 [prometheus](prometheus.md)
-- 安装 [heapster](heapster.md) DEPRECATED WARNNING
+- 安装 [kubeapps](kubeapps.md)
 - 安装 [ingress](ingress.md)
 - 安装 [helm](helm.md)
 - 安装 [efk](efk.md)
