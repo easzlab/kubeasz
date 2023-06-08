@@ -1,0 +1,415 @@
+#!/bin/bash
+# https://github.com/johanhaleby/kubetail/blob/master/kubetail
+
+if [ -z "${KUBECTL_BIN}" ]; then
+	if hash kubectl 2>/dev/null; then
+		KUBECTL_BIN='kubectl'
+	elif hash kubectl.exe 2>/dev/null; then
+		KUBECTL_BIN='kubectl.exe'
+	elif hash microk8s 2>/dev/null; then
+		KUBECTL_BIN='microk8s.kubectl'
+	fi
+fi
+
+if ! hash "${KUBECTL_BIN}" 2>/dev/null; then
+	echo >&2 "kubectl is not installed"
+	exit 1
+fi
+
+readonly PROGNAME=$(basename $0)
+
+calculate_default_namespace() {
+	local config_namespace=$(${KUBECTL_BIN} config view --minify --output 'jsonpath={..namespace}')
+	echo "${KUBETAIL_NAMESPACE:-${config_namespace:-default}}"
+}
+
+# Sets default color ouput to 'false' if output is not a terminal
+terminal_aware_default_color=line
+[ ! -t 1 ] && terminal_aware_default_color=false
+
+default_previous="${KUBETAIL_PREVIOUS:-false}"
+default_since="${KUBETAIL_SINCE:-10s}"
+default_namespace=$(calculate_default_namespace)
+default_follow="${KUBETAIL_FOLLOW:-true}"
+default_prefix="${KUBETAIL_PREFIX:-true}"
+default_line_buffered="${KUBETAIL_LINE_BUFFERED:-}"
+default_colored_output="${KUBETAIL_COLORED_OUTPUT:-$terminal_aware_default_color}"
+default_timestamps="${KUBETAIL_TIMESTAMPS:-}"
+default_jq_selector="${KUBETAIL_JQ_SELECTOR:-}"
+default_skip_colors="${KUBETAIL_SKIP_COLORS:-7,8}"
+default_tail="${KUBETAIL_TAIL:--1}"
+default_show_color_index="${KUBETAIL_SHOW_COLOR_INDEX:-false}"
+
+namespace="${default_namespace}"
+follow="${default_follow}"
+prefix="${default_prefix}"
+line_buffered="${default_line_buffered}"
+colored_output="${default_colored_output}"
+timestamps="${default_timestamps}"
+jq_selector="${default_jq_selector}"
+skip_colors="${default_skip_colors}"
+tail="${default_tail}"
+show_color_index="${default_show_color_index}"
+
+if [[ ${1} != -* ]]
+then
+	pod="${1}"
+fi
+containers=()
+selector=()
+regex='substring'
+previous="${default_previous}"
+since="${default_since}"
+version="1.6.19-SNAPSHOT"
+dryrun=false
+cluster=""
+namespace_arg="-n ${default_namespace}"
+
+usage="${PROGNAME} <search term> [-h] [-c] [-n] [-t] [-l] [-f] [-d] [-P] [-p] [-s] [-b] [-e] [-j] [-k] [-z] [-v] [-r] [-i] -- tail multiple Kubernetes pod logs at the same time
+
+where:
+    -h, --help              Show this help text.
+    -c, --container         The name of the container to tail in the pod (if multiple containers are defined in the pod).
+                            Defaults to all containers in the pod. Can be used multiple times.
+    -t, --context           The k8s context. ex. int1-context. Relies on ~/.kube/config for the contexts.
+    -l, --selector          Label selector. If used the pod name is ignored.
+    -n, --namespace         The Kubernetes namespace where the pods are located. Defaults to \"${default_namespace}\".
+    -f, --follow            Specify if the logs should be streamed. (true|false) Defaults to ${default_follow}.
+    -d, --dry-run           Print the names of the matched pods and containers, then exit.
+    -P, --prefix            Specify if add the pod name prefix before each line. (true|false) Defaults to ${default_prefix}.
+    -p, --previous          Return logs for the previous instances of the pods, if available. (true|false) Defaults to ${default_previous}.
+    -s, --since             Only return logs newer than a relative duration like 5s, 2m, or 3h. Defaults to ${default_since}.
+    -b, --line-buffered     This flags indicates to use line-buffered. (true|false) Defaults to ${default_line_buffered:-false}.
+    -e, --regex             The type of name matching to use (regex|substring). Defaults to ${regex}.
+    -j, --jq                If your output is json - use this jq-selector to parse it. Defaults to \"${default_jq_selector}\".
+                            example: --jq \".logger + \\\" \\\" + .message\"
+    -k, --colored-output    Use colored output (pod|line|false).
+                            pod = only color pod name, line = color entire line, false = don't use any colors.
+                            Defaults to ${default_colored_output}.
+    -z, --skip-colors       Comma-separated list of colors to not use in output.
+                            If you have green foreground on black, this will skip dark grey and some greens: -z 2,8,10
+                            Defaults to: ${default_skip_colors}.
+        --timestamps        Show timestamps for each log line. (true|false) Defaults to ${default_timestamps:-false}.
+        --tail              Lines of recent log file to display. Defaults to ${default_tail}, showing all log lines.
+    -v, --version           Prints the kubetail version.
+    -r, --cluster           The name of the kubeconfig cluster to use.
+    -i, --show-color-index  Show the color index before the pod name prefix that is shown before each log line.
+                            Normally only the pod name is added as a prefix before each line, for example \"[app-5b7ff6cbcd-bjv8n]\",
+                            but if \"show-color-index\" is true then color index is added as well: \"[1:app-5b7ff6cbcd-bjv8n]\".
+                            This is useful if you have color blindness or if you want to know which colors to exclude (see \"--skip-colors\").
+                            Defaults to ${default_show_color_index}.
+
+examples:
+    ${PROGNAME} my-pod-v1
+    ${PROGNAME} my-pod-v1 -c my-container
+    ${PROGNAME} my-pod-v1 -t int1-context -c my-container
+    ${PROGNAME} '(service|consumer|thing)' -e regex
+    ${PROGNAME} -l service=my-service
+    ${PROGNAME} --selector service=my-service --since 10m
+    ${PROGNAME} --tail 1"
+
+if [ "$#" -ne 0 ]; then
+	while [ "$#" -gt 0 ]
+	do
+		case "$1" in
+		-h|--help)
+			echo "$usage"
+			exit 0
+			;;
+		-v|--version)
+			echo "$version"
+			exit 0
+			;;
+		-c|--container)
+			containers+=("$2")
+			;;
+		-e|--regex)
+			if [ "$2" = "substring" ]; then
+				regex="substring"
+			else
+				regex="regex"
+			fi
+			;;
+		-t|--context)
+			context="$2"
+			;;
+		-r|--cluster)
+			cluster="--cluster $2"
+			;;
+		-l|--selector)
+			selector=(--selector "$2")
+			pod=""
+			;;
+		-d|--dry-run)
+			dryrun=true
+			;;
+		-p|--previous)
+			if [ "$2" = "false" ]; then
+				previous="false"
+			else
+				previous="true"
+			fi
+			;;
+		-s|--since)
+			if [ -z "$2" ]; then
+				since="${default_since}"
+			else
+				since="$2"
+			fi
+			;;
+		-n|--namespace)
+			if [ -z "$2" ]; then
+				# using namespace from context
+				:
+			else
+				namespace_arg="--namespace $2"
+			fi
+			;;
+		-f|--follow)
+			if [ "$2" = "false" ]; then
+				follow="false"
+			else
+				follow="true"
+			fi
+			;;
+		-P|--prefix)
+			if [ "$2" = "false" ]; then
+				prefix="false"
+			else
+				prefix="true"
+			fi
+			;;
+		-b|--line-buffered)
+			if [ "$2" = "false" ]; then
+				line_buffered=""
+			else
+				line_buffered="| grep - --line-buffered"
+			fi
+			;;
+		-k|--colored-output)
+			if [ -z "$2" ]; then
+				colored_output="${default_colored_output}"
+			else
+				colored_output="$2"
+			fi
+			;;
+		-j|--jq)
+			if [ -z "$2" ]; then
+				jq_selector="${default_jq_selector}"
+			else
+				jq_selector="$2"
+			fi
+			;;
+		-z|--skip-colors)
+			if [ -z "$2" ]; then
+				skip_colors="${default_skip_colors}"
+			else
+				skip_colors="$2"
+			fi
+			;;
+		--timestamps)
+			if [ "$2" = "false" ]; then
+					timestamps="$1=$2"
+			else
+					timestamps="$1"
+			fi
+			;;
+		--tail)
+			if [ -z "$2" ]; then
+					tail="${default_tail}"
+			else
+					tail="$2"
+			fi
+			;;
+		-i|--show-color-index)
+			if [ -z "$2" ]; then
+					show_color_index="${default_show_color_index}"
+			else
+					show_color_index="$2"
+			fi
+			;;
+		--)
+			break
+			;;
+		-*)
+			echo "Invalid option '$1'. Use --help to see the valid options" >&2
+			exit 1
+			;;
+		# an option argument, continue
+		*) ;;
+		esac
+		shift
+	done
+else
+	echo "$usage"
+	exit 1
+fi
+
+# Join function that supports a multi-character separator (copied from http://stackoverflow.com/a/23673883/398441)
+function join() {
+	# $1 is sep
+	# $2... are the elements to join
+	local sep="$1"
+	shift
+
+	local F=0
+	for x in "$@"
+	do
+		if [[ F -eq 1 ]]
+			then
+				echo -n "$sep"
+			else
+				F=1
+			fi
+			echo -n "$x"
+	done
+	echo
+}
+
+# Check if pod query contains a comma and we've not specified "regex" explicitly,
+# if so we convert the pod query string into a regex that matches all pods seperated by the comma
+if [[ "${pod}" = *","* ]] && [ ! "${regex}" == 'regex' ]; then
+
+	# Split the supplied query string (in variable pod) by comma into an array named "pods_to_match"
+	IFS=',' read -r -a pods_to_match <<< "${pod}"
+
+	# Join all pod names into a string with ".*|.*" as delimiter
+	pod=$(join ".*|.*" "${pods_to_match[@]}")
+
+	# Prepend and initial ".*" and and append the last ".*"
+	pod=".*${pod}.*"
+
+	# Force the use of regex matching
+	regex='regex'
+fi
+
+grep_matcher=''
+if [ "${regex}" == 'regex' ]; then
+	echo "Using regex '${pod}' to match pods"
+	grep_matcher='-E'
+fi
+
+# Get all pods matching the input and put them in an array. If no input then all pods are matched.
+matching_pods=(`${KUBECTL_BIN} get pods ${context:+--context=${context}} "${selector[@]}" ${namespace_arg} ${cluster} --field-selector=status.phase=Running --output=jsonpath='{.items[*].metadata.name}' | xargs -n1 | grep --color=never $grep_matcher "${pod}"`)
+matching_pods_size=${#matching_pods[@]}
+
+if [ ${matching_pods_size} -eq 0 ]; then
+	echo "No pod exists that matches ${pod}"
+	exit 1
+fi
+
+color_end=$(tput sgr0)
+
+# Wrap all pod names in the "kubectl logs <name> -f=true/false" command
+display_names_preview=()
+pod_logs_commands=()
+i=0
+color_index=0
+
+function next_col {
+	potential_col=$(($1+1))
+	[[ $skip_colors =~ (^|,)$potential_col($|,) ]] && echo `next_col $potential_col` || echo $potential_col
+}
+
+# Allows for more colors, this is useful if one tails a lot pods
+if [ ${colored_output} != "false" ]; then
+	export TERM=xterm-256color
+fi
+
+# Function that kills all kubectl processes that are started by kubetail in the background
+function kill_kubectl_processes {
+	kill 0
+}
+
+# Invoke the "kill_kubectl_processes" function when the script is stopped (including ctrl+c)
+# Note that "INT" is not used because if, for example, kubectl cannot find a container
+# (for example when running "kubetail something -c non_matching")
+trap kill_kubectl_processes EXIT
+
+# Putting all needed values in a variable so that multiple requests to Kubernetes api can be avoided, thus making it faster
+all_pods_containers=$(echo -e `${KUBECTL_BIN} get pods ${namespace_arg} ${context:+--context=${context}} --output=jsonpath="{range .items[*]}{.metadata.name} {.spec['containers', 'initContainers'][*].name} \n{end}"`)
+
+
+for pod in ${matching_pods[@]}; do
+	if [ ${#containers[@]} -eq 0 ]; then
+		pod_containers=($(echo -e "$all_pods_containers" | grep $pod | cut -d ' ' -f2- | xargs -n1))
+	else
+		pod_containers=("${containers[@]}")
+	fi
+
+	for container in ${pod_containers[@]}; do
+		[ ${matching_pods_size} -eq 1 -a ${#pod_containers[@]} -eq 1 ] && single_stream="true" || single_stream="false"
+
+		if [ ${colored_output} == "false" ] || [ ${single_stream} == "true" ]; then
+			color_start=$(tput sgr0)
+			color_index_prefix=""
+		else
+			color_index=`next_col $color_index`
+			color_start=$(tput setaf $color_index)
+			color_index_prefix=`if [ ${show_color_index} == "true" ]; then echo "${color_index}:"; else echo ""; fi`
+		fi
+
+		if [ ${#pod_containers[@]} -eq 1 ]; then
+			display_name="${pod}"
+		else
+			display_name="${pod} ${container}"
+		fi
+
+		if [ ${colored_output} == "false" ]; then
+			display_names_preview+=("${display_name}")
+		else
+			display_names_preview+=("$color_index_prefix${color_start}${display_name}${color_end}")
+		fi
+
+		if [ ${prefix} == "false" ]; then
+			prefix_line=""
+		else
+			if [ ${colored_output} == "false" ]; then
+				prefix_line="[${display_name}] "
+			else
+				prefix_line="${color_start}[${color_end}${color_index_prefix}${color_start}${display_name}]${color_end} "
+			fi
+		fi
+
+		if [ ${colored_output} == "false" ] || [ ${colored_output} == "pod" ]; then
+			colored_line="${prefix_line}\$REPLY"
+		else
+			colored_line="${prefix_line}${color_start}\$REPLY${color_end}"
+		fi
+
+		kubectl_cmd="${KUBECTL_BIN} ${context:+--context=${context}} logs ${pod} ${container} -f=${follow} --previous=${previous} --since=${since} --tail=${tail} ${namespace_arg} ${cluster}"
+		colorify_lines_cmd="while read -r; do echo \"$colored_line\" | tail -n +1; done"
+		if [ "z" == "z$jq_selector" ]; then
+			logs_commands+=("${kubectl_cmd} ${timestamps} | ${colorify_lines_cmd}");
+		else
+			logs_commands+=("${kubectl_cmd} | jq --unbuffered -r -R --stream '. as \$line | try (fromjson | $jq_selector) catch \$line' | ${colorify_lines_cmd}");
+		fi
+
+		# There are only 11 usable colors
+		i=$(( ($i+1)%13 ))
+	done
+done
+
+# Preview pod colors
+echo "Will tail ${#display_names_preview[@]} logs..."
+for preview in "${display_names_preview[@]}"; do
+	echo "$preview"
+done
+
+if [[ ${dryrun} == true ]];
+then
+	exit 0
+fi
+
+# Join all log commands into one string separated by " & "
+command_to_tail=$(join " & " "${logs_commands[@]}")
+
+# Aggregate all logs and print to stdout
+# Note that tail +1f doesn't work on some Linux distributions so we use this slightly longer alternative
+# Note that if --follow=false, then the tail command should also not be followed
+tail_follow_command="-f"
+if [[ ${follow} == false ]];
+then
+	tail_follow_command=""
+fi
+tail ${tail_follow_command} -n +1 <( eval "${command_to_tail}" ) $line_buffered
