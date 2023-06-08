@@ -41,3 +41,13 @@
     state: present
     regexp: 'easzlab.io.local'
     line: "{{ ansible_env.SSH_CLIENT.split(' ')[0] }}    easzlab.io.local"
+
+- name: 设置 k8s_nodename 在 master、node 节点 /etc/hosts 地址解析
+  lineinfile:
+    dest: /etc/hosts
+    state: present
+    regexp: "{{ K8S_NODENAME }}"
+    line: "{{ inventory_hostname }}    {{ K8S_NODENAME }}"
+  delegate_to: "{{ item }}"
+  with_items: ["{{ groups.kube_master }}", "{{ groups.kube_node }}"]
+  when: "inventory_hostname != K8S_NODENAME"
