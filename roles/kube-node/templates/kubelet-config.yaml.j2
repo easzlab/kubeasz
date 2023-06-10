@@ -26,6 +26,7 @@ clusterDomain: {{ CLUSTER_DNS_DOMAIN }}
 configMapAndSecretChangeDetectionStrategy: Watch
 containerLogMaxFiles: 3 
 containerLogMaxSize: 10Mi
+containerRuntimeEndpoint: "unix:///run/containerd/containerd.sock"
 enforceNodeAllocatable:
 - pods
 {% if KUBE_RESERVED_ENABLED == "yes" %}
@@ -56,7 +57,7 @@ kubeReservedCgroup: /podruntime.slice
 kubeReserved:
   cpu: 200m
   memory: 400Mi
-  pid: 1000
+  pid: "1000"
 {% endif %}
 kubeAPIBurst: 100
 kubeAPIQPS: 50
@@ -82,7 +83,7 @@ systemReservedCgroup: /system.slice
 systemReserved:
   cpu: 200m
   memory: 500Mi
-  pid: 5000
+  pid: "5000"
 {% endif %}
 tlsCertFile: {{ ca_dir }}/kubelet.pem
 tlsPrivateKeyFile: {{ ca_dir }}/kubelet-key.pem
