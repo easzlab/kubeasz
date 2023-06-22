@@ -26,7 +26,6 @@ clusterDomain: {{ CLUSTER_DNS_DOMAIN }}
 configMapAndSecretChangeDetectionStrategy: Watch
 containerLogMaxFiles: 3 
 containerLogMaxSize: 10Mi
-containerRuntimeEndpoint: "unix:///run/containerd/containerd.sock"
 enforceNodeAllocatable:
 - pods
 {% if KUBE_RESERVED_ENABLED == "yes" %}
