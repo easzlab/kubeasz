@@ -22,6 +22,8 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/systemd/system.slice
 
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/podruntime.slice
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
+
+ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/podruntime.slice
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
   --config=/var/lib/kubelet/config.yaml \
