@@ -37,6 +37,7 @@ $ ETCDCTL_API=3 etcdctl --write-out=table snapshot status backup.db
   - kube-proxy
   - kube-scheduler
 
+- 切换当前所在集群为升级集群, 在kubeasz控制端执行`dk ezctl checkout k8s-01`
 - 在kubeasz控制端执行`dk ezctl upgrade k8s-01` 即可完成k8s 升级，不会中断业务应用
 
 
