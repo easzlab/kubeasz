@@ -1,3 +1,4 @@
+# https://kubernetes.io/docs/tasks/run-application/run-replicated-stateful-application/
 # Headless service for stable DNS entries of StatefulSet members.
 apiVersion: v1
 kind: Service
@@ -5,6 +6,7 @@ metadata:
   name: mysql
   labels:
     app: mysql
+    app.kubernetes.io/name: mysql
 spec:
   ports:
   - name: mysql
@@ -14,17 +16,18 @@ spec:
     app: mysql
 ---
 # Client service for connecting to any MySQL instance for reads.
-# For writes, you must instead connect to the master: mysql-0.mysql.
+# For writes, you must instead connect to the primary: mysql-0.mysql.
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql-read
   labels:
     app: mysql
+    app.kubernetes.io/name: mysql
+    readonly: "true"
 spec:
   ports:
   - name: mysql
     port: 3306
   selector:
     app: mysql
-

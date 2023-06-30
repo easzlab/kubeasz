@@ -10,6 +10,7 @@ node=""
 nodefaultctx=0
 nodefaultns=0
 cmd='[ "nsenter", "--target", "1", "--mount", "--uts", "--ipc", "--net", "--pid", "--"'
+# If this has a terminal for STDIN
 if [ -t 0 ]; then
   tty=true
 else

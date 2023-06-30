@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mycli
+  name: mysql-test-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mycli
+  template:
+    metadata:
+      labels:
+        app: mycli
+    spec:
+      containers:
+      - name: mycli
+        image: mysql:5.7
+        command:
+        - tail
+        - "-f"
+        - "/dev/null"
+        env:
+        - name: TZ
+          value: "Asia/Shanghai"
+        - name: LANG
+          value: "C.UTF-8"

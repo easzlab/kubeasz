@@ -54,9 +54,9 @@ imageMinimumGCAge: 2m0s
 {% if KUBE_RESERVED_ENABLED == "yes" %}
 kubeReservedCgroup: /podruntime.slice
 kubeReserved:
-  cpu: 200m
-  memory: 400Mi
-  pid: 1000
+  cpu: 500m
+  memory: 1000Mi
+  pid: "1000"
 {% endif %}
 kubeAPIBurst: 100
 kubeAPIQPS: 50
@@ -80,9 +80,9 @@ syncFrequency: 1m0s
 {% if SYS_RESERVED_ENABLED == "yes" %}
 systemReservedCgroup: /system.slice
 systemReserved:
-  cpu: 200m
-  memory: 500Mi
-  pid: 5000
+  cpu: 500m
+  memory: 1000Mi
+  pid: "5000"
 {% endif %}
 tlsCertFile: {{ ca_dir }}/kubelet.pem
 tlsPrivateKeyFile: {{ ca_dir }}/kubelet-key.pem
