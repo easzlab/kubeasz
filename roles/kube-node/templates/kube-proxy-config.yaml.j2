@@ -15,3 +15,14 @@ healthzBindAddress: 0.0.0.0:10256
 hostnameOverride: "{{ K8S_NODENAME }}"
 metricsBindAddress: 0.0.0.0:10249
 mode: "{{ PROXY_MODE }}"
+{% if PROXY_MODE == "ipvs" %}
+ipvs:
+  excludeCIDRs: null
+  minSyncPeriod: 0s
+  scheduler: ""
+  strictARP: {{ ENABLE_IPVS_STRICT_ARP }}
+  syncPeriod: 30s
+  tcpFinTimeout: 0s
+  tcpTimeout: 0s
+  udpTimeout: 0s
+{% endif %}

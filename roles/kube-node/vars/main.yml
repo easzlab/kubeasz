@@ -9,3 +9,6 @@ CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR.split('.')[0] }}.{{ SERVICE_CIDR.split('.')
 
 # pod-max-pids
 POD_MAX_PIDS: 1024
+
+# Enable strict ARP by setting arp_ignore to 1 and arp_announce to 2
+ENABLE_IPVS_STRICT_ARP: false
