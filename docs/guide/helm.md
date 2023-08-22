@@ -18,6 +18,11 @@ mv ./linux-amd64/helm /usr/bin
 ```
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 ```
+国内镜像
+```
+ helm repo add stable http://mirror.azure.cn/kubernetes/charts
+```
+
 
 ## 使用 helm 安装应用
 
