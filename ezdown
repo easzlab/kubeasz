@@ -240,8 +240,8 @@ ${c}
 EOF
   fi
 
-  if [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
-    logger debug "turn off selinux in CentOS/Redhat"
+  if [[ -f /etc/selinux/config ]]; then
+    logger debug "turn off selinux on host"
     getenforce|grep Disabled || setenforce 0
     sed -i 's/^SELINUX=.*$/SELINUX=disabled/g' /etc/selinux/config
   fi
