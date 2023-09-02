@@ -47,27 +47,26 @@ ETCD_WAL_DIR: ""
 ############################
 # role:runtime [containerd,docker]
 ############################
-# ------------------------------------------- containerd
-# [.]启用容器仓库镜像
+# [.]启用拉取加速镜像仓库
 ENABLE_MIRROR_REGISTRY: true
 
-# [containerd]基础容器镜像
+# [.]添加信任的私有仓库
+INSECURE_REG:
+  - "http://easzlab.io.local:5000"
+  - "https://{{ HARBOR_REGISTRY }}"
+
+# [.]基础容器镜像
 SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
 
 # [containerd]容器持久化存储目录
 CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
 
-# ------------------------------------------- docker
 # [docker]容器存储目录
 DOCKER_STORAGE_DIR: "/var/lib/docker"
 
 # [docker]开启Restful API
-ENABLE_REMOTE_API: false
+DOCKER_ENABLE_REMOTE_API: false
 
-# [docker]信任的HTTP仓库
-INSECURE_REG:
-  - "http://easzlab.io.local:5000"
-  - "https://{{ HARBOR_REGISTRY }}"
 
 ############################
 # role:kube-master
