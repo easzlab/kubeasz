@@ -13,29 +13,41 @@ set -o pipefail
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=20.10.24
+DOCKER_VER=24.0.5
 KUBEASZ_VER=3.6.1
-K8S_BIN_VER=v1.27.2
-EXT_BIN_VER=1.7.1
+K8S_BIN_VER=v1.28.1
+# https://github.com/easzlab/dockerfile-kubeasz-ext-bin
+EXT_BIN_VER=1.8.0
+# https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.0.0
 HARBOR_VER=v2.6.4
 REGISTRY_MIRROR=CN
 
 # images downloaded by default(with '-D')
+# https://github.com/projectcalico/calico
 calicoVer=v3.24.6
-corednsVer=1.9.3
-dnsNodeCacheVer=1.22.20
+# https://github.com/coredns/coredns
+corednsVer=1.11.1
+# https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
+dnsNodeCacheVer=1.22.23
 dashboardVer=v2.7.0
 dashboardMetricsScraperVer=v1.0.8
-metricsVer=v0.6.3
+# https://github.com/kubernetes-sigs/metrics-server
+metricsVer=v0.6.4
 pauseVer=3.9
 
 # images not downloaded by default(only download  with '-X')
-ciliumVer=1.13.2
-flannelVer=v0.21.4
+# https://github.com/cilium/cilium
+ciliumVer=1.13.6
+# https://github.com/flannel-io/flannel
+flannelVer=v0.22.2
+# https://github.com/cloudnativelabs/kube-router
 kubeRouterVer=v1.5.4
+# https://github.com/kubeovn/kube-ovn
 kubeOvnVer=v1.11.5
+# https://github.com/rancher/local-path-provisioner
 localpathProvisionerVer=v0.0.24
+# https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
 nfsProvisionerVer=v4.0.2
 promChartVer=45.23.0
 kubeappsVer=12.4.3
@@ -241,7 +253,7 @@ EOF
   fi
 
   if [[ -f /etc/selinux/config ]]; then
-    logger debug "turn off selinux on host"
+    logger debug "turn off selinux"
     getenforce|grep Disabled || setenforce 0
     sed -i 's/^SELINUX=.*$/SELINUX=disabled/g' /etc/selinux/config
   fi
@@ -460,15 +472,15 @@ function get_extra_images() {
     flannel)
       if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
         docker pull "flannel/flannel:$flannelVer" && \
-        docker pull "flannel/flannel-cni-plugin:v1.1.2" && \
-        docker save -o "$imageDir/flannel_$flannelVer.tar" "flannel/flannel:$flannelVer" "flannel/flannel-cni-plugin:v1.1.2"
+        docker pull "flannel/flannel-cni-plugin:v1.2.0" && \
+        docker save -o "$imageDir/flannel_$flannelVer.tar" "flannel/flannel:$flannelVer" "flannel/flannel-cni-plugin:v1.2.0"
       else
         docker load -i "$imageDir/flannel_$flannelVer.tar"
       fi
       docker tag "flannel/flannel:$flannelVer" "easzlab.io.local:5000/flannel/flannel:$flannelVer"
       docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
-      docker tag "flannel/flannel-cni-plugin:v1.1.2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
-      docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.1.2"
+      docker tag "flannel/flannel-cni-plugin:v1.2.0" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.2.0"
+      docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.2.0"
       ;;
 
     # kubeapps images
