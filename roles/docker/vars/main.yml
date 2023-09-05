@@ -4,3 +4,7 @@ CGROUP_DRIVER: "{%- if DOCKER_VER|float >= 20.10 -%} \
                 {%- else -%} \
                      cgroupfs \
                 {%- endif -%}"
+
+#
+INSECURE_REG_STR: "{% for reg in INSECURE_REG %}\"{{ reg }}\",{% endfor %}"
+INSECURE_REG_STRING: "{{ INSECURE_REG_STR.rstrip(',') }}"

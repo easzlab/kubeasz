@@ -2,6 +2,26 @@
   shell: 'systemctl is-active docker || echo "NoFound"'
   register: docker_svc
 
+- name: 获取docker版本信息
+  shell: "{{ base_dir }}/bin/docker-bin/dockerd --version|cut -d' ' -f3"
+  register: docker_ver
+  connection: local
+  run_once: true
+  tags: upgrade_docker, download_docker
+
+- name: debug info
+  debug: var="docker_ver"
+  connection: local
+  run_once: true
+  tags: upgrade_docker, download_docker
+
+- name: 转换docker版本信息为浮点数
+  set_fact:
+    DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
+  connection: local
+  run_once: true
+  tags: upgrade_docker, download_docker
+
 - name: 已安装提示
   debug:
     msg: "docker 服务已安装"

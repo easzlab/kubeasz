@@ -9,16 +9,8 @@
   - { role: prepare, when: "NEW_INSTALL|bool" }
   - { role: docker, when: "NEW_INSTALL|bool" }
   - { role: harbor, when: "NEW_INSTALL|bool" }
-  tasks:
-  - name: Fetching the HARBOR SERVER's CA cert
-    fetch:
-      src: "{{ ca_dir }}/ca.pem"
-      dest: "{{ base_dir }}/down/"
-      flat: yes
-    when: 'HARBOR_SELF_SIGNED_CERT|bool' 
-    #when: hostvars[groups.harbor[0]]['SELF_SIGNED_CERT']|bool
 
-### --- config k8s nodes to use with harbor ---
+### --- config k8s nodes to work with harbor ---
 - hosts: 
   - kube_master
   - kube_node

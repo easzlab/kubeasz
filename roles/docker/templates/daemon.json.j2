@@ -10,7 +10,7 @@
 {% if DOCKER_ENABLE_REMOTE_API %}
   "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"],
 {% endif %}
-  "insecure-registries": {{ INSECURE_REG }},
+  "insecure-registries": [{{ INSECURE_REG_STRING }}],
   "max-concurrent-downloads": 10,
   "live-restore": true,
   "log-driver": "json-file",
