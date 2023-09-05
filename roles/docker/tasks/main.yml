@@ -2,30 +2,10 @@
   shell: 'systemctl is-active docker || echo "NoFound"'
   register: docker_svc
 
-# 18.09.x 版本二进制名字有变化，需要做判断
-- name: 获取docker版本信息
-  shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
-  register: docker_ver
-  connection: local
-  run_once: true
-  tags: upgrade_docker, download_docker
-
-- name: debug info
-  debug: var="docker_ver"
-  connection: local
-  run_once: true
-  tags: upgrade_docker, download_docker
-
-- name: 转换docker版本信息为浮点数
-  set_fact: 
-    DOCKER_VER: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
-  connection: local
-  run_once: true
-  tags: upgrade_docker, download_docker
-
-- name: debug info
-  debug: var="DOCKER_VER"
-  tags: upgrade_docker, download_docker
+- name: 已安装提示
+  debug:
+    msg: "docker 服务已安装"
+  when: "'NoFound' not in docker_svc.stdout" 
 
 - block:
     - name: 准备docker相关目录
@@ -33,57 +13,15 @@
       with_items:
       - "{{ bin_dir }}"
       - "/etc/docker"
-      - "/etc/bash_completion.d"
     
     - name: 下载 docker 二进制文件
-      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-      with_items:
-      - docker-containerd
-      - docker-containerd-shim
-      - docker-init
-      - docker-runc
-      - docker
-      - docker-containerd-ctr
-      - dockerd
-      - docker-proxy
+      copy: src={{ item }} dest={{ bin_dir }}/ mode=0755
+      with_fileglob:
+      - "{{ base_dir }}/bin/docker-bin/*"
       tags: upgrade_docker, download_docker
-      when: "DOCKER_VER|float < 18.09"
     
-    - name: 下载 docker 二进制文件(>= 18.09.x)
-      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-      with_items:
-      - containerd
-      - containerd-shim
-      - docker-init
-      - runc
-      - docker
-      - ctr
-      - dockerd
-      - docker-proxy
-      tags: upgrade_docker, download_docker
-      when: "DOCKER_VER|float >= 18.09"
-
-    - name: 下载 docker 二进制文件(>= 20.10.x)
-      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
-      with_items:
-      - containerd-shim-runc-v2
-      tags: upgrade_docker, download_docker
-      when: "DOCKER_VER|float >= 20.10"
-    
-    - name: docker命令自动补全
-      copy: src=docker dest=/etc/bash_completion.d/docker mode=0644
-    
-    - name: docker国内镜像加速
+    - name: 配置docker daemon
       template: src=daemon.json.j2 dest=/etc/docker/daemon.json
-    
-    - name: flush-iptables
-      shell: "source /etc/profile; iptables -P INPUT ACCEPT \
-            && iptables -P FORWARD ACCEPT \
-            && iptables -P OUTPUT ACCEPT \
-            && iptables -F && iptables -X \
-            && iptables -F -t nat && iptables -X -t nat \
-            && iptables -F -t raw && iptables -X -t raw \
-            && iptables -F -t mangle && iptables -X -t mangle"
     
     - name: 创建docker的systemd unit文件
       template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
@@ -110,7 +48,3 @@
       file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
       ignore_errors: true
   when: "'NoFound' in docker_svc.stdout"
-    
-## 可选 ------安装docker查询镜像 tag的小工具----
-- name: 下载 docker-tag
-  copy: src=docker-tag dest={{ bin_dir }}/docker-tag mode=0755

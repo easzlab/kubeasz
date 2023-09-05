@@ -23,7 +23,7 @@ SYS_PKG_VER=1.0.0
 HARBOR_VER=v2.6.4
 REGISTRY_MIRROR=CN
 
-# images downloaded by default(with '-D')
+# images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
 calicoVer=v3.24.6
 # https://github.com/coredns/coredns
@@ -36,7 +36,7 @@ dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.6.4
 pauseVer=3.9
 
-# images not downloaded by default(only download  with '-X')
+# images not downloaded by default(only download  with 'ezdown -X ***')
 # https://github.com/cilium/cilium
 ciliumVer=1.13.6
 # https://github.com/flannel-io/flannel
@@ -153,7 +153,8 @@ function download_docker() {
   fi
 
   tar zxf "$BASE/down/docker-$DOCKER_VER.tgz" -C "$BASE/down" && \
-  cp -f "$BASE"/down/docker/* "$BASE/bin" && \
+  mkdir -p "$BASE/docker-bin" && \
+  cp -f "$BASE"/down/docker/* "$BASE/docker-bin" && \
   mv -f "$BASE"/down/docker/* /opt/kube/bin && \
   ln -sf /opt/kube/bin/docker /bin/docker 
 }
@@ -227,31 +228,6 @@ EOF
 EOF
   fi
 
-  # docker proxy setting
-  http_proxy=${http_proxy:-}
-  HTTP_PROXY=${HTTP_PROXY:-$http_proxy}
-  https_proxy=${https_proxy:-}
-  HTTPS_PROXY=${HTTPS_PROXY:-$https_proxy}
-  USE_PROXY=0
-  CONFIG="[Service]\n"
-
-  if [[ -n ${HTTP_PROXY} ]]; then
-    USE_PROXY=1
-    CONFIG=${CONFIG}"Environment=HTTP_PROXY=${HTTP_PROXY}\n"
-  fi
-  if [[ -n ${HTTPS_PROXY} ]]; then
-    USE_PROXY=1
-    CONFIG=${CONFIG}"Environment=HTTPS_PROXY=${HTTPS_PROXY}\n"
-  fi
-  if [[ ${USE_PROXY} == 1 ]]; then
-    logger debug "generate docker service http proxy file"
-    mkdir -p /etc/systemd/system/docker.service.d
-    c=$(echo -e "$CONFIG")
-    cat > /etc/systemd/system/docker.service.d/http-proxy.conf << EOF
-${c}
-EOF
-  fi
-
   if [[ -f /etc/selinux/config ]]; then
     logger debug "turn off selinux"
     getenforce|grep Disabled || setenforce 0
@@ -260,7 +236,7 @@ EOF
 
   logger debug "enable and start docker"
   systemctl enable docker
-  systemctl daemon-reload && systemctl restart docker && sleep 4
+  systemctl daemon-reload && systemctl restart docker && sleep 3
 }
 
 function get_kubeasz() {
