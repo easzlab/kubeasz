@@ -4,7 +4,7 @@
 
 ### kubeasz 集成安装flannel
 
-- 参考[快速指南](quickStart.md)，设置`/etc/kubeasz/clusters/xxx/hosts`文件中变量 `CLUSTER_NETWORK="flannel"`
+- 参考[快速指南](../quickStart.md)，设置`/etc/kubeasz/clusters/xxx/hosts`文件中变量 `CLUSTER_NETWORK="flannel"`
 - 下载额外镜像 `./ezdown -X flannel`
 - 执行集群安装 `dk ezctl setup xxx all`
 
