@@ -1,5 +1,7 @@
 # Jenkins CI/CD
 
+**此文档已过期，仅留档**
+
 ## 前言
 本文档介绍如何快速通过K8s集群实现Jenkins 动态Slave CI/CD流程。
 

@@ -109,7 +109,7 @@
         <td><a href="docs/guide/helm.md">helm</a></td>
         <td><a href="docs/guide/jenkins.md">jenkins</a></td>
         <td><a href="docs/guide/gitlab/readme.md">gitlab</a></td>
-        <td><a href="https://argo-cd.readthedocs.io/en/stable/">argocd</a></td>
+        <td><a href="docs/guide/argocd.md">argocd</a></td>
         <td><a href=""></a></td>
     </tr>
 </table>
