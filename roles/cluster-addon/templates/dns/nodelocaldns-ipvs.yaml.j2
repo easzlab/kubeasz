@@ -97,7 +97,7 @@ data:
         reload
         loop
         bind {{ LOCAL_DNS_CACHE }}
-        forward . __PILLAR__CLUSTER__DNS__
+        forward . __PILLAR__UPSTREAM__SERVERS__
         prometheus :9253
         }
 ---
