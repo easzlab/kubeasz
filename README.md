@@ -49,6 +49,7 @@
 - **CentOS/RHEL** 7, 8, 9
 - **Debian** 10, 11([notes](docs/setup/multi_os.md#Debian))
 - **Fedora** 34, 35, 36, 37
+- **Kylin Linux Advanced Server V10** 麒麟V10 Tercel, Lance
 - **openSUSE** Leap 15.x([notes](docs/setup/multi_os.md#openSUSE))
 - **Rocky Linux** 8, 9
 - **Ubuntu** 16.04, 18.04, 20.04, 22.04

@@ -49,7 +49,9 @@ kubeOvnVer=v1.11.5
 localpathProvisionerVer=v0.0.24
 # https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
 nfsProvisionerVer=v4.0.2
+#https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 promChartVer=45.23.0
+#https://github.com/bitnami/charts/tree/main/bitnami/kubeapps
 kubeappsVer=12.4.3
 
 function usage() {

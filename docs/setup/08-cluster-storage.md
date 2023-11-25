@@ -125,7 +125,7 @@ local_path_provisioner_dir: "/opt/local-path-provisioner"
 $ dk ezctl setup ${集群名} 07
 
 # 执行成功后验证
-$ kubectl get pod --all-namespaces |grep nfs-client-provisioner
+$ kubectl get pod --all-namespaces |grep provisioner
 ```
 
 - 3.验证使用（略）
