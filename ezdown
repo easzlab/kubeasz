@@ -25,7 +25,7 @@ REGISTRY_MIRROR=CN
 
 # images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
-calicoVer=v3.24.6
+calicoVer=v3.26.4
 # https://github.com/coredns/coredns
 corednsVer=1.11.1
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
