@@ -5,6 +5,7 @@
 INSTALL_SOURCE: "online"
 
 # 可选进行系统安全加固 github.com/dev-sec/ansible-collection-hardening
+# (deprecated) 未更新上游项目，未验证最新k8s集群安装，不建议启用
 OS_HARDEN: false
 
 

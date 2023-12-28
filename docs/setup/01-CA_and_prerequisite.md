@@ -2,7 +2,7 @@
 
 本步骤主要完成: 
 
-- (optional) role:os-harden，可选系统加固，符合linux安全基线，详见[upstream](https://github.com/dev-sec/ansible-collection-hardening/tree/master/roles/os_hardening)
+- (deprecated) role:os-harden，（未更新上游项目，未验证最新k8s集群安装，不建议启用）可选系统加固，符合linux安全基线，详见[upstream](https://github.com/dev-sec/ansible-collection-hardening/tree/master/roles/os_hardening)
 - (optional) role:chrony，[可选集群节点时间同步](../guide/chrony.md)
 - role:deploy，创建CA证书、集群组件访问apiserver所需的各种kubeconfig
 - role:prepare，系统基础环境配置、分发CA证书、kubectl客户端安装

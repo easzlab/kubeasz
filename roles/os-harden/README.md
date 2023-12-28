@@ -1,5 +1,7 @@
 # devsec.os_hardening
 
+**deprecated** this role is outdated, not testified with the latest k8s cluster setup
+
 ![devsec.os_hardening](https://github.com/dev-sec/ansible-os-hardening/workflows/devsec.os_hardening/badge.svg)
 
 ## Looking for the old ansible-os-hardening role?
