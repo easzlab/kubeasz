@@ -6,7 +6,8 @@ CNCF 一致性认证项目(https://github.com/cncf/k8s-conformance) 可以很方
 
 自kubeasz 3.0.0 版本，k8s v1.20.2开始，正式通过cncf一致性认证，成为cncf 官方认证安装工具；后续k8s主要版本发布或者kubeasz有大版本更新，会优先确保通过集群一致性认证。
 
-- v1.28 [进行中](https://github.com/cncf/k8s-conformance/pull/2788)
+- v1.29 [进行中]()
+- v1.28 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.28/kubeasz)
 - v1.27 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.27/kubeasz)
 - v1.26 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.26/kubeasz)
 - v1.25 [已认证](https://github.com/cncf/k8s-conformance/tree/master/v1.25/kubeasz)
