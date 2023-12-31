@@ -9,12 +9,13 @@
 - 高性能负载均衡，支持DSR
 - 支持事件、策略跟踪和监控集成
 
-cilium 项目当前文档比较完整，建议仔细阅读下[官网文档]()
+cilium 项目文档比较完整，建议仔细阅读[官网文档]()
 
 ## kubeasz 集成安装 cilium
 
 kubeasz 3.3.1 更新重写了cilium 安装流程，使用helm charts 方式，配置文件在 roles/cilium/templates/values.yaml.j2，请阅读原charts中values.yaml 文件后自定义修改。
 
+- https://docs.cilium.io/en/stable/installation/k8s-install-helm/#k8s-install-helm
 - 相关镜像已经离线打包并推送到本地镜像仓库，通过 `ezdown -X` 命令下载cilium等额外镜像
 
 ### 0.升级内核并重启

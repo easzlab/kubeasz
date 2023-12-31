@@ -17,10 +17,6 @@ resources:
     cpu: 100m
     memory: 512Mi
 
-containerRuntime:
-  integration: containerd
-  socketPath: unix:///run/containerd/containerd.sock
-
 {% if cilium_hubble_enabled %}
 hubble:
   enabled: true
@@ -39,11 +35,11 @@ hubble:
     backend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"
-        tag: "v0.11.0"
+        tag: "v0.12.1"
     frontend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui"
-        tag: "v0.11.0"
+        tag: "v0.12.1"
 {% endif %}
 
 identityAllocationMode: "crd"

@@ -1,3 +1,4 @@
+# https://docs.cilium.io/en/stable/installation/k8s-install-helm/#k8s-install-helm
 - name: 转换内核版本为浮点数
   set_fact:
      KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
