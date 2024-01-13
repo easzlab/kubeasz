@@ -36,10 +36,12 @@ hubble:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"
         tag: "v0.12.1"
+        useDigest: false
     frontend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui"
         tag: "v0.12.1"
+        useDigest: false
 {% endif %}
 
 identityAllocationMode: "crd"
