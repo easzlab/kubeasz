@@ -8,7 +8,7 @@ CGROUP_DRIVER: "systemd"
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR.split('.')[0] }}.{{ SERVICE_CIDR.split('.')[1] }}.{{ SERVICE_CIDR.split('.')[2] }}.{{ SERVICE_CIDR.split('.')[3]|int + 2 }}"
 
 # pod-max-pids
-POD_MAX_PIDS: 1024
+POD_MAX_PIDS: -1
 
 # Enable strict ARP by setting arp_ignore to 1 and arp_announce to 2
 ENABLE_IPVS_STRICT_ARP: false
