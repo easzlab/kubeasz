@@ -13,11 +13,11 @@ set -o pipefail
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=24.0.7
+DOCKER_VER=25.0.3
 KUBEASZ_VER=3.6.3
-K8S_BIN_VER=v1.29.0
+K8S_BIN_VER=v1.29.2
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
-EXT_BIN_VER=1.9.0
+EXT_BIN_VER=1.10.0
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.0.0
 HARBOR_VER=v2.8.4

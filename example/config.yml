@@ -52,9 +52,10 @@ ETCD_WAL_DIR: ""
 ENABLE_MIRROR_REGISTRY: true
 
 # [.]添加信任的私有仓库
+# 必须按照如下示例格式，协议头'http://'和'https://'不能省略
 INSECURE_REG:
   - "http://easzlab.io.local:5000"
-  - "https://{{ HARBOR_REGISTRY }}"
+  - "https://reg.yourcompany.com"
 
 # [.]基础容器镜像
 SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
