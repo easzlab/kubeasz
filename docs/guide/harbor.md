@@ -28,22 +28,22 @@ ezdown -R
 192.168.1.8 NEW_INSTALL=true
 ...
 
-#clusters/xxx/config.yml 中修改如下，按需修改HARBOR_DOMAIN/HARBOR_TLS_PORT 等配置项
+#clusters/xxx/config.yml 中修改如下，按需修改HARBOR_DOMAIN/HARBOR_TLS_PORT 等配置项，举例如下
 ############################
 # role:harbor
 ############################
 # harbor version，完整版本号
-HARBOR_VER: "v2.1.3"
+HARBOR_VER: "v2.10.2"
 HARBOR_DOMAIN: "harbor.yourdomain.com"
+HARBOR_PATH: /var/data
 HARBOR_TLS_PORT: 8443
+HARBOR_REGISTRY: "{{ HARBOR_DOMAIN }}:{{ HARBOR_TLS_PORT }}"
 
 # if set 'false', you need to put certs named harbor.pem and harbor-key.pem in directory 'down'
 HARBOR_SELF_SIGNED_CERT: true
 
 # install component
-HARBOR_WITH_NOTARY: false
 HARBOR_WITH_TRIVY: false
-HARBOR_WITH_CHARTMUSEUM: true
 ```
 
 3. 配置完成后，执行 `./ezctl setup xxx harbor`，完成harbor安装和docker 客户端配置
@@ -72,53 +72,13 @@ HARBOR_WITH_CHARTMUSEUM: true
 1. 修改harbor.yml配置文件
 1. 启动harbor安装脚本
 
-### 配置docker/containerd信任harbor证书
-
-因为我们创建的harbor仓库使用了自签证书，所以当docker/containerd客户端拉取自建harbor仓库镜像前必须配置信任harbor证书，否则出现如下错误：
-
-```
-# docker
-$ docker pull harbor.test.lo/pub/hello:v0.1.4
-Error response from daemon: Get https://harbor.test.lo/v1/_ping: x509: certificate signed by unknown authority
-
-# containerd
-$ crictl pull harbor.test.lo/pub/hello:v0.1.4
-FATA[0000] pulling image failed: rpc error: code = Unknown desc = failed to resolve image "harbor.test.lo/pub/hello:v0.1.4": no available registry endpoint: failed to do request: Head https://harbor.test.lo/v2/pub/hello/manifests/v0.1.4: x509: certificate signed by unknown authority
-```
-
-项目脚本`11.harbor.yml`中已经自动为k8s集群的每个node节点配置 docker/containerd 信任自建 harbor 证书；如果你无法运行此脚本，可以参考下述手工配置
-
-#### docker配置信任harbor证书
-
-在集群每个 node 节点进行如下配置
-
-- 创建目录 /etc/docker/certs.d/harbor.yourdomain.com:8443/  (以默认配置举例)
-- 复制 harbor 安装时的 CA 证书到上述目录，并改名 ca.crt 即可
-
-#### containerd配置信任harbor证书
-
-在集群每个 node 节点进行如下配置（假设ca.pem为自建harbor的CA证书）
-
-- ubuntu 1604:
-  - cp ca.pem /usr/share/ca-certificates/harbor-ca.crt
-  - echo harbor-ca.crt >> /etc/ca-certificates.conf
-  - update-ca-certificates
-
-- CentOS 7:
-  - cp ca.pem /etc/pki/ca-trust/source/anchors/harbor-ca.crt
-  - update-ca-trust
-
-上述配置完成后，重启 containerd 即可 `systemctl restart containerd`
-
 ### 在k8s集群使用harbor
 
 admin用户web登录后可以方便的创建项目，并指定项目属性(公开或者私有)；然后创建用户，并在项目`成员`选项中选择用户和权限；
 
 #### 镜像上传
 
-在node上使用harbor私有镜像仓库首先需要在指定目录配置harbor的CA证书，详见 `11.harbor.yml`文件。
-
-使用docker客户端登录`harbor.test.com`，然后把镜像tag成 `harbor.test.com/$项目名/$镜像名:$TAG` 之后，即可使用docker push 上传
+使用docker客户端登录`{{ HARBOR_REGISTRY }}`，然后把镜像tag成 `{{ HARBOR_REGISTRY }}/$项目名/$镜像名:$TAG` 之后，即可使用docker push 上传
 
 ``` bash
 docker login harbor.test.com

@@ -67,9 +67,6 @@
   - name: 准备 harbor 配置文件
     template: src=harbor-{{ HARBOR_VER_MAIN }}.yml.j2 dest={{ HARBOR_PATH }}/harbor/harbor.yml
 
-  - set_fact: HARBOR_INST_OPS="{{ HARBOR_INST_OPS }} --with-notary" 
-    when: "HARBOR_WITH_NOTARY|bool"
-
   - set_fact: HARBOR_INST_OPS="{{ HARBOR_INST_OPS }} --with-trivy"
     when: "HARBOR_WITH_TRIVY|bool"
 
