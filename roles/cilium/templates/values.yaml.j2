@@ -35,12 +35,12 @@ hubble:
     backend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"
-        tag: "v0.12.1"
+        tag: "v0.13.0"
         useDigest: false
     frontend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui"
-        tag: "v0.12.1"
+        tag: "v0.13.0"
         useDigest: false
 {% endif %}
 
@@ -69,8 +69,6 @@ proxy:
 tls:
   enabled: true
   secretsBackend: local
-
-tunnel: "vxlan"
 
 etcd:
   enabled: false

@@ -38,7 +38,8 @@ pauseVer=3.9
 
 # images not downloaded by default(only download  with 'ezdown -X ***')
 # https://github.com/cilium/cilium
-ciliumVer=1.14.5
+# https://docs.cilium.io/en/stable/installation/k8s-install-helm/
+ciliumVer=1.15.5
 # https://github.com/flannel-io/flannel
 flannelVer=v0.22.2
 # https://github.com/cloudnativelabs/kube-router
@@ -424,13 +425,13 @@ function get_extra_images() {
         docker pull "cilium/cilium:v$ciliumVer" && \
         docker pull "cilium/operator-generic:v$ciliumVer" && \
         docker pull "cilium/hubble-relay:v$ciliumVer" && \
-        docker pull cilium/hubble-ui-backend:v0.12.1 && \
-        docker pull cilium/hubble-ui:v0.12.1 && \
+        docker pull cilium/hubble-ui-backend:v0.13.0 && \
+        docker pull cilium/hubble-ui:v0.13.0 && \
         docker save -o "$imageDir/cilium_$ciliumVer.tar" "cilium/cilium:v$ciliumVer" \
     		"cilium/operator-generic:v$ciliumVer" \
     		"cilium/hubble-relay:v$ciliumVer" \
-    		cilium/hubble-ui-backend:v0.12.1 \
-    		cilium/hubble-ui:v0.12.1
+    		"cilium/hubble-ui-backend:v0.13.0" \
+    		"cilium/hubble-ui:v0.13.0"
       else
         docker load -i "$imageDir/cilium_$ciliumVer.tar"
       fi
@@ -440,10 +441,10 @@ function get_extra_images() {
       docker push "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
       docker tag "cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
       docker push "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
-      docker tag cilium/hubble-ui-backend:v0.12.1 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.12.1
-      docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.12.1
-      docker tag cilium/hubble-ui:v0.12.1 easzlab.io.local:5000/cilium/hubble-ui:v0.12.1
-      docker push easzlab.io.local:5000/cilium/hubble-ui:v0.12.1
+      docker tag cilium/hubble-ui-backend:v0.13.0 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.13.0
+      docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.13.0
+      docker tag cilium/hubble-ui:v0.13.0 easzlab.io.local:5000/cilium/hubble-ui:v0.13.0
+      docker push easzlab.io.local:5000/cilium/hubble-ui:v0.13.0
       ;;
 
     # flannel image
