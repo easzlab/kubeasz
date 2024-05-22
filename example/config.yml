@@ -34,7 +34,7 @@ K8S_VER: "__k8s_ver__"
 K8S_NODENAME: "{%- if k8s_nodename != '' -%} \
                     {{ k8s_nodename|replace('_', '-')|lower }} \
                {%- else -%} \
-                    {{ inventory_hostname|replace('.', '-') }} \
+                    k8s-{{ inventory_hostname|replace('.', '-') }} \
                {%- endif -%}"
 
 # use 'K8S_NODENAME' to set hostname
