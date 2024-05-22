@@ -42,6 +42,13 @@
     regexp: 'easzlab.io.local'
     line: "{{ ansible_env.SSH_CLIENT.split(' ')[0] }}    easzlab.io.local"
 
+# 设置节点hostname，calico 网络组件要求每个节点不一样的hostname
+- name: 设置节点 hostname
+  hostname:
+    name: "{{ K8S_NODENAME }}"
+    use: systemd
+  when: "ENABLE_SETTING_HOSTNAME|bool"
+
 # 设置节点名称{{ K8S_NODENAME }} /etc/hosts 解析
 # 1.先确保第一个主节点做好解析
 - name: 设置 k8s_nodename 在 master[0] 节点 /etc/hosts 地址解析

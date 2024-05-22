@@ -93,6 +93,7 @@ available OSes:
     ubuntu_18         to download package of Ubuntu 18.04
     ubuntu_20         to download package of Ubuntu 20.04
     ubuntu_22         to download package of Ubuntu 22.04
+    ubuntu_24         to download package of Ubuntu 24.04
 examples:
     ./ezdown -P ubuntu_22
 EOF
