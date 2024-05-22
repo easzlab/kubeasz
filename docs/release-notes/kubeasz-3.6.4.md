@@ -18,7 +18,9 @@ kubeasz 3.6.4 发布：支持k8s v1.30版本，组件更新和一些bugfix。
 
 - 安全更新：to solve CVE-2024-21626: update containerd, runc
 - 安装流程：role 'prepare' 阶段增加设置hostname，这样当网络组件为calico时不会因为主机名相同而出错；同时在example/config.yml 中增加配置开关`ENABLE_SETTING_HOSTNAME`
-- OS 支持：增加 Ubuntu 2404
+- 操作系统：增加测试支持 Ubuntu 2404
+  - 已知在ubuntu 2404上使用网络插件calico v3.26.4不兼容，提示：ipset v7.11: Kernel and userspace incompatible
+  - 使用cilium 组件没有问题
 
 ### 其他
 
