@@ -2,7 +2,8 @@
   when: 'ansible_distribution_file_variety in ["Debian"]'
 
 - import_tasks: redhat.yml
-  when: 'ansible_distribution_file_variety in ["RedHat"]'
+  # when: 'ansible_distribution_file_variety in ["RedHat"]'
+  when: ansible_distribution_file_variety in ["RedHat"] or ansible_distribution in ["CentOS"]
 
 - import_tasks: suse.yml
   when: 'ansible_distribution_file_variety in ["SUSE"]'
