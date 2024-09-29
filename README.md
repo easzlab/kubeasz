@@ -57,6 +57,7 @@
 - **openSUSE** Leap 15.x([notes](docs/setup/multi_os.md#openSUSE))
 - **Rocky Linux** 8, 9
 - **Ubuntu** 16.04, 18.04, 20.04, 22.04, 24.04
+- **BC Linux For Euler release** 21.10
 
 能够支持大部分使用systemd的linux发行版，如果安装有问题先请查看[文档](docs/setup/multi_os.md)；如果某个能够支持安装的系统没有在列表中，欢迎提PR 告知。
 
