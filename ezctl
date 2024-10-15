@@ -1,5 +1,6 @@
 #!/bin/bash
 #  Create & manage k8s clusters
+#  shellcheck disable=SC2155
 
 set -o nounset
 set -o errexit
@@ -39,23 +40,24 @@ EOF
 }
 
 function logger() {
-  TIMESTAMP=$(date +'%Y-%m-%d %H:%M:%S')
-  case "$1" in
-    debug)
-      echo -e "$TIMESTAMP \033[36mDEBUG\033[0m $2"
-      ;;
-    info)
-      echo -e "$TIMESTAMP \033[32mINFO\033[0m $2"
-      ;;
-    warn)
-      echo -e "$TIMESTAMP \033[33mWARN\033[0m $2"
-      ;;
-    error)
-      echo -e "$TIMESTAMP \033[31mERROR\033[0m $2"
-      ;;
-    *)
-      ;;
-  esac
+    TIMESTAMP=$(date +'%Y-%m-%d %H:%M:%S')
+    local FNAME=$(basename "${BASH_SOURCE[1]}")
+    local SOURCE="\033[36m[$FNAME:${BASH_LINENO[0]}]\033[0m"
+    case "$1" in
+        debug)
+            echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[36mDEBUG $2\033[0m"
+            ;;
+        info)
+            echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[32mINFO $2\033[0m"
+            ;;
+        warn)
+            echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[33mWARN $2\033[0m"
+            ;;
+        error)
+            echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[31mERROR $2\033[0m"
+            ;;
+        *) ;;
+    esac
 }
 
 function help-info() {
@@ -99,7 +101,7 @@ function usage-kcfg-adm(){
   echo -e "\033[33mUsage:\033[0m ezctl kcfg-adm <cluster> <args>"
   cat <<EOF
 available <args>:
-    -A     to add a client kubeconfig with a newly created user 
+    -A     to add a client kubeconfig with a newly created user
     -D     to delete a client kubeconfig with the existed user
     -L     to list all of the users
     -e     to set expiry of the user certs in hours (ex. 24h, 8h, 240h)
@@ -116,7 +118,7 @@ function usage-setup(){
   echo -e "\033[33mUsage:\033[0m ezctl setup <cluster> <step>"
   cat <<EOF
 available steps:
-    01  prepare            to prepare CA/certs & kubeconfig & other system settings 
+    01  prepare            to prepare CA/certs & kubeconfig & other system settings
     02  etcd               to setup the etcd cluster
     03  container-runtime  to setup the container runtime(docker or containerd)
     04  kube-master        to setup the master nodes
@@ -169,7 +171,7 @@ function new() {
     grep registry-mirrors /etc/docker/daemon.json > /dev/null 2>&1 || { logger debug "disable registry mirrors"; registryMirror=false; }
 
     sed -i -e "s/__k8s_ver__/$k8sVer/g" \
-           -e "s/__flannel__/$flannelVer/g" \
+       -e "s/__flannel__/$flannelVer/g" \
 	   -e "s/__calico__/$calicoVer/g" \
 	   -e "s/__cilium__/$ciliumVer/g" \
 	   -e "s/__kube_ovn__/$kubeOvnVer/g" \
@@ -234,7 +236,7 @@ function setup() {
           ;;
       (*)
           usage-setup
-          exit 1 
+          exit 1
           ;;
     esac
 
@@ -364,7 +366,7 @@ function add-master() {
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/23.addmaster.yml" -e "NODE_TO_ADD=$2" -e "@clusters/$1/config.yml"
 
     logger info "reconfigure and restart 'kube-lb' service"
-    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml" 
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml"
 
     logger info "reconfigure and restart 'ex-lb' service"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/10.ex-lb.yml" -t restart_lb -e "@clusters/$1/config.yml"
@@ -386,9 +388,9 @@ function add-etcd() {
 
     logger info "reconfig &restart the etcd cluster"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/02.etcd.yml" -t restart_etcd -e "@clusters/$1/config.yml"
-    
+
     logger info "restart apiservers to use the new etcd cluster"
-    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/04.kube-master.yml" -t restart_master -e "@clusters/$1/config.yml" 
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/04.kube-master.yml" -t restart_master -e "@clusters/$1/config.yml"
 }
 
 function del-etcd() {
@@ -403,9 +405,9 @@ function del-etcd() {
 
     logger info "reconfig &restart the etcd cluster"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/02.etcd.yml" -t restart_etcd -e "@clusters/$1/config.yml"
-    
+
     logger info "restart apiservers to use the new etcd cluster"
-    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/04.kube-master.yml" -t restart_master -e "@clusters/$1/config.yml" 
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/04.kube-master.yml" -t restart_master -e "@clusters/$1/config.yml"
 }
 
 function del-node() {
@@ -427,13 +429,13 @@ function del-master() {
     sed -n '/^\[kube_master/,/^\[kube_node/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " || { logger error "master $2 not existed!"; return 2; }
 
     logger warn "start to delete the master:$2 from cluster:$1"
-    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/33.delmaster.yml" -e "NODE_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml" 
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/33.delmaster.yml" -e "NODE_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml"
 
     logger info "reconfig kubeconfig in ansible manage node"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/roles/deploy/deploy.yml" -t create_kctl_cfg -e "@clusters/$1/config.yml"
 
     logger info "reconfigure and restart 'kube-lb' service"
-    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml" 
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml"
 
     logger info "reconfigure and restart 'ex-lb' service"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/10.ex-lb.yml" -t restart_lb -e "@clusters/$1/config.yml"
@@ -484,7 +486,7 @@ function renew-ca() {
 
 
 EXPIRY="4800h"        # default cert will expire in 200 days
-USER_TYPE="admin"     # admin/view, admin=clusterrole:cluster-admin view=clusterrole:view 
+USER_TYPE="admin"     # admin/view, admin=clusterrole:cluster-admin view=clusterrole:view
 USER_NAME="user"
 function kcfg-adm() {
     OPTIND=2
@@ -522,7 +524,7 @@ function kcfg-adm() {
 
     logger info "$ACTION"
     ${ACTION} || { logger error "$ACTION fail"; return 1; }
-    logger info "$ACTION success" 
+    logger info "$ACTION success"
 }
 
 function add-kcfg(){
@@ -545,10 +547,10 @@ function list-kcfg(){
     ADMINS=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[?(@.roleRef.name == "cluster-admin")].subjects[*].name}')
     VIEWS=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[?(@.roleRef.name == "view")].subjects[*].name}')
     ALL=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get clusterrolebindings -ojsonpath='{.items[*].subjects[*].name}')
-    
+
     printf "\n%-30s %-15s %-20s\n" USER TYPE "EXPIRY(+8h if in Asia/Shanghai)"
     echo "---------------------------------------------------------------------------------"
-    
+
     for u in $ADMINS; do
        if [[ $u =~ ^.*-[0-9]{12}$ ]];then
           t=$(bin/cfssl-certinfo -cert "clusters/$1/ssl/users/$u.pem"|grep not_after|awk '{print $2}'|sed 's/"//g'|sed 's/,//g')
@@ -586,9 +588,9 @@ function main() {
 
   # check 'ansible' executable
   which ansible > /dev/null 2>&1 || { logger error "need 'ansible', try: 'pip install ansible'"; usage; exit 1; }
-  
+
   [ "$#" -gt 0 ] || { usage >&2; exit 2; }
-  
+
   case "$1" in
       ### in-cluster operations #####################
       (add-etcd)
@@ -681,4 +683,4 @@ function main() {
   esac
  }
 
-main "$@" 
+main "$@"
