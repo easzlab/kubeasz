@@ -1,12 +1,13 @@
 #!/bin/bash
 #--------------------------------------------------
-# This script is used for: 
+# This script is used for:
 # 1. to download the scripts/binaries/images needed for installing a k8s cluster with kubeasz
 # 2. to run kubeasz in a container (recommended)
 # @author:   gjmzj
 # @usage:    ./ezdown
 # @repo:     https://github.com/easzlab/kubeasz
 #--------------------------------------------------
+# shellcheck disable=SC2155
 set -o nounset
 set -o errexit
 set -o pipefail
@@ -111,7 +112,7 @@ available options:
     local-path-provisioner   to download images of local-path-provisioner
     network-check            to download images of network-check
     nfs-provisioner          to download images of nfs-provisioner
-    prometheus               to download images of prometheus 
+    prometheus               to download images of prometheus
 examples:
     ./ezdown -X prometheus
 EOF
@@ -119,21 +120,22 @@ EOF
 
 function logger() {
   TIMESTAMP=$(date +'%Y-%m-%d %H:%M:%S')
+  local FNAME=$(basename "${BASH_SOURCE[1]}")
+  local SOURCE="\033[36m[$FNAME:${BASH_LINENO[0]}]\033[0m"
   case "$1" in
     debug)
-      echo -e "$TIMESTAMP \033[36mDEBUG\033[0m $2"
+      echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[36mDEBUG $2\033[0m"
       ;;
     info)
-      echo -e "$TIMESTAMP \033[32mINFO\033[0m $2"
+      echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[32mINFO $2\033[0m"
       ;;
     warn)
-      echo -e "$TIMESTAMP \033[33mWARN\033[0m $2"
+      echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[33mWARN $2\033[0m"
       ;;
     error)
-      echo -e "$TIMESTAMP \033[31mERROR\033[0m $2"
+      echo -e "\033[36m$TIMESTAMP\033[0m $SOURCE \033[31mERROR $2\033[0m"
       ;;
-    *)
-      ;;
+    *) ;;
   esac
 }
 
@@ -160,13 +162,13 @@ function download_docker() {
   mkdir -p "$BASE/bin/docker-bin" && \
   cp -f "$BASE"/down/docker/* "$BASE/bin/docker-bin" && \
   mv -f "$BASE"/down/docker/* /opt/kube/bin && \
-  ln -sf /opt/kube/bin/docker /bin/docker 
+  ln -sf /opt/kube/bin/docker /bin/docker
 }
 
 function install_docker() {
   # check if a container runtime is already installed
   systemctl status docker|grep Active|grep -q running && { logger warn "docker is already running."; return 0; }
- 
+
   logger debug "generate docker service file"
   cat > /etc/systemd/system/docker.service << EOF
 [Unit]
@@ -276,7 +278,7 @@ function get_kubeasz() {
 
 function get_k8s_bin() {
   [[ -f "$BASE/bin/kubelet" ]] && { logger warn "kubernetes binaries existed"; return 0; }
-  
+
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
   rm -rf "$BASE/k8s_bin_tmp"
   docker ps -a |grep -q temp_k8s_bin && { logger debug "remove existing container"; docker rm -f temp_k8s_bin; }
@@ -368,7 +370,7 @@ function get_default_images() {
   # dns-node-cache
   if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
     docker pull "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
-    docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" 
+    docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
   else
     docker load -i "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar"
   fi
@@ -693,8 +695,8 @@ function start_kubeasz_docker() {
 
 function clean_container() {
  logger info "clean all running containers"
- docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f 
-} 
+ docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f
+}
 
 
 ### Main Lines ##################################################
@@ -703,15 +705,15 @@ function main() {
   imageDir="$BASE/down"
 
   # check if use bash shell
-  readlink /proc/$$/exe|grep -q "bash" || { logger error "you should use bash shell, not sh"; exit 1; }
+  # readlink /proc/$$/exe|grep -q "bash" || { logger error "you should use bash shell, not sh"; exit 1; }
   # check if use with root
-  [[ "$EUID" -ne 0 ]] && { logger error "you should run this script as root"; exit 1; }
+  # [[ "$EUID" -ne 0 ]] && { logger error "you should run this script as root"; exit 1; }
 
   # get architecture
   ARCH=$(uname -m)
 
   [[ "$#" -eq 0 ]] && { usage >&2; exit 1; }
-  
+
   ACTION=""
   while getopts "CDP:RSX:d:e:k:m:z:" OPTION; do
       case "$OPTION" in
@@ -757,10 +759,10 @@ function main() {
           ;;
       esac
   done
-  
+
   [[ "$ACTION" == "" ]] && { logger error "illegal option"; usage; exit 1; }
-  
-  # excute cmd "$ACTION" 
+
+  # excute cmd "$ACTION"
   logger info "Action begin: $ACTION"
   ${ACTION} || { logger error "Action failed: $ACTION"; return 1; }
   logger info "Action successed: $ACTION"
