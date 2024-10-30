@@ -15,7 +15,7 @@
 - 下载工具脚本ezdown，举例使用kubeasz版本3.5.0
 
 ``` bash
-export release=3.5.0
+export release=3.6.2
 wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 ```
