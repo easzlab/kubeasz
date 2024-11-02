@@ -1,3 +1,5 @@
+# https://github.com/kubernetes/kubernetes/blob/v1.31.2/cluster/addons/dns/coredns/coredns.yaml.base
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -25,12 +27,6 @@ rules:
   verbs:
   - list
   - watch
-- apiGroups:
-  - ""
-  resources:
-  - nodes
-  verbs:
-  - get
 - apiGroups:
   - discovery.k8s.io
   resources:
@@ -137,7 +133,7 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           limits:
-            memory: 300Mi
+            memory: 500Mi
           requests:
             cpu: 100m
             memory: 70Mi
@@ -176,7 +172,7 @@ spec:
             add:
             - NET_BIND_SERVICE
             drop:
-            - all
+            - ALL
           readOnlyRootFilesystem: true
       dnsPolicy: Default
       volumes:

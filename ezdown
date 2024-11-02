@@ -20,29 +20,29 @@ K8S_BIN_VER=v1.31.2
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.11.1
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
-SYS_PKG_VER=1.0.1
-HARBOR_VER=v2.10.2
+SYS_PKG_VER=1.0.2
+HARBOR_VER=v2.11.1
 REGISTRY_MIRROR=CN
 
 # images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
 calicoVer=v3.28.2
 # https://github.com/coredns/coredns
-corednsVer=1.11.1
+corednsVer=1.11.3
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
-dnsNodeCacheVer=1.22.28
+dnsNodeCacheVer=1.23.1
 dashboardVer=v2.7.0
 dashboardMetricsScraperVer=v1.0.8
 # https://github.com/kubernetes-sigs/metrics-server
-metricsVer=v0.7.1
-pauseVer=3.9
+metricsVer=v0.7.2
+pauseVer=3.10
 
 # images not downloaded by default(only download  with 'ezdown -X ***')
 # https://github.com/cilium/cilium
 # https://docs.cilium.io/en/stable/installation/k8s-install-helm/
 ciliumVer=1.15.5
 # https://github.com/flannel-io/flannel
-flannelVer=v0.22.2
+flannelVer=v0.26.0
 # https://github.com/cloudnativelabs/kube-router
 kubeRouterVer=v1.5.4
 # https://github.com/kubeovn/kube-ovn
@@ -454,15 +454,15 @@ function get_extra_images() {
     flannel)
       if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
         docker pull "flannel/flannel:$flannelVer" && \
-        docker pull "flannel/flannel-cni-plugin:v1.2.0" && \
-        docker save -o "$imageDir/flannel_$flannelVer.tar" "flannel/flannel:$flannelVer" "flannel/flannel-cni-plugin:v1.2.0"
+        docker pull "flannel/flannel-cni-plugin:v1.5.1-flannel2" && \
+        docker save -o "$imageDir/flannel_$flannelVer.tar" "flannel/flannel:$flannelVer" "flannel/flannel-cni-plugin:v1.5.1-flannel2"
       else
         docker load -i "$imageDir/flannel_$flannelVer.tar"
       fi
       docker tag "flannel/flannel:$flannelVer" "easzlab.io.local:5000/flannel/flannel:$flannelVer"
       docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
-      docker tag "flannel/flannel-cni-plugin:v1.2.0" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.2.0"
-      docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.2.0"
+      docker tag "flannel/flannel-cni-plugin:v1.5.1-flannel2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
+      docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
       ;;
 
     # kubeapps images
