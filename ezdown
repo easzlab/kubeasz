@@ -40,7 +40,7 @@ pauseVer=3.10
 # images not downloaded by default(only download  with 'ezdown -X ***')
 # https://github.com/cilium/cilium
 # https://docs.cilium.io/en/stable/installation/k8s-install-helm/
-ciliumVer=1.15.5
+ciliumVer=1.16.3
 # https://github.com/flannel-io/flannel
 flannelVer=v0.26.0
 # https://github.com/cloudnativelabs/kube-router

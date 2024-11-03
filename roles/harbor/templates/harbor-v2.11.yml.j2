@@ -2,7 +2,7 @@
 
 # The IP address or hostname to access admin UI and registry service.
 # DO NOT use localhost or 127.0.0.1, because Harbor needs to be accessed by external clients.
-hostname: {{ HARBOR_HOSTNAME }} 
+hostname: {{ HARBOR_HOSTNAME }}
 
 # http related config
 http:
@@ -16,6 +16,18 @@ https:
   # The path of cert and key files for nginx
   certificate: {{ ca_dir }}/harbor.pem
   private_key: {{ ca_dir }}/harbor-key.pem
+  # enable strong ssl ciphers (default: false)
+  # strong_ssl_ciphers: false
+
+# # Harbor will set ipv4 enabled only by default if this block is not configured
+# # Otherwise, please uncomment this block to configure your own ip_family stacks
+# ip_family:
+#   # ipv6Enabled set to true if ipv6 is enabled in docker network, currently it affected the nginx related component
+#   ipv6:
+#     enabled: false
+#   # ipv4Enabled set to true by default, currently it affected the nginx related component
+#   ipv4:
+#     enabled: true
 
 # # Uncomment following will enable tls communication between all harbor components
 # internal_tls:
@@ -23,6 +35,7 @@ https:
 #   enabled: true
 #   # put your cert and key files on dir
 #   dir: /etc/harbor/tls/internal
+
 
 # Uncomment external_url if you want to enable external proxy
 # And when it enabled the hostname will no longer used
@@ -60,7 +73,8 @@ data_volume: {{ HARBOR_PATH }}
 #   ca_bundle:
 
 #   # storage backend, default is filesystem, options include filesystem, azure, gcs, s3, swift and oss
-#   # for more info about this configuration please refer https://docs.docker.com/registry/configuration/
+#   # for more info about this configuration please refer https://distribution.github.io/distribution/about/configuration/
+#   # and https://distribution.github.io/distribution/storage-drivers/
 #   filesystem:
 #     maxthreads: 100
 #   # set disable to true when you want to disable registry redirect
@@ -84,6 +98,10 @@ trivy:
   # `metadata.json` files and mount them in the `/home/scanner/.cache/trivy/db` path.
   skip_update: false
   #
+  # skipJavaDBUpdate If the flag is enabled you have to manually download the `trivy-java.db` file and mount it in the
+  # `/home/scanner/.cache/trivy/java-db/trivy-java.db` path
+  skip_java_db_update: false
+  #
   # The offline_scan option prevents Trivy from sending API requests to identify dependencies.
   # Scanning JAR files and pom.xml may require Internet access for better detection, but this option tries to avoid it.
   # For example, the offline mode will not try to resolve transitive dependencies in pom.xml when the dependency doesn't
@@ -97,12 +115,17 @@ trivy:
   #
   # insecure The flag to skip verifying registry certificate
   insecure: false
+  #
+  # timeout The duration to wait for scan completion.
+  # There is upper bound of 30 minutes defined in scan job. So if this `timeout` is larger than 30m0s, it will also timeout at 30m0s.
+  timeout: 5m0s
+  #
   # github_token The GitHub access token to download Trivy DB
   #
   # Anonymous downloads from GitHub are subject to the limit of 60 requests per hour. Normally such rate limit is enough
   # for production operations. If, for any reason, it's not enough, you could increase the rate limit to 5000
   # requests per hour by specifying the GitHub access token. For more details on GitHub rate limiting please consult
-  # https://developer.github.com/v3/#rate-limiting
+  # https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting
   #
   # You can create a GitHub token by following the instructions in
   # https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line
@@ -112,6 +135,11 @@ trivy:
 jobservice:
   # Maximum number of job workers in job service
   max_job_workers: 10
+  # The jobLoggers backend name, only support "STD_OUTPUT", "FILE" and/or "DB"
+  job_loggers:
+    - STD_OUTPUT
+    - FILE
+    # - DB
   # The jobLogger sweeper duration (ignored if `jobLogger` is `stdout`)
   logger_sweeper_duration: 1 #days
 
@@ -128,7 +156,7 @@ log:
   # configs for logs in local storage
   local:
     # Log files are rotated log_rotate_count times before being removed. If count is 0, old versions are removed rather than rotated.
-    rotate_count: 5
+    rotate_count: 50
     # Log files are rotated only if they grow bigger than log_rotate_size bytes. If size is followed by k, the size is assumed to be in kilobytes.
     # If the M is used, the size is in megabytes, and if G is used, the size is in gigabytes. So size 100, size 100k, size 100M and size 100G
     # are all valid.
@@ -146,7 +174,7 @@ log:
   #   port: 5140
 
 #This attribute is for migrator to detect the version of the .cfg file, DO NOT MODIFY!
-_version: 2.8.0
+_version: 2.11.0
 
 # Uncomment external_database if using external database.
 # external_database:
@@ -159,20 +187,6 @@ _version: 2.8.0
 #     ssl_mode: disable
 #     max_idle_conns: 2
 #     max_open_conns: 0
-#   notary_signer:
-#     host: notary_signer_db_host
-#     port: notary_signer_db_port
-#     db_name: notary_signer_db_name
-#     username: notary_signer_db_username
-#     password: notary_signer_db_password
-#     ssl_mode: disable
-#   notary_server:
-#     host: notary_server_db_host
-#     port: notary_server_db_port
-#     db_name: notary_server_db_name
-#     username: notary_server_db_username
-#     password: notary_server_db_password
-#     ssl_mode: disable
 
 # Uncomment redis if need to customize redis db
 # redis:
@@ -194,6 +208,8 @@ _version: 2.8.0
 #   host: redis:6379
 #   password: 
 #   # Redis AUTH command was extended in Redis 6, it is possible to use it in the two-arguments AUTH <username> <password> form.
+#   # there's a known issue when using external redis username ref:https://github.com/goharbor/harbor/issues/18892
+#   # if you care about the image pull/push performance, please refer to this https://github.com/goharbor/harbor/wiki/Harbor-FAQs#external-redis-username-password-usage
 #   # username:
 #   # sentinel_master_set must be set to support redis+sentinel
 #   #sentinel_master_set:
@@ -242,7 +258,7 @@ proxy:
 #   enabled: true
 #   # set sample_rate to 1 if you wanna sampling 100% of trace data; set 0.5 if you wanna sampling 50% of trace data, and so forth
 #   sample_rate: 1
-#   # # namespace used to differenciate different harbor services
+#   # # namespace used to differentiate different harbor services
 #   # namespace:
 #   # # attributes is a key value dict contains user defined attributes used to initialize trace provider
 #   # attributes:
@@ -286,3 +302,15 @@ cache:
   enabled: false
   # keep cache for one day by default
   expire_hours: 24
+
+# Harbor core configurations
+# Uncomment to enable the following harbor core related configuration items.
+# core:
+#   # The provider for updating project quota(usage), there are 2 options, redis or db,
+#   # by default is implemented by db but you can switch the updation via redis which
+#   # can improve the performance of high concurrent pushing to the same project,
+#   # and reduce the database connections spike and occupies.
+#   # By redis will bring up some delay for quota usage updation for display, so only
+#   # suggest switch provider to redis if you were ran into the db connections spike around
+#   # the scenario of high concurrent pushing to same project, no improvement for other scenes.
+#   quota_update_provider: redis # Or db
