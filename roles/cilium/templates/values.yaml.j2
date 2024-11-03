@@ -35,12 +35,12 @@ hubble:
     backend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui-backend"
-        tag: "v0.13.0"
+        tag: "v0.13.1"
         useDigest: false
     frontend:
       image:
         repository: "easzlab.io.local:5000/cilium/hubble-ui"
-        tag: "v0.13.0"
+        tag: "v0.13.1"
         useDigest: false
 {% endif %}
 
@@ -55,15 +55,6 @@ ipam:
 
 # -- Enable Layer 7 network policy.
 l7Proxy: true
-
-# -- Configure Istio proxy options.
-proxy:
-  prometheus:
-    enabled: false
-    port: "9095"
-  # -- Regular expression matching compatible Istio sidecar istio-proxy
-  # container image names
-  sidecarImageRegex: "cilium/istio_proxy"
 
 # -- Configure TLS configuration in the agent.
 tls:
@@ -93,3 +84,6 @@ preflight:
 
 clustermesh:
   useAPIServer: false
+
+envoy:
+  enabled: false
