@@ -83,6 +83,29 @@
     </tr>
 </table>
 
+## 配置docker使用代理（You See See, One Day Day）
+> ezdown -D 下不动解决方案
+
+```shell
+# 创建一下目录和文件
+mkdir /etc/systemd/system/docker.service.d/ 
+vim /etc/systemd/system/docker.service.d/http-proxy.conf
+
+# 添加一下内容
+# 192.168.1.105:10809 是宿主机的http代理，这里填写你们自己的代理哦
+[Service]
+Environment="HTTP_PROXY=192.168.1.105:10809"
+Environment="HTTPS_PROXY=192.168.1.105:10809"
+Environment="NO_PROXY=localhost,127.0.0.1,easzlab.io.local"
+
+# 重启
+systemctl daemon-reload
+systemctl restart docker
+
+# 检查代理
+docker info | grep -i proxy
+```
+
 ## 使用指南
 
 <table border="0">
