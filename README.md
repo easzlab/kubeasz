@@ -84,7 +84,7 @@
 </table>
 
 ## 配置docker使用代理（You See See, One Day Day）
-> ezdown -D 下不动解决方案
+> ezdown -D 下不动解决方案，删除代理只需要删除配置，重启docker即可
 
 ```shell
 # 创建一下目录和文件
