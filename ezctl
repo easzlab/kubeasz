@@ -149,25 +149,9 @@ function new() {
     cp example/config.yml "clusters/$1/config.yml"
 
     logger debug "set versions"
-    eval $(sed '/[ver|VER]=.*\./!d;s|=v|=|' ezdown)
-    k8sVer="$K8S_BIN_VER"
-    harborVer="$HARBOR_VER"
-    # these variables were imported with eval and have the same name in ezdown, setting value to itself is pointless so commented out and kept for reference
-    #calicoVer="$calicoVer"
-    #ciliumVer="$ciliumVer"
-    #flannelVer="$flannelVer"
-    #kubeRouterVer="$kubeRouterVer"
-    #kubeOvnVer="$kubeOvnVer"
-    #corednsVer="$corednsVer"
-    #dnsNodeCacheVer="$dnsNodeCacheVer"
-    #dashboardVer="$dashboardVer"
-    #dashboardMetricsScraperVer="$dashboardMetricsScraperVer"
-    #metricsVer="$metricsVer"
-    #localpathProvisionerVer="$localpathProvisionerVer"
-    #nfsProvisionerVer="$nfsProvisionerVer"
-    #pauseVer="$pauseVer"
-    #promChartVer="$promChartVer"
-    #kubeappsVer="$kubeappsVer"
+    # these variables were imported with eval and have the same name in ezdown
+    eval $(sed '/[ver|VER]=.*\./!d' ezdown)
+    k8sVer=$(echo "$K8S_BIN_VER"|sed 's/v//g')
     registryMirror=true
 
     grep registry-mirrors /etc/docker/daemon.json > /dev/null 2>&1 || { logger debug "disable registry mirrors"; registryMirror=false; }
@@ -187,7 +171,7 @@ function new() {
 	   -e "s/__nfs_provisioner__/$nfsProvisionerVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__kubeapps_chart__/$kubeappsVer/g" \
-	   -e "s/__harbor__/$harborVer/g" \
+	   -e "s/__harbor__/$HARBOR_VER/g" \
 	   -e "s/^ENABLE_MIRROR_REGISTRY.*$/ENABLE_MIRROR_REGISTRY: $registryMirror/g" \
 	   -e "s/__metrics__/$metricsVer/g" "clusters/$1/config.yml"
 
