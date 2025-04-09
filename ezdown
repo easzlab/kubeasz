@@ -14,7 +14,7 @@ set -o pipefail
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=28.0.2
+DOCKER_VER=28.0.4
 KUBEASZ_VER=3.6.6
 K8S_BIN_VER=v1.32.3
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
@@ -48,7 +48,7 @@ kubeRouterVer=v1.5.4
 # https://github.com/kubeovn/kube-ovn
 kubeOvnVer=v1.11.5
 # https://github.com/rancher/local-path-provisioner
-localpathProvisionerVer=v0.0.26
+localpathProvisionerVer=v0.0.31
 # https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
 nfsProvisionerVer=v4.0.2
 #https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
