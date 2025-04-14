@@ -1,0 +1,59 @@
+## @section Common parameters
+
+## KubeBlocks container image settings
+image:
+  registry: easzlab.io.local:5000 
+
+## @param replicaCount
+replicaCount: 1
+
+## Data protection settings
+dataProtection:
+  enabled: true
+  enableBackupEncryption: false
+  image:
+    repository: apecloud/kubeblocks-dataprotection
+
+## @param addonController.jobImagePullPolicy - addon install job image pull policy.
+addonController:
+  enabled: true
+  jobTTL: "5m"
+
+## For avoiding the addon CRs being upgraded when upgrade this chart, set this value to false.
+upgradeAddons: false
+
+## @param autoInstalledAddons - the list of auto-installed addons when install and upgrade.
+autoInstalledAddons:
+  - "mongodb"
+  - "mysql"
+  - "postgresql"
+  - "redis"
+  - "snapshot-controller"
+
+
+## Prometheus Addon
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
+
+controllers:
+  apps:
+    enabled: true
+  workloads:
+    enabled: true
+  experimental:
+    enabled: false
+
+featureGates:
+  ignoreConfigTemplateDefaultMode:
+    enabled: false
+  ignorePodVerticalScaling:
+    enabled: false
+  componentReplicasAnnotation:
+    enabled: true
+  inPlacePodVerticalScaling:
+    enabled: false
+  noRSMEnv:
+    enabled: false

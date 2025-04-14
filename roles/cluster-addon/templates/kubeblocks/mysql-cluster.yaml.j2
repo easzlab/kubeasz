@@ -1,0 +1,67 @@
+apiVersion: apps.kubeblocks.io/v1alpha1
+kind: Cluster
+metadata:
+  name: mysql-cluster
+spec:
+  #terminationPolicy: DoNotTerminate
+  terminationPolicy: Delete
+  componentSpecs:
+    - name: mysql
+      componentDef: "mysql-8.0" 
+      serviceVersion: 8.0.35
+      disableExporter: false
+      replicas: 2
+      resources:
+        limits:
+          cpu: '0.5'
+          memory: 1Gi
+        requests:
+          cpu: '0.5'
+          memory: 1Gi
+      instances:
+        - name: app1
+          env:
+          - name: MYSQL_DATABASE
+            value: test_db
+          - name: MYSQL_USER
+            value: test_user
+          - name: MYSQL_PASSWORD
+            value: Test1234@
+          replicas: 2
+          volumeMounts:
+          - name: init-script
+            mountPath: /docker-entrypoint-initdb.d
+          volumes:
+          - name: init-script
+            configMap:
+              name: mysql-init-script
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: "local-path"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-script
+  namespace: default
+data:
+  init.sql: |
+    SET NAMES utf8mb4;
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL,
+        email VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB;
+
+    SET FOREIGN_KEY_CHECKS = 1;

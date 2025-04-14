@@ -1,0 +1,100 @@
+# https://kubeblocks.io/docs/release-0.9/user_docs/installation/install-kubeblocks 
+
+- name: 创建 kubeblocks yml 目录
+  file: name={{ cluster_dir }}/yml/kubeblocks state=directory
+
+- name: 创建 kubeblocks clusters 个性化设置
+  template: src=kubeblocks/{{ item }}.yaml.j2 dest={{ cluster_dir }}/yml/kubeblocks/{{ item }}.yaml
+  with_items:
+    - kb-values
+    - mysql-cluster
+    - pg-cluster
+    - redis-cluster
+    - minio-cluster
+    - es-cluster
+    - mongodb-cluster
+
+- block:
+    - name: 创建 kubeblocks crd
+      shell: "{{ base_dir }}/bin/kubectl create -f {{ base_dir }}/roles/cluster-addon/files/kubeblocks_crds.yaml"
+      ignore_errors: true
+
+    - name: helm 创建 kubeblocks
+      shell: "{{ base_dir }}/bin/helm upgrade kubeblocks --install --create-namespace -n kb-system \
+              -f {{ cluster_dir }}/yml/kubeblocks/kb-values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/kubeblocks-0.9.3.tgz"
+  when: '"kubeblocks-dataprotection" not in pod_info.stdout'
+
+- name: helm 安装 kb-addon-minio
+  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-minio \
+          --set image.registry=easzlab.io.local:5000 \
+          {{ base_dir }}/roles/cluster-addon/files/minio-0.9.0.tgz"
+  when: 'kb_addon_minio_install == "yes"'
+
+- name: helm 安装 kb-addon-es
+  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-es \
+          --set image.registry=easzlab.io.local:5000 \
+          {{ base_dir }}/roles/cluster-addon/files/elasticsearch-0.9.1.tgz"
+  when: 'kb_addon_es_install == "yes"'
+
+- name: 轮询等待部署 kb-addon-mysql chart
+  shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-mysql|awk '{print $8}'"
+  register: mysql_status
+  until: mysql_status.stdout == "deployed"
+  retries: 15
+  delay: 5
+  ignore_errors: true
+
+- name: 轮询等待部署 kb-addon-postgresql chart
+  shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-postgresql|awk '{print $8}'"
+  register: pg_status
+  until: pg_status.stdout == "deployed"
+  retries: 15
+  delay: 5
+  ignore_errors: true
+
+- name: 轮询等待部署 kb-addon-redis chart
+  shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-redis|awk '{print $8}'"
+  register: redis_status
+  until: redis_status.stdout == "deployed"
+  retries: 15
+  delay: 5
+  ignore_errors: true
+
+- name: 设置chart允许修改镜像地址
+  shell: "{{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-5.7 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-8.0 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-8.4 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io redis-7 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io redis-sentinel-7 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io minio apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io elasticsearch-8 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io kibana-8 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mongodb apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io postgresql-15 apps.kubeblocks.io/skip-immutable-check=true && \
+      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io postgresql-16 apps.kubeblocks.io/skip-immutable-check=true"
+  ignore_errors: true
+
+- name: helm 更新 kb-addon-mysql
+  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-mysql \
+          --set image.registry=easzlab.io.local:5000 \
+          {{ base_dir }}/roles/cluster-addon/files/mysql-0.9.1.tgz"
+  when: 'kb_addon_mysql_install == "yes"'
+
+- name: helm 更新 kb-addon-postgresql
+  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-postgresql \
+          --set image.registry=easzlab.io.local:5000 \
+          {{ base_dir }}/roles/cluster-addon/files/postgresql-0.9.0.tgz"
+  when: 'kb_addon_pg_install == "yes"'
+
+- name: helm 更新 kb-addon-redis
+  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-redis \
+          --set image.registry=easzlab.io.local:5000 \
+          {{ base_dir }}/roles/cluster-addon/files/redis-0.9.1.tgz"
+  when: 'kb_addon_redis_install == "yes"'
+
+- name: helm 更新 kb-addon-mongodb
+  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-mongodb \
+          --set image.registry=easzlab.io.local:5000 \
+          {{ base_dir }}/roles/cluster-addon/files/mongodb-0.9.1.tgz"
+  when: 'kb_addon_mongodb_install == "yes"'

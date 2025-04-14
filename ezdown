@@ -20,7 +20,7 @@ K8S_BIN_VER=v1.32.3
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.12.1
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
-SYS_PKG_VER=1.0.2
+SYS_PKG_VER=1.0.3
 HARBOR_VER=v2.12.2
 REGISTRY_MIRROR=CN
 
@@ -55,6 +55,8 @@ nfsProvisionerVer=v4.0.2
 promChartVer=45.23.0
 #https://github.com/bitnami/charts/tree/main/bitnami/kubeapps
 kubeappsVer=12.4.3
+#https://kubeblocks.io/docs/release-0.9/user_docs/overview/introduction
+kubeblocksVer=0.9.3
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
@@ -109,6 +111,13 @@ available options:
     kube-ovn                 to download images of kube-ovn
     kube-router              to download images of kube-router
     kubeapps                 to download images of kubeapps
+    kubeblocks               to download images of kubeblocks
+    kb-addon-mysql           to download images of kb-addon-mysql
+    kb-addon-pg              to download images of kb-addon-postgresql
+    kb-addon-redis           to download images of kb-addon-redis
+    kb-addon-minio           to download images of kb-addon-minio
+    kb-addon-es              to download images of kb-addon-es
+    kb-addon-mongodb         to download images of kb-addon-mongodb
     local-path-provisioner   to download images of local-path-provisioner
     network-check            to download images of network-check
     nfs-provisioner          to download images of nfs-provisioner
@@ -162,6 +171,7 @@ function download_docker() {
   mkdir -p "$BASE/bin/docker-bin" && \
   cp -f "$BASE"/down/docker/* "$BASE/bin/docker-bin" && \
   mv -f "$BASE"/down/docker/* /opt/kube/bin && \
+  rm -rf "$BASE"/down/docker && \
   ln -sf /opt/kube/bin/docker /bin/docker
 }
 
@@ -501,6 +511,170 @@ function get_extra_images() {
       docker push "easzlab.io.local:5000/bitnami/nginx:1.23.4-debian-11-r18"
       docker push "easzlab.io.local:5000/bitnami/postgresql:15.3.0-debian-11-r0"
       ;;
+
+    # kubeblocks images
+    kubeblocks)
+      if [[ ! -f "$imageDir/kubeblocks_$kubeblocksVer.tar" ]];then
+        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" && \
+        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" && \
+        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" && \
+        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" && \
+        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" && \
+        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3" && \
+        docker save -o "$imageDir/kubeblocks_$kubeblocksVer.tar" \
+                   "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" \
+                   "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" \
+                   "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" \
+                   "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" \
+                   "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" \
+                   "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3"
+      else
+        docker load -i "$imageDir/kubeblocks_$kubeblocksVer.tar"
+      fi
+      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" "easzlab.io.local:5000/apecloud/snapshot-controller:v6.2.1"
+      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-charts:0.9.3"
+      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-datascript:0.9.3"
+      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks:0.9.3"
+      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.9.3"
+      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-dataprotection:0.9.3"
+      docker push "easzlab.io.local:5000/apecloud/snapshot-controller:v6.2.1"
+      docker push "easzlab.io.local:5000/apecloud/kubeblocks-charts:0.9.3"
+      docker push "easzlab.io.local:5000/apecloud/kubeblocks-datascript:0.9.3"
+      docker push "easzlab.io.local:5000/apecloud/kubeblocks:0.9.3"
+      docker push "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.9.3"
+      docker push "easzlab.io.local:5000/apecloud/kubeblocks-dataprotection:0.9.3"
+      ;;
+
+    # kb-addon-mysql images
+    kb-addon-mysql)
+      if [[ ! -f "$imageDir/kb-addon-mysql_0.9.1.tar" ]];then
+        docker pull "apecloud/mysql_audit_log:8.0.33" && \
+        docker pull "apecloud/xtrabackup:8.0" && \
+        docker pull "apecloud/jemalloc:5.3.0" && \
+        docker pull "apecloud/syncer:0.5.0" && \
+        docker pull "apecloud/mysql:8.0.35" && \
+        docker pull "apecloud/agamotto:0.1.2-beta.1" && \
+        docker save -o "$imageDir/kb-addon-mysql_0.9.1.tar" \
+                   "apecloud/mysql_audit_log:8.0.33" \
+                   "apecloud/xtrabackup:8.0" \
+                   "apecloud/jemalloc:5.3.0" \
+                   "apecloud/syncer:0.5.0" \
+                   "apecloud/mysql:8.0.35" \
+		   "apecloud/agamotto:0.1.2-beta.1"
+      else
+        docker load -i "$imageDir/kb-addon-mysql_0.9.1.tar"
+      fi
+      docker tag "apecloud/mysql_audit_log:8.0.33" "easzlab.io.local:5000/apecloud/mysql_audit_log:8.0.33"
+      docker tag "apecloud/xtrabackup:8.0" "easzlab.io.local:5000/apecloud/xtrabackup:8.0"
+      docker tag "apecloud/jemalloc:5.3.0" "easzlab.io.local:5000/apecloud/jemalloc:5.3.0"
+      docker tag "apecloud/syncer:0.5.0" "easzlab.io.local:5000/apecloud/syncer:0.5.0"
+      docker tag "apecloud/mysql:8.0.35" "easzlab.io.local:5000/apecloud/mysql:8.0.35"
+      docker tag "apecloud/agamotto:0.1.2-beta.1" "easzlab.io.local:5000/apecloud/agamotto:0.1.2-beta.1"
+      docker push "easzlab.io.local:5000/apecloud/mysql_audit_log:8.0.33"
+      docker push "easzlab.io.local:5000/apecloud/xtrabackup:8.0"
+      docker push "easzlab.io.local:5000/apecloud/jemalloc:5.3.0"
+      docker push "easzlab.io.local:5000/apecloud/syncer:0.5.0"
+      docker push "easzlab.io.local:5000/apecloud/mysql:8.0.35"
+      docker push "easzlab.io.local:5000/apecloud/agamotto:0.1.2-beta.1"
+      ;;
+
+    # kb-addon-pg images
+    kb-addon-pg)
+      if [[ ! -f "$imageDir/kb-addon-pg_0.9.0.tar" ]];then
+        docker pull "apecloud/spilo:16.4.0" && \
+        docker pull "apecloud/pgbouncer:1.19.0" && \
+        docker pull "apecloud/postgres-exporter:v0.15.0" && \
+        docker save -o "$imageDir/kb-addon-pg_0.9.0.tar" \
+                   "apecloud/spilo:16.4.0" \
+                   "apecloud/pgbouncer:1.19.0" \
+                   "apecloud/postgres-exporter:v0.15.0"
+      else
+        docker load -i "$imageDir/kb-addon-pg_0.9.0.tar"
+      fi
+      docker tag "apecloud/spilo:16.4.0" "easzlab.io.local:5000/apecloud/spilo:16.4.0"
+      docker tag "apecloud/pgbouncer:1.19.0" "easzlab.io.local:5000/apecloud/pgbouncer:1.19.0"
+      docker tag "apecloud/postgres-exporter:v0.15.0" "easzlab.io.local:5000/apecloud/postgres-exporter:v0.15.0"
+      docker push "easzlab.io.local:5000/apecloud/spilo:16.4.0"
+      docker push "easzlab.io.local:5000/apecloud/pgbouncer:1.19.0"
+      docker push "easzlab.io.local:5000/apecloud/postgres-exporter:v0.15.0"
+      ;;
+
+    # kb-addon-redis images
+    kb-addon-redis)
+      if [[ ! -f "$imageDir/kb-addon-redis_0.9.1.tar" ]];then
+        docker pull "apecloud/redis-stack-server:7.2.0-v14" && \
+        docker save -o "$imageDir/kb-addon-redis_0.9.1.tar" \
+                   "apecloud/redis-stack-server:7.2.0-v14"
+      else
+        docker load -i "$imageDir/kb-addon-redis_0.9.1.tar"
+      fi
+      docker tag "apecloud/redis-stack-server:7.2.0-v14" "easzlab.io.local:5000/apecloud/redis-stack-server:7.2.0-v14"
+      docker push "easzlab.io.local:5000/apecloud/redis-stack-server:7.2.0-v14"
+      ;;
+
+    # kb-addon-minio images
+    kb-addon-minio)
+      if [[ ! -f "$imageDir/kb-addon-minio_0.9.0.tar" ]];then
+        docker pull "apecloud/minio:RELEASE.2024-06-29T01-20-47Z" && \
+        docker pull "apecloud/kubeblocks-tools:0.8.2" && \
+        docker save -o "$imageDir/kb-addon-minio_0.9.0.tar" \
+                   "apecloud/minio:RELEASE.2024-06-29T01-20-47Z" \
+                   "apecloud/kubeblocks-tools:0.8.2"
+      else
+        docker load -i "$imageDir/kb-addon-minio_0.9.0.tar"
+      fi
+      docker tag "apecloud/minio:RELEASE.2024-06-29T01-20-47Z" "easzlab.io.local:5000/apecloud/minio:RELEASE.2024-06-29T01-20-47Z"
+      docker tag "apecloud/kubeblocks-tools:0.8.2" "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.8.2"
+      docker push "easzlab.io.local:5000/apecloud/minio:RELEASE.2024-06-29T01-20-47Z"
+      docker push "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.8.2"
+      ;;
+
+    # kb-addon-mongodb images
+    kb-addon-mongodb)
+      if [[ ! -f "$imageDir/kb-addon-mongodb_0.9.1.tar" ]];then
+        docker pull "apecloud/syncer:0.3.7" && \
+        docker pull "apecloud/mongo:8.0.4" && \
+        docker save -o "$imageDir/kb-addon-mongodb_0.9.1.tar" \
+                   "apecloud/mongo:8.0.4" \
+                   "apecloud/syncer:0.3.7"
+      else
+        docker load -i "$imageDir/kb-addon-mongodb_0.9.1.tar"
+      fi
+      docker tag "apecloud/syncer:0.3.7" "easzlab.io.local:5000/apecloud/syncer:0.3.7"
+      docker tag "apecloud/mongo:8.0.4" "easzlab.io.local:5000/apecloud/mongo:8.0.4"
+      docker push "easzlab.io.local:5000/apecloud/syncer:0.3.7"
+      docker push "easzlab.io.local:5000/apecloud/mongo:8.0.4"
+      ;;
+
+    # kb-addon-es images
+    kb-addon-es)
+      if [[ ! -f "$imageDir/kb-addon-es_0.9.1.tar" ]];then
+        docker pull "apecloud/kibana:8.8.2" && \
+        docker pull "apecloud/elasticsearch-plugins:8.8.2" && \
+        docker pull "apecloud/elasticsearch:8.8.2" && \
+        docker pull "apecloud/elasticsearch-exporter:v1.7.0" && \
+        docker pull "apecloud/curl-jq:0.1.0" && \
+        docker save -o "$imageDir/kb-addon-es_0.9.1.tar" \
+                   "apecloud/kibana:8.8.2" \
+                   "apecloud/elasticsearch-plugins:8.8.2" \
+                   "apecloud/elasticsearch:8.8.2" \
+                   "apecloud/elasticsearch-exporter:v1.7.0" \
+                   "apecloud/curl-jq:0.1.0"
+      else
+        docker load -i "$imageDir/kb-addon-es_0.9.1.tar"
+      fi
+      docker tag "apecloud/kibana:8.8.2" "easzlab.io.local:5000/apecloud/kibana:8.8.2"
+      docker tag "apecloud/elasticsearch-plugins:8.8.2" "easzlab.io.local:5000/apecloud/elasticsearch-plugins:8.8.2"
+      docker tag "apecloud/elasticsearch:8.8.2" "easzlab.io.local:5000/apecloud/elasticsearch:8.8.2"
+      docker tag "apecloud/elasticsearch-exporter:v1.7.0" "easzlab.io.local:5000/apecloud/elasticsearch-exporter:v1.7.0"
+      docker tag "apecloud/curl-jq:0.1.0" "easzlab.io.local:5000/apecloud/curl-jq:0.1.0"
+      docker push "easzlab.io.local:5000/apecloud/kibana:8.8.2"
+      docker push "easzlab.io.local:5000/apecloud/elasticsearch-plugins:8.8.2"
+      docker push "easzlab.io.local:5000/apecloud/elasticsearch:8.8.2"
+      docker push "easzlab.io.local:5000/apecloud/elasticsearch-exporter:v1.7.0"
+      docker push "easzlab.io.local:5000/apecloud/curl-jq:0.1.0"
+      ;;
+
 
     # kube-ovn images
     kube-ovn)

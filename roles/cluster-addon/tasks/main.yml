@@ -32,3 +32,6 @@
 
 - import_tasks: kubeapps.yml
   when: 'kubeapps_install == "yes"'
+
+- import_tasks: kubeblocks.yml
+  when: 'kubeblocks_install == "yes"'
