@@ -149,23 +149,9 @@ function new() {
     cp example/config.yml "clusters/$1/config.yml"
 
     logger debug "set versions"
-    k8sVer=$(grep 'K8S_BIN_VER=v' ezdown|cut -d'v' -f2)
-    calicoVer=$(grep 'calicoVer=' ezdown|cut -d'=' -f2)
-    ciliumVer=$(grep 'ciliumVer=' ezdown|cut -d'=' -f2)
-    flannelVer=$(grep 'flannelVer=' ezdown|cut -d'=' -f2)
-    kubeRouterVer=$(grep 'kubeRouterVer=' ezdown|cut -d'=' -f2)
-    kubeOvnVer=$(grep 'kubeOvnVer=' ezdown|cut -d'=' -f2)
-    corednsVer=$(grep 'corednsVer=' ezdown|cut -d'=' -f2)
-    dnsNodeCacheVer=$(grep 'dnsNodeCacheVer=' ezdown|cut -d'=' -f2)
-    dashboardVer=$(grep 'dashboardVer=' ezdown|cut -d'=' -f2)
-    dashboardMetricsScraperVer=$(grep 'dashboardMetricsScraperVer=' ezdown|cut -d'=' -f2)
-    metricsVer=$(grep 'metricsVer=' ezdown|cut -d'=' -f2)
-    localpathProvisionerVer=$(grep 'localpathProvisionerVer=' ezdown|cut -d'=' -f2)
-    nfsProvisionerVer=$(grep 'nfsProvisionerVer=' ezdown|cut -d'=' -f2)
-    pauseVer=$(grep 'pauseVer=' ezdown|cut -d'=' -f2)
-    promChartVer=$(grep 'promChartVer=' ezdown|cut -d'=' -f2)
-    kubeappsVer=$(grep 'kubeappsVer=' ezdown|cut -d'=' -f2)
-    harborVer=$(grep 'HARBOR_VER=' ezdown|cut -d'=' -f2)
+    # these variables were imported with eval and have the same name in ezdown
+    eval $(sed '/[ver|VER]=.*\./!d' ezdown)
+    k8sVer=$(echo "$K8S_BIN_VER"|sed 's/v//g')
     registryMirror=true
 
     grep registry-mirrors /etc/docker/daemon.json > /dev/null 2>&1 || { logger debug "disable registry mirrors"; registryMirror=false; }
@@ -185,7 +171,7 @@ function new() {
 	   -e "s/__nfs_provisioner__/$nfsProvisionerVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__kubeapps_chart__/$kubeappsVer/g" \
-	   -e "s/__harbor__/$harborVer/g" \
+	   -e "s/__harbor__/$HARBOR_VER/g" \
 	   -e "s/^ENABLE_MIRROR_REGISTRY.*$/ENABLE_MIRROR_REGISTRY: $registryMirror/g" \
 	   -e "s/__metrics__/$metricsVer/g" "clusters/$1/config.yml"
 

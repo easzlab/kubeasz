@@ -14,11 +14,11 @@ set -o pipefail
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=27.5.0
-KUBEASZ_VER=3.6.5
-K8S_BIN_VER=v1.32.1
+DOCKER_VER=28.0.2
+KUBEASZ_VER=3.6.6
+K8S_BIN_VER=v1.32.3
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
-EXT_BIN_VER=1.12.0
+EXT_BIN_VER=1.12.1
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.0.2
 HARBOR_VER=v2.12.2
@@ -26,9 +26,9 @@ REGISTRY_MIRROR=CN
 
 # images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
-calicoVer=v3.28.2
+calicoVer=v3.28.3
 # https://github.com/coredns/coredns
-corednsVer=1.11.3
+corednsVer=1.11.4
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
 dnsNodeCacheVer=1.23.1
 dashboardVer=v2.7.0
@@ -202,8 +202,12 @@ EOF
 {
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "registry-mirrors": [
-    "https://docker.nju.edu.cn/",
-    "https://kuamavit.mirror.aliyuncs.com"
+    "https://docker.1ms.run",
+    "https://hub1.nat.tf",
+    "https://docker.1panel.live",
+    "https://proxy.1panel.live",
+    "https://hub.rat.dev",
+    "https://docker.amingg.com"
   ],
   "insecure-registries": ["http://easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,

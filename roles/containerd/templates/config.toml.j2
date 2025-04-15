@@ -58,7 +58,7 @@ imports = []
 {% endfor %}
 {% if ENABLE_MIRROR_REGISTRY %}
         [plugins.'io.containerd.cri.v1.images'.registry.mirrors."docker.io"]
-          endpoint = ["https://docker.nju.edu.cn/", "https://kuamavit.mirror.aliyuncs.com"]
+          endpoint = ["https://docker.1ms.run", "https://hub1.nat.tf", "https://docker.1panel.live", "https://proxy.1panel.live", "https://hub.rat.dev", "https://docker.amingg.com"]
         [plugins.'io.containerd.cri.v1.images'.registry.mirrors."gcr.io"]
           endpoint = ["https://gcr.nju.edu.cn"]
         [plugins.'io.containerd.cri.v1.images'.registry.mirrors."k8s.gcr.io"]
