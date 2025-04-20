@@ -5,16 +5,17 @@
     - name: 准备 dashboard的部署文件
       template: src=dashboard/{{ item }}.j2 dest={{ cluster_dir }}/yml/dashboard/{{ item }}
       with_items:
-      - "kubernetes-dashboard.yaml"
+      - "dashboard-values.yaml"
       - "admin-user-sa-rbac.yaml"
       - "read-user-sa-rbac.yaml"
 
-    - name: 删除 dashboard部署
-      shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/dashboard/ || echo true; sleep 3"
-      tags: force_change_certs
-      when: 'CHANGE_CA|bool'
-
     - name: 创建 dashboard部署
-      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/dashboard/"
-      tags: force_change_certs
+      shell: "{{ base_dir }}/bin/helm upgrade kubernetes-dashboard --install --create-namespace \
+              -n kube-system -f {{ cluster_dir }}/yml/dashboard/dashboard-values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/kubernetes-dashboard-{{ dashboardVer }}.tgz"
+
+    - name: 创建用户admin,read
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/dashboard/admin-user-sa-rbac.yaml \
+           && {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/dashboard/read-user-sa-rbac.yaml"
+
   when: 'dashboard_install == "yes"'

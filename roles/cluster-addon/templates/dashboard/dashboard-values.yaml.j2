@@ -1,0 +1,29 @@
+# General configuration shared across resources
+app:
+  mode: 'dashboard'
+
+auth:
+  image:
+    repository: easzlab.io.local:5000/kubernetesui/dashboard-auth
+
+api:
+  image:
+    repository: easzlab.io.local:5000/kubernetesui/dashboard-api
+
+web:
+  image:
+    repository: easzlab.io.local:5000/kubernetesui/dashboard-web
+
+metricsScraper:
+  image:
+    repository: easzlab.io.local:5000/kubernetesui/dashboard-metrics-scraper
+
+## Required Kong sub-chart with DBless configuration to act as a gateway
+kong:
+  enabled: true
+  image:
+    repository: easzlab.io.local:5000/kong
+  proxy:
+    type: NodePort
+    http:
+      enabled: false

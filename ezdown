@@ -107,6 +107,7 @@ function usage-down-ext-img(){
   cat <<EOF
 available options:
     cilium                   to download images of cilium
+    dashboard                to download images of dashboard
     flannel                  to download images of flannel
     kube-ovn                 to download images of kube-ovn
     kube-router              to download images of kube-router
@@ -471,6 +472,36 @@ function get_extra_images() {
       docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
       docker tag "flannel/flannel-cni-plugin:v1.5.1-flannel2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
       docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
+      ;;
+
+  # dashboard
+    dashboard)
+      if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
+        docker pull "kubernetesui/dashboard-api:1.12.0" && \
+        docker pull "kubernetesui/dashboard-auth:1.2.4" && \
+        docker pull "kubernetesui/dashboard-metrics-scraper:1.2.2" && \
+        docker pull "kubernetesui/dashboard-web:1.6.2" && \
+        docker pull "kong:3.8" && \
+        docker save -o "$imageDir/dashboard_$dashboardVer.tar" \
+                "kubernetesui/dashboard-api:1.12.0" \
+                "kubernetesui/dashboard-auth:1.2.4" \
+                "kubernetesui/dashboard-metrics-scraper:1.2.2" \
+                "kubernetesui/dashboard-web:1.6.2" \
+                "kong:3.8" || \
+        { logger error "download failed!"; return 1; }
+      else
+        docker load -i "$imageDir/dashboard_$dashboardVer.tar"
+      fi
+      docker tag "kubernetesui/dashboard-api:1.12.0" "easzlab.io.local:5000/kubernetesui/dashboard-api:1.12.0"
+      docker tag "kubernetesui/dashboard-auth:1.2.4" "easzlab.io.local:5000/kubernetesui/dashboard-auth:1.2.4"
+      docker tag "kubernetesui/dashboard-metrics-scraper:1.2.2" "easzlab.io.local:5000/kubernetesui/dashboard-metrics-scraper:1.2.2"
+      docker tag "kubernetesui/dashboard-web:1.6.2" "easzlab.io.local:5000/kubernetesui/dashboard-web:1.6.2"
+      docker tag "kong:3.8" "easzlab.io.local:5000/kong:3.8"
+      docker push "easzlab.io.local:5000/kubernetesui/dashboard-api:1.12.0"
+      docker push "easzlab.io.local:5000/kubernetesui/dashboard-auth:1.2.4"
+      docker push "easzlab.io.local:5000/kubernetesui/dashboard-metrics-scraper:1.2.2"
+      docker push "easzlab.io.local:5000/kubernetesui/dashboard-web:1.6.2"
+      docker push "easzlab.io.local:5000/kong:3.8"
       ;;
 
     # kubeapps images

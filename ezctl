@@ -166,7 +166,6 @@ function new() {
 	   -e "s/__pause__/$pauseVer/g" \
 	   -e "s/__dns_node_cache__/$dnsNodeCacheVer/g" \
 	   -e "s/__dashboard__/$dashboardVer/g" \
-	   -e "s/__dash_metrics__/$dashboardMetricsScraperVer/g" \
 	   -e "s/__local_path_provisioner__/$localpathProvisionerVer/g" \
 	   -e "s/__nfs_provisioner__/$nfsProvisionerVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
