@@ -42,10 +42,6 @@
 
   - debug: var="CLEAN_STATUS"
 
-  - name: run kubectl delete node {{ NODE_NAME.stdout }}
-    shell: "{{ base_dir }}/bin/kubectl delete node {{ NODE_NAME.stdout }}"
-    ignore_errors: true
-
   # lineinfile is inadequate to delete lines between some specific line range
   - name: remove the master's entry in hosts
     shell: 'sed -i "/^\[kube_master/,/^\[harbor/ {/^{{ NODE_TO_DEL }}$/d}" {{ base_dir }}/clusters/{{ CLUSTER }}/hosts'

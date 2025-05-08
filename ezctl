@@ -350,6 +350,9 @@ function add-master() {
     logger info "start to add a master node:$2 into cluster:$1"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/23.addmaster.yml" -e "NODE_TO_ADD=$2" -e "@clusters/$1/config.yml"
 
+    logger info "re-setting /etc/hosts for all nodes"
+    ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t set_hosts -e "@clusters/$1/config.yml"
+
     logger info "reconfigure and restart 'kube-lb' service"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/90.setup.yml" -t restart_kube-lb -e "@clusters/$1/config.yml"
 
@@ -413,6 +416,8 @@ function del-master() {
     # check if the deleting master exsited
     sed -n '/^\[kube_master/,/^\[kube_node/p' "$BASE/clusters/$1/hosts"|grep -E "^$2$|^$2 " || { logger error "master $2 not existed!"; return 2; }
 
+    NODE_NAME=$(bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" get node -owide|grep " $2 "|awk '{print $1}')
+
     logger warn "start to delete the master:$2 from cluster:$1"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/33.delmaster.yml" -e "NODE_TO_DEL=$2" -e "CLUSTER=$1" -e "@clusters/$1/config.yml"
 
@@ -424,6 +429,9 @@ function del-master() {
 
     logger info "reconfigure and restart 'ex-lb' service"
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/10.ex-lb.yml" -t restart_lb -e "@clusters/$1/config.yml"
+
+    logger info "delete the master-node: $NODE_NAME"
+    bin/kubectl --kubeconfig="clusters/$1/kubectl.kubeconfig" delete node "$NODE_NAME"
 }
 
 
