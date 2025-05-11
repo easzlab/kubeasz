@@ -16,7 +16,7 @@ set -o pipefail
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.0.4
 KUBEASZ_VER=3.6.6
-K8S_BIN_VER=v1.32.3
+K8S_BIN_VER=v1.33.0
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.12.1
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
@@ -26,7 +26,7 @@ REGISTRY_MIRROR=CN
 
 # images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
-calicoVer=v3.28.3
+calicoVer=v3.28.4
 # https://github.com/coredns/coredns
 corednsVer=1.12.1
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
