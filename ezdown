@@ -28,9 +28,9 @@ REGISTRY_MIRROR=CN
 # https://github.com/projectcalico/calico
 calicoVer=v3.28.3
 # https://github.com/coredns/coredns
-corednsVer=1.11.4
+corednsVer=1.12.1
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
-dnsNodeCacheVer=1.23.1
+dnsNodeCacheVer=1.25.0
 # https://github.com/kubernetes-sigs/metrics-server
 metricsVer=v0.7.2
 pauseVer=3.10

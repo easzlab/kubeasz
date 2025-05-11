@@ -58,7 +58,7 @@ data:
         errors
         cache {
                 success 9984 30
-                denial 9984 15
+                denial 9984 10
         }
         reload
         loop
@@ -67,7 +67,7 @@ data:
                 force_tcp
         }
         prometheus :9253
-        health {{ LOCAL_DNS_CACHE }}:8080
+        health {{ LOCAL_DNS_CACHE }}:8099
         }
     in-addr.arpa:53 {
         errors
@@ -138,7 +138,6 @@ spec:
         operator: "Exists"
       containers:
       - name: node-cache
-        #image: k8s.gcr.io/dns/k8s-dns-node-cache:1.16.0
         image: easzlab.io.local:5000/easzlab/k8s-dns-node-cache:{{ dnsNodeCacheVer }}
         resources:
           requests:
@@ -163,7 +162,7 @@ spec:
           httpGet:
             host: {{ LOCAL_DNS_CACHE }}
             path: /health
-            port: 8080
+            port: 8099
           initialDelaySeconds: 60
           timeoutSeconds: 5
         volumeMounts:
