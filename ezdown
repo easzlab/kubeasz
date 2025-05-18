@@ -18,7 +18,7 @@ DOCKER_VER=28.0.4
 KUBEASZ_VER=3.6.6
 K8S_BIN_VER=v1.33.0
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
-EXT_BIN_VER=1.12.1
+EXT_BIN_VER=1.12.3
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.0.3
 HARBOR_VER=v2.12.2

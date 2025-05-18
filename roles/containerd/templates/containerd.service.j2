@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Environment="PATH={{ bin_dir }}/containerd-bin:/bin:/sbin:/usr/bin:/usr/sbin"
 ExecStartPre=-/sbin/modprobe overlay
-ExecStart={{ bin_dir }}/containerd-bin/containerd
+ExecStart={{ bin_dir }}/containerd-bin/containerd --log-level warn
 Restart=always
 RestartSec=5
 Delegate=yes
