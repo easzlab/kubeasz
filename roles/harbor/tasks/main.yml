@@ -77,6 +77,23 @@
             export PATH={{ bin_dir }}:$PATH && \
             ./install.sh {{ HARBOR_INST_OPS }} >> /tmp/harbor-`date +'%Y%m%d%H%M%S'`.log 2>&1"
   when: '"registry" not in result.stdout'
+  
+- name: 创建 harbor 的 systemd unit 文件
+  template: src=harbor.service.j2 dest=/etc/systemd/system/harbor.service
+
+- name: 开机启用 harbor 服务
+  shell: systemctl enable harbor
+  ignore_errors: true
+
+- name: 开启 harbor 服务
+  shell: systemctl daemon-reload && systemctl restart harbor
+
+- name: 轮询等待 harbor 服务启动
+  shell: systemctl is-active harbor.service
+  register: harbor_status
+  until: '"active" in harbor_status.stdout'
+  retries: 10
+  delay: 3
 
 - name: 检测 harbor 端口是否正常
   wait_for:
