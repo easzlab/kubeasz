@@ -305,7 +305,7 @@ spec:
           value: "8080"
         ports:
         - containerPort: 8080
-        image: easzlab.io.local:5000/cilium/json-mock:v1.3.0
+        image: easzlab.io.local:5000/easzlab/json-mock:v1.3.0
         imagePullPolicy: IfNotPresent
         readinessProbe:
           timeoutSeconds: 7
@@ -352,7 +352,7 @@ spec:
         - name: PORT
           value: "40001"
         ports: []
-        image: easzlab.io.local:5000/cilium/json-mock:v1.3.0
+        image: easzlab.io.local:5000/easzlab/json-mock:v1.3.0
         imagePullPolicy: IfNotPresent
         readinessProbe:
           timeoutSeconds: 7

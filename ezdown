@@ -357,475 +357,180 @@ function get_harbor_offline_pkg() {
 function get_default_images() {
   logger info "download default images, then upload to the local registry"
 
-  # calico
-  if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
-    docker pull "calico/cni:$calicoVer" && \
-    docker pull "calico/kube-controllers:$calicoVer" && \
-    docker pull "calico/node:$calicoVer" && \
-    docker save -o "$imageDir/calico_$calicoVer.tar" \
-        "calico/cni:$calicoVer" \
-        "calico/kube-controllers:$calicoVer" \
-        "calico/node:$calicoVer" || \
-    { logger error "download failed!"; return 1; }
-  else
-    docker load -i "$imageDir/calico_$calicoVer.tar"
-  fi
-  docker tag "calico/cni:$calicoVer" "easzlab.io.local:5000/calico/cni:$calicoVer"
-  docker push "easzlab.io.local:5000/calico/cni:$calicoVer"
-  docker tag "calico/kube-controllers:$calicoVer" "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
-  docker push "easzlab.io.local:5000/calico/kube-controllers:$calicoVer"
-  docker tag "calico/node:$calicoVer" "easzlab.io.local:5000/calico/node:$calicoVer"
-  docker push "easzlab.io.local:5000/calico/node:$calicoVer"
-
-  # coredns
-  if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
-    docker pull "coredns/coredns:$corednsVer" && \
-    docker save -o "$imageDir/coredns_$corednsVer.tar" "coredns/coredns:$corednsVer" || \
-    { logger error "download failed!"; return 1; }
-  else
-    docker load -i "$imageDir/coredns_$corednsVer.tar"
-  fi
-  docker tag "coredns/coredns:$corednsVer" "easzlab.io.local:5000/coredns/coredns:$corednsVer"
-  docker push "easzlab.io.local:5000/coredns/coredns:$corednsVer"
-
-  # dns-node-cache
-  if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
-    docker pull "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
-    docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" \
-        "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" || \
-    { logger error "download failed!"; return 1; }
-  else
-    docker load -i "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar"
-  fi
-  docker tag "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
-  docker push "easzlab.io.local:5000/easzlab/k8s-dns-node-cache:$dnsNodeCacheVer"
-
-  # metrics-server
-  if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
-    docker pull "easzlab/metrics-server:$metricsVer" && \
-    docker save -o "$imageDir/metrics-server_$metricsVer.tar" "easzlab/metrics-server:$metricsVer" || \
-    { logger error "download failed!"; return 1; }
-  else
-    docker load -i "$imageDir/metrics-server_$metricsVer.tar"
-  fi
-  docker tag "easzlab/metrics-server:$metricsVer" "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
-  docker push "easzlab.io.local:5000/easzlab/metrics-server:$metricsVer"
-
-  # pause
-  if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
-    docker pull "easzlab/pause:$pauseVer" && \
-    docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer" || \
-    { logger error "download failed!"; return 1; }
-  else
-    docker load -i "$imageDir/pause_$pauseVer.tar"
-  fi
-  docker tag "easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
-  docker push "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+  IMAGES=(\
+      "calico/cni:$calicoVer" \
+      "calico/kube-controllers:$calicoVer" \
+      "calico/node:$calicoVer" \
+      "coredns/coredns:$corednsVer" \
+      "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" \
+      "easzlab/metrics-server:$metricsVer" \
+      "easzlab/pause:$pauseVer" \
+    )
+  down_and_save_images
 }
 
 function get_extra_images() {
   logger info "download images for $1, then upload to the local registry"
 
   case "$1" in
-    # cilium images
     cilium)
-      if [[ ! -f "$imageDir/cilium_$ciliumVer.tar" ]];then
-        docker pull "cilium/cilium:v$ciliumVer" && \
-        docker pull "cilium/operator-generic:v$ciliumVer" && \
-        docker pull "cilium/hubble-relay:v$ciliumVer" && \
-        docker pull cilium/hubble-ui-backend:v0.13.1 && \
-        docker pull cilium/hubble-ui:v0.13.1 && \
-        docker save -o "$imageDir/cilium_$ciliumVer.tar" "cilium/cilium:v$ciliumVer" \
-            "cilium/operator-generic:v$ciliumVer" \
-            "cilium/hubble-relay:v$ciliumVer" \
-            "cilium/hubble-ui-backend:v0.13.1" \
-            "cilium/hubble-ui:v0.13.1" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/cilium_$ciliumVer.tar"
-      fi
-      docker tag "cilium/cilium:v$ciliumVer" "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
-      docker push "easzlab.io.local:5000/cilium/cilium:v$ciliumVer"
-      docker tag "cilium/operator-generic:v$ciliumVer" "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
-      docker push "easzlab.io.local:5000/cilium/operator-generic:v$ciliumVer"
-      docker tag "cilium/hubble-relay:v$ciliumVer" "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
-      docker push "easzlab.io.local:5000/cilium/hubble-relay:v$ciliumVer"
-      docker tag cilium/hubble-ui-backend:v0.13.1 easzlab.io.local:5000/cilium/hubble-ui-backend:v0.13.1
-      docker push easzlab.io.local:5000/cilium/hubble-ui-backend:v0.13.1
-      docker tag cilium/hubble-ui:v0.13.1 easzlab.io.local:5000/cilium/hubble-ui:v0.13.1
-      docker push easzlab.io.local:5000/cilium/hubble-ui:v0.13.1
+      IMAGES=(\
+          "cilium/cilium:v$ciliumVer" \
+          "cilium/operator-generic:v$ciliumVer" \
+          "cilium/hubble-relay:v$ciliumVer" \
+          "cilium/hubble-ui-backend:v0.13.1" \
+          "cilium/hubble-ui:v0.13.1" \
+        )
+      down_and_save_images cilium
       ;;
 
-    # flannel image
     flannel)
-      if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
-        docker pull "flannel/flannel:$flannelVer" && \
-        docker pull "flannel/flannel-cni-plugin:v1.5.1-flannel2" && \
-        docker save -o "$imageDir/flannel_$flannelVer.tar" \
-            "flannel/flannel:$flannelVer" \
-            "flannel/flannel-cni-plugin:v1.5.1-flannel2" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/flannel_$flannelVer.tar"
-      fi
-      docker tag "flannel/flannel:$flannelVer" "easzlab.io.local:5000/flannel/flannel:$flannelVer"
-      docker push "easzlab.io.local:5000/flannel/flannel:$flannelVer"
-      docker tag "flannel/flannel-cni-plugin:v1.5.1-flannel2" "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
-      docker push "easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.5.1-flannel2"
+      IMAGES=(\
+          "flannel/flannel:$flannelVer" \
+          "flannel/flannel-cni-plugin:v1.5.1-flannel2" \
+        )
+      down_and_save_images flannel
       ;;
 
-  # dashboard
     dashboard)
-      if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
-        docker pull "kubernetesui/dashboard-api:1.12.0" && \
-        docker pull "kubernetesui/dashboard-auth:1.2.4" && \
-        docker pull "kubernetesui/dashboard-metrics-scraper:1.2.2" && \
-        docker pull "kubernetesui/dashboard-web:1.6.2" && \
-        docker pull "kong:3.8" && \
-        docker save -o "$imageDir/dashboard_$dashboardVer.tar" \
-                "kubernetesui/dashboard-api:1.12.0" \
-                "kubernetesui/dashboard-auth:1.2.4" \
-                "kubernetesui/dashboard-metrics-scraper:1.2.2" \
-                "kubernetesui/dashboard-web:1.6.2" \
-                "kong:3.8" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/dashboard_$dashboardVer.tar"
-      fi
-      docker tag "kubernetesui/dashboard-api:1.12.0" "easzlab.io.local:5000/kubernetesui/dashboard-api:1.12.0"
-      docker tag "kubernetesui/dashboard-auth:1.2.4" "easzlab.io.local:5000/kubernetesui/dashboard-auth:1.2.4"
-      docker tag "kubernetesui/dashboard-metrics-scraper:1.2.2" "easzlab.io.local:5000/kubernetesui/dashboard-metrics-scraper:1.2.2"
-      docker tag "kubernetesui/dashboard-web:1.6.2" "easzlab.io.local:5000/kubernetesui/dashboard-web:1.6.2"
-      docker tag "kong:3.8" "easzlab.io.local:5000/kong:3.8"
-      docker push "easzlab.io.local:5000/kubernetesui/dashboard-api:1.12.0"
-      docker push "easzlab.io.local:5000/kubernetesui/dashboard-auth:1.2.4"
-      docker push "easzlab.io.local:5000/kubernetesui/dashboard-metrics-scraper:1.2.2"
-      docker push "easzlab.io.local:5000/kubernetesui/dashboard-web:1.6.2"
-      docker push "easzlab.io.local:5000/kong:3.8"
+      IMAGES=(\
+          "kubernetesui/dashboard-api:1.12.0" \
+          "kubernetesui/dashboard-auth:1.2.4" \
+          "kubernetesui/dashboard-metrics-scraper:1.2.2" \
+          "kubernetesui/dashboard-web:1.6.2" \
+          "kong:3.8" \
+        )
+      down_and_save_images kubernetesui
       ;;
 
-    # kubeapps images
     kubeapps)
-      if [[ ! -f "$imageDir/kubeapps_$kubeappsVer.tar" ]];then
-        docker pull "bitnami/kubeapps-apis:2.7.0-debian-11-r10" && \
-        docker pull "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" && \
-        docker pull "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" && \
-        docker pull "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" && \
-        docker pull "bitnami/nginx:1.23.4-debian-11-r18" && \
-        docker pull "bitnami/postgresql:15.3.0-debian-11-r0" && \
-        docker save -o "$imageDir/kubeapps_$kubeappsVer.tar" \
-                    "bitnami/kubeapps-apis:2.7.0-debian-11-r10" \
-                    "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" \
-                    "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" \
-                    "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" \
-                    "bitnami/nginx:1.23.4-debian-11-r18" \
-                    "bitnami/postgresql:15.3.0-debian-11-r0" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kubeapps_$kubeappsVer.tar"
-      fi
-      docker tag "bitnami/kubeapps-apis:2.7.0-debian-11-r10" "easzlab.io.local:5000/bitnami/kubeapps-apis:2.7.0-debian-11-r10"
-      docker tag "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" "easzlab.io.local:5000/bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0"
-      docker tag "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" "easzlab.io.local:5000/bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0"
-      docker tag "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" "easzlab.io.local:5000/bitnami/kubeapps-dashboard:2.7.0-debian-11-r12"
-      docker tag "bitnami/nginx:1.23.4-debian-11-r18" "easzlab.io.local:5000/bitnami/nginx:1.23.4-debian-11-r18"
-      docker tag "bitnami/postgresql:15.3.0-debian-11-r0" "easzlab.io.local:5000/bitnami/postgresql:15.3.0-debian-11-r0"
-      docker push "easzlab.io.local:5000/bitnami/kubeapps-apis:2.7.0-debian-11-r10"
-      docker push "easzlab.io.local:5000/bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0"
-      docker push "easzlab.io.local:5000/bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0"
-      docker push "easzlab.io.local:5000/bitnami/kubeapps-dashboard:2.7.0-debian-11-r12"
-      docker push "easzlab.io.local:5000/bitnami/nginx:1.23.4-debian-11-r18"
-      docker push "easzlab.io.local:5000/bitnami/postgresql:15.3.0-debian-11-r0"
+      IMAGES=(\
+          "bitnami/kubeapps-apis:2.7.0-debian-11-r10" \
+          "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" \
+          "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" \
+          "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" \
+          "bitnami/nginx:1.23.4-debian-11-r18" \
+          "bitnami/postgresql:15.3.0-debian-11-r0" \
+        )
+      down_and_save_images bitnami
       ;;
 
-    # kubeblocks images
     kubeblocks)
-      if [[ ! -f "$imageDir/kubeblocks_$kubeblocksVer.tar" ]];then
-        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" && \
-        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" && \
-        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" && \
-        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" && \
-        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" && \
-        docker pull "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3" && \
-        docker save -o "$imageDir/kubeblocks_$kubeblocksVer.tar" \
-            "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" \
-            "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" \
-            "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" \
-            "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" \
-            "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" \
-            "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kubeblocks_$kubeblocksVer.tar"
-      fi
-      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" "easzlab.io.local:5000/apecloud/snapshot-controller:v6.2.1"
-      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-charts:0.9.3"
-      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-datascript:0.9.3"
-      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks:0.9.3"
-      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.9.3"
-      docker tag "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3" "easzlab.io.local:5000/apecloud/kubeblocks-dataprotection:0.9.3"
-      docker push "easzlab.io.local:5000/apecloud/snapshot-controller:v6.2.1"
-      docker push "easzlab.io.local:5000/apecloud/kubeblocks-charts:0.9.3"
-      docker push "easzlab.io.local:5000/apecloud/kubeblocks-datascript:0.9.3"
-      docker push "easzlab.io.local:5000/apecloud/kubeblocks:0.9.3"
-      docker push "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.9.3"
-      docker push "easzlab.io.local:5000/apecloud/kubeblocks-dataprotection:0.9.3"
+      IMAGES=(\
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3" \
+        )
+      down_and_save_images apecloud
       ;;
 
-    # kb-addon-mysql images
     kb-addon-mysql)
-      if [[ ! -f "$imageDir/kb-addon-mysql_0.9.1.tar" ]];then
-        docker pull "apecloud/mysql_audit_log:8.0.33" && \
-        docker pull "apecloud/xtrabackup:8.0" && \
-        docker pull "apecloud/jemalloc:5.3.0" && \
-        docker pull "apecloud/syncer:0.5.0" && \
-        docker pull "apecloud/mysql:8.0.35" && \
-        docker pull "apecloud/agamotto:0.1.2-beta.1" && \
-        docker save -o "$imageDir/kb-addon-mysql_0.9.1.tar" \
-            "apecloud/mysql_audit_log:8.0.33" \
-            "apecloud/xtrabackup:8.0" \
-            "apecloud/jemalloc:5.3.0" \
-            "apecloud/syncer:0.5.0" \
-            "apecloud/mysql:8.0.35" \
-            "apecloud/agamotto:0.1.2-beta.1" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kb-addon-mysql_0.9.1.tar"
-      fi
-      docker tag "apecloud/mysql_audit_log:8.0.33" "easzlab.io.local:5000/apecloud/mysql_audit_log:8.0.33"
-      docker tag "apecloud/xtrabackup:8.0" "easzlab.io.local:5000/apecloud/xtrabackup:8.0"
-      docker tag "apecloud/jemalloc:5.3.0" "easzlab.io.local:5000/apecloud/jemalloc:5.3.0"
-      docker tag "apecloud/syncer:0.5.0" "easzlab.io.local:5000/apecloud/syncer:0.5.0"
-      docker tag "apecloud/mysql:8.0.35" "easzlab.io.local:5000/apecloud/mysql:8.0.35"
-      docker tag "apecloud/agamotto:0.1.2-beta.1" "easzlab.io.local:5000/apecloud/agamotto:0.1.2-beta.1"
-      docker push "easzlab.io.local:5000/apecloud/mysql_audit_log:8.0.33"
-      docker push "easzlab.io.local:5000/apecloud/xtrabackup:8.0"
-      docker push "easzlab.io.local:5000/apecloud/jemalloc:5.3.0"
-      docker push "easzlab.io.local:5000/apecloud/syncer:0.5.0"
-      docker push "easzlab.io.local:5000/apecloud/mysql:8.0.35"
-      docker push "easzlab.io.local:5000/apecloud/agamotto:0.1.2-beta.1"
+      IMAGES=(\
+          "apecloud/mysql_audit_log:8.0.33" \
+          "apecloud/xtrabackup:8.0" \
+          "apecloud/jemalloc:5.3.0" \
+          "apecloud/syncer:0.5.0" \
+          "apecloud/mysql:8.0.35" \
+          "apecloud/agamotto:0.1.2-beta.1" \
+        )
+      down_and_save_images apecloud
       ;;
 
-    # kb-addon-pg images
     kb-addon-pg)
-      if [[ ! -f "$imageDir/kb-addon-pg_0.9.0.tar" ]];then
-        docker pull "apecloud/spilo:16.4.0" && \
-        docker pull "apecloud/pgbouncer:1.19.0" && \
-        docker pull "apecloud/postgres-exporter:v0.15.0" && \
-        docker save -o "$imageDir/kb-addon-pg_0.9.0.tar" \
-                   "apecloud/spilo:16.4.0" \
-                   "apecloud/pgbouncer:1.19.0" \
-                   "apecloud/postgres-exporter:v0.15.0" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kb-addon-pg_0.9.0.tar"
-      fi
-      docker tag "apecloud/spilo:16.4.0" "easzlab.io.local:5000/apecloud/spilo:16.4.0"
-      docker tag "apecloud/pgbouncer:1.19.0" "easzlab.io.local:5000/apecloud/pgbouncer:1.19.0"
-      docker tag "apecloud/postgres-exporter:v0.15.0" "easzlab.io.local:5000/apecloud/postgres-exporter:v0.15.0"
-      docker push "easzlab.io.local:5000/apecloud/spilo:16.4.0"
-      docker push "easzlab.io.local:5000/apecloud/pgbouncer:1.19.0"
-      docker push "easzlab.io.local:5000/apecloud/postgres-exporter:v0.15.0"
+      IMAGES=(\
+          "apecloud/spilo:16.4.0" \
+          "apecloud/pgbouncer:1.19.0" \
+          "apecloud/postgres-exporter:v0.15.0" \
+        )
+      down_and_save_images apecloud
       ;;
 
-    # kb-addon-redis images
     kb-addon-redis)
-      if [[ ! -f "$imageDir/kb-addon-redis_0.9.1.tar" ]];then
-        docker pull "apecloud/redis-stack-server:7.2.0-v14" && \
-        docker save -o "$imageDir/kb-addon-redis_0.9.1.tar" \
-                   "apecloud/redis-stack-server:7.2.0-v14" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kb-addon-redis_0.9.1.tar"
-      fi
-      docker tag "apecloud/redis-stack-server:7.2.0-v14" "easzlab.io.local:5000/apecloud/redis-stack-server:7.2.0-v14"
-      docker push "easzlab.io.local:5000/apecloud/redis-stack-server:7.2.0-v14"
+      IMAGES=(\
+          "apecloud/redis-stack-server:7.2.0-v14" \
+        )
+      down_and_save_images apecloud
       ;;
 
-    # kb-addon-minio images
     kb-addon-minio)
-      if [[ ! -f "$imageDir/kb-addon-minio_0.9.0.tar" ]];then
-        docker pull "apecloud/minio:RELEASE.2024-06-29T01-20-47Z" && \
-        docker pull "apecloud/kubeblocks-tools:0.8.2" && \
-        docker save -o "$imageDir/kb-addon-minio_0.9.0.tar" \
-                   "apecloud/minio:RELEASE.2024-06-29T01-20-47Z" \
-                   "apecloud/kubeblocks-tools:0.8.2" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kb-addon-minio_0.9.0.tar"
-      fi
-      docker tag "apecloud/minio:RELEASE.2024-06-29T01-20-47Z" "easzlab.io.local:5000/apecloud/minio:RELEASE.2024-06-29T01-20-47Z"
-      docker tag "apecloud/kubeblocks-tools:0.8.2" "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.8.2"
-      docker push "easzlab.io.local:5000/apecloud/minio:RELEASE.2024-06-29T01-20-47Z"
-      docker push "easzlab.io.local:5000/apecloud/kubeblocks-tools:0.8.2"
+      IMAGES=(\
+          "apecloud/minio:RELEASE.2024-06-29T01-20-47Z" \
+          "apecloud/kubeblocks-tools:0.8.2" \
+        )
+      down_and_save_images apecloud
       ;;
 
-    # kb-addon-mongodb images
     kb-addon-mongodb)
-      if [[ ! -f "$imageDir/kb-addon-mongodb_0.9.1.tar" ]];then
-        docker pull "apecloud/syncer:0.3.7" && \
-        docker pull "apecloud/mongo:8.0.4" && \
-        docker save -o "$imageDir/kb-addon-mongodb_0.9.1.tar" \
-                   "apecloud/mongo:8.0.4" \
-                   "apecloud/syncer:0.3.7" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kb-addon-mongodb_0.9.1.tar"
-      fi
-      docker tag "apecloud/syncer:0.3.7" "easzlab.io.local:5000/apecloud/syncer:0.3.7"
-      docker tag "apecloud/mongo:8.0.4" "easzlab.io.local:5000/apecloud/mongo:8.0.4"
-      docker push "easzlab.io.local:5000/apecloud/syncer:0.3.7"
-      docker push "easzlab.io.local:5000/apecloud/mongo:8.0.4"
+      IMAGES=(\
+          "apecloud/syncer:0.3.7" \
+          "apecloud/mongo:5.0.30" \
+        )
+      down_and_save_images apecloud
       ;;
 
-    # kb-addon-es images
     kb-addon-es)
-      if [[ ! -f "$imageDir/kb-addon-es_0.9.1.tar" ]];then
-        docker pull "apecloud/kibana:8.8.2" && \
-        docker pull "apecloud/elasticsearch-plugins:8.8.2" && \
-        docker pull "apecloud/elasticsearch:8.8.2" && \
-        docker pull "apecloud/elasticsearch-exporter:v1.7.0" && \
-        docker pull "apecloud/curl-jq:0.1.0" && \
-        docker save -o "$imageDir/kb-addon-es_0.9.1.tar" \
-                   "apecloud/kibana:8.8.2" \
-                   "apecloud/elasticsearch-plugins:8.8.2" \
-                   "apecloud/elasticsearch:8.8.2" \
-                   "apecloud/elasticsearch-exporter:v1.7.0" \
-                   "apecloud/curl-jq:0.1.0" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kb-addon-es_0.9.1.tar"
-      fi
-      docker tag "apecloud/kibana:8.8.2" "easzlab.io.local:5000/apecloud/kibana:8.8.2"
-      docker tag "apecloud/elasticsearch-plugins:8.8.2" "easzlab.io.local:5000/apecloud/elasticsearch-plugins:8.8.2"
-      docker tag "apecloud/elasticsearch:8.8.2" "easzlab.io.local:5000/apecloud/elasticsearch:8.8.2"
-      docker tag "apecloud/elasticsearch-exporter:v1.7.0" "easzlab.io.local:5000/apecloud/elasticsearch-exporter:v1.7.0"
-      docker tag "apecloud/curl-jq:0.1.0" "easzlab.io.local:5000/apecloud/curl-jq:0.1.0"
-      docker push "easzlab.io.local:5000/apecloud/kibana:8.8.2"
-      docker push "easzlab.io.local:5000/apecloud/elasticsearch-plugins:8.8.2"
-      docker push "easzlab.io.local:5000/apecloud/elasticsearch:8.8.2"
-      docker push "easzlab.io.local:5000/apecloud/elasticsearch-exporter:v1.7.0"
-      docker push "easzlab.io.local:5000/apecloud/curl-jq:0.1.0"
+      IMAGES=(\
+          "apecloud/kibana:8.8.2" \
+          "apecloud/elasticsearch-plugins:8.8.2" \
+          "apecloud/elasticsearch:8.8.2" \
+          "apecloud/elasticsearch-exporter:v1.7.0" \
+          "apecloud/curl-jq:0.1.0" \
+        )
+      down_and_save_images apecloud
       ;;
 
-
-    # kube-ovn images
     kube-ovn)
-      if [[ ! -f "$imageDir/kube-ovn_$kubeOvnVer.tar" ]];then
-        docker pull "kubeovn/kube-ovn:$kubeOvnVer" && \
-        docker save -o "$imageDir/kube-ovn_$kubeOvnVer.tar" "kubeovn/kube-ovn:$kubeOvnVer" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kube-ovn_$kubeOvnVer.tar"
-      fi
-      docker tag "kubeovn/kube-ovn:$kubeOvnVer" "easzlab.io.local:5000/kubeovn/kube-ovn:$kubeOvnVer"
-      docker push "easzlab.io.local:5000/kubeovn/kube-ovn:$kubeOvnVer"
+      IMAGES=(\
+          "kubeovn/kube-ovn:$kubeOvnVer" \
+        )
+      down_and_save_images kubeovn
       ;;
 
-    # kube-router images
     kube-router)
-      if [[ ! -f "$imageDir/kube-router_$kubeRouterVer.tar" ]];then
-        docker pull "cloudnativelabs/kube-router:$kubeRouterVer" && \
-        docker save -o "$imageDir/kube-router_$kubeRouterVer.tar" \
-            "cloudnativelabs/kube-router:$kubeRouterVer" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/kube-router_$kubeRouterVer.tar"
-      fi
-      docker tag "cloudnativelabs/kube-router:$kubeRouterVer" "easzlab.io.local:5000/cloudnativelabs/kube-router:$kubeRouterVer"
-      docker push "easzlab.io.local:5000/cloudnativelabs/kube-router:$kubeRouterVer"
+      IMAGES=(\
+          "cloudnativelabs/kube-router:$kubeRouterVer" \
+        )
+      down_and_save_images cloudnativelabs
       ;;
 
-    # local-path-provisioner image
     local-path-provisioner)
-      if [[ ! -f "$imageDir/local-path-provisioner_$localpathProvisionerVer.tar" ]];then
-        docker pull "rancher/local-path-provisioner:$localpathProvisionerVer" && \
-        docker save -o "$imageDir/local-path-provisioner_$localpathProvisionerVer.tar" \
-            "rancher/local-path-provisioner:$localpathProvisionerVer" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/local-path-provisioner_$localpathProvisionerVer.tar"
-      fi
-      docker tag "rancher/local-path-provisioner:$localpathProvisionerVer" "easzlab.io.local:5000/rancher/local-path-provisioner:$localpathProvisionerVer"
-      docker push "easzlab.io.local:5000/rancher/local-path-provisioner:$localpathProvisionerVer"
+      IMAGES=(\
+          "rancher/local-path-provisioner:$localpathProvisionerVer" \
+        )
+      down_and_save_images rancher
       ;;
 
-    # network-check images
     network-check)
-      if [[ ! -f "$imageDir/network-check.tar" ]];then
-        docker pull easzlab/json-mock:v1.3.0 && \
-        docker pull easzlab/alpine-curl:v7.85.0 && \
-        docker save -o "$imageDir/network-check.tar" \
-            easzlab/json-mock:v1.3.0 \
-            easzlab/alpine-curl:v7.85.0 || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/network-check.tar"
-      fi
-      docker tag easzlab/json-mock:v1.3.0 easzlab.io.local:5000/cilium/json-mock:v1.3.0
-      docker push easzlab.io.local:5000/cilium/json-mock:v1.3.0
-      docker tag easzlab/alpine-curl:v7.85.0 easzlab.io.local:5000/easzlab/alpine-curl:v7.85.0
-      docker push easzlab.io.local:5000/easzlab/alpine-curl:v7.85.0
+      IMAGES=(\
+          "easzlab/json-mock:v1.3.0" \
+          "easzlab/alpine-curl:v7.85.0" \
+        )
+      down_and_save_images
       ;;
 
-    # nfs-provisioner image
     nfs-provisioner)
-      if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
-        docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
-        docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" \
-            "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar"
-      fi
-      docker tag "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
-      docker push "easzlab.io.local:5000/easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
+      IMAGES=(\
+          "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" \
+        )
+      down_and_save_images
       ;;
 
-    # prometheus chart images
     prometheus)
-      if [[ ! -f "$imageDir/prometheus-chart_$promChartVer.tar" ]];then
-        docker pull easzlab/kube-state-metrics:v2.8.2 && \
-        docker pull easzlab/kube-webhook-certgen:v1.5.1 && \
-        docker pull grafana/grafana:9.4.7 && \
-        docker pull quay.io/kiwigrid/k8s-sidecar:1.22.0 && \
-        docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 && \
-        docker pull quay.io/prometheus-operator/prometheus-operator:v0.63.0 && \
-        docker pull quay.io/prometheus/alertmanager:v0.25.0 && \
-        docker pull quay.io/prometheus/node-exporter:v1.5.0 && \
-        docker pull quay.io/prometheus/prometheus:v2.42.0 && \
-        docker save -o "$imageDir/prometheus-chart_$promChartVer.tar" \
-            easzlab/kube-state-metrics:v2.8.2 \
-            easzlab/kube-webhook-certgen:v1.5.1 \
-            grafana/grafana:9.4.7 \
-            quay.io/kiwigrid/k8s-sidecar:1.22.0 \
-            quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 \
-            quay.io/prometheus-operator/prometheus-operator:v0.63.0 \
-            quay.io/prometheus/alertmanager:v0.25.0 \
-            quay.io/prometheus/node-exporter:v1.5.0 \
-            quay.io/prometheus/prometheus:v2.42.0 || \
-        { logger error "download failed!"; return 1; }
-      else
-        docker load -i "$imageDir/prometheus-chart_$promChartVer.tar"
-      fi
-      docker tag easzlab/kube-state-metrics:v2.8.2 easzlab.io.local:5000/prometheus/kube-state-metrics:v2.8.2
-      docker push easzlab.io.local:5000/prometheus/kube-state-metrics:v2.8.2
-      docker tag easzlab/kube-webhook-certgen:v1.5.1 easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.5.1
-      docker push easzlab.io.local:5000/prometheus/kube-webhook-certgen:v1.5.1
-      docker tag grafana/grafana:9.4.7 easzlab.io.local:5000/prometheus/grafana:9.4.7
-      docker push easzlab.io.local:5000/prometheus/grafana:9.4.7
-      docker tag quay.io/kiwigrid/k8s-sidecar:1.22.0 easzlab.io.local:5000/prometheus/k8s-sidecar:1.22.0
-      docker push easzlab.io.local:5000/prometheus/k8s-sidecar:1.22.0
-      docker tag quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0 easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.63.0
-      docker push easzlab.io.local:5000/prometheus/prometheus-config-reloader:v0.63.0
-      docker tag quay.io/prometheus-operator/prometheus-operator:v0.63.0 easzlab.io.local:5000/prometheus/prometheus-operator:v0.63.0
-      docker push easzlab.io.local:5000/prometheus/prometheus-operator:v0.63.0
-      docker tag quay.io/prometheus/alertmanager:v0.25.0 easzlab.io.local:5000/prometheus/alertmanager:v0.25.0
-      docker push easzlab.io.local:5000/prometheus/alertmanager:v0.25.0
-      docker tag quay.io/prometheus/node-exporter:v1.5.0 easzlab.io.local:5000/prometheus/node-exporter:v1.5.0
-      docker push easzlab.io.local:5000/prometheus/node-exporter:v1.5.0
-      docker tag quay.io/prometheus/prometheus:v2.42.0 easzlab.io.local:5000/prometheus/prometheus:v2.42.0
-      docker push easzlab.io.local:5000/prometheus/prometheus:v2.42.0
+      IMAGES=(\
+          "easzlab/kube-state-metrics:v2.8.2" \
+          "easzlab/kube-webhook-certgen:v1.5.1" \
+          "grafana/grafana:9.4.7" \
+          "quay.io/kiwigrid/k8s-sidecar:1.22.0" \
+          "quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0" \
+          "quay.io/prometheus-operator/prometheus-operator:v0.63.0" \
+          "quay.io/prometheus/alertmanager:v0.25.0" \
+          "quay.io/prometheus/node-exporter:v1.5.0" \
+          "quay.io/prometheus/prometheus:v2.42.0" \
+        )
+      down_and_save_images prometheus
       ;;
 
     *)
@@ -835,6 +540,29 @@ function get_extra_images() {
       ;;
   esac
 }
+
+
+function down_and_save_images(){
+  NS="easzlab"
+  [ "$#" -eq 1 ] && NS="$1"
+  for item in "${IMAGES[@]}"; do
+    image_part="${item##*/}"
+    image_name="${image_part%:*}"
+    image_tag="${image_part##*:}"
+    image_file="$imageDir/${image_name}_${image_tag}.tar"
+    if [[ ! -f "$image_file" ]];then
+      docker pull "$item" && \
+      docker save -o "$image_file" "$item" || \
+      { logger error "download $item failed!"; return 1; }
+    else
+      docker load -i "$image_file"
+    fi
+    docker tag "$item" "easzlab.io.local:5000/${NS}/${image_part}"
+    docker push "easzlab.io.local:5000/${NS}/${image_part}" || \
+    { logger error "push easzlab.io.local:5000/${NS}/${image_part} failed!"; return 1; }
+  done
+}
+
 
 function download_all() {
   mkdir -p /opt/kube/bin "$BASE/down" "$BASE/bin"
@@ -924,6 +652,7 @@ function clean_container() {
 ### Main Lines ##################################################
 function main() {
   BASE="/etc/kubeasz"
+  IMAGES=()
   imageDir="$BASE/down"
 
   # check if use bash shell
