@@ -16,12 +16,12 @@ set -o pipefail
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.0.4
 KUBEASZ_VER=3.6.6
-K8S_BIN_VER=v1.33.0
+K8S_BIN_VER=v1.33.1
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
-EXT_BIN_VER=1.12.3
+EXT_BIN_VER=1.12.4
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.0.3
-HARBOR_VER=v2.12.2
+HARBOR_VER=v2.12.4
 REGISTRY_MIRROR=CN
 
 # images downloaded by default(with 'ezdown -D')
@@ -38,7 +38,7 @@ pauseVer=3.10
 # images not downloaded by default(only download  with 'ezdown -X ***')
 # https://github.com/cilium/cilium
 # https://docs.cilium.io/en/stable/installation/k8s-install-helm/
-ciliumVer=1.16.3
+ciliumVer=1.17.4
 # https://github.com/flannel-io/flannel
 flannelVer=v0.26.0
 # https://github.com/cloudnativelabs/kube-router
@@ -378,8 +378,8 @@ function get_extra_images() {
           "cilium/cilium:v$ciliumVer" \
           "cilium/operator-generic:v$ciliumVer" \
           "cilium/hubble-relay:v$ciliumVer" \
-          "cilium/hubble-ui-backend:v0.13.1" \
-          "cilium/hubble-ui:v0.13.1" \
+          "cilium/hubble-ui-backend:v0.13.2" \
+          "cilium/hubble-ui:v0.13.2" \
         )
       down_and_save_images cilium
       ;;

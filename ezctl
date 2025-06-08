@@ -150,7 +150,7 @@ function new() {
 
     logger debug "set versions"
     # these variables were imported with eval and have the same name in ezdown
-    eval $(sed '/[ver|VER]=.*\./!d' ezdown)
+    eval $(sed '/V.[rR]=.*\./!d' ezdown)
     k8sVer=$(echo "$K8S_BIN_VER"|sed 's/v//g')
     registryMirror=true
 
