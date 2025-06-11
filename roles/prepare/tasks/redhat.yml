@@ -56,3 +56,12 @@
 - name: 重启rsyslog服务
   service: name=rsyslog state=restarted
   ignore_errors: true
+
+# RockyLinux 9 内核优化, 解决部分容器无法启动的问题
+- name: fs.inotify.max_user_instances up to 8192
+  sysctl:
+    name: fs.inotify.max_user_instances
+    value: 8192
+    state: present
+    reload: true
+  when: ansible_distribution == "Rocky" and ansible_distribution_major_version == "9"
