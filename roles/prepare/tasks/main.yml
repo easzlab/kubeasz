@@ -22,7 +22,7 @@
   - /root/.kube
 
 - name: 复制kubectl kubeconfig
-  copy: src=/root/.kube/config dest=/root/.kube/config
+  copy: src={{ cluster_dir }}/kubectl.kubeconfig dest=/root/.kube/config
   when: "inventory_hostname in groups['kube_master'] or inventory_hostname in groups['kube_node']"
 
 - name: 写入环境变量$PATH
