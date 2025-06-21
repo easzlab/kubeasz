@@ -77,7 +77,7 @@ data:
           "etcd_key_file": "/etc/calico/ssl/calico-key.pem",
           "etcd_cert_file": "/etc/calico/ssl/calico.pem",
           "etcd_ca_cert_file": "{{ ca_dir }}/ca.pem",
-          "mtu": 1500,
+          "mtu": __CNI_MTU__,
           "ipam": {
               "type": "calico-ipam"
           },
