@@ -9,6 +9,11 @@
   command: ls {{ HARBOR_PATH }}
   register: result
 
+- name: 已安装提示
+  debug:
+    msg: "发现harbor安装已存在，为避免冲突，不进行重新安装，仅尝试启动harbor"
+  when: '"registry" in result.stdout'
+
 - block:
   - name: 生成 harbor 随机密码
     shell: < /dev/urandom tr -dc 0-9A-Za-z-_ | head -c 16
