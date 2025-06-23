@@ -4,9 +4,7 @@
 
 ### 部署
 
-参考 https://github.com/kubernetes/dashboard
-
-新版dashboard使用helm chart部署如下：（以单机集群为例，其他情况请修改集群名称'default'为实际的名称）
+假设已经使用kubeasz 部署k8s集群完成；新版dashboard 部署如下：（以单机集群为例，其他情况请修改集群名称'default'为实际的名称）
 
 ``` bash
 # 1. 修改 clusters/default/config.yml 文件，设置 dashboard_install: "yes"
@@ -15,7 +13,7 @@
 ./ezdown -X dashboard
 
 # 3. 执行安装，配置文件位于 clusters/default/yml/dashboard/ 目录
-./ezctl setup default 07
+dk ezctl setup default 07
 ```
 
 + 增加`NodePort`方式暴露服务，这样集群外部可以使用 `https://NodeIP:NodePort` (注意是https不是http) 直接访问 dashboard。
@@ -64,3 +62,4 @@ $ kubectl describe -n kube-system secrets dashboard-read-user
 
 - [旧版文档 dashboard 1.6.3](dashboard.1.6.3.md)
 - [旧版文档 dashboard 2.x](dashboard.2.x.md)
+- https://github.com/kubernetes/dashboard
