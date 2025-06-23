@@ -2,24 +2,25 @@
 
 本文档基于 dashboard 7.12.0 版本，k8s 1.32 版本，dashboard 7.0.0 以后引入大量不兼容变化。
 
-- [旧版文档 dashboard 1.6.3](dashboard.1.6.3.md)
-- [旧版文档 dashboard 2.x](dashboard.2.x.md)
-
 ### 部署
 
 参考 https://github.com/kubernetes/dashboard
 
-+ 增加`NodePort`方式暴露服务，这样集群外部可以使用 `https://NodeIP:NodePort` (注意是https不是http) 直接访问 dashboard。
-
-安装部署
+新版dashboard使用helm chart部署如下：（以单机集群为例，其他情况请修改集群名称'default'为实际的名称）
 
 ``` bash
-# ezctl 集成部署组件，新版dashboard使用helm chart部署
-# 配置文件位于 /etc/kubeasz/clusters/xxxx/yml/dashboard/ 目录
-./ezctl setup xxxx 07
+# 1. 修改 clusters/default/config.yml 文件，设置 dashboard_install: "yes"
+
+# 2. 下载dashboard 需要的镜像
+./ezdown -X dashboard
+
+# 3. 执行安装，配置文件位于 clusters/default/yml/dashboard/ 目录
+./ezctl setup default 07
 ```
 
-### 验证部署
++ 增加`NodePort`方式暴露服务，这样集群外部可以使用 `https://NodeIP:NodePort` (注意是https不是http) 直接访问 dashboard。
+
+### 验证
 
 ``` bash
 # 查看pod 运行状态
@@ -58,3 +59,8 @@ $ kubectl describe -n kube-system secrets admin-user
 # 获取 Bearer Token，找到输出中 ‘token:’ 开头的后面部分
 $ kubectl describe -n kube-system secrets dashboard-read-user 
 ```
+
+### 参考
+
+- [旧版文档 dashboard 1.6.3](dashboard.1.6.3.md)
+- [旧版文档 dashboard 2.x](dashboard.2.x.md)
