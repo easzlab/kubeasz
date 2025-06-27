@@ -7,30 +7,45 @@ k8s,docker,cilium等很多功能、特性需要较新的linux内核支持，所�
 红帽企业版 Linux 仓库网站 https://www.elrepo.org，主要提供各种硬件驱动（显卡、网卡、声卡等）和内核升级相关资源；兼容 CentOS7 内核升级。如下按照网站提示载入elrepo公钥及最新elrepo版本，然后按步骤升级内核（以安装长期支持版本 kernel-lt 为例）
 
 ``` bash
-# 载入公钥
-rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-# 安装ELRepo
-rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
-# 载入elrepo-kernel元数据
-yum --disablerepo=\* --enablerepo=elrepo-kernel repolist
-# 查看可用的rpm包
-yum --disablerepo=\* --enablerepo=elrepo-kernel list kernel*
-# 安装长期支持版本的kernel
-yum --disablerepo=\* --enablerepo=elrepo-kernel install -y kernel-lt.x86_64
-# 删除旧版本工具包
-yum remove kernel-tools-libs.x86_64 kernel-tools.x86_64 -y
-# 安装新版本工具包
-yum --disablerepo=\* --enablerepo=elrepo-kernel install -y kernel-lt-tools.x86_64
+#安装所需软件包
+yum install -y perl wget
+
+#下载所需内核版本的 RPM 包，更多版本可以从中寻找（http://mirrors.coreix.net/elrepo-archive-archive/kernel/el7/x86_64/RPMS/）
+wget http://mirrors.coreix.net/elrepo-archive-archive/kernel/el7/x86_64/RPMS/kernel-lt-5.4.278-1.el7.elrepo.x86_64.rpm
+wget http://mirrors.coreix.net/elrepo-archive-archive/kernel/el7/x86_64/RPMS/kernel-lt-devel-5.4.278-1.el7.elrepo.x86_64.rpm
+wget http://mirrors.coreix.net/elrepo-archive-archive/kernel/el7/x86_64/RPMS/kernel-lt-headers-5.4.278-1.el7.elrepo.x86_64.rpm
+wget http://mirrors.coreix.net/elrepo-archive-archive/kernel/el7/x86_64/RPMS/kernel-lt-tools-5.4.278-1.el7.elrepo.x86_64.rpm
+wget http://mirrors.coreix.net/elrepo-archive-archive/kernel/el7/x86_64/RPMS/kernel-lt-tools-libs-5.4.278-1.el7.elrepo.x86_64.rpm
+
+# 卸载旧版工具（安装kernel-lt-tools会和旧版本的kernel-tools导致冲突，需要卸载旧版本的）
+yum remove kernel-tools kernel-tools-libs -y
+
+#安装下载的 RPM 包
+rpm -ivh kernel-lt-tools-libs-5.4.278-1.el7.elrepo.x86_64.rpm
+rpm -ivh kernel-lt-tools-5.4.278-1.el7.elrepo.x86_64.rpm 
+rpm -ivh kernel-lt-5.4.278-1.el7.elrepo.x86_64.rpm
+rpm -ivh kernel-lt-devel-5.4.278-1.el7.elrepo.x86_64.rpm 
+
+#验证安装，可以看到新版本的和旧版本的
+rpm -qa | grep kernel
+kernel-lt-5.4.278-1.el7.elrepo.x86_64
+kernel-lt-tools-libs-5.4.278-1.el7.elrepo.x86_64
+kernel-3.10.0-1160.71.1.el7.x86_64
+kernel-lt-devel-5.4.278-1.el7.elrepo.x86_64
+kernel-lt-tools-5.4.278-1.el7.elrepo.x86_64
 
 #查看默认启动顺序
-awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg  
-CentOS Linux (4.4.183-1.el7.elrepo.x86_64) 7 (Core)  
-CentOS Linux (3.10.0-327.10.1.el7.x86_64) 7 (Core)  
-CentOS Linux (0-rescue-c52097a1078c403da03b8eddeac5080b) 7 (Core)
-#默认启动的顺序是从0开始，新内核是从头插入（目前位置在0，而4.4.4的是在1），所以需要选择0。
+awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/grub2.cfg
+0 : CentOS Linux (5.4.278-1.el7.elrepo.x86_64) 7 (Core)
+1 : CentOS Linux (3.10.0-1160.71.1.el7.x86_64) 7 (Core)
+2 : CentOS Linux (0-rescue-0b208d4cc51848998d32430e022d3040) 7 (Core)
+#设置默认启动内核顺序
 grub2-set-default 0  
-#重启并检查
+#重启
 reboot
+#重启后进行检查是否成功切换到新内核
+uname -r
+5.4.278-1.el7.elrepo.x86_64
 ```
 
 ## Ubuntu16.04
