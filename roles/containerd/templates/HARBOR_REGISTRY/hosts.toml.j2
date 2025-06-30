@@ -1,0 +1,10 @@
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md
+server = "https://{{ HARBOR_REGISTRY }}"
+
+[host."https://{{ HARBOR_REGISTRY }}"]
+  capabilities = ["pull", "resolve"]
+  skip_verify = true
+
+  [host."https://{{ HARBOR_REGISTRY }}".header]
+  # echo -n "username:password" | base64
+  Authorization = "Basic dXNlcm5hbWU6cGFzc3dvcmQ="

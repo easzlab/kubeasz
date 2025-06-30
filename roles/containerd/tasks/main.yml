@@ -4,6 +4,8 @@
   - "{{ bin_dir }}/containerd-bin"
   - "/etc/containerd"
   - "/etc/containerd/certs.d/docker.io"
+  - "/etc/containerd/certs.d/easzlab.io.local:5000"
+  - "/etc/containerd/certs.d/{{ HARBOR_REGISTRY }}"
 
 - name: 加载内核模块 overlay
   modprobe: name=overlay state=present
@@ -27,6 +29,15 @@
 - name: 创建 containerd 配置文件
   template: src=config.toml.j2 dest=/etc/containerd/config.toml
   tags: upgrade
+
+- name: 配置docker.io 加速镜像
+  template: src=docker.io/hosts.toml.j2 dest=/etc/containerd/certs.d/docker.io/hosts.toml
+
+- name: 配置local_registry 仓库
+  template: src="easzlab.io.local:5000/hosts.toml.j2" dest=/etc/containerd/certs.d/easzlab.io.local:5000/hosts.toml
+
+- name: 配置harbor 仓库
+  template: src="HARBOR_REGISTRY/hosts.toml.j2" dest=/etc/containerd/certs.d/{{ HARBOR_REGISTRY }}/hosts.toml
 
 - name: 创建systemd unit文件
   template: src=containerd.service.j2 dest=/etc/systemd/system/containerd.service

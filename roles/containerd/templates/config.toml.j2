@@ -49,35 +49,7 @@ imports = []
       sandbox = '{{ SANDBOX_IMAGE }}'
 
     [plugins.'io.containerd.cri.v1.images'.registry]
-      config_path = ''
-
-      [plugins.'io.containerd.cri.v1.images'.registry.mirrors]
-{% for reg in INSECURE_REG %}
-        [plugins.'io.containerd.cri.v1.images'.registry.mirrors."{{ reg.split('/')[2] }}"]
-          endpoint = ["{{ reg }}"]
-{% endfor %}
-{% if ENABLE_MIRROR_REGISTRY %}
-        [plugins.'io.containerd.cri.v1.images'.registry.mirrors."docker.io"]
-          endpoint = ["https://docker.1ms.run", "https://hub1.nat.tf", "https://docker.1panel.live", "https://proxy.1panel.live", "https://hub.rat.dev", "https://docker.amingg.com"]
-        [plugins.'io.containerd.cri.v1.images'.registry.mirrors."gcr.io"]
-          endpoint = ["https://gcr.nju.edu.cn"]
-        [plugins.'io.containerd.cri.v1.images'.registry.mirrors."k8s.gcr.io"]
-          endpoint = ["https://gcr.nju.edu.cn/google-containers/"]
-        [plugins.'io.containerd.cri.v1.images'.registry.mirrors."quay.io"]
-          endpoint = ["https://quay.nju.edu.cn"]
-        [plugins.'io.containerd.cri.v1.images'.registry.mirrors."ghcr.io"]
-          endpoint = ["https://ghcr.nju.edu.cn"]
-        [plugins.'io.containerd.cri.v1.images'.registry.mirrors."nvcr.io"]
-          endpoint = ["https://ngc.nju.edu.cn"]
-{% endif %}
-
-      [plugins.'io.containerd.cri.v1.images'.registry.configs]
-        [plugins.'io.containerd.cri.v1.images'.registry.configs."{{ HARBOR_REGISTRY }}"]
-{% for reg in INSECURE_REG %}
-        [plugins.'io.containerd.cri.v1.images'.registry.configs."{{ reg.split('/')[2] }}"]
-{% endfor %}
-
-
+      config_path = '/etc/containerd/certs.d'
 
     [plugins.'io.containerd.cri.v1.images'.image_decryption]
       key_model = 'node'
