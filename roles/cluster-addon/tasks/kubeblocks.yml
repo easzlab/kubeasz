@@ -29,13 +29,11 @@
   shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-minio \
           --set image.registry=easzlab.io.local:5000 \
           {{ base_dir }}/roles/cluster-addon/files/minio-0.9.0.tgz"
-  when: 'kb_addon_minio_install == "yes"'
 
 - name: helm 安装 kb-addon-es
   shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-es \
           --set image.registry=easzlab.io.local:5000 \
           {{ base_dir }}/roles/cluster-addon/files/elasticsearch-0.9.1.tgz"
-  when: 'kb_addon_es_install == "yes"'
 
 - name: 轮询等待部署 kb-addon-mysql chart
   shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-mysql|awk '{print $8}'"
@@ -79,25 +77,22 @@
   shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-mysql \
           --set image.registry=easzlab.io.local:5000 \
           {{ base_dir }}/roles/cluster-addon/files/mysql-0.9.1.tgz"
-  when: 'kb_addon_mysql_install == "yes"'
 
 - name: helm 更新 kb-addon-postgresql
   shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-postgresql \
           --set image.registry=easzlab.io.local:5000 \
           {{ base_dir }}/roles/cluster-addon/files/postgresql-0.9.0.tgz"
-  when: 'kb_addon_pg_install == "yes"'
 
 - name: helm 更新 kb-addon-redis
   shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-redis \
           --set image.registry=easzlab.io.local:5000 \
           {{ base_dir }}/roles/cluster-addon/files/redis-0.9.1.tgz"
-  when: 'kb_addon_redis_install == "yes"'
 
 - name: helm 更新 kb-addon-mongodb
   shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-mongodb \
           --set image.registry=easzlab.io.local:5000 \
           {{ base_dir }}/roles/cluster-addon/files/mongodb-0.9.1.tgz"
-  when: 'kb_addon_mongodb_install == "yes"'
+  #when: 'kb_addon_mongodb_install == "yes"'
 
 - name: 优化mysql节点健康检查探针
   shell: '{{ base_dir }}/bin/kubectl patch ComponentDefinition mysql-8.0 --type merge --patch "{\"spec\":{\"lifecycleActions\":{\"roleProbe\":{\"periodSeconds\":5,\"timeoutSeconds\":2}}}}"'
