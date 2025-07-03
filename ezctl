@@ -170,6 +170,7 @@ function new() {
 	   -e "s/__nfs_provisioner__/$nfsProvisionerVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__kubeapps_chart__/$kubeappsVer/g" \
+	   -e "s/__kubeblocks_ver__/$kubeblocksVer/g" \
 	   -e "s/__harbor__/$HARBOR_VER/g" \
 	   -e "s/^ENABLE_MIRROR_REGISTRY.*$/ENABLE_MIRROR_REGISTRY: $registryMirror/g" \
 	   -e "s/__metrics__/$metricsVer/g" "clusters/$1/config.yml"

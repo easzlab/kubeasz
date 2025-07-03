@@ -217,6 +217,7 @@ network_check_enabled: false
 network_check_schedule: "*/5 * * * *"
 
 # kubeblocks 自动安装
+kubeblocks_ver: "__kubeblocks_ver__"
 kubeblocks_install: "no"
 kb_addon_mysql_install: "no"
 kb_addon_pg_install: "no"

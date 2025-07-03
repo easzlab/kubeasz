@@ -1,4 +1,4 @@
-# https://kubeblocks.io/docs/release-0.9/user_docs/installation/install-kubeblocks 
+# https://kubeblocks.io/docs/release-1_0/user_docs/overview/install-kubeblocks 
 
 - name: 创建 kubeblocks yml 目录
   file: name={{ cluster_dir }}/yml/kubeblocks state=directory
@@ -15,25 +15,43 @@
     - mongodb-cluster
 
 - block:
-    - name: 创建 kubeblocks crd
-      shell: "{{ base_dir }}/bin/kubectl create -f {{ base_dir }}/roles/cluster-addon/files/kubeblocks_crds.yaml"
-      ignore_errors: true
+  - name: 创建 snapshot-controller crd
+    shell: "cd {{ base_dir }}/roles/cluster-addon/files; \
+            {{ base_dir }}/bin/kubectl get crd volumesnapshotclasses.snapshot.storage.k8s.io || \
+            {{ base_dir }}/bin/kubectl create -f snapshot.storage.k8s.io_volumesnapshotclasses.yaml; \
+            {{ base_dir }}/bin/kubectl get crd volumesnapshots.snapshot.storage.k8s.io || \
+            {{ base_dir }}/bin/kubectl create -f snapshot.storage.k8s.io_volumesnapshots.yaml; \
+            {{ base_dir }}/bin/kubectl get crd volumesnapshotcontents.snapshot.storage.k8s.io || \
+            {{ base_dir }}/bin/kubectl create -f snapshot.storage.k8s.io_volumesnapshotcontents.yaml"
+    ignore_errors: true
 
-    - name: helm 创建 kubeblocks
-      shell: "{{ base_dir }}/bin/helm upgrade kubeblocks --install --create-namespace -n kb-system \
-              -f {{ cluster_dir }}/yml/kubeblocks/kb-values.yaml \
-              {{ base_dir }}/roles/cluster-addon/files/kubeblocks-0.9.3.tgz"
+  - name: 创建snapshot-controller
+    shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system snapshot-controller --create-namespace \
+            --set controller.image.repository='easzlab.io.local:5000/apecloud/snapshot-controller' \
+            {{ base_dir }}/roles/cluster-addon/files/snapshot-controller-4.1.0.tgz"
+  when: '"snapshot-controller" not in pod_info.stdout'
+
+- block:
+  - name: 创建 kubeblocks crd
+    shell: "{{ base_dir }}/bin/kubectl get crd clusters.apps.kubeblocks.io || \
+            {{ base_dir }}/bin/kubectl create -f {{ base_dir }}/roles/cluster-addon/files/kubeblocks_crds.yaml"
+    ignore_errors: true
+
+  - name: helm 创建 kubeblocks
+    shell: "{{ base_dir }}/bin/helm upgrade kubeblocks --install --create-namespace -n kb-system \
+            -f {{ cluster_dir }}/yml/kubeblocks/kb-values.yaml \
+            {{ base_dir }}/roles/cluster-addon/files/kubeblocks-{{ kubeblocks_ver }}.tgz"
   when: '"kubeblocks-dataprotection" not in pod_info.stdout'
 
-- name: helm 安装 kb-addon-minio
-  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-minio \
-          --set image.registry=easzlab.io.local:5000 \
-          {{ base_dir }}/roles/cluster-addon/files/minio-0.9.0.tgz"
+#- name: helm 安装 kb-addon-minio
+#  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-minio \
+#          --set image.registry=easzlab.io.local:5000 \
+#          {{ base_dir }}/roles/cluster-addon/files/minio-0.9.0.tgz"
 
-- name: helm 安装 kb-addon-es
-  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-es \
-          --set image.registry=easzlab.io.local:5000 \
-          {{ base_dir }}/roles/cluster-addon/files/elasticsearch-0.9.1.tgz"
+#- name: helm 安装 kb-addon-es
+#  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-es \
+#          --set image.registry=easzlab.io.local:5000 \
+#          {{ base_dir }}/roles/cluster-addon/files/elasticsearch-0.9.1.tgz"
 
 - name: 轮询等待部署 kb-addon-mysql chart
   shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-mysql|awk '{print $8}'"
@@ -59,45 +77,20 @@
   delay: 5
   ignore_errors: true
 
-- name: 设置chart允许修改镜像地址
-  shell: "{{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-5.7 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-8.0 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-8.4 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io redis-7 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io redis-sentinel-7 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io minio apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io elasticsearch-8 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io kibana-8 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mongodb apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io postgresql-15 apps.kubeblocks.io/skip-immutable-check=true && \
-      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io postgresql-16 apps.kubeblocks.io/skip-immutable-check=true"
-  ignore_errors: true
-
-- name: helm 更新 kb-addon-mysql
-  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-mysql \
-          --set image.registry=easzlab.io.local:5000 \
-          {{ base_dir }}/roles/cluster-addon/files/mysql-0.9.1.tgz"
-
-- name: helm 更新 kb-addon-postgresql
-  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-postgresql \
-          --set image.registry=easzlab.io.local:5000 \
-          {{ base_dir }}/roles/cluster-addon/files/postgresql-0.9.0.tgz"
-
-- name: helm 更新 kb-addon-redis
-  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-redis \
-          --set image.registry=easzlab.io.local:5000 \
-          {{ base_dir }}/roles/cluster-addon/files/redis-0.9.1.tgz"
-
-- name: helm 更新 kb-addon-mongodb
-  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-mongodb \
-          --set image.registry=easzlab.io.local:5000 \
-          {{ base_dir }}/roles/cluster-addon/files/mongodb-0.9.1.tgz"
-  #when: 'kb_addon_mongodb_install == "yes"'
-
-- name: 优化mysql节点健康检查探针
-  shell: '{{ base_dir }}/bin/kubectl patch ComponentDefinition mysql-8.0 --type merge --patch "{\"spec\":{\"lifecycleActions\":{\"roleProbe\":{\"periodSeconds\":5,\"timeoutSeconds\":2}}}}"'
-  ignore_errors: true
-
-- name: 优化postgresql节点健康检查探针
-  shell: '{{ base_dir }}/bin/kubectl patch ComponentDefinition postgresql-16 --type merge --patch "{\"spec\":{\"lifecycleActions\":{\"roleProbe\":{\"periodSeconds\":5,\"timeoutSeconds\":2}}}}"'
-  ignore_errors: true
+#- name: 设置chart允许修改镜像地址
+#  shell: "{{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-5.7 apps.kubeblocks.io/skip-immutable-check=true && \
+#      {{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-8.0 apps.kubeblocks.io/skip-immutable-check=true"
+#  ignore_errors: true
+#
+#- name: helm 更新 kb-addon-mysql
+#  shell: "{{ base_dir }}/bin/helm upgrade -n kb-system kb-addon-mysql \
+#          --set image.registry=easzlab.io.local:5000 \
+#          {{ base_dir }}/roles/cluster-addon/files/mysql-0.9.1.tgz"
+#
+#- name: 优化mysql节点健康检查探针
+#  shell: '{{ base_dir }}/bin/kubectl patch ComponentDefinition mysql-8.0 --type merge --patch "{\"spec\":{\"lifecycleActions\":{\"roleProbe\":{\"periodSeconds\":5,\"timeoutSeconds\":2}}}}"'
+#  ignore_errors: true
+#
+#- name: 优化postgresql节点健康检查探针
+#  shell: '{{ base_dir }}/bin/kubectl patch ComponentDefinition postgresql-16 --type merge --patch "{\"spec\":{\"lifecycleActions\":{\"roleProbe\":{\"periodSeconds\":5,\"timeoutSeconds\":2}}}}"'
+#  ignore_errors: true

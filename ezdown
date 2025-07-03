@@ -55,8 +55,8 @@ nfsProvisionerVer=v4.0.2
 promChartVer=45.23.0
 #https://github.com/bitnami/charts/tree/main/bitnami/kubeapps
 kubeappsVer=12.4.3
-#https://kubeblocks.io/docs/release-0.9/user_docs/overview/introduction
-kubeblocksVer=0.9.3
+#https://kubeblocks.io/docs/release-1_0/user_docs/overview/introduction
+kubeblocksVer=1.0.0
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
@@ -417,12 +417,11 @@ function get_extra_images() {
 
     kubeblocks)
       IMAGES=(\
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/snapshot-controller:v6.2.1" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:0.9.3" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-datascript:0.9.3" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:0.9.3" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:0.9.3" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:0.9.3" \
+          "swr.cn-north-4.myhuaweicloud.com/ddn-k8s/registry.k8s.io/sig-storage/snapshot-controller:v8.3.0" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:${kubeblocksVer}" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:${kubeblocksVer}" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:${kubeblocksVer}" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:${kubeblocksVer}" \
         )
       down_and_save_images apecloud
       ;;
@@ -433,8 +432,9 @@ function get_extra_images() {
           "apecloud/xtrabackup:8.0" \
           "apecloud/jemalloc:5.3.0" \
           "apecloud/syncer:0.5.0" \
-          "apecloud/mysql:8.0.35" \
-          "apecloud/agamotto:0.1.2-beta.1" \
+          "apecloud/mysql:8.0.39" \
+          "apecloud/mysqld-exporter:0.15.1" \
+          "apecloud/proxysql:2.4.4" \
         )
       down_and_save_images apecloud
       ;;
