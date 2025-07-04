@@ -52,7 +52,7 @@ localpathProvisionerVer=v0.0.31
 # https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
 nfsProvisionerVer=v4.0.2
 #https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
-promChartVer=45.23.0
+promChartVer=75.7.0
 #https://github.com/bitnami/charts/tree/main/bitnami/kubeapps
 kubeappsVer=12.4.3
 #https://kubeblocks.io/docs/release-1_0/user_docs/overview/introduction
@@ -520,15 +520,15 @@ function get_extra_images() {
 
     prometheus)
       IMAGES=(\
-          "easzlab/kube-state-metrics:v2.8.2" \
-          "easzlab/kube-webhook-certgen:v1.5.1" \
-          "grafana/grafana:9.4.7" \
-          "quay.io/kiwigrid/k8s-sidecar:1.22.0" \
-          "quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0" \
-          "quay.io/prometheus-operator/prometheus-operator:v0.63.0" \
-          "quay.io/prometheus/alertmanager:v0.25.0" \
-          "quay.io/prometheus/node-exporter:v1.5.0" \
-          "quay.io/prometheus/prometheus:v2.42.0" \
+          "easzlab/kube-state-metrics:v2.16.0" \
+          "easzlab/kube-webhook-certgen:v1.6.0" \
+          "grafana/grafana:12.0.2" \
+          "quay.io/kiwigrid/k8s-sidecar:1.30.5" \
+          "quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0" \
+          "quay.io/prometheus-operator/prometheus-operator:v0.83.0" \
+          "quay.io/prometheus/alertmanager:v0.28.1" \
+          "quay.io/prometheus/node-exporter:v1.9.1" \
+          "quay.io/prometheus/prometheus:v3.4.2" \
         )
       down_and_save_images prometheus
       ;;

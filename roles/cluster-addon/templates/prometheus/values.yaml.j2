@@ -1,14 +1,15 @@
-## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
 kubeTargetVersionOverride: "{{ K8S_VER }}"
+
+##
+global:
+  imageRegistry: "easzlab.io.local:5000"
 
 ## Configuration for alertmanager
 alertmanager:
-  alertmanagerSpec:
-    image:
-      registry: easzlab.io.local:5000
+  enabled: true
   service:
     nodePort: 30902
-    type: NodePort
+    type: NodePort 
 
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 grafana:
@@ -16,15 +17,18 @@ grafana:
   adminUser: admin
   adminPassword: Admin1234!
   image:
-    repository: easzlab.io.local:5000/prometheus/grafana 
+    repository: prometheus/grafana
   service:
     nodePort: 30903
     type: NodePort
   sidecar:
     image:
-      repository: easzlab.io.local:5000/prometheus/k8s-sidecar 
+      repository: prometheus/k8s-sidecar
     skipTlsVerify: true
 
+## Flag to disable all the kubernetes component scrapers
+kubernetesServiceMonitors:
+  enabled: true
 
 ## Component scraping the kube api server
 kubeApiServer:
@@ -41,9 +45,6 @@ kubeControllerManager:
 {% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
-  service:
-    port: 10257
-    targetPort: 10257
   serviceMonitor:
     https: true
     insecureSkipVerify: true
@@ -78,9 +79,6 @@ kubeScheduler:
 {% for h in groups['kube_master'] %}
   - {{ h }}
 {% endfor %}
-  service:
-    port: 10259
-    targetPort: 10259
   serviceMonitor:
     https: true
     insecureSkipVerify: true
@@ -98,6 +96,7 @@ kubeProxy:
 {% endif %}
 {% endfor %}
 
+## Component scraping kube state metrics
 kubeStateMetrics:
   enabled: true
 
@@ -106,6 +105,17 @@ kube-state-metrics:
   image:
     registry: easzlab.io.local:5000
     repository: prometheus/kube-state-metrics
+
+## Deploy node exporter as a daemonset to all nodes
+nodeExporter:
+  enabled: true
+  operatingSystems:
+    linux:
+      enabled: true
+    aix:
+      enabled: false
+    darwin:
+      enabled: false
 
 ## Configuration for prometheus-node-exporter subchart
 prometheus-node-exporter:
@@ -123,7 +133,6 @@ prometheusOperator:
       image:
         registry: easzlab.io.local:5000
         repository: prometheus/kube-webhook-certgen
-        tag: v1.5.1
   image:
     registry: easzlab.io.local:5000
     repository: prometheus/prometheus-operator
