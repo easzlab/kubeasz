@@ -186,21 +186,10 @@ metricsVer: "__metrics__"
 dashboard_install: "no"
 dashboardVer: "__dashboard__"
 
-# prometheus 自动安装
-prom_install: "no"
-prom_namespace: "monitor"
-prom_chart_ver: "__prom_chart__"
-
-# kubeapps 自动安装，如果选择安装，默认同时安装local-storage（提供storageClass: "local-path"）
-kubeapps_install: "no"
-kubeapps_install_namespace: "kubeapps"
-kubeapps_working_namespace: "default"
-kubeapps_storage_class: "local-path"
-kubeapps_chart_ver: "__kubeapps_chart__"
-
 # local-storage (local-path-provisioner) 自动安装
 local_path_provisioner_install: "no"
 local_path_provisioner_ver: "__local_path_provisioner__"
+local_path_storage_class: "local-path"
 # 设置默认本地存储路径
 local_path_provisioner_dir: "/opt/local-path-provisioner"
 
@@ -211,6 +200,19 @@ nfs_provisioner_ver: "__nfs_provisioner__"
 nfs_storage_class: "managed-nfs-storage"
 nfs_server: "192.168.1.10"
 nfs_path: "/data/nfs"
+
+# prometheus 自动安装
+prom_install: "no"
+prom_namespace: "monitor"
+prom_storage_class: ""
+prom_chart_ver: "__prom_chart__"
+
+# kubeapps 自动安装，如果选择安装，默认同时安装local-storage（提供storageClass: "local-path"）
+kubeapps_install: "no"
+kubeapps_install_namespace: "kubeapps"
+kubeapps_working_namespace: "default"
+kubeapps_storage_class: "local-path"
+kubeapps_chart_ver: "__kubeapps_chart__"
 
 # network-check 自动安装
 network_check_enabled: false 

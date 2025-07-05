@@ -156,7 +156,18 @@ prometheus:
     image:
       registry: easzlab.io.local:5000
     replicas: 1
+    retention: 30d
     secrets:
     - etcd-client-cert
-
+{% if prom_storage_class != "" %}
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: {{ prom_storage_class }}
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+{% else %}
     storageSpec: {}
+{% endif %}
