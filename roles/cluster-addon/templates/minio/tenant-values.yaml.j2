@@ -1,0 +1,65 @@
+tenant:
+  name: myminio
+  image:
+    repository: easzlab.io.local:5000/minio/minio
+  configSecret:
+    name: myminio-env-configuration
+    accessKey: {{ minio_root_user }} 
+    secretKey: {{ minio_root_password }}
+
+  # https://min.io/docs/minio/kubernetes/upstream/reference/operator-crd.html#pool
+  pools:
+    # For standalone mode, supply 1. For distributed mode, supply 4 or more.
+    - servers: {{ minio_pool_servers }}
+      name: pool-0
+      volumesPerServer: 1
+      size: 10Gi
+      storageClassName: "{{ minio_storage_class }}"
+      resources: { }
+  
+  # Configures a Prometheus-compatible scraping endpoint at the specified port.
+  metrics:
+    enabled: false
+    port: 9000
+    protocol: http
+  
+  # Configures external certificate settings for the Tenant.
+  certificate:
+{% if minio_tls_enabled|bool %}
+    requestAutoCert: true
+{% if minio_with_global_cert|bool %}
+    externalCertSecret:
+      - name: minio-global-cert
+{% endif %}
+{% else %}
+    requestAutoCert: false
+    externalCertSecret: [ ]
+{% endif %}
+  
+  # https://min.io/docs/minio/kubernetes/upstream/reference/operator-crd.html#features
+  features:
+    bucketDNS: false
+    domains: { }
+    enableSFTP: false
+
+  buckets:
+    - name: test-bucket
+      objectLock: false
+  ###
+  # Array of Kubernetes secrets from which the Operator generates MinIO users during tenant provisioning.
+  #
+  # Each secret should specify the ``CONSOLE_ACCESS_KEY`` and ``CONSOLE_SECRET_KEY`` as the access key and secret key for that user.
+  users: [ ]
+  ###
+  podManagementPolicy: Parallel
+  exposeServices:
+    minio: true
+    console: true 
+  ###
+  # Directs the Operator to add the Tenant's metric scrape configuration to an existing Kubernetes Prometheus deployment managed by the Prometheus Operator.
+  prometheusOperator: false 
+  ###
+  # https://github.com/minio/minio/tree/master/docs/config
+  env:
+    - name: MINIO_PROMETHEUS_URL
+      value: prometheus-kube-prometheus-prometheus.monitor.svc

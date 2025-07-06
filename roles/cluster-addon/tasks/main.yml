@@ -22,7 +22,10 @@
   when: '"nfs-client-provisioner" not in pod_info.stdout or CHANGE_CA|bool'
 
 - import_tasks: prometheus.yml
-  when: 'prom_install == "yes"'
+  when: '"kube-prometheus-operator" not in pod_info.stdout and prom_install == "yes"'
+
+- import_tasks: minio.yml
+  when: 'minio_install == "yes"'
 
 - import_tasks: cilium_connectivity_check.yml
   when: 'CLUSTER_NETWORK == "cilium" and cilium_connectivity_check|bool'

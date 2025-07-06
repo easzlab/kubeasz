@@ -207,6 +207,21 @@ prom_namespace: "monitor"
 prom_storage_class: ""
 prom_chart_ver: "__prom_chart__"
 
+# minio 自动安装
+minio_install: "no"
+minio_namespace: "minio"
+minio_storage_class: "local-path"
+minio_chart_ver: "__minio_chart__"
+minio_root_user: "3aea61ca94177dx"
+minio_root_password: "0f3b19e46dd3aea61ca94177d"
+# 单机版=1，集群版=4以上
+minio_pool_servers: 4
+# 是否启用tls证书，如果未启用则使用http协议
+minio_tls_enabled: false 
+# 是否使用权威证书，如果使用需要提前把证书放到目录 roles/cluster-addon/templates/minio/; 并且要求
+# 证书和私钥的名称分别为server.crt和server.key
+minio_with_global_cert: false
+
 # kubeapps 自动安装，如果选择安装，默认同时安装local-storage（提供storageClass: "local-path"）
 kubeapps_install: "no"
 kubeapps_install_namespace: "kubeapps"

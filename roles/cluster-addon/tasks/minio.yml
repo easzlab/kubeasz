@@ -1,0 +1,43 @@
+- block:
+    - name: prepare some dirs
+      file: name={{ cluster_dir }}/yml/minio state=directory
+
+    - name: 创建命名空间{{ minio_namespace }}
+      shell: "{{ base_dir }}/bin/kubectl create ns {{ minio_namespace }} || echo true"
+
+    - name: get minio-global-cert info
+      shell: "{{ base_dir }}/bin/kubectl get secrets -n {{ minio_namespace }}"
+      register: secrets_info
+      when: 'minio_with_global_cert|bool'
+
+    - name: 创建 minio-global-cert
+      shell: "{{ base_dir }}/bin/kubectl create secret generic -n {{ minio_namespace }} minio-global-cert \
+            --from-file=public.crt={{ base_dir }}/roles/cluster-addon/templates/minio/server.crt \
+            --from-file=private.key={{ base_dir }}/roles/cluster-addon/templates/minio/server.key"
+      when: 'minio_with_global_cert|bool and "minio-global-cert" not in secrets_info.stdout'
+
+    - name: 创建chart 个性化设置
+      template: src=minio/{{ item }}.j2 dest={{ cluster_dir }}/yml/minio/{{ item }}
+      with_items:
+      - "operator-values.yaml"
+      - "tenant-values.yaml"
+
+    - name: helm 部署 minio operator 
+      shell: "{{ base_dir }}/bin/helm upgrade myoperator --install -n minio-operator \
+              --create-namespace -f {{ cluster_dir }}/yml/minio/operator-values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/operator-{{ minio_chart_ver }}.tgz"
+
+    - name: 轮询等待部署 minio operator
+      shell: "{{ base_dir }}/bin/helm ls -n minio-operator|grep myoperator|awk '{print $8}'"
+      register: chart_status
+      until: chart_status.stdout == "deployed"
+      retries: 15
+      delay: 5
+      ignore_errors: true
+
+    - name: helm 部署 minio tenant
+      shell: "{{ base_dir }}/bin/helm upgrade minio --install -n {{ minio_namespace }} \
+              --create-namespace -f {{ cluster_dir }}/yml/minio/tenant-values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/tenant-{{ minio_chart_ver }}.tgz"
+
+  when: 'prom_install == "yes"'

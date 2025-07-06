@@ -15,3 +15,8 @@ manifests/storage/*
 
 # cluster instances
 clusters/
+
+#
+*.crt
+*.key
+*.pem

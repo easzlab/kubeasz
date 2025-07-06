@@ -1,0 +1,11 @@
+operator:
+  # https://github.com/minio/operator/blob/master/docs/env-variables.md
+  env:
+    - name: OPERATOR_STS_ENABLED
+      value: "on"
+  image:
+    repository: easzlab.io.local:5000/minio/operator
+  sidecarImage:
+    repository: easzlab.io.local:5000/minio/operator-sidecar
+    tag: v7.0.1
+  replicaCount: 1
