@@ -4,8 +4,7 @@ tenant:
     repository: easzlab.io.local:5000/minio/minio
   configSecret:
     name: myminio-env-configuration
-    accessKey: {{ minio_root_user }} 
-    secretKey: {{ minio_root_password }}
+    existingSecret: true
 
   # https://min.io/docs/minio/kubernetes/upstream/reference/operator-crd.html#pool
   pools:
@@ -15,7 +14,13 @@ tenant:
       volumesPerServer: 1
       size: 10Gi
       storageClassName: "{{ minio_storage_class }}"
-      resources: { }
+      resources:
+        requests:
+          cpu: 500m
+          memory: 500Mi
+        limits:
+          cpu: 2000m
+          memory: 4000Mi
   
   # Configures a Prometheus-compatible scraping endpoint at the specified port.
   metrics:
@@ -50,6 +55,29 @@ tenant:
   #
   # Each secret should specify the ``CONSOLE_ACCESS_KEY`` and ``CONSOLE_SECRET_KEY`` as the access key and secret key for that user.
   users: [ ]
+
+  liveness:
+    httpGet:
+      path: /minio/health/live
+      port: 9000
+      scheme: {% if minio_tls_enabled|bool %}HTTPS{% else %}HTTP{% endif %} 
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+
+  readiness:
+    httpGet:
+      path: /minio/health/ready
+      port: 9000
+      scheme: {% if minio_tls_enabled|bool %}HTTPS{% else %}HTTP{% endif %} 
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    timeoutSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+
   ###
   podManagementPolicy: Parallel
   exposeServices:
@@ -57,9 +85,19 @@ tenant:
     console: true 
   ###
   # Directs the Operator to add the Tenant's metric scrape configuration to an existing Kubernetes Prometheus deployment managed by the Prometheus Operator.
-  prometheusOperator: false 
-  ###
-  # https://github.com/minio/minio/tree/master/docs/config
-  env:
-    - name: MINIO_PROMETHEUS_URL
-      value: prometheus-kube-prometheus-prometheus.monitor.svc
+  prometheusOperator: false
+
+extraResources:
+  - |
+    apiVersion: v1
+    kind: Secret
+    type: Opaque
+    metadata:
+      name: myminio-env-configuration
+      namespace: {{ minio_namespace }}
+    stringData:
+      config.env: |-
+        export MINIO_ROOT_USER={{ minio_root_user }}
+        export MINIO_ROOT_PASSWORD={{ minio_root_password }}
+        export MINIO_PROMETHEUS_URL=http://prometheus-kube-prometheus-prometheus.{{ prom_namespace }}.svc:9090
+        export MINIO_PROMETHEUS_AUTH_TYPE=public

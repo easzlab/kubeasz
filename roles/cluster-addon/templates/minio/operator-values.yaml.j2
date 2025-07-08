@@ -9,3 +9,12 @@ operator:
     repository: easzlab.io.local:5000/minio/operator-sidecar
     tag: v7.0.1
   replicaCount: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+      ephemeral-storage: 500Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 500Mi
