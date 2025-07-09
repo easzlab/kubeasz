@@ -1,0 +1,14 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: mysql-reconfigure-dynamic
+spec:
+  clusterName: semisync-mysql-cluster
+  force: false
+  reconfigures:
+  - componentName: mysql
+    parameters:
+      - key: max_connections
+        value: '200'
+  preConditionDeadlineSeconds: 0
+  type: Reconfiguring

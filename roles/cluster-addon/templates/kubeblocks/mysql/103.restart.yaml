@@ -1,0 +1,10 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: example-mysql-cluster-restart-ops
+spec:
+  clusterName: semisync-mysql-cluster 
+  type: Restart
+  restart:
+  - componentName: mysql
+

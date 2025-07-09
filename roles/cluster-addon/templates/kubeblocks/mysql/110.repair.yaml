@@ -1,0 +1,14 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: example-mysql-ops-rebuild-replica-inplace
+spec:
+  clusterName: semisync-mysql-cluster 
+  type: RebuildInstance
+  force: true
+  rebuildFrom:
+  - componentName: mysql
+    inPlace: true
+    instances:
+      # the instance name (Pod name) that will be repaired 
+      - name: semisync-mysql-cluster-mysql-1

@@ -1,0 +1,11 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: example-mysql-cluster-restore
+spec:
+  clusterName: example-mysql-cluster-restored
+  force: false
+  restore:
+    backupName: example-mysql-cluster-backup 
+    backupNamespace: demo
+  type: Restore

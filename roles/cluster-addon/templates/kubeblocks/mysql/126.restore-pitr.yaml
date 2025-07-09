@@ -1,0 +1,13 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: example-mysql-cluster-restore-pitr
+spec:
+  clusterName: mysql-cluster-restore-pitr
+  force: false
+  restore:
+    backupName: semisync-mysql-cluster-xtrabackup-20250708125900 
+    backupNamespace: demo
+    # note: use UTC time
+    restorePointInTime: 2025-07-09T01:55:00Z
+  type: Restore

@@ -424,6 +424,7 @@ function get_extra_images() {
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:${kubeblocksVer}" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/datasafed:0.2.0" \
         )
       down_and_save_images apecloud
       ;;
@@ -437,6 +438,8 @@ function get_extra_images() {
           "apecloud/mysql:8.0.39" \
           "apecloud/mysqld-exporter:0.15.1" \
           "apecloud/proxysql:2.4.4" \
+          "apecloud/percona-xtrabackup:8.0" \
+          "apecloud/wal-g-mysql:2.0.1-1-ubuntu" \
         )
       down_and_save_images apecloud
       ;;

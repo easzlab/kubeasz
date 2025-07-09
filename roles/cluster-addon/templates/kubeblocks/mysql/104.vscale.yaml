@@ -1,0 +1,15 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: example-mysql-cluster-vscale-ops
+spec:
+  clusterName: semisync-mysql-cluster
+  type: VerticalScaling
+  verticalScaling:
+  - componentName: mysql
+    requests:
+      cpu: '1'
+      memory: 1Gi
+    limits:
+      cpu: '1'
+      memory: 1Gi

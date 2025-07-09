@@ -1,0 +1,11 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: example-mysql-switchover-ops
+spec:
+  clusterName: semisync-mysql-cluster 
+  type: Switchover
+  switchover:
+  - componentName: mysql
+    # Specifies the instance (Pod) that is primary or leader before a switchover operation.
+    instanceName: semisync-mysql-cluster-mysql-1 

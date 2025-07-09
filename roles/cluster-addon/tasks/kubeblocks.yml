@@ -7,12 +7,6 @@
   template: src=kubeblocks/{{ item }}.yaml.j2 dest={{ cluster_dir }}/yml/kubeblocks/{{ item }}.yaml
   with_items:
     - kb-values
-    - mysql-cluster
-    - pg-cluster
-    - redis-cluster
-    - minio-cluster
-    - es-cluster
-    - mongodb-cluster
 
 - block:
   - name: 创建 snapshot-controller crd

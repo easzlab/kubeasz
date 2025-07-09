@@ -1,0 +1,15 @@
+apiVersion: dataprotection.kubeblocks.io/v1alpha1
+kind: Backup
+metadata:
+  name: example-mysql-cluster-backup
+spec:
+  # Specifies the backup method name that is defined in the backup policy.
+  # - xtrabackup
+  # - volume-snapshot
+  backupMethod: xtrabackup
+  backupPolicyName: semisync-mysql-cluster-mysql-backup-policy
+  # Determines whether the backup contents stored in the backup repository should be deleted when the backup custom resource(CR) is deleted. Supported values are 'Retain' and 'Delete'.
+  # - 'Retain' means that the backup content and its physical snapshot on backup repository are kept.
+  # - 'Delete' means that the backup content and its physical snapshot on backup repository are deleted.
+  deletionPolicy: Delete
+

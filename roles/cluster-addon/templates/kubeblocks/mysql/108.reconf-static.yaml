@@ -1,0 +1,14 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: mysql-reconfigure-static
+spec:
+  clusterName: semisync-mysql-cluster 
+  force: false
+  reconfigures:
+  - componentName: mysql
+    parameters:
+    - key: performance_schema
+      value: 'ON'
+  preConditionDeadlineSeconds: 0
+  type: Reconfiguring
