@@ -1,0 +1,28 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-cluster-vscale-ops
+spec:
+  clusterName: pg-cluster
+  type: VerticalScaling
+  verticalScaling:
+  - componentName: postgresql
+    requests:
+      cpu: '1'
+      memory: 1Gi
+    limits:
+      cpu: '1'
+      memory: 1Gi
+
+# Alternatively, you may update spec.componentSpecs.resources field to the desired resources for vertical scale. 
+## Note:
+#Planning:
+      #Scale during maintenance windows or low-traffic periods
+      #Verify Kubernetes cluster has sufficient resources
+      #Check for any ongoing operations before starting
+#Execution:
+      #Maintain balanced CPU-to-Memory ratios
+      #Set identical requests/limits for guaranteed QoS
+#Post-Scaling:
+      #Monitor resource utilization and application performance
+      #Consider adjusting PostgreSQL parameters if needed

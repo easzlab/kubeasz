@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+data:
+  password: Y3VzdG9tcGFzc3dvcmQ= # custompassword
+  username: cm9vdA== #root
+immutable: true
+kind: Secret
+metadata:
+  name: custom-pg-secret
+
+---
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: pg-cluster
+spec:
+  terminationPolicy: Delete
+  clusterDef: postgresql
+  topology: replication
+  componentSpecs:
+    - name: postgresql
+      serviceVersion: "16.4.0"
+      disableExporter: false
+      # Specifies Labels to override or add for underlying Pods, PVCs, Account... 
+      labels:
+        apps.kubeblocks.postgres.patroni/scope: pg-cluster-postgresql
+      replicas: 2
+      systemAccounts:
+        - name: postgres
+          secretRef:
+            name: custom-pg-secret
+            # specify the namespace of the secret
+            namespace: db
+      resources:
+        limits:
+          cpu: "0.5"
+          memory: "0.5Gi"
+        requests:
+          cpu: "0.5"
+          memory: "0.5Gi"
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: "local-path"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi

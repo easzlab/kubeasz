@@ -1,0 +1,13 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-cluster-backup
+spec:
+  clusterName: pg-cluster
+  force: false
+  backup:
+    backupPolicyName: pg-cluster-postgresql-backup-policy
+    backupMethod: pg-basebackup
+    deletionPolicy: Delete
+    retentionPeriod: 1mo
+  type: Backup

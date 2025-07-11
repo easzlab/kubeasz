@@ -1,0 +1,17 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-switchover-targeted
+spec:
+  clusterName: pg-cluster
+  type: Switchover
+  switchover:
+  - componentName: postgresql
+    # Specifies the instance whose role will be transferred.
+    # A typical usage is to transfer the leader role in a consensus system.
+    instanceName: pg-cluster-postgresql-0
+    # If CandidateName is specified, the role will be transferred to this instance.
+    # The name must match one of the pods in the component.
+    # Refer to ComponentDefinition's Swtichover lifecycle action for more details.
+    #candidateName: pg-cluster-postgresql-1
+

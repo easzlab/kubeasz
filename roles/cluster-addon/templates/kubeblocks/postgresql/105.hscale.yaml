@@ -1,0 +1,16 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-cluster-scale-out-ops
+spec:
+  clusterName: pg-cluster
+  type: HorizontalScaling
+  horizontalScaling:
+  - componentName: postgresql
+    # Specifies the replica changes for scaling in components
+    scaleOut:
+      # Specifies the replica changes for the component.
+      # add one more replica to current component
+      replicaChanges: 1
+
+# Alternatively, you can perform a direct update to the replicas field in the Cluster resource

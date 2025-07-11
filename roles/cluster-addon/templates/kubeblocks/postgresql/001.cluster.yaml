@@ -1,0 +1,45 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: pg-cluster
+spec:
+  terminationPolicy: Delete
+  clusterDef: postgresql
+  topology: replication
+  componentSpecs:
+    - name: postgresql
+      serviceVersion: "16.4.0"
+      disableExporter: false
+      # Specifies Labels to override or add for underlying Pods, PVCs, Account... 
+      labels:
+        # PostgreSQL's CMPD specifies `KUBERNETES_SCOPE_LABEL=apps.kubeblocks.postgres.patroni/scope` through ENVs
+        # The KUBERNETES_SCOPE_LABEL is used to define the label key that Patroni will use to tag Kubernetes resources.
+        # This helps Patroni identify which resources belong to the specified scope (or cluster) used to define the label key
+        # that Patroni will use to tag Kubernetes resources.
+        # This helps Patroni identify which resources belong to the specified scope (or cluster).
+        #
+        # Note: DO NOT REMOVE THIS LABEL
+        # update the value w.r.t your cluster name
+        # the value must follow the format <cluster.metadata.name>-postgresql
+        # which is pg-cluster-postgresql in this examples
+        # replace `pg-cluster` with your cluster name
+        apps.kubeblocks.postgres.patroni/scope: pg-cluster-postgresql
+      replicas: 2
+      resources:
+        limits:
+          cpu: "0.5"
+          memory: "0.5Gi"
+        requests:
+          cpu: "0.5"
+          memory: "0.5Gi"
+      # Specifies a list of PersistentVolumeClaim templates that define the storage
+      # requirements for the Component.
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: "local-path"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi

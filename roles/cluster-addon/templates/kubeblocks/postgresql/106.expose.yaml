@@ -1,0 +1,23 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-cluster-expose-enable-ops
+spec:
+  type: Expose
+  clusterName: pg-cluster
+  expose:
+  - componentName: postgresql
+    services:
+    - name: internet
+      # Determines how the Service is exposed. Defaults to 'ClusterIP'.
+      # Valid options are 'ClusterIP', 'NodePort', and 'LoadBalancer'.
+      serviceType: NodePort 
+      # Contains cloud provider related parameters if ServiceType is LoadBalancer.
+      # Following is an example for AWS EKS
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        service.beta.kubernetes.io/aws-load-balancer-internal: "false"  # or "true" for an internal VPC IP
+      # Specifies a role to target with the service.
+      # If specified, the service will only be exposed to pods with the matching role.
+      roleSelector: primary
+    switch: Enable

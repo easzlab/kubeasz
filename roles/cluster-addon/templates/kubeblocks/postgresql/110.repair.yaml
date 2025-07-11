@@ -1,0 +1,15 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-rebuild-replica-inplace
+spec:
+  clusterName: pg-cluster
+  type: RebuildInstance
+  force: true
+  preConditionDeadlineSeconds: 0
+  rebuildFrom:
+  - componentName: postgresql
+    inPlace: true  # set inPlace to true
+    instances:
+    # the instance name (Pod name) that will be repaired, non primary pod
+    - name: pg-cluster-postgresql-1

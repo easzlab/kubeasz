@@ -1,0 +1,15 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-reconfigure-dynamic
+spec:
+  clusterName: pg-cluster
+  reconfigures:
+  - componentName: postgresql
+    parameters:
+      - key: max_connections
+        value: '100'
+      - key: pgaudit.log
+        value: ddl
+  type: Reconfiguring
+

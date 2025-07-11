@@ -1,0 +1,26 @@
+# Create a secret to save the access key for MinIO
+#kubectl create secret generic minio-credential-for-backuprepo \
+#  -n kb-system \
+#  --from-literal=accessKeyId=<ACCESS KEY> \
+#  --from-literal=secretAccessKey=<SECRET KEY>
+
+# Create the BackupRepo resource
+apiVersion: dataprotection.kubeblocks.io/v1alpha1
+kind: BackupRepo
+metadata:
+  name: my-repo
+  annotations:
+    dataprotection.kubeblocks.io/is-default-repo: "true"
+spec:
+  storageProviderRef: minio
+  accessMethod: Tool
+  pvReclaimPolicy: Retain
+  volumeCapacity: 50Gi
+  config:
+    bucket: db-backup
+    mountOptions: ""
+    endpoint: http://minio.minio.svc
+  credential:
+    name: minio-credential-for-backuprepo
+    namespace: kb-system
+  pathPrefix: ""

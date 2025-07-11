@@ -1,0 +1,15 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: postgresql-reconfigure-static
+spec:
+  clusterName: pg-cluster
+  force: false
+  reconfigures:
+  - componentName: postgresql
+    parameters:
+    - key: shared_buffers
+      value: '128MB'
+  preConditionDeadlineSeconds: 0
+  type: Reconfiguring
+

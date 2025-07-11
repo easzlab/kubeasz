@@ -1,0 +1,8 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-cluster-stop-ops
+spec:
+  clusterName: pg-cluster
+  type: Stop
+

@@ -447,6 +447,7 @@ function get_extra_images() {
     kb-addon-pg)
       IMAGES=(\
           "apecloud/spilo:16.4.0" \
+          "apecloud/dbctl:0.1.7" \
           "apecloud/pgbouncer:1.19.0" \
           "apecloud/postgres-exporter:v0.15.0" \
         )

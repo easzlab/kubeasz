@@ -1,0 +1,11 @@
+#https://kubeblocks.io/docs/release-1_0/kubeblocks-for-postgresql/05-backup-restore/03-scheduled-full-backup
+#
+# kubectl edit backupschedule pg-cluster-postgresql-backup-schedule -n demo
+#
+# Update these key parameters:
+
+##schedules:
+##- backupMethod: pg-basebackup
+##  enabled: true
+##  cronExpression: "0 18 * * *"
+##  retentionPeriod: 7d
