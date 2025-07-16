@@ -1,0 +1,8 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-replication-stop-ops
+spec:
+  clusterName: redis-replication
+  type: Stop
+

@@ -236,12 +236,6 @@ network_check_schedule: "*/5 * * * *"
 # kubeblocks 自动安装
 kubeblocks_ver: "__kubeblocks_ver__"
 kubeblocks_install: "no"
-kb_addon_mysql_install: "no"
-kb_addon_pg_install: "no"
-kb_addon_redis_install: "no"
-kb_addon_minio_install: "no"
-kb_addon_es_install: "no"
-kb_addon_mongodb_install: "no"
 
 
 ############################

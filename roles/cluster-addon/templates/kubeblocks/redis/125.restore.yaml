@@ -1,0 +1,11 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-replication-restore
+spec:
+  clusterName: pg-restored
+  force: false
+  restore:
+    backupName: <FULL_BACKUP_NAME>
+    backupNamespace: demo
+  type: Restore

@@ -1,0 +1,16 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-replication-vscale-ops
+spec:
+  clusterName: redis-replication
+  type: VerticalScaling
+  verticalScaling:
+  - componentName: redis
+    requests:
+      cpu: '1'
+      memory: 1Gi
+    limits:
+      cpu: '1'
+      memory: 1Gi
+

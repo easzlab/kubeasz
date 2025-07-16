@@ -1,0 +1,90 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: redis-alert-rules
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: RedisExporter
+      rules:
+        - alert: RedisDown
+          expr: "redis_up == 0"
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Redis is down"
+            description: "Redis is down. (instance: {{ $labels.pod }})"
+
+        - alert: RedisCPUHigh
+          expr: "(rate(redis_cpu_sys_seconds_total[1m]) + rate(redis_cpu_user_seconds_total[1m])) * 100 > 80"
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Out of CPU (> 80%)"
+            description: 'Redis is running out of CPU and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }})'
+
+        - alert: RedisMemoryHigh
+          expr: "(redis_memory_max_bytes == 0 or redis_memory_used_bytes * 100 / redis_memory_max_bytes) > 90"
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Out of memory (> 90%)"
+            description: 'Redis is running out of memory and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }})'
+
+        - alert: RedisTooManyConnections
+          expr: "redis_connected_clients * 100 / redis_config_maxclients > 80"
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Redis has too many connections (> 80%)"
+            description: 'Redis has too many connections and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }})'
+
+        - alert: RedisRejectedConnections
+          expr: "increase(redis_rejected_connections_total[1m]) > 0"
+          for: 5m
+          labels:
+            severity: error
+          annotations:
+            summary: "Redis has rejected connections"
+            description: '{{ $value | printf "%.2f" }} connections to Redis has been rejected. (instance: {{ $labels.pod }})'
+
+        - alert: RedisKeyEviction
+          expr: "increase(redis_evicted_keys_total[5m]) > 0"
+          for: 1s
+          labels:
+            severity: error
+          annotations:
+            summary: "Redis has evicted keys"
+            description: 'Redis has evicted keys in the last 5 minutes and the value is {{ $value | printf "%.2f" }}. (instance: {{ $labels.pod }})'
+
+        - alert: RedisMissingMaster
+          expr: 'count by (app_kubernetes_io_instance) (redis_instance_info{role="master"}) < 1'
+          for: 30s
+          labels:
+            severity: critical
+          annotations:
+            summary: "Redis missing master"
+            description: "Redis cluster has no node marked as master."
+
+        - alert: RedisDisconnectedSlaves
+          expr: "count without (instance, job) (redis_connected_slaves) - sum without (instance, job) (redis_connected_slaves) - 1 > 1"
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Redis disconnected slaves"
+            description: "Redis not replicating for all slaves. Consider reviewing the redis replication status. (instance: {{ $labels.pod }})"
+
+        - alert: RedisReplicationBroken
+          expr: "delta(redis_connected_slaves[1m]) < 0"
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Redis replication broken"
+            description: "Redis instance lost a slave. (instance: {{ $labels.pod }})"

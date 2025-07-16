@@ -1,0 +1,10 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-replication-restart-ops
+spec:
+  clusterName: redis-replication
+  type: Restart
+  restart:
+  - componentName: redis
+  - componentName: redis-sentinel

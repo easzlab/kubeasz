@@ -1,0 +1,12 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-reconfigure-static
+spec:
+  clusterName: redis-replication
+  reconfigures:
+  - componentName: redis
+    parameters:
+    - key: aof-timestamp-enabled
+      value: 'yes'
+  type: Reconfiguring

@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: redis-replication-pod-monitor
+  namespace: monitor    # prometheus namespace
+  labels:               # Must match the setting in 'prometheus.spec.podMonitorSelector'
+    release: prometheus
+spec:
+  jobLabel: app.kubernetes.io/managed-by
+  # defines the labels which are transferred from the
+  # associated Kubernetes 'Pod' object onto the ingested metrics
+  # set the lables w.r.t you own needs
+  podTargetLabels:
+  - app.kubernetes.io/instance
+  - app.kubernetes.io/managed-by
+  - apps.kubeblocks.io/component-name
+  - apps.kubeblocks.io/pod-name
+  podMetricsEndpoints:
+    - path: /metrics
+      port: http-metrics   # Must match exporter port name
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - default # Target namespace
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: redis-replication
+      apps.kubeblocks.io/component-name: redis
+

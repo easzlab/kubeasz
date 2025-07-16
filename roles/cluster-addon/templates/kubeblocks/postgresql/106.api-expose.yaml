@@ -1,0 +1,54 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: pg-cluster
+spec:
+  terminationPolicy: Delete
+  clusterDef: postgresql
+  topology: replication
+  services:
+    - componentSelector: postgresql
+      name: postgresql-external
+      serviceName: postgresql-external
+      roleSelector: primary
+      spec:
+        ports:
+          - name: tcp-postgresql
+            port: 5432
+            protocol: TCP
+            targetPort: tcp-postgresql
+        type: NodePort 
+    - componentSelector: postgresql
+      name: postgresql-bk-external
+      serviceName: postgresql-bk-external 
+      roleSelector: secondary
+      spec:
+        ports:
+          - name: tcp-postgresql
+            port: 5432
+            protocol: TCP
+            targetPort: tcp-postgresql
+        type: NodePort
+  componentSpecs:
+    - name: postgresql
+      serviceVersion: "16.4.0"
+      disableExporter: false
+      labels:
+        apps.kubeblocks.postgres.patroni/scope: pg-cluster-postgresql
+      replicas: 2
+      resources:
+        limits:
+          cpu: "0.5"
+          memory: "0.5Gi"
+        requests:
+          cpu: "0.5"
+          memory: "0.5Gi"
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: "local-path"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi

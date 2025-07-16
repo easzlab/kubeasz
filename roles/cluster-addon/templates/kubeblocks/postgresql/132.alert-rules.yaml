@@ -1,0 +1,178 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: postgresql-alert-rules
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: PostgreSQLExporter
+      rules:
+        - alert: PostgreSQLDown
+          expr: "max_over_time(pg_up[1m]) == 0"
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PostgreSQL is down"
+            description: "PostgreSQL is down. (instance: {{ $labels.pod }})"
+
+        - alert: PostgreSQLRestarted
+          expr: "time() - pg_postmaster_start_time_seconds < 60"
+          for: 0m
+          labels:
+            severity: info
+          annotations:
+            summary: "PostgreSQL has just been restarted (< 60s)"
+            description: 'PostgreSQL has just been restarted {{ $value | printf "%.1f" }} seconds ago. (instance: {{ $labels.pod }})'
+
+        - alert: PostgreSQLExporterError
+          expr: "pg_exporter_last_scrape_error > 0"
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL exporter scrape error"
+            description: 'PostgreSQL exporter has {{ $value | printf "%.2f" }} scrape errors. A query may be buggy in query.yaml. (instance: {{ $labels.pod }})'
+
+        - alert: PostgreSQLTooManySlowQueries
+          expr: |
+            max by(namespace,app_kubernetes_io_instance,pod,datname) (
+              max_over_time(pg_stat_activity_max_tx_duration{datname!~"template.*"}[2m])
+            ) > 60
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL database has high number of slow queries"
+            description: 'PostgreSQL database has slow queries and the value is {{ $value | printf "%.2f" }}. (instance: {{ $labels.pod }}, database: {{ $labels.datname }})'
+
+        - alert: PostgreSQLTooManyConnections
+          expr: |
+            sum by (namespace,app_kubernetes_io_instance,pod) (pg_stat_activity_count{datname!~"template.*"})
+            > on(namespace,app_kubernetes_io_instance,pod)
+            (pg_settings_max_connections - pg_settings_superuser_reserved_connections) * 0.8
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL too many connections (> 80%)"
+            description: 'PostgreSQL has too many connections and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }})'
+
+        - alert: PostgreSQLDeadLocks
+          expr: 'increase(pg_stat_database_deadlocks_total{datname!~"template.*", datname!=""}[2m]) > 5'
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL database has dead locks (> 5)"
+            description: 'PostgreSQL database has {{ $value | printf "%.2f"}} dead locks. (instance: {{ $labels.pod }}, database: {{ $labels.datname }})'
+
+        - alert: PostgreSQLHighRollbackRate
+          expr: |
+            rate(pg_stat_database_xact_rollback_total{datname!~"template.*", datname!=""}[2m])
+            /
+            rate(pg_stat_database_xact_commit_total{datname!~"template.*", datname!=""}[2m])
+            > 0.1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL database has high rollback rate (> 10%)"
+            description: 'Ratio of transactions being aborted compared to committed is {{ $value | printf "%.2f"}} percent. (instance: {{ $labels.pod }}, database: {{ $labels.datname }})'
+
+        - alert: PostgreSQLTooManyLocksAcquired
+          expr: |
+            sum by (namespace,app_kubernetes_io_instance,pod) (pg_locks_count)
+            / on(namespace,app_kubernetes_io_instance,pod)
+            (pg_settings_max_locks_per_transaction * pg_settings_max_connections)
+            > 0.2
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL has too many locks acquired (> 20%)"
+            description: 'Too many locks acquired on the database and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }})'
+
+        - alert: PostgreSQLCacheHitRatio
+          expr: |
+            avg by (namespace,app_kubernetes_io_instance,pod,datname) (
+              rate(pg_stat_database_blks_hit_total{datname!~"template.*", datname!=""}[2m])
+              /
+              (
+                rate(
+                  pg_stat_database_blks_hit_total{datname!~"template.*", datname!=""}[2m]
+                )
+                +
+                rate(
+                  pg_stat_database_blks_read_total{datname!~"template.*", datname!=""}[2m]
+                )
+              )
+            ) < 0.9
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL database has low cache hit rate (< 90%)"
+            description: 'Low cache hit rate and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }}, database: {{ $labels.datname }})'
+
+        - alert: PostgreSQLMaxWriteBufferReached
+          expr: "rate(pg_stat_bgwriter_maxwritten_clean_total[2m]) > 0"
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL write buffers reached max"
+            description: 'PostgreSQL background writer stops for max and the value is {{ $value | printf "%.2f" }}. (instance: {{ $labels.pod }})'
+
+        - alert: PostgreSQLHighWALFilesArchiveErrorRate
+          expr: |
+            rate(pg_stat_archiver_failed_count_total[2m])
+            / (
+              rate(pg_stat_archiver_archived_count_total[2m]) + rate(pg_stat_archiver_failed_count_total[2m])
+            ) > 0.1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL has high error rate in WAL files archiver(> 10%)"
+            description: 'PostgreSQL high error rate in WAL files archiver and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }})'
+
+        - alert: PostgreSQLTableNotAutoVacuumed
+          expr: |
+            (pg_stat_user_tables_last_autovacuum > 0)
+            and
+            (time() - pg_stat_user_tables_last_autovacuum)
+            > 24 * 60 * 60 * 10
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL table in database has not been auto vacuumed for 10 days"
+            description: "Table {{ $labels.relname }} in database has not been auto vacuumed for 10 days. (instance: {{ $labels.pod }}, database: {{ $labels.datname }})"
+
+        - alert: PostgreSQLTableNotAutoAnalyzed
+          expr: |
+            (pg_stat_user_tables_last_autoanalyze > 0)
+            and
+            (time() - pg_stat_user_tables_last_autoanalyze)
+            > 24 * 60 * 60 * 10
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL table in database has not been auto analyzed for 10 days"
+            description: "Table {{ $labels.relname }} in database has not been auto analyzed for 10 days. (instance: {{ $labels.pod }}, database: {{ $labels.datname }})"
+
+        - alert: PostgreSQLTableTooManyDeadTuples
+          expr: |
+            (pg_stat_user_tables_n_dead_tup > 10000)
+            /
+            (pg_stat_user_tables_n_live_tup + pg_stat_user_tables_n_dead_tup)
+            >= 0.1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL table in database has too many dead tuples (> 10%)"
+            description: 'Table {{ $labels.relname }} in database dead tuples is too large and the value is {{ $value | printf "%.2f" }} percent. (instance: {{ $labels.pod }}, database: {{ $labels.datname }})'

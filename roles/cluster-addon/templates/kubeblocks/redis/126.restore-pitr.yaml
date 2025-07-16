@@ -1,0 +1,14 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-replication-restore
+spec:
+  clusterName: redis-replication-pitr
+  force: false
+  restore:
+    backupName: <CONTINUOUS_BACKUP_NAME>
+    backupNamespace: demo
+    restorePointInTime: <RESTORE_POINT_TIME>
+  type: Restore
+
+# https://kubeblocks.io/docs/release-1_0/kubeblocks-for-redis/05-backup-restore/06-restore-with-pitr

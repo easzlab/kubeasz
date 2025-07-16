@@ -1,0 +1,35 @@
+---
+# cat examples/redis/reconfigure-aof.yaml
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-reconfigure-aof
+spec:
+  clusterName: redis-replication
+  reconfigures:
+  - componentName: redis
+    parameters:
+      # Represents the name of the parameter that is to be updated.
+    - key: aof-timestamp-enabled
+      value: 'yes'
+  type: Reconfiguring
+
+---
+# 先手动启用上面参数配置，然后修改
+# kubectl edit backupschedules.dataprotection.kubeblocks.io redis-replication-redis-backup-schedule
+
+apiVersion: dataprotection.kubeblocks.io/v1alpha1
+kind: BackupSchedule
+spec:
+  backupPolicyName: redis-replication-redis-backup-policy
+  schedules:
+  - backupMethod: datafile
+    cronExpression: 0 18 * * * # update the cronExpression to your need
+    enabled: true # set to `true` to schedule base backup periodically
+    retentionPeriod: 7d # set the retention period to your need
+  - backupMethod: aof
+    cronExpression: '*/30 * * * *'
+    enabled: true   # set to `true` to enable continuous backup
+    name: aof
+    retentionPeriod: 8d # by default, retentionPeriod of continuous backup is 1d more than that of a full backup.
+

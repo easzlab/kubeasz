@@ -1,0 +1,20 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-reconf-dynamic
+spec:
+  clusterName: redis-replication
+  # Instructs the system to bypass pre-checks (including cluster state checks and customized pre-conditions hooks) and immediately execute the opsRequest, except for the opsRequest of 'Start' type, which will still undergo pre-checks even if `force` is true.  Note: Once set, the `force` field is immutable and cannot be updated.
+  force: false
+  reconfigures:
+  - componentName: redis
+   # Contains a list of ConfigurationItem objects, specifying the Component's configuration template name, upgrade policy, and parameter key-value pairs to be updated.
+    parameters:
+      # 注意：实际上这个参数调整会重启pod 
+    - key: slowlog-log-slower-than
+      # Represents the parameter values that are to be updated.
+      # If set to nil, the parameter defined by the Key field will be removed from the configuration file.
+      value: '15000'
+  # Specifies the maximum number of seconds the OpsRequest will wait for its start conditions to be met before aborting. If set to 0 (default), the start conditions must be met immediately for the OpsRequest to proceed.
+  preConditionDeadlineSeconds: 0
+  type: Reconfiguring

@@ -1,0 +1,15 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-replication-scale-out-ops
+spec:
+  clusterName: redis-replication
+  type: HorizontalScaling
+  horizontalScaling:
+  - componentName: redis
+    # Specifies the replica changes for scaling in components
+    scaleOut:
+      # Specifies the replica changes for the component.
+      # add one more replica to current component
+      replicaChanges: 1
+

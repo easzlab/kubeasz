@@ -1,0 +1,8 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: redis-replication-start-ops
+spec:
+  clusterName: redis-replication
+  type: Start
+

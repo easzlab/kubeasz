@@ -1,0 +1,59 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: semisync-mysql-cluster
+spec:
+  clusterDef: mysql
+  topology: semisync
+  terminationPolicy: Delete
+  services:
+    - componentSelector: mysql
+      name: mysql-external
+      serviceName: mysql-external
+      roleSelector: primary
+      spec:
+        ipFamilyPolicy: PreferDualStack
+        ports:
+          - name: tcp-mysql
+            port: 3306
+            protocol: TCP
+            targetPort: mysql
+        type: NodePort
+    - componentSelector: mysql
+      name: mysql-bk-external
+      serviceName: mysql-bk-external
+      roleSelector: secondary
+      spec:
+        ipFamilyPolicy: PreferDualStack
+        ports:
+          - name: tcp-mysql
+            port: 3306
+            protocol: TCP
+            targetPort: mysql
+        type: NodePort
+  componentSpecs:
+    - name: mysql
+      componentDef: "mysql-8.0-1.0.0"
+      disableExporter: false
+      serviceVersion: 8.0.39
+      stop: false 
+      replicas: 2
+      resources:
+        limits:
+          cpu: '0.5'
+          memory: 0.5Gi
+        requests:
+          cpu: '0.5'
+          memory: 0.5Gi
+      env:
+        - name: SEMI_SYNC_TIMEOUT
+          value: "5000"
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: "local-path"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi

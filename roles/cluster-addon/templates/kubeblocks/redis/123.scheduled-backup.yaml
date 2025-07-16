@@ -1,0 +1,10 @@
+# 手动修改BackupSchedule
+# KubeBlocks automatically creates a BackupSchedule resource when the cluster is created.
+
+
+# kubectl edit backupschedule redis-replication-redis-backup-schedule -n demo
+    #- Update these key parameters:
+
+        #enabled: Set to true to activate scheduled backups
+        #cronExpression: Configure backup frequency using cron syntax
+        #retentionPeriod: Set how long to keep backups (e.g., 7d, 1mo)

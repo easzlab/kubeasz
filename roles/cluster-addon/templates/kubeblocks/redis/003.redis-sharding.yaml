@@ -1,0 +1,36 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: redis-sharding
+spec:
+  terminationPolicy: Delete
+  shardings:
+  - name: shard
+    shards: 3
+    template:
+      name: redis
+      componentDef: redis-cluster-7
+      disableExporter: false
+      replicas: 2
+      resources:
+        limits:
+          cpu: '1'
+          memory: 1Gi
+        requests:
+          cpu: '1'
+          memory: 1Gi
+      serviceVersion: 7.2.7
+      volumeClaimTemplates:
+      - name: data
+        spec:
+          storageClassName: "local-path"
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+      services:
+        # This is a per-pod svc, and will be used to parse advertised endpoints
+      - name: redis-advertised
+        podService: true
+        serviceType: NodePort

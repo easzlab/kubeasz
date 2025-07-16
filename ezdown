@@ -456,6 +456,8 @@ function get_extra_images() {
 
     kb-addon-redis)
       IMAGES=(\
+          "apecloud/dbctl:0.1.7" \
+          "apecloud/agamotto:0.1.2-beta.1" \
           "apecloud/redis-stack-server:7.2.0-v14" \
         )
       down_and_save_images apecloud
