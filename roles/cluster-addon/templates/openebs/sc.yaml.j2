@@ -1,0 +1,19 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ openebs_lvm_storage_class }} 
+allowVolumeExpansion: true
+parameters:
+  fsType: ext4 
+  storage: "lvm"
+  thinProvision: "yes"
+  vgpattern: "lvmvg.*"
+  volgroup: "{{ openebs_lvm_vg }}"
+provisioner: local.csi.openebs.io
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+#allowedTopologies:
+#- matchLabelExpressions:
+#  - key: kubernetes.io/hostname
+#    values:
+#      - k8s-192-168-0-19 

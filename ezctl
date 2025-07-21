@@ -168,6 +168,7 @@ function new() {
 	   -e "s/__dashboard__/$dashboardVer/g" \
 	   -e "s/__local_path_provisioner__/$localpathProvisionerVer/g" \
 	   -e "s/__nfs_provisioner__/$nfsProvisionerVer/g" \
+	   -e "s/__openebs_ver__/$openebsVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__minio_chart__/$minioOperatorVer/g" \
 	   -e "s/__kubeapps_chart__/$kubeappsVer/g" \

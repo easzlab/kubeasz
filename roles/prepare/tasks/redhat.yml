@@ -15,6 +15,7 @@
       - ipset               # ipvs 模式需要
       - ipvsadm             # ipvs 模式需要
       - libseccomp          # 安装containerd需要
+      - lvm2                # 安装Local PV LVM 存储插件需要
       - nfs-utils           # 挂载nfs 共享文件需要 (创建基于 nfs的PV 需要)
       - psmisc              # 安装psmisc 才能使用命令killall，keepalive的监测脚本需要
       - rsync               # 文件同步工具，分发证书等配置文件需要

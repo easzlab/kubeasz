@@ -20,7 +20,7 @@ K8S_BIN_VER=v1.33.1
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.12.5
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
-SYS_PKG_VER=1.0.3
+SYS_PKG_VER=1.0.4
 HARBOR_VER=v2.12.4
 REGISTRY_MIRROR=CN
 
@@ -59,6 +59,8 @@ kubeappsVer=12.4.3
 kubeblocksVer=1.0.0
 #https://min.io/docs/minio/kubernetes/upstream/operations/install-deploy-manage/deploy-operator-helm.html
 minioOperatorVer=7.1.1
+# https://openebs.io/docs/quickstart-guide/installation
+openebsVer=4.3.2
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
@@ -124,6 +126,7 @@ available options:
     minio                    to download images of minio
     network-check            to download images of network-check
     nfs-provisioner          to download images of nfs-provisioner
+    openebs                  to download images of openebs
     prometheus               to download images of prometheus
 examples:
     ./ezdown -X prometheus
@@ -525,6 +528,21 @@ function get_extra_images() {
           "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" \
         )
       down_and_save_images
+      ;;
+
+    openebs)
+      IMAGES=(\
+          "bitnami/kubectl:1.25.15" \
+          "openebs/provisioner-localpv:4.3.0" \
+          "openebs/linux-utils:4.2.0" \
+          "openebs/lvm-driver:1.7.0" \
+          "easzlab/csi-node-driver-registrar:v2.13.0" \
+          "easzlab/csi-resizer:v1.11.2" \
+          "easzlab/csi-snapshotter:v7.0.0" \
+          "easzlab/csi-provisioner:v5.2.0" \
+          "easzlab/snapshot-controller:v7.0.0" \
+        )
+      down_and_save_images openebs
       ;;
 
     prometheus)

@@ -1,0 +1,68 @@
+localpv-provisioner:
+  global:
+    imageRegistry: "easzlab.io.local:5000"
+  localpv:
+    basePath: "{{ openebs_hostpath }}" 
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+lvm-localpv:
+  lvmNode:
+    driverRegistrar:
+      image:
+        registry: easzlab.io.local:5000/
+        repository: openebs/csi-node-driver-registrar
+    kubeletDir: "{{ KUBELET_ROOT_DIR }}"
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  lvmController:
+    resizer:
+      image:
+        registry: easzlab.io.local:5000/
+        repository: openebs/csi-resizer
+    snapshotter:
+      image:
+        registry: easzlab.io.local:5000/
+        repository: openebs/csi-snapshotter
+    snapshotController:
+      image:
+        registry: easzlab.io.local:5000/
+        repository: openebs/snapshot-controller
+    provisioner:
+      image:
+        registry: easzlab.io.local:5000/
+        repository: openebs/csi-provisioner
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  lvmPlugin:
+    image:
+      registry: easzlab.io.local:5000/
+      repository: openebs/lvm-driver
+
+# -- Configuration options for pre-upgrade helm hook job.
+preUpgradeHook:
+  image:
+    registry: easzlab.io.local:5000
+    repo: openebs/kubectl
+
+engines:
+  local:
+    lvm:
+      enabled: true
+    zfs:
+      enabled: false
+  replicated:
+    mayastor:
+      enabled: false
+
+loki:
+  enabled: false
+
+alloy:
+  enabled: false

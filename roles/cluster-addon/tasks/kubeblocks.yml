@@ -1,13 +1,4 @@
 # https://kubeblocks.io/docs/release-1_0/user_docs/overview/install-kubeblocks 
-
-- name: 创建 kubeblocks yml 目录
-  file: name={{ cluster_dir }}/yml/kubeblocks state=directory
-
-- name: 创建 kubeblocks clusters 个性化设置
-  template: src=kubeblocks/{{ item }}.yaml.j2 dest={{ cluster_dir }}/yml/kubeblocks/{{ item }}.yaml
-  with_items:
-    - kb-values
-
 - block:
   - name: 创建 snapshot-controller crd
     shell: "cd {{ base_dir }}/roles/cluster-addon/files; \
@@ -23,9 +14,17 @@
     shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system snapshot-controller --create-namespace \
             --set controller.image.repository='easzlab.io.local:5000/apecloud/snapshot-controller' \
             {{ base_dir }}/roles/cluster-addon/files/snapshot-controller-4.1.0.tgz"
-  when: '"snapshot-controller" not in pod_info.stdout'
+  when: '"snapshot-controller" not in pod_info.stdout and openebs_install != "yes"'
 
 - block:
+  - name: 创建 kubeblocks yml 目录
+    file: name={{ cluster_dir }}/yml/kubeblocks state=directory
+
+  - name: 创建 kubeblocks clusters 个性化设置
+    template: src=kubeblocks/{{ item }}.yaml.j2 dest={{ cluster_dir }}/yml/kubeblocks/{{ item }}.yaml
+    with_items:
+      - kb-values
+
   - name: 创建 kubeblocks crd
     shell: "{{ base_dir }}/bin/kubectl get crd clusters.apps.kubeblocks.io || \
             {{ base_dir }}/bin/kubectl create -f {{ base_dir }}/roles/cluster-addon/files/kubeblocks_crds.yaml"
@@ -35,6 +34,31 @@
     shell: "{{ base_dir }}/bin/helm upgrade kubeblocks --install --create-namespace -n kb-system \
             -f {{ cluster_dir }}/yml/kubeblocks/kb-values.yaml \
             {{ base_dir }}/roles/cluster-addon/files/kubeblocks-{{ kubeblocks_ver }}.tgz"
+
+  - name: 轮询等待部署 kb-addon-mysql chart
+    shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-mysql|awk '{print $8}'"
+    register: mysql_status
+    until: mysql_status.stdout == "deployed"
+    retries: 15
+    delay: 5
+    ignore_errors: true
+
+  - name: 轮询等待部署 kb-addon-postgresql chart
+    shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-postgresql|awk '{print $8}'"
+    register: pg_status
+    until: pg_status.stdout == "deployed"
+    retries: 15
+    delay: 5
+    ignore_errors: true
+
+  - name: 轮询等待部署 kb-addon-redis chart
+    shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-redis|awk '{print $8}'"
+    register: redis_status
+    until: redis_status.stdout == "deployed"
+    retries: 15
+    delay: 5
+    ignore_errors: true
+
   when: '"kubeblocks-dataprotection" not in pod_info.stdout'
 
 #- name: helm 安装 kb-addon-minio
@@ -46,30 +70,6 @@
 #  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-es \
 #          --set image.registry=easzlab.io.local:5000 \
 #          {{ base_dir }}/roles/cluster-addon/files/elasticsearch-0.9.1.tgz"
-
-- name: 轮询等待部署 kb-addon-mysql chart
-  shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-mysql|awk '{print $8}'"
-  register: mysql_status
-  until: mysql_status.stdout == "deployed"
-  retries: 15
-  delay: 5
-  ignore_errors: true
-
-- name: 轮询等待部署 kb-addon-postgresql chart
-  shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-postgresql|awk '{print $8}'"
-  register: pg_status
-  until: pg_status.stdout == "deployed"
-  retries: 15
-  delay: 5
-  ignore_errors: true
-
-- name: 轮询等待部署 kb-addon-redis chart
-  shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-redis|awk '{print $8}'"
-  register: redis_status
-  until: redis_status.stdout == "deployed"
-  retries: 15
-  delay: 5
-  ignore_errors: true
 
 #- name: 设置chart允许修改镜像地址
 #  shell: "{{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-5.7 apps.kubeblocks.io/skip-immutable-check=true && \
