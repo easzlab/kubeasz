@@ -1,0 +1,82 @@
+global:
+  image:
+    registry: easzlab.io.local:5000
+
+controller:
+  image:
+    image: easzlab/ingress-nginx-controller
+    tag: "v1.13.0"
+    digest: ''
+  dnsPolicy: ClusterFirstWithHostNet
+  reportNodeInternalIp: true
+  hostNetwork: true 
+
+  # Limit the scope of the controller to a specific namespace
+  scope:
+    enabled: false
+
+  # -- Node labels for controller pod assignment
+  nodeSelector:
+    kubernetes.io/os: linux
+    ingress-controller/provider: ingress-nginx
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+
+  admissionWebhooks:
+    enabled: true
+    patch:
+      enabled: true
+      image:
+        image: easzlab/kube-webhook-certgen
+        tag: v1.6.0
+        digest: ''
+    certManager:
+      enabled: false
+
+  metrics:
+    port: 10254
+    portName: metrics
+    # if this port is changed, change healthz-port: in extraArgs: accordingly
+    enabled: {% if ingress_nginx_metrics_enabled %}true{% else %}false{% endif %} 
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: "prometheus" 
+    prometheusRule:
+      enabled: true 
+      rules:
+        - alert: NGINXConfigFailed
+          expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
+          for: 1s
+          labels:
+            severity: critical
+          annotations:
+            description: bad ingress config - nginx config test failed
+            summary: uninstall the latest ingress changes to allow config reloads to resume
+        - alert: NGINXCertificateExpiry
+          expr: (avg(nginx_ingress_controller_ssl_expire_time_seconds{host!="_"}) by (host) - time()) < 604800
+          for: 1s
+          labels:
+            severity: critical
+          annotations:
+            description: ssl certificate(s) will expire in less then a week
+            summary: renew expiring certificates to avoid downtime
+        - alert: NGINXTooMany500s
+          expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            description: Too many 5XXs
+            summary: More than 5% of all requests returned 5XX, this requires your attention
+        - alert: NGINXTooMany400s
+          expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            description: Too many 4XXs
+            summary: More than 5% of all requests returned 4XX, this requires your attention

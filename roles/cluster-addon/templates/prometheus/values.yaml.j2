@@ -104,7 +104,7 @@ kubeStateMetrics:
 kube-state-metrics:
   image:
     registry: easzlab.io.local:5000
-    repository: prometheus/kube-state-metrics
+    repository: easzlab/kube-state-metrics
 
 ## Deploy node exporter as a daemonset to all nodes
 nodeExporter:
@@ -132,7 +132,7 @@ prometheusOperator:
       enabled: true
       image:
         registry: easzlab.io.local:5000
-        repository: prometheus/kube-webhook-certgen
+        repository: easzlab/kube-webhook-certgen
   image:
     registry: easzlab.io.local:5000
     repository: prometheus/prometheus-operator

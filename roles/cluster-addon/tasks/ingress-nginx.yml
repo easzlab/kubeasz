@@ -1,0 +1,30 @@
+- block:
+    - name: prepare some dirs
+      file: name={{ cluster_dir }}/yml/ingress-nginx state=directory
+
+    - name: 创建命名空间{{ ingress_nginx_namespace }}
+      shell: "{{ base_dir }}/bin/kubectl create ns {{ ingress_nginx_namespace }} || echo true"
+
+    - name: 创建chart 个性化设置
+      template: src=ingress-nginx/{{ item }}.j2 dest={{ cluster_dir }}/yml/ingress-nginx/{{ item }}
+      with_items:
+      - "values.yaml"
+
+    - name: helm 部署 ingress-nginx
+      shell: "{{ base_dir }}/bin/helm upgrade ingress-nginx --install -n {{ ingress_nginx_namespace }} \
+              -f {{ cluster_dir }}/yml/ingress-nginx/values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/ingress-nginx-{{ ingress_nginx_ver }}.tgz"
+
+    - name: 轮询等待部署 ingress-nginx
+      shell: "{{ base_dir }}/bin/helm ls -n {{ ingress_nginx_namespace }}|grep ingress-nginx|awk '{print $8}'"
+      register: chart_status
+      until: chart_status.stdout == "deployed"
+      retries: 15
+      delay: 5
+      ignore_errors: true
+
+    - name: 提示 WARNNING
+      debug:
+        msg: "ingress-nginx 只会部署到有如下标签的节点：ingress-controller/provider=ingress-nginx"
+
+  when: 'ingress_nginx_install == "yes"'

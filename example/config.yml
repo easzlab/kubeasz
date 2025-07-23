@@ -246,6 +246,13 @@ network_check_schedule: "*/5 * * * *"
 kubeblocks_ver: "__kubeblocks_ver__"
 kubeblocks_install: "no"
 
+# ingress-nginx 自动安装
+# ingress-nginx 只会部署到node with 标签：ingress-controller/provider=ingress-nginx
+ingress_nginx_install: "no"
+ingress_nginx_namespace: "ingress-nginx"
+ingress_nginx_ver: "__ingress_nginx_ver__"
+ingress_nginx_metrics_enabled: true
+
 
 ############################
 # role:harbor

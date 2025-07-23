@@ -61,6 +61,8 @@ kubeblocksVer=1.0.0
 minioOperatorVer=7.1.1
 # https://openebs.io/docs/quickstart-guide/installation
 openebsVer=4.3.2
+# https://kubernetes.github.io/ingress-nginx/deploy/
+ingressNginxVer=4.13.0
 
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
@@ -113,6 +115,7 @@ available options:
     cilium                   to download images of cilium
     dashboard                to download images of dashboard
     flannel                  to download images of flannel
+    ingress-nginx            to download images of ingress-nginx
     kube-ovn                 to download images of kube-ovn
     kube-router              to download images of kube-router
     kubeapps                 to download images of kubeapps
@@ -397,6 +400,14 @@ function get_extra_images() {
       down_and_save_images flannel
       ;;
 
+    ingress-nginx)
+      IMAGES=(\
+          "easzlab/ingress-nginx-controller:v1.13.0" \
+          "easzlab/kube-webhook-certgen:v1.6.0" \
+        )
+      down_and_save_images
+      ;;
+
     dashboard)
       IMAGES=(\
           "kubernetesui/dashboard-api:1.12.0" \
@@ -549,6 +560,9 @@ function get_extra_images() {
       IMAGES=(\
           "easzlab/kube-state-metrics:v2.16.0" \
           "easzlab/kube-webhook-certgen:v1.6.0" \
+        )
+      down_and_save_images
+      IMAGES=(\
           "grafana/grafana:12.0.2" \
           "quay.io/kiwigrid/k8s-sidecar:1.30.5" \
           "quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0" \
