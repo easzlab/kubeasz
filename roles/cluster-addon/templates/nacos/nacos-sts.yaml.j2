@@ -1,0 +1,188 @@
+# 请阅读Wiki文章
+# https://github.com/nacos-group/nacos-k8s/wiki/%E4%BD%BF%E7%94%A8peerfinder%E6%89%A9%E5%AE%B9%E6%8F%92%E4%BB%B6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos-headless
+  labels:
+    app: nacos
+spec:
+  publishNotReadyAddresses: true 
+  ports:
+    - port: 8848
+      name: server
+      targetPort: 8848
+    - port: 9848
+      name: client-rpc
+      targetPort: 9848
+    - port: 9849
+      name: raft-rpc
+      targetPort: 9849
+    - port: 7848
+      name: old-raft-rpc
+      targetPort: 7848
+  clusterIP: None
+  selector:
+    app: nacos
+---
+# 访问nacos 控制台 http://${nodeIp}:${nodePort}/nacos
+apiVersion: v1
+kind: Service
+metadata:
+  name: nacos
+  labels:
+    app: nacos
+spec:
+  ports:
+    - port: 8848
+      name: server
+      targetPort: 8848
+    - port: 9848
+      name: client-rpc
+      targetPort: 9848
+  selector:
+    app: nacos
+  type: NodePort
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nacos-cm
+data:
+  mysql.host: "{{ nacos_mysql_host }}"
+  mysql.db.name: "{{ nacos_mysql_db }}"
+  mysql.port: "{{ nacos_mysql_port }}"
+  mysql.user: "{{ nacos_mysql_user }}"
+  mysql.password: "{{ nacos_mysql_password }}"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nacos
+spec:
+  podManagementPolicy: Parallel
+  serviceName: nacos-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nacos
+  template:
+    metadata:
+      labels:
+        app: nacos
+      annotations:
+        pod.alpha.kubernetes.io/initialized: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - nacos
+              topologyKey: "kubernetes.io/hostname"
+      initContainers:
+        - name: peer-finder-plugin-install
+          image: easzlab.io.local:5000/nacos/nacos-peer-finder-plugin:1.1
+          volumeMounts:
+            - mountPath: /home/nacos/plugins/peer-finder
+              name: data
+              subPath: peer-finder
+      containers:
+        - name: nacos
+          image: easzlab.io.local:5000/nacos/nacos-server:v2.4.3
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8848
+              name: client-port
+            - containerPort: 9848
+              name: client-rpc
+            - containerPort: 9849
+              name: raft-rpc
+            - containerPort: 7848
+              name: old-raft-rpc
+          env:
+            - name: NACOS_REPLICAS
+              value: "3"
+            - name: SERVICE_NAME
+              value: "nacos-headless"
+            - name: DOMAIN_NAME
+              value: "cluster.local"
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: MYSQL_SERVICE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.host
+            - name: MYSQL_SERVICE_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.db.name
+            - name: MYSQL_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.port
+            - name: MYSQL_SERVICE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.user
+            - name: MYSQL_SERVICE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.password
+            - name: SPRING_DATASOURCE_PLATFORM
+              value: "mysql"
+            - name: NACOS_SERVER_PORT
+              value: "8848"
+            - name: NACOS_APPLICATION_PORT
+              value: "8848"
+            - name: PREFER_HOST_MODE
+              value: "hostname"
+            - name: NACOS_AUTH_ENABLE
+              value: "true"
+            - name: NACOS_AUTH_SYSTEM_TYPE
+              value: "nacos"
+            - name: NACOS_AUTH_CACHE_ENABLE
+              value: "true"
+            - name: NACOS_AUTH_TOKEN
+              value: "YWNjNDU4ODAxYWRiMTgzMGYzYjE5ZTQ2ZGQzYWVhNjFjYTk0MTc3ZGFmOWU2MW0w"
+            - name: NACOS_AUTH_IDENTITY_KEY
+              value: "7acc458801adb183"
+            - name: NACOS_AUTH_IDENTITY_VALUE
+              value: "0f3b19e46dd3aea61ca94177daf9e609"
+          volumeMounts:
+            - name: data
+              mountPath: /home/nacos/plugins/peer-finder
+              subPath: peer-finder
+            - name: data
+              mountPath: /home/nacos/data
+              subPath: data
+            - name: data
+              mountPath: /home/nacos/logs
+              subPath: logs
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: {{ nacos_storage_class }}
+        volumeMode: Filesystem

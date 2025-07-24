@@ -127,6 +127,7 @@ available options:
     kb-addon-mongodb         to download images of kb-addon-mongodb
     local-path-provisioner   to download images of local-path-provisioner
     minio                    to download images of minio
+    nacos                    to download images of nacos
     network-check            to download images of network-check
     nfs-provisioner          to download images of nfs-provisioner
     openebs                  to download images of openebs
@@ -524,6 +525,14 @@ function get_extra_images() {
           "quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z" \
         )
       down_and_save_images minio
+      ;;
+
+    nacos)
+      IMAGES=(\
+          "nacos/nacos-server:v2.4.3" \
+          "nacos/nacos-peer-finder-plugin:1.1" \
+        )
+      down_and_save_images nacos
       ;;
 
     network-check)

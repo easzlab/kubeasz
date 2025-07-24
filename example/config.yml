@@ -238,6 +238,15 @@ kubeapps_working_namespace: "default"
 kubeapps_storage_class: "{{ openebs_hostpath_storage_class }}"
 kubeapps_chart_ver: "__kubeapps_chart__"
 
+# nacos 自动安装
+nacos_install: "no"
+nacos_mysql_host: "semisync-mysql-cluster-mysql"
+nacos_mysql_db: "nacos"
+nacos_mysql_port: "3306"
+nacos_mysql_user: "__dbuser__"
+nacos_mysql_password: "__yourpassword__"
+nacos_storage_class: "{{ openebs_hostpath_storage_class }}"
+
 # network-check 自动安装
 network_check_enabled: false 
 network_check_schedule: "*/5 * * * *"

@@ -30,6 +30,9 @@
 - import_tasks: minio.yml
   when: 'minio_install == "yes" and "minio-operator" not in pod_info.stdout'
 
+- import_tasks: nacos.yml
+  when: '"nacos-0" not in pod_info.stdout and nacos_install == "yes"'
+
 - import_tasks: cilium_connectivity_check.yml
   when: 'CLUSTER_NETWORK == "cilium" and cilium_connectivity_check|bool'
 
