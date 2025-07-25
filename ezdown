@@ -123,8 +123,8 @@ available options:
     kb-addon-mysql           to download images of kb-addon-mysql
     kb-addon-pg              to download images of kb-addon-postgresql
     kb-addon-redis           to download images of kb-addon-redis
-    kb-addon-es              to download images of kb-addon-es
     kb-addon-mongodb         to download images of kb-addon-mongodb
+    kb-addon-elasticsearch   to download images of kb-addon-elasticsearch
     local-path-provisioner   to download images of local-path-provisioner
     minio                    to download images of minio
     nacos                    to download images of nacos
@@ -486,13 +486,12 @@ function get_extra_images() {
       down_and_save_images apecloud
       ;;
 
-    kb-addon-es)
+    kb-addon-elasticsearch)
       IMAGES=(\
-          "apecloud/kibana:8.8.2" \
-          "apecloud/elasticsearch-plugins:8.8.2" \
-          "apecloud/elasticsearch:8.8.2" \
-          "apecloud/elasticsearch-exporter:v1.7.0" \
-          "apecloud/curl-jq:0.1.0" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-plugins:8.8.2" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch:8.8.2" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-exporter:v1.7.0" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/curl-jq:0.1.0" \
         )
       down_and_save_images apecloud
       ;;

@@ -1,0 +1,19 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: es-multinode-expose-enable-ops
+spec:
+  type: Expose
+  clusterName: es-multinode
+  expose:
+  - componentName: master
+    services:
+    - name: external
+      serviceType: NodePort 
+      ports:
+      - name: es-http
+        port: 9200
+        protocol: TCP
+        targetPort: es-http
+    switch: Enable
+

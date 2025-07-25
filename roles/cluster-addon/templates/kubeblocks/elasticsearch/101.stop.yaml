@@ -1,0 +1,7 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: es-multinode-stop-ops
+spec:
+  clusterName: es-multinode
+  type: Stop

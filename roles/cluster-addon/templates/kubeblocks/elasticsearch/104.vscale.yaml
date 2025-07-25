@@ -1,0 +1,15 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: es-multinode-vscale-ops
+spec:
+  clusterName: es-multinode
+  type: VerticalScaling
+  verticalScaling:
+  - componentName: dit
+    requests:
+      cpu: '1'
+      memory: 1Gi
+    limits:
+      cpu: '1'
+      memory: 1Gi

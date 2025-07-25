@@ -1,0 +1,8 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: es-multinode-start-ops
+spec:
+  # Specifies the name of the Cluster resource that this operation is targeting.
+  clusterName: es-multinode
+  type: Start

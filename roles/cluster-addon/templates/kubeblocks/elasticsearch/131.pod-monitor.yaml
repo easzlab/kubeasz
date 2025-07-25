@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: elasticsearch-jmx-pod-monitor
+  namespace: monitor    # Note: this is namespace for prometheus operator 
+  labels:               # match labels in `prometheus.spec.podMonitorSelector`
+    release: prometheus
+spec:
+  jobLabel: app.kubernetes.io/managed-by
+  podMetricsEndpoints:
+    - path: /metrics
+      port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: es-multinode
+

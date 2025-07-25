@@ -1,0 +1,12 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: es-multinode-decommission-ops
+spec:
+  clusterName: es-multinode
+  type: HorizontalScaling
+  horizontalScaling:
+  - componentName: dit
+    scaleIn:
+      onlineInstancesToOffline:
+        - 'es-multinode-dit-1'  # Specifies the instance names that need to be taken offline

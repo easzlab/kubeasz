@@ -1,0 +1,9 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: es-multinode-restart-ops
+spec:
+  clusterName: es-multinode
+  type: Restart
+  restart:
+  - componentName: dit
