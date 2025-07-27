@@ -125,6 +125,7 @@ available options:
     kb-addon-redis           to download images of kb-addon-redis
     kb-addon-mongodb         to download images of kb-addon-mongodb
     kb-addon-elasticsearch   to download images of kb-addon-elasticsearch
+    kb-addon-clickhouse      to download images of kb-addon-clickhouse
     local-path-provisioner   to download images of local-path-provisioner
     minio                    to download images of minio
     nacos                    to download images of nacos
@@ -492,6 +493,14 @@ function get_extra_images() {
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch:8.8.2" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-exporter:v1.7.0" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/curl-jq:0.1.0" \
+        )
+      down_and_save_images apecloud
+      ;;
+
+    kb-addon-clickhouse)
+      IMAGES=(\
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/busybox:1.36" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/clickhouse:24.8.3-debian-12-r1" \
         )
       down_and_save_images apecloud
       ;;

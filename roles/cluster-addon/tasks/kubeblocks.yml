@@ -39,6 +39,10 @@
     shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-elasticsearch \
             {{ base_dir }}/roles/cluster-addon/files/elasticsearch-1.0.0.tgz"
 
+  - name: helm 安装 kb-addon-clickhouse
+    shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-clickhouse \
+            {{ base_dir }}/roles/cluster-addon/files/clickhouse-1.0.0.tgz"
+
   - name: 轮询等待部署 kb-addon-mysql chart
     shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-mysql|awk '{print $8}'"
     register: mysql_status
