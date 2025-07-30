@@ -12,7 +12,7 @@ tenant:
     - servers: {{ minio_pool_servers }}
       name: pool-0
       volumesPerServer: 1
-      size: 10Gi
+      size: {{ minio_pool_size }}
       storageClassName: "{{ minio_storage_class }}"
       resources:
         requests:

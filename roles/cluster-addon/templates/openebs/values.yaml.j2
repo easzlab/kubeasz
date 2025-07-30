@@ -1,8 +1,11 @@
 localpv-provisioner:
   global:
     imageRegistry: "easzlab.io.local:5000"
+  hostpathClass:
+    enabled: true
+    name: {{ openebs_hostpath_storage_class }}
   localpv:
-    basePath: "{{ openebs_hostpath }}" 
+    basePath: "{{ openebs_hostpath }}"
     resources:
       limits:
         cpu: 100m

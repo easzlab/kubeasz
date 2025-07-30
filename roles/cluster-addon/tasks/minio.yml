@@ -40,4 +40,4 @@
               --create-namespace -f {{ cluster_dir }}/yml/minio/tenant-values.yaml \
               {{ base_dir }}/roles/cluster-addon/files/tenant-{{ minio_chart_ver }}.tgz"
 
-  when: 'prom_install == "yes"'
+  when: 'minio_install == "yes"'

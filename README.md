@@ -28,6 +28,7 @@
       <td>1.30</td>
       <td>1.31</td>
       <td>1.32</td>
+      <td>1.33</td>
     </tr>
   </thead>
   <tbody>
@@ -43,6 +44,7 @@
       <td>3.6.4</td>
       <td>3.6.5</td>
       <td>3.6.6</td>
+      <td>3.6.7</td>
     </tr>
   </tbody>
 </table>

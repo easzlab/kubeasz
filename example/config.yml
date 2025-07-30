@@ -225,6 +225,7 @@ minio_root_user: "3aea61ca94177dx"
 minio_root_password: "0f3b19e46dd3aea61ca94177d"
 # 单机版=1，集群版=4以上
 minio_pool_servers: 4
+minio_pool_size: 10Gi
 # 是否启用tls证书，如果未启用则使用http协议
 minio_tls_enabled: false
 # 是否使用权威证书，如果使用需要提前把证书放到目录 roles/cluster-addon/templates/minio/; 并且要求
