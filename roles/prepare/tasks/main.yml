@@ -20,7 +20,7 @@
       when: 'ansible_distribution_file_variety in ["SUSE"]'
     
     - import_tasks: redhat.yml
-      when: 'ansible_distribution in ["Anolis OS"]'
+      when: 'ansible_distribution in ["Anolis OS", "openEuler"]'
     
     # 公共系统参数设置
     - import_tasks: common.yml
