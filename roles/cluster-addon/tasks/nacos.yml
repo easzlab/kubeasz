@@ -2,6 +2,9 @@
     - name: 准备 nacos的部署文件
       template: src=nacos/nacos-sts.yaml.j2 dest={{ cluster_dir }}/yml/nacos-sts.yaml
 
+    - name: 创建命名空间{{ nacos_namespace }}
+      shell: "{{ base_dir }}/bin/kubectl create ns {{ nacos_namespace }} || echo true"
+
     - name: 创建 nacos部署
-      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/nacos-sts.yaml"
+      shell: "{{ base_dir }}/bin/kubectl -n {{ nacos_namespace }} apply -f {{ cluster_dir }}/yml/nacos-sts.yaml"
   when: 'nacos_install == "yes"'

@@ -241,6 +241,7 @@ kubeapps_chart_ver: "__kubeapps_chart__"
 
 # nacos 自动安装
 nacos_install: "no"
+nacos_namespace: "nacos"
 nacos_mysql_host: "semisync-mysql-cluster-mysql"
 nacos_mysql_db: "nacos"
 nacos_mysql_port: "3306"
