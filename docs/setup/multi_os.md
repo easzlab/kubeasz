@@ -40,6 +40,14 @@ apt install iptables -y
 sed -i 's/package/dnf/g' /etc/kubeasz/roles/prepare/tasks/redhat.yml
 ```
 
+## openEuler
+
+- openEuler 24.03 需要安装iptables
+
+``` bash
+yum install iptables -y
+```
+
 ## openSUSE
 
 - openSUSE Leap 15.4：需要安装iptables

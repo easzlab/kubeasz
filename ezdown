@@ -435,7 +435,7 @@ function get_extra_images() {
 
     kubeblocks)
       IMAGES=(\
-          "swr.cn-north-4.myhuaweicloud.com/ddn-k8s/registry.k8s.io/sig-storage/snapshot-controller:v8.3.0" \
+          "easzlab/snapshot-controller:v8.3.0" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:${kubeblocksVer}" \

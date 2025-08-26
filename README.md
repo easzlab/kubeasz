@@ -50,7 +50,7 @@
 - **Debian** 10, 11([notes](docs/setup/multi_os.md#Debian))
 - **Fedora** 34, 35, 36, 37
 - **Kylin Linux Advanced Server V10** 麒麟V10 Tercel, Lance
-- **openEuler** 22.03 LTS, 24.03 LTS
+- **openEuler** 22.03 LTS, 24.03 LTS([notes](docs/setup/multi_os.md#openEuler))
 - **openSUSE** Leap 15.x([notes](docs/setup/multi_os.md#openSUSE))
 - **Rocky Linux** 8, 9
 - **Ubuntu** 16.04, 18.04, 20.04, 22.04, 24.04

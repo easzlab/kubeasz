@@ -31,11 +31,23 @@
   shell: "setenforce 0"
   failed_when: false
 
+# 部分系统没有文件/etc/selinux/config
+- name: 检查文件/etc/selinux/config
+  stat: path="/etc/selinux/config"
+  register: se
+
 - name: 永久关闭 selinux
   lineinfile:
     dest: /etc/selinux/config
     regexp: "^SELINUX="
     line: "SELINUX=disabled"
+  ignore_errors: true
+  when: se.stat.isreg is defined
+
+- name: 永久关闭 selinux
+  shell: "echo 'SELINUX=disabled' > /etc/selinux/config && \
+          echo 'SELINUXTYPE=targeted' >> /etc/selinux/config"
+  when: se.stat.isreg is not defined
 
 # 优化设置 journal 日志相关，避免日志重复搜集，浪费系统资源
 - name: 禁止rsyslog获取journald日志1
