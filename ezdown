@@ -161,7 +161,7 @@ function logger() {
 
 function download_docker() {
   if [[ "$REGISTRY_MIRROR" == CN ]];then
-    DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
+    DOCKER_URL="https://mirrors.aliyun.com/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   else
     DOCKER_URL="https://download.docker.com/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   fi
