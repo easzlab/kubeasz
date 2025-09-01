@@ -120,4 +120,20 @@ https://192.168.1.3:2379 is healthy: successfully committed proposal: took = 3.2
 ```
 三台 etcd 的输出均为 healthy 时表示集群服务正常。
 
+### 磁盘性能
+
+快速的磁盘是 etcd 部署性能和稳定性的最关键因素。
+
+磁盘速度慢会增加 etcd 请求延迟，并可能损害集群稳定性。由于 etcd 的共识协议依赖于将元数据持久地存储到日志中，因此大多数 etcd 集群成员必须将每个请求写入磁盘。此外，etcd 还会逐步将其状态检查点写入磁盘，以便截断此日志。如果这些写入耗时过长，心跳可能会超时并触发选举，从而损害集群的稳定性。通常，要判断磁盘速度是否足以满足 etcd 的要求，可以使用fio等基准测试工具。
+
+etcd 对磁盘写入延迟非常敏感。通常需要 50 的顺序 IOPS（例如，7200 RPM 磁盘）。对于负载较重的集群，建议使用 500 的顺序 IOPS（例如，典型的本地 SSD 或高性能虚拟化块设备）。请注意，大多数云提供商发布的是并发 IOPS，而不是顺序 IOPS；发布的并发 IOPS 可能比顺序 IOPS 高出 10 倍。要测量实际的顺序 IOPS，我们建议使用磁盘基准测试工具，例如diskbench或fio。
+
+``` bash
+# 测试示例
+mkdir test-data
+fio --rw=write --ioengine=sync --fdatasync=1 --directory=test-data --size=2200m --bs=2300 --name=mytest
+```
+
+
+
 [后一篇](03-container_runtime.md)

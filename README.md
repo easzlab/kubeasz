@@ -87,7 +87,7 @@
         <td><a href="docs/guide/dashboard.md">dashboard</a></td>
         <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
         <td><a href="docs/guide/prometheus.md">prometheus</a></td>
-        <td><a href="docs/guide/efk.md">efk</a></td>
+        <td><a href="docs/deprecated/efk.md">efk</a></td>
     </tr>
     <tr>
         <td><strong>集群管理</strong><a href="docs/op/op-index.md">+</a></td>
@@ -109,8 +109,8 @@
         <td><strong>周边生态</strong></td>
         <td><a href="docs/guide/harbor.md">harbor</a></td>
         <td><a href="docs/guide/helm.md">helm</a></td>
-        <td><a href="docs/guide/jenkins.md">jenkins</a></td>
-        <td><a href="docs/guide/gitlab/readme.md">gitlab</a></td>
+        <td><a href="docs/deprecated/jenkins.md">jenkins</a></td>
+        <td><a href="docs/deprecated/gitlab/readme.md">gitlab</a></td>
         <td><a href="docs/guide/argocd.md">argocd</a></td>
         <td><a href=""></a></td>
     </tr>

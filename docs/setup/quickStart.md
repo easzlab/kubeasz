@@ -4,18 +4,18 @@
 
 ### 1.基础系统配置
 
-- 准备一台虚机配置内存2G/硬盘30G以上
-- 最小化安装`Ubuntu 16.04 server或者CentOS 7 Minimal`
+- 准备一台虚机配置内存4G/硬盘30G以上
+- 最小化安装`Ubuntu 22.04 server`
 - 配置基础网络、更新源、SSH登录等
 
 **注意:** 确保在干净的系统上开始安装，不能使用曾经装过kubeadm或其他k8s发行版的环境
 
 ### 2.下载文件
 
-- 下载工具脚本ezdown，举例使用kubeasz版本3.5.0
+- 下载工具脚本ezdown，举例使用kubeasz版本3.6.7
 
 ``` bash
-export release=3.5.0
+export release=3.6.7
 wget https://github.com/easzlab/kubeasz/releases/download/${release}/ezdown
 chmod +x ./ezdown
 ```
@@ -35,7 +35,7 @@ chmod +x ./ezdown
 
 ``` bash
 # 按需下载
-./ezdown -X flannel
+./ezdown -X dashboard
 ./ezdown -X prometheus
 ...
 ```
