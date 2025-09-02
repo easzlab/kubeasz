@@ -23,6 +23,8 @@ spec:
       env:
         - name: SEMI_SYNC_TIMEOUT
           value: "5000"
+        - name: LANG
+          value: "C.UTF-8"
       volumeClaimTemplates:
         - name: data
           spec:
