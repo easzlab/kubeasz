@@ -381,14 +381,14 @@ spec:
             # Enable IPIP
 {% if CALICO_NETWORKING_BACKEND == "bird" %}
             - name: CALICO_IPV4POOL_IPIP
-              value: "{{ CALICO_IPV4POOL_IPIP }}"
+              value: "{{ CALICO_ENABLE_OVERLAY }}"
 {% endif %}
             # Enable or Disable VXLAN on the default IP pool.
 {% if CALICO_NETWORKING_BACKEND == "vxlan" %}
             - name: CALICO_IPV4POOL_VXLAN
-              value: "Never"
+              value: "{{ CALICO_ENABLE_OVERLAY }}"
             - name: CALICO_IPV6POOL_VXLAN
-              value: "Never"
+              value: "{{ CALICO_ENABLE_OVERLAY }}"
 {% endif %}
             # Set MTU for tunnel device used if ipip is enabled
             - name: FELIX_IPINIPMTU
