@@ -133,6 +133,7 @@ available options:
     nfs-provisioner          to download images of nfs-provisioner
     openebs                  to download images of openebs
     prometheus               to download images of prometheus
+    rocketmq                 to download images of rocketmq
 examples:
     ./ezdown -X prometheus
 EOF
@@ -571,6 +572,16 @@ function get_extra_images() {
           "easzlab/snapshot-controller:v7.0.0" \
         )
       down_and_save_images openebs
+      ;;
+
+    rocketmq)
+      IMAGES=(\
+          "apache/rocketmq-operator:latest" \
+          "apacherocketmq/rocketmq-broker:4.5.0-alpine-operator-0.3.0" \
+          "apacherocketmq/rocketmq-nameserver:4.5.0-alpine-operator-0.3.0" \
+          "apacherocketmq/rocketmq-console:2.0.0" \
+        )
+      down_and_save_images rocketmq
       ;;
 
     prometheus)

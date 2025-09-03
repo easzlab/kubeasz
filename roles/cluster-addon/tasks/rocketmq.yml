@@ -1,0 +1,23 @@
+- block:
+    - name: 创建命名空间{{ rocketmq_namespace }}
+      shell: "{{ base_dir }}/bin/kubectl create ns {{ rocketmq_namespace }} || echo true"
+
+    - name: helm 部署 rocketmq operator 
+      shell: "{{ base_dir }}/bin/helm upgrade rocketmq-operator --install -n {{ rocketmq_namespace }} \
+              --set rocketmqOperator.manager.image.repository='easzlab.io.local:5000/rocketmq/rocketmq-operator' \
+              {{ base_dir }}/roles/cluster-addon/files/rocketmq-operator-0.1.0.tgz"
+
+    - name: 轮询等待 rocketmq operator 运行
+      shell: "{{ base_dir }}/bin/kubectl get pod -n {{ rocketmq_namespace }}|grep 'rocketmq-operator'|awk '{print $3}'"
+      register: pod_status
+      until: pod_status.stdout == "Running"
+      retries: 15
+      delay: 3
+      ignore_errors: true
+
+    - name: 准备 rocketmq 部署文件
+      template: src=rocketmq/rocketmq_cluster.yaml.j2 dest={{ cluster_dir }}/yml/rocketmq_cluster.yaml
+
+    - name: 部署 rocketmq cluster
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/rocketmq_cluster.yaml"
+  when: 'rocketmq_install == "yes"'
