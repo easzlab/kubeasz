@@ -14,6 +14,17 @@
   - kube-scheduler.kubeconfig
   tags: force_change_certs 
 
+- name: 创建cluster audit相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - "/etc/kubernetes/audit"
+  - "/var/log/kubernetes/audit"
+  when: "ENABLE_CLUSTER_AUDIT|bool"
+
+- name: 分发cluster audit配置文件
+  template: src=audit-policy.yaml.j2 dest=/etc/kubernetes/audit/audit-policy.yaml
+  when: "ENABLE_CLUSTER_AUDIT|bool"
+
 - name: 创建 kubernetes 证书签名请求
   template: src=kubernetes-csr.json.j2 dest={{ cluster_dir }}/ssl/kubernetes-csr.json
   tags: change_cert, force_change_certs

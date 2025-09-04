@@ -88,6 +88,8 @@ MASTER_CERT_HOSTS:
 # https://github.com/coreos/flannel/issues/847
 NODE_CIDR_LEN: 24
 
+# 是否启用集群audit功能
+ENABLE_CLUSTER_AUDIT: false
 
 ############################
 # role:kube-node

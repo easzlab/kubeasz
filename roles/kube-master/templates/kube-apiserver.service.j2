@@ -5,6 +5,13 @@ After=network.target
 
 [Service]
 ExecStart={{ bin_dir }}/kube-apiserver \
+{% if ENABLE_CLUSTER_AUDIT|bool %}
+  --audit-policy-file=/etc/kubernetes/audit/audit-policy.yaml \
+  --audit-log-path=/var/log/kubernetes/audit/audit.log \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=10 \
+  --audit-log-maxsize=100 \
+{% endif %}
   --allow-privileged=true \
   --anonymous-auth=false \
   --api-audiences=api,istio-ca \
