@@ -40,7 +40,7 @@ pauseVer=3.10
 # https://docs.cilium.io/en/stable/installation/k8s-install-helm/
 ciliumVer=1.17.4
 # https://github.com/flannel-io/flannel
-flannelVer=v0.26.0
+flannelVer=v0.27.3
 # https://github.com/cloudnativelabs/kube-router
 kubeRouterVer=v1.5.4
 # https://github.com/kubeovn/kube-ovn
@@ -397,8 +397,8 @@ function get_extra_images() {
 
     flannel)
       IMAGES=(\
-          "flannel/flannel:$flannelVer" \
-          "flannel/flannel-cni-plugin:v1.5.1-flannel2" \
+          "ghcr.io/flannel-io/flannel:v0.27.3" \
+          "ghcr.io/flannel-io/flannel-cni-plugin:v1.7.1-flannel1" \
         )
       down_and_save_images flannel
       ;;
