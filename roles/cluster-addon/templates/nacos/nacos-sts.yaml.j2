@@ -113,7 +113,7 @@ spec:
             - name: SERVICE_NAME
               value: "nacos-headless"
             - name: DOMAIN_NAME
-              value: "cluster.local"
+              value: "{{ CLUSTER_DNS_DOMAIN }}"
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
