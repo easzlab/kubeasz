@@ -15,10 +15,10 @@ set -o pipefail
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.0.4
-KUBEASZ_VER=3.6.7
-K8S_BIN_VER=v1.33.4
+KUBEASZ_VER=3.6.8
+K8S_BIN_VER=v1.34.1
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
-EXT_BIN_VER=1.12.5
+EXT_BIN_VER=1.13.0
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.0.4
 HARBOR_VER=v2.12.4
@@ -28,11 +28,11 @@ REGISTRY_MIRROR=CN
 # https://github.com/projectcalico/calico
 calicoVer=v3.28.4
 # https://github.com/coredns/coredns
-corednsVer=1.12.1
+corednsVer=1.12.4
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
-dnsNodeCacheVer=1.25.0
+dnsNodeCacheVer=1.26.4
 # https://github.com/kubernetes-sigs/metrics-server
-metricsVer=v0.7.2
+metricsVer=v0.8.0
 pauseVer=3.10
 
 # images not downloaded by default(only download  with 'ezdown -X ***')

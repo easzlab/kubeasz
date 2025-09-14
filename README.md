@@ -5,8 +5,8 @@
 **kubeasz** 从每一个单独部件组装到完整的集群，提供最灵活的配置能力，几乎可以设置任何组件的任何参数；同时又为集群创建预置一套运行良好的默认配置，甚至自动化创建适合大规模集群的[BGP Route Reflector网络模式](docs/setup/network-plugin/calico-bgp-rr.md)。
 
 - **集群特性** [Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、[离线安装](docs/setup/offline_install.md)、[多架构支持(amd64/arm64)](docs/setup/multi_platform.md)
-- **集群版本** kubernetes v1.24, v1.25, v1.26, v1.27, v1.28, v1.29, v1.30, v1.31, v1.32, v.1.33
-- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.7.x, v2.0.x
+- **集群版本** kubernetes v1.24, v1.25, v1.26, v1.27, v1.28, v1.29, v1.30, v1.31, v1.32, v.1.33, v1.34
+- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.7.x, v2.0.x, v2.1.x
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
 
@@ -25,6 +25,7 @@
       <td>1.31</td>
       <td>1.32</td>
       <td>1.33</td>
+      <td>1.34</td>
     </tr>
   </thead>
   <tbody>
@@ -37,6 +38,7 @@
       <td>3.6.5</td>
       <td>3.6.6</td>
       <td>3.6.7</td>
+      <td>3.6.8</td>
     </tr>
   </tbody>
 </table>
