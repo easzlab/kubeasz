@@ -6,6 +6,7 @@
   - "/etc/containerd/certs.d/docker.io"
   - "/etc/containerd/certs.d/easzlab.io.local:5000"
   - "/etc/containerd/certs.d/{{ HARBOR_REGISTRY }}"
+  tags: support_private_registry
 
 - name: 加载内核模块 overlay
   modprobe: name=overlay state=present
@@ -36,8 +37,9 @@
 - name: 配置local_registry 仓库
   template: src="easzlab.io.local:5000/hosts.toml.j2" dest=/etc/containerd/certs.d/easzlab.io.local:5000/hosts.toml
 
-- name: 配置harbor 仓库
+- name: 配置{{ HARBOR_REGISTRY }}仓库
   template: src="HARBOR_REGISTRY/hosts.toml.j2" dest=/etc/containerd/certs.d/{{ HARBOR_REGISTRY }}/hosts.toml
+  tags: support_private_registry
 
 - name: 创建systemd unit文件
   template: src=containerd.service.j2 dest=/etc/systemd/system/containerd.service

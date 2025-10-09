@@ -162,6 +162,7 @@ function logger() {
 
 function download_docker() {
   if [[ "$REGISTRY_MIRROR" == CN ]];then
+    # DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
     DOCKER_URL="https://mirrors.aliyun.com/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   else
     DOCKER_URL="https://download.docker.com/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
@@ -645,13 +646,13 @@ function download_all() {
 }
 
 function start_local_registry() {
-  docker ps -a --format="{{ .Names }}"|grep local_registry > /dev/null 2>&1 && \
-  { logger warn "local_registry is already running"; return 0; }
-
   if [[ ! -f "$imageDir/registry-2.tar" ]];then
     docker pull "registry:2" && \
     docker save -o "$imageDir/registry-2.tar" "registry:2"
   fi
+
+  docker ps -a --format="{{ .Names }}"|grep local_registry > /dev/null 2>&1 && \
+  { logger warn "local_registry is already running"; return 0; }
 
   logger info "start local registry ..."
   docker load -i "$imageDir/registry-2.tar" > /dev/null
