@@ -2,7 +2,7 @@
 
 ### HA architecture
 
-<img alt="ha-3x" width="500" height="380" src="../../pics/ha-3x.svg">
+<img alt="ha-3x" width="500" height="380" src="../pics/ha-3x.svg">
 
 - 注意1：确保各节点时区设置一致、时间同步。 如果你的环境没有提供NTP 时间同步，推荐集成安装[chrony](../guide/chrony.md)
 - 注意2：确保在干净的系统上开始安装，不要使用曾经装过kubeadm或其他k8s发行版的环境
