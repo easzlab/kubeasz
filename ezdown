@@ -330,8 +330,13 @@ function get_sys_pkg() {
 function get_harbor_offline_pkg() {
   [[ -f "$BASE/down/harbor-offline-installer-$HARBOR_VER.tgz" ]] && { logger warn "harbor-offline existed"; return 0; }
 
-  docker run --rm -v "$BASE/down":/tmp/out "easzlab/harbor-offline:$HARBOR_VER" \
-	  sh -c "cp /harbor-offline-installer-$HARBOR_VER.tgz /tmp/out/"
+  if [[ "$ARCH" == aarch64 ]];then
+    docker run --rm -v "$BASE/down":/tmp/out "easzlab/harbor-offline:${HARBOR_VER}-aarch64" \
+          sh -c "cp /harbor-offline-installer-$HARBOR_VER.tgz /tmp/out/"
+  else
+    docker run --rm -v "$BASE/down":/tmp/out "easzlab/harbor-offline:$HARBOR_VER" \
+          sh -c "cp /harbor-offline-installer-$HARBOR_VER.tgz /tmp/out/"
+  fi
 }
 
 function get_default_images() {
