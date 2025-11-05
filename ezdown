@@ -308,62 +308,30 @@ function get_k8s_bin() {
   [[ -f "$BASE/bin/kubelet" ]] && { logger warn "kubernetes binaries existed"; return 0; }
 
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
-  rm -rf "$BASE/k8s_bin_tmp"
-  docker ps -a |grep -q temp_k8s_bin && { logger debug "remove existing container"; docker rm -f temp_k8s_bin; }
-  docker pull easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
-  logger debug "run a temporary container" && \
-  docker run -d --name temp_k8s_bin easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
-  logger debug "cp k8s binaries" && \
-  docker cp temp_k8s_bin:/k8s "$BASE/k8s_bin_tmp" && \
-  /bin/mv -f "$BASE"/k8s_bin_tmp/* "$BASE/bin" && \
-  logger debug "stop&remove temporary container" && \
-  docker rm -f temp_k8s_bin && \
-  rm -rf "$BASE/k8s_bin_tmp"
+  docker run --rm -v "$BASE/bin":/tmp/out easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" \
+          sh -c "cp -f /k8s/* /tmp/out/"
 }
 
 function get_ext_bin() {
   [[ -f "$BASE/bin/etcdctl" ]] && { logger warn "extra binaries existed"; return 0; }
 
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
-  rm -rf "$BASE/extra_bin_tmp"
-  docker ps -a |grep -q temp_ext_bin && { logger debug "remove existing container"; docker rm -f temp_ext_bin; }
-  docker pull "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
-  logger debug "run a temporary container" && \
-  docker run -d --name temp_ext_bin "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
-  logger debug "cp extral binaries" && \
-  docker cp temp_ext_bin:/extra "$BASE/extra_bin_tmp" && \
-  /bin/mv -f "$BASE"/extra_bin_tmp/* "$BASE/bin" && \
-  logger debug "stop&remove temporary container" && \
-  docker rm -f temp_ext_bin && \
-  rm -rf "$BASE/extra_bin_tmp"
+  docker run --rm -v "$BASE/bin":/tmp/out "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" \
+          sh -c "cp -rf /extra/* /tmp/out/"
 }
 
 function get_sys_pkg() {
   [[ -f "$BASE/down/packages/$1.tgz" ]] && { logger warn "system packages for $1 existed"; return 0; }
 
-  docker ps -a |grep -q temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
-  logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
-  docker pull "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
-  logger debug "run a temporary container" && \
-  docker run -d --name temp_sys_pkg "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
-  logger debug "cp system packages" && \
-  docker cp temp_sys_pkg:/packages "$BASE/down" && \
-  logger debug "stop&remove temporary container" && \
-  docker rm -f temp_sys_pkg
+  docker run --rm -v "$BASE/down":/tmp/out "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" \
+	  sh -c "cp -r /packages /tmp/out/"
 }
 
 function get_harbor_offline_pkg() {
   [[ -f "$BASE/down/harbor-offline-installer-$HARBOR_VER.tgz" ]] && { logger warn "harbor-offline existed"; return 0; }
 
-  docker ps -a |grep -q temp_harbor && { logger debug "remove existing container"; docker rm -f temp_harbor; }
-  logger info "downloading harbor-offline:$HARBOR_VER"
-  docker pull "easzlab/harbor-offline:$HARBOR_VER" && \
-  logger debug "run a temporary container" && \
-  docker run -d --name temp_harbor "easzlab/harbor-offline:$HARBOR_VER" && \
-  logger debug "cp harbor-offline installer package" && \
-  docker cp "temp_harbor:/harbor-offline-installer-$HARBOR_VER.tgz" "$BASE/down" && \
-  logger debug "stop&remove temporary container" && \
-  docker rm -f temp_harbor
+  docker run --rm -v "$BASE/down":/tmp/out "easzlab/harbor-offline:$HARBOR_VER" \
+	  sh -c "cp /harbor-offline-installer-$HARBOR_VER.tgz /tmp/out/"
 }
 
 function get_default_images() {
