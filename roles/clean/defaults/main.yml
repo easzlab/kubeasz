@@ -14,4 +14,4 @@ DEL_LB: "no"
 DEL_CHRONY: "no"
 
 # 是否删除 kubeasz 环境变量
-DEL_ENV: "no"
+DEL_ENV: "yes"

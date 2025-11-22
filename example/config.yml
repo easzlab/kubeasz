@@ -271,7 +271,7 @@ kubeblocks_install: "no"
 ingress_nginx_install: "no"
 ingress_nginx_namespace: "ingress-nginx"
 ingress_nginx_ver: "__ingress_nginx_ver__"
-ingress_nginx_metrics_enabled: true
+ingress_nginx_metrics_enabled: true  # 需要先部署prometheus
 
 
 ############################

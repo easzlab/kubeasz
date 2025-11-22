@@ -25,8 +25,11 @@ controller:
       cpu: 200m
       memory: 200Mi
 
+  config:
+    proxy-body-size: "0"
+
   admissionWebhooks:
-    enabled: true
+    enabled: false
     patch:
       enabled: true
       image:
