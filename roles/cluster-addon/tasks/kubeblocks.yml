@@ -37,11 +37,16 @@
 
   - name: helm 安装 kb-addon-es
     shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-elasticsearch \
-            {{ base_dir }}/roles/cluster-addon/files/elasticsearch-1.0.0.tgz"
+            {{ base_dir }}/roles/cluster-addon/files/elasticsearch-1.0.2.tgz"
 
   - name: helm 安装 kb-addon-clickhouse
     shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-clickhouse \
-            {{ base_dir }}/roles/cluster-addon/files/clickhouse-1.0.0.tgz"
+            {{ base_dir }}/roles/cluster-addon/files/clickhouse-1.0.3.tgz"
+
+  - name: helm 安装 kb-addon-minio
+    shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-minio \
+            --set image.registry=easzlab.io.local:5000 \
+            {{ base_dir }}/roles/cluster-addon/files/minio-1.0.1.tgz"
 
   - name: 轮询等待部署 kb-addon-mysql chart
     shell: "{{ base_dir }}/bin/helm ls -n kb-system|grep kb-addon-mysql|awk '{print $8}'"
@@ -68,11 +73,6 @@
     ignore_errors: true
 
   when: '"kubeblocks-dataprotection" not in pod_info.stdout'
-
-#- name: helm 安装 kb-addon-minio
-#  shell: "{{ base_dir }}/bin/helm upgrade -i -n kb-system kb-addon-minio \
-#          --set image.registry=easzlab.io.local:5000 \
-#          {{ base_dir }}/roles/cluster-addon/files/minio-0.9.0.tgz"
 
 #- name: 设置chart允许修改镜像地址
 #  shell: "{{ base_dir }}/bin/kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-5.7 apps.kubeblocks.io/skip-immutable-check=true && \

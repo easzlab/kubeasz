@@ -1,0 +1,60 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: semisync-mysql-cluster
+spec:
+  clusterDef: mysql
+  topology: semisync
+  terminationPolicy: Delete
+  componentSpecs:
+    - name: mysql
+      disableExporter: false
+      serviceVersion: 8.0.39
+      stop: false 
+      replicas: 2
+      resources:
+        limits:
+          cpu: '2'
+          memory: 2Gi
+      env:
+        - name: SEMI_SYNC_TIMEOUT
+          value: "5000"
+        - name: LANG
+          value: "C.UTF-8"
+        - name: TZ
+          value: Asia/Shanghai
+      instances:
+        - name: tpl1         # first template
+          replicas: 1
+          ordinals:
+            ranges:
+              - start: 1
+                end: 100
+          volumeClaimTemplates: # tpl1's vct
+            - name: data
+              spec:
+                storageClassName: "host-lvm"
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi
+        - name: tpl2  # second template
+          replicas: 1
+          ordinals:
+            ranges:
+              - start: 101
+                end: 200
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          volumeClaimTemplates: # tpl2's vct
+            - name: data
+              spec:
+                storageClassName: "host-path"
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi

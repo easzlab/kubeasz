@@ -56,7 +56,7 @@ promChartVer=75.7.0
 #https://github.com/bitnami/charts/tree/main/bitnami/kubeapps
 kubeappsVer=12.4.3
 #https://kubeblocks.io/docs/release-1_0/user_docs/overview/introduction
-kubeblocksVer=1.0.0
+kubeblocksVer=1.0.1
 #https://min.io/docs/minio/kubernetes/upstream/operations/install-deploy-manage/deploy-operator-helm.html
 minioOperatorVer=7.1.1
 # https://openebs.io/docs/quickstart-guide/installation
@@ -415,7 +415,7 @@ function get_extra_images() {
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:${kubeblocksVer}" \
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/datasafed:0.2.0" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/datasafed:0.2.1" \
         )
       down_and_save_images apecloud
       ;;
