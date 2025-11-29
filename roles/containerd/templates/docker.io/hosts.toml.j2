@@ -1,6 +1,8 @@
 #https://github.com/containerd/containerd/blob/main/docs/hosts.md
 server = "https://docker.io"
 
+# 在网站查看当前可用的国内docker 镜像加速仓库
+# https://status.1panel.top/status/docker
 [host."https://docker.1ms.run"]
   capabilities = ["pull", "resolve"]
 
@@ -8,9 +10,6 @@ server = "https://docker.io"
   capabilities = ["pull", "resolve"]
 
 [host."https://docker.1panel.live"]
-  capabilities = ["pull", "resolve"]
-
-[host."https://proxy.1panel.live"]
   capabilities = ["pull", "resolve"]
 
 [host."https://hub.rat.dev"]
