@@ -8,6 +8,12 @@
   - "/etc/containerd/certs.d/{{ HARBOR_REGISTRY }}"
   tags: support_private_registry
 
+- name: 准备INSECURE REGISTRY 目录
+  file:
+    path: "/etc/containerd/certs.d/{{ item.split('/')[2] }}"
+    state: directory
+  loop: "{{ INSECURE_REG }}"
+
 - name: 加载内核模块 overlay
   modprobe: name=overlay state=present
 
@@ -34,10 +40,13 @@
 - name: 配置docker.io 加速镜像
   template: src=docker.io/hosts.toml.j2 dest=/etc/containerd/certs.d/docker.io/hosts.toml
 
-- name: 配置local_registry 仓库
-  template: src="easzlab.io.local:5000/hosts.toml.j2" dest=/etc/containerd/certs.d/easzlab.io.local:5000/hosts.toml
+- name: 配置信任 INSECURE REGISTRY 仓库
+  template:
+    src: hosts.toml.j2
+    dest: "/etc/containerd/certs.d/{{ item.split('/')[2] }}/hosts.toml"
+  loop: "{{ INSECURE_REG }}"
 
-- name: 配置{{ HARBOR_REGISTRY }}仓库
+- name: 配置信任 {{ HARBOR_REGISTRY }} 仓库
   template: src="HARBOR_REGISTRY/hosts.toml.j2" dest=/etc/containerd/certs.d/{{ HARBOR_REGISTRY }}/hosts.toml
   tags: support_private_registry
 

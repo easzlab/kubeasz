@@ -1,0 +1,6 @@
+#https://github.com/containerd/containerd/blob/main/docs/hosts.md
+server = "{{ item }}"
+
+[host."{{ item }}"]
+  capabilities = ["pull", "resolve"]
+  skip_verify = true
