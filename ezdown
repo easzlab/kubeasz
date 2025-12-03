@@ -53,8 +53,6 @@ localpathProvisionerVer=v0.0.31
 nfsProvisionerVer=v4.0.2
 #https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 promChartVer=75.7.0
-#https://github.com/bitnami/charts/tree/main/bitnami/kubeapps
-kubeappsVer=12.4.3
 #https://kubeblocks.io/docs/release-1_0/user_docs/overview/introduction
 kubeblocksVer=1.0.1
 #https://min.io/docs/minio/kubernetes/upstream/operations/install-deploy-manage/deploy-operator-helm.html
@@ -118,7 +116,6 @@ available options:
     ingress-nginx            to download images of ingress-nginx
     kube-ovn                 to download images of kube-ovn
     kube-router              to download images of kube-router
-    kubeapps                 to download images of kubeapps
     kubeblocks               to download images of kubeblocks
     kb-addon-mysql           to download images of kb-addon-mysql
     kb-addon-pg              to download images of kb-addon-postgresql
@@ -393,18 +390,6 @@ function get_extra_images() {
           "kong:3.8" \
         )
       down_and_save_images kubernetesui
-      ;;
-
-    kubeapps)
-      IMAGES=(\
-          "bitnami/kubeapps-apis:2.7.0-debian-11-r10" \
-          "bitnami/kubeapps-apprepository-controller:2.7.0-scratch-r0" \
-          "bitnami/kubeapps-asset-syncer:2.7.0-scratch-r0" \
-          "bitnami/kubeapps-dashboard:2.7.0-debian-11-r12" \
-          "bitnami/nginx:1.23.4-debian-11-r18" \
-          "bitnami/postgresql:15.3.0-debian-11-r0" \
-        )
-      down_and_save_images bitnami
       ;;
 
     kubeblocks)

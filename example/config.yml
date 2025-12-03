@@ -236,13 +236,6 @@ minio_tls_enabled: false
 # 证书和私钥的名称分别为server.crt和server.key
 minio_with_global_cert: false
 
-# kubeapps 自动安装
-kubeapps_install: "no"
-kubeapps_install_namespace: "kubeapps"
-kubeapps_working_namespace: "default"
-kubeapps_storage_class: "{{ openebs_hostpath_storage_class }}"
-kubeapps_chart_ver: "__kubeapps_chart__"
-
 # nacos 自动安装
 nacos_install: "no"
 nacos_namespace: "nacos"
