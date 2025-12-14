@@ -1,0 +1,29 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: minio-cluster
+spec:
+  terminationPolicy: Delete
+  componentSpecs:
+    - componentDef: minio
+      name: minio
+      replicas: 2
+      env:
+        - name: MINIO_BUCKETS
+          value: "data,test,logs"
+      resources:
+        limits:
+          cpu: "1"
+          memory: "1Gi"
+        requests:
+          cpu: "1"
+          memory: "1Gi"
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: "host-lvm"
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi

@@ -123,6 +123,7 @@ available options:
     kb-addon-mongodb         to download images of kb-addon-mongodb
     kb-addon-elasticsearch   to download images of kb-addon-elasticsearch
     kb-addon-clickhouse      to download images of kb-addon-clickhouse
+    kb-addon-minio           to download images of kb-addon-minio
     local-path-provisioner   to download images of local-path-provisioner
     minio                    to download images of minio
     nacos                    to download images of nacos
@@ -460,6 +461,13 @@ function get_extra_images() {
       IMAGES=(\
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/busybox:1.36" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/clickhouse:24.8.3-debian-12-r1" \
+        )
+      down_and_save_images apecloud
+      ;;
+
+    kb-addon-minio)
+      IMAGES=(\
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/minio:RELEASE.2024-06-29T01-20-47Z" \
         )
       down_and_save_images apecloud
       ;;

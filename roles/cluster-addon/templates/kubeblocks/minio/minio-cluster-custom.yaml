@@ -1,0 +1,81 @@
+apiVersion: apps.kubeblocks.io/v1
+kind: Cluster
+metadata:
+  name: minio-cluster-custom-instance
+spec:
+  terminationPolicy: Delete
+  componentSpecs:
+    - componentDef: minio
+      name: minio
+      replicas: 4
+      env:
+        - name: MINIO_BUCKETS
+          value: "data,test,logs"
+      resources:
+        requests:
+          cpu: "0.5"
+          memory: "1Gi"
+        limits:
+          cpu: "1"
+          memory: "2Gi"
+      instances:
+        - name: tpl1
+          replicas: 1
+          ordinals:
+            ranges:
+              - start: 101
+                end: 200
+          volumeClaimTemplates:
+            - name: data
+              spec:
+                storageClassName: "lvm-data1"
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi
+        - name: tpl2
+          replicas: 1
+          ordinals:
+            ranges:
+              - start: 201
+                end: 300
+          volumeClaimTemplates:
+            - name: data
+              spec:
+                storageClassName: "lvm-data2"
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi
+        - name: tpl3
+          replicas: 1
+          ordinals:
+            ranges:
+              - start: 301
+                end: 400
+          volumeClaimTemplates:
+            - name: data
+              spec:
+                storageClassName: "lvm-data3"
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi
+        - name: tpl4
+          replicas: 1
+          ordinals:
+            ranges:
+              - start: 401
+                end: 500
+          volumeClaimTemplates:
+            - name: data
+              spec:
+                storageClassName: "lvm-data4"
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 10Gi

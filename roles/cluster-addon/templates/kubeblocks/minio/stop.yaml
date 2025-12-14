@@ -1,0 +1,9 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: minio-stop
+spec:
+  # Specifies the name of the Cluster resource that this operation is targeting.
+  clusterName: minio-cluster
+  force: true
+  type: Stop
