@@ -67,6 +67,14 @@ df -hT /data                          		# 验证挂载
 echo '/dev/mapper/vg_data-lv_app /data xfs defaults 0 0' | sudo tee -a /etc/fstab
 sudo mount -a                    # 测试 fstab 配置
 ```
+- 建议使用uuid方式挂载
+```
+# 查看uuid
+sudo blkid /dev/mapper/vg_data-lv_app
+/dev/mapper/vg_data-lv_app: UUID="b8520e35-3a01-4ec7-b31a-3371f31c4de7" BLOCK_SIZE="4096" TYPE="xfs"
+#
+echo 'UUID="b8520e35-3a01-4ec7-b31a-3371f31c4de7" /data xfs defaults 0 0' | sudo tee -a /etc/fstab
+```
 
 ## 完整操作流程图
 graph TD A[磁盘/dev/sdb] --> B[parted创建GPT分区] B --> C[pvcreate创建物理卷] C --> D[vgcreate创建卷组] D --> E[lvcreate创建逻辑卷] E --> F[mkfs创建文件系统] F --> G[mount挂载使用]

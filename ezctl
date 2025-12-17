@@ -171,7 +171,6 @@ function new() {
 	   -e "s/__openebs_ver__/$openebsVer/g" \
 	   -e "s/__prom_chart__/$promChartVer/g" \
 	   -e "s/__minio_chart__/$minioOperatorVer/g" \
-	   -e "s/__kubeapps_chart__/$kubeappsVer/g" \
 	   -e "s/__kubeblocks_ver__/$kubeblocksVer/g" \
 	   -e "s/__ingress_nginx_ver__/$ingressNginxVer/g" \
 	   -e "s/__harbor__/$HARBOR_VER/g" \

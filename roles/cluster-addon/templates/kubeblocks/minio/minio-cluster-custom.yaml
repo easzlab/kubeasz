@@ -1,16 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minio
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-cluster-custom-aksk
+  namespace: minio
+type: Opaque
+immutable: true
+stringData:
+  # minio secretKey
+  password: sFdw9xOlb19e46dd3aea61ca94177xQ
+  # minio accessKey
+  username: wx9aFJ4U29cwBa1KW2xow9z
+
+---
 apiVersion: apps.kubeblocks.io/v1
 kind: Cluster
 metadata:
   name: minio-cluster-custom-instance
+  namespace: minio
 spec:
-  terminationPolicy: Delete
+  terminationPolicy: DoNotTerminate
   componentSpecs:
     - componentDef: minio
       name: minio
       replicas: 4
+      systemAccounts:
+        - name: root
+          secretRef:
+            name: minio-cluster-custom-aksk
+            namespace: minio
       env:
         - name: MINIO_BUCKETS
-          value: "data,test,logs"
+          value: "deap,test,data"
       resources:
         requests:
           cpu: "0.5"
@@ -33,7 +59,7 @@ spec:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 10Gi
+                    storage: 500Gi
         - name: tpl2
           replicas: 1
           ordinals:
@@ -43,12 +69,12 @@ spec:
           volumeClaimTemplates:
             - name: data
               spec:
-                storageClassName: "lvm-data2"
+                storageClassName: "lvm-data3"
                 accessModes:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 10Gi
+                    storage: 500Gi
         - name: tpl3
           replicas: 1
           ordinals:
@@ -58,12 +84,12 @@ spec:
           volumeClaimTemplates:
             - name: data
               spec:
-                storageClassName: "lvm-data3"
+                storageClassName: "lvm-data5"
                 accessModes:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 10Gi
+                    storage: 500Gi
         - name: tpl4
           replicas: 1
           ordinals:
@@ -73,9 +99,9 @@ spec:
           volumeClaimTemplates:
             - name: data
               spec:
-                storageClassName: "lvm-data4"
+                storageClassName: "lvm-data7"
                 accessModes:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 10Gi
+                    storage: 500Gi

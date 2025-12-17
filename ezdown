@@ -398,6 +398,7 @@ function get_extra_images() {
           "easzlab/snapshot-controller:v8.3.0" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-charts:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks:${kubeblocksVer}" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:1.0.0" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-tools:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/kubeblocks-dataprotection:${kubeblocksVer}" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/datasafed:0.2.1" \
@@ -423,7 +424,8 @@ function get_extra_images() {
     kb-addon-pg)
       IMAGES=(\
           "apecloud/spilo:16.4.0" \
-          "apecloud/dbctl:0.1.7" \
+	  "apecloud/spilo-init:0.1" \
+          "apecloud/dbctl:0.2.0" \
           "apecloud/pgbouncer:1.19.0" \
           "apecloud/postgres-exporter:v0.15.0" \
         )
@@ -432,9 +434,10 @@ function get_extra_images() {
 
     kb-addon-redis)
       IMAGES=(\
-          "apecloud/dbctl:0.1.7" \
+          "apecloud/dbctl:0.1.8" \
           "apecloud/agamotto:0.1.2-beta.1" \
           "apecloud/redis-stack-server:7.2.0-v14" \
+          "apecloud/redis-stack-server:7.2.0-v18" \
         )
       down_and_save_images apecloud
       ;;
@@ -449,8 +452,9 @@ function get_extra_images() {
 
     kb-addon-elasticsearch)
       IMAGES=(\
-          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-plugins:8.8.2" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-plugins:0.1.0" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch:8.8.2" \
+          "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-agent:0.1.0" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/elasticsearch-exporter:v1.7.0" \
           "apecloud-registry.cn-zhangjiakou.cr.aliyuncs.com/apecloud/curl-jq:0.1.0" \
         )
