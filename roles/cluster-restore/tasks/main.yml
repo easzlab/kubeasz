@@ -17,7 +17,7 @@
 
 - name: etcd 数据恢复
   shell: "cd /etcd_backup && \
-	ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot restore snapshot.db \
+	ETCDCTL_API=3 {{ bin_dir }}/etcdutl snapshot restore snapshot.db \
 	--name etcd-{{ inventory_hostname }} \
 	--initial-cluster {{ ETCD_NODES }} \
 	--initial-cluster-token etcd-cluster-0 \
