@@ -170,7 +170,7 @@ function download_docker() {
   else
     logger info "downloading docker binaries, arch:$ARCH, version:$DOCKER_VER"
     if [[ -e /usr/bin/wget ]];then
-      wget -c --user-agent="Mozilla" --no-check-certificate "$DOCKER_URL" || { logger error "downloading docker failed"; exit 1; }
+      wget -c --no-check-certificate "$DOCKER_URL" || { logger error "downloading docker failed"; exit 1; }
     else
       curl -k -C- -O --retry 3 "$DOCKER_URL" || { logger error "downloading docker failed"; exit 1; }
     fi
