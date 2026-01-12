@@ -14,7 +14,7 @@ set -o pipefail
 #set -o xtrace
 
 # default settings, can be overridden by cmd line options, see usage
-DOCKER_VER=28.0.4
+DOCKER_VER=29.1.3
 KUBEASZ_VER=3.6.8
 K8S_BIN_VER=v1.34.3
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
@@ -22,7 +22,7 @@ EXT_BIN_VER=1.13.1
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.0.4
 HARBOR_VER=v2.12.4
-REGISTRY_MIRROR=CN
+REGISTRY_MIRROR=docker.1ms.run
 
 # images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
@@ -66,7 +66,6 @@ function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
   cat <<EOF
   option:
-    -C         stop&clean all local containers
     -D         download default binaries/images into "$BASE"
     -P <OS>    download system packages of the OS (ubuntu_22,debian_11,...)
     -R         download Registry(harbor) offline installer
@@ -75,7 +74,7 @@ function usage() {
     -d <ver>   set docker-ce version, default "$DOCKER_VER"
     -e <ver>   set kubeasz-ext-bin version, default "$EXT_BIN_VER"
     -k <ver>   set kubeasz-k8s-bin version, default "$K8S_BIN_VER"
-    -m <str>   set docker registry mirrors, default "CN"(used in Mainland,China)
+    -m <str>   set docker registry mirrors, default "docker.1ms.run"
     -z <ver>   set kubeasz version, default "$KUBEASZ_VER"
 EOF
 }
@@ -159,7 +158,7 @@ function logger() {
 }
 
 function download_docker() {
-  if [[ "$REGISTRY_MIRROR" == CN ]];then
+  if [ -n "$REGISTRY_MIRROR" ];then
     # DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
     DOCKER_URL="https://mirrors.aliyun.com/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
   else
@@ -217,8 +216,8 @@ EOF
   CGROUP_DRIVER="cgroupfs"
   ((DOCKER_VER_MAIN>=20)) && CGROUP_DRIVER="systemd"
   logger debug "generate docker config: /etc/docker/daemon.json"
-  if [[ "$REGISTRY_MIRROR" == CN ]];then
-    logger debug "prepare register mirror for $REGISTRY_MIRROR"
+  if [ -n "$REGISTRY_MIRROR" ];then
+    logger debug "prepare register mirror"
     cat > /etc/docker/daemon.json << EOF
 {
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
@@ -580,8 +579,21 @@ function get_extra_images() {
   esac
 }
 
-
+# 优先下载原始镜像；如果失败，尝试用加速地址下载
 function down_and_save_images(){
+  if [ "$#" -eq 1 ];then
+    down_and_save_images_orig $1 || down_and_save_images_with_mirror $1
+  else
+    down_and_save_images_orig || down_and_save_images_with_mirror
+  fi
+}
+
+# 参数扩展说明：
+# ${var%%pattern} - 从**右边**删除**最长匹配**的 pattern 后缀
+# ${var%pattern}  - 从**右边**删除**最短匹配**的 pattern 后缀
+# ${var##pattern} - 从**左边**删除**最长匹配**的 pattern 前缀
+# ${var#pattern}  - 从**左边**删除**最短匹配**的 pattern 前缀
+function down_and_save_images_orig(){
   NS="easzlab"
   [ "$#" -eq 1 ] && NS="$1"
   for item in "${IMAGES[@]}"; do
@@ -600,6 +612,76 @@ function down_and_save_images(){
     docker push "easzlab.io.local:5000/${NS}/${image_part}" || \
     { logger error "push easzlab.io.local:5000/${NS}/${image_part} failed!"; return 1; }
   done
+}
+
+# 尝试使用加速地址下载，比如：alpine:latest 替换成 $REGISTRY_MIRROR/library/alpine:latest 下载
+function down_and_save_images_with_mirror(){
+  [[ "$REGISTRY_MIRROR" == "" ]] && { logger error "no registry mirror set"; return 1; }
+  NS="easzlab"
+  [ "$#" -eq 1 ] && NS="$1"
+  for item in "${IMAGES[@]}"; do
+    image_part="${item##*/}"
+    image_name="${image_part%:*}"
+    image_tag="${image_part##*:}"
+    image_file="$imageDir/${image_name}_${image_tag}.tar"
+
+    item=$(normalize_image "$item")
+    registry="${item%%/*}"
+    repository="${item#*/}"
+
+    [[ "$registry" == "docker.io" ]] && item="${REGISTRY_MIRROR}/${repository}"
+
+    if [[ ! -f "$image_file" ]];then
+      docker pull "$item" && \
+      docker save -o "$image_file" "$item" || \
+      { logger error "download $item failed!"; return 1; }
+    else
+      docker load -i "$image_file"
+    fi
+    docker tag "$item" "easzlab.io.local:5000/${NS}/${image_part}"
+    docker push "easzlab.io.local:5000/${NS}/${image_part}" || \
+    { logger error "push easzlab.io.local:5000/${NS}/${image_part} failed!"; return 1; }
+  done
+}
+
+# 将镜像名称转换为标准格式: ${registry}/${repository}:${tag}
+# 标准格式规则：
+# 1. 如果没有 registry，默认使用 docker.io
+# 2. 如果没有 tag，默认使用 latest
+# 3. 如果 repository 不包含 /，且 registry 是 docker.io，则添加 library/ 前缀
+function normalize_image() {
+    local image="$1"
+    local registry=""
+    local repository=""
+    local tag=""
+
+    # 提取 tag（如果存在）
+    if [[ "$image" == *":"* ]]; then
+        tag="${image##*:}"
+        image="${image%:*}"
+    else
+        tag="latest"
+    fi
+
+    # 提取 registry 和 repository
+    # 判断是否包含 registry（包含域名特征：包含点号或端口号）
+    if [[ "$image" == *"."* ]] || [[ "$image" == *":"* ]]; then
+        # 包含 registry
+        registry="${image%%/*}"
+        repository="${image#*/}"
+    else
+        # 不包含 registry，使用默认的 docker.io
+        registry="docker.io"
+        repository="$image"
+    fi
+
+    # 如果 repository 不包含 /，且 registry 是 docker.io，则添加 library/ 前缀
+    if [[ "$registry" == "docker.io" ]] && [[ "$repository" != *"/"* ]]; then
+        repository="library/$repository"
+    fi
+
+    # 输出标准格式
+    echo "${registry}/${repository}:${tag}"
 }
 
 
@@ -682,11 +764,6 @@ function start_kubeasz_docker() {
       easzlab/kubeasz:${KUBEASZ_VER}
 }
 
-function clean_container() {
- logger info "clean all running containers"
- docker ps -a|awk 'NR>1{print $1}'|xargs docker rm -f
-}
-
 
 ### Main Lines ##################################################
 function main() {
@@ -707,9 +784,6 @@ function main() {
   ACTION=""
   while getopts "CDP:RSX:d:e:k:m:z:" OPTION; do
       case "$OPTION" in
-        C)
-          ACTION="clean_container"
-          ;;
         D)
           ACTION="download_all"
           ;;
