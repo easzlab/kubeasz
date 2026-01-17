@@ -31,11 +31,11 @@
     - name: 准备docker相关目录
       file: name={{ item }} state=directory
       with_items:
-      - "{{ bin_dir }}"
+      - "{{ bin_dir }}/docker-bin"
       - "/etc/docker"
     
     - name: 下载 docker 二进制文件
-      copy: src={{ item }} dest={{ bin_dir }}/ mode=0755
+      copy: src={{ item }} dest={{ bin_dir }}/docker-bin/ mode=0755
       with_fileglob:
       - "{{ base_dir }}/bin/docker-bin/*"
       tags: upgrade_docker, download_docker
@@ -65,6 +65,6 @@
     
     # 配置 docker 命令软链接，方便单独安装 docker
     - name: 配置 docker 命令软链接
-      file: src={{ bin_dir }}/docker dest=/usr/bin/docker state=link
+      file: src={{ bin_dir }}/docker-bin/docker dest=/usr/bin/docker state=link
       ignore_errors: true
   when: "'NoFound' in docker_svc.stdout"

@@ -178,11 +178,11 @@ function download_docker() {
   fi
 
   tar zxf "$BASE/down/docker-$DOCKER_VER.tgz" -C "$BASE/down" && \
-  mkdir -p "$BASE/bin/docker-bin" && \
+  mkdir -p "$BASE/bin/docker-bin" /opt/kube/bin/docker-bin && \
   cp -f "$BASE"/down/docker/* "$BASE/bin/docker-bin" && \
-  mv -f "$BASE"/down/docker/* /opt/kube/bin && \
+  mv -f "$BASE"/down/docker/* /opt/kube/bin/docker-bin && \
   rm -rf "$BASE"/down/docker && \
-  ln -sf /opt/kube/bin/docker /bin/docker
+  ln -sf /opt/kube/bin/docker-bin/docker /bin/docker
 }
 
 function install_docker() {
@@ -193,11 +193,11 @@ function install_docker() {
   cat > /etc/systemd/system/docker.service << EOF
 [Unit]
 Description=Docker Application Container Engine
-Documentation=http://docs.docker.io
 [Service]
-Environment="PATH=/opt/kube/bin:/bin:/sbin:/usr/bin:/usr/sbin"
-ExecStart=/opt/kube/bin/dockerd
-ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
+Environment="PATH=/opt/kube/bin/docker-bin:/bin:/sbin:/usr/bin:/usr/sbin"
+ExecStartPre=/bin/sh -c 'groupadd docker > /dev/null 2>&1 || echo ""'
+ExecStart=/opt/kube/bin/docker-bin/dockerd
+#ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
 ExecReload=/bin/kill -s HUP \$MAINPID
 Restart=on-failure
 RestartSec=5
@@ -228,7 +228,7 @@ EOF
     "https://hub.rat.dev",
     "https://docker.amingg.com"
   ],
-  "insecure-registries": ["http://easzlab.io.local:5000"],
+  "insecure-registries": ["easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",
@@ -244,7 +244,7 @@ EOF
     cat > /etc/docker/daemon.json << EOF
 {
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
-  "insecure-registries": ["http://easzlab.io.local:5000"],
+  "insecure-registries": ["easzlab.io.local:5000"],
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",

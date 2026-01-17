@@ -1,11 +1,11 @@
 [Unit]
 Description=Docker Application Container Engine
-Documentation=http://docs.docker.io
 
 [Service]
-Environment="PATH={{ bin_dir }}:/bin:/sbin:/usr/bin:/usr/sbin"
-ExecStart={{ bin_dir }}/dockerd 
-ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
+Environment="PATH={{ bin_dir }}/docker-bin:/bin:/sbin:/usr/bin:/usr/sbin"
+ExecStartPre=/bin/sh -c 'groupadd docker > /dev/null 2>&1 || echo ""'
+ExecStart={{ bin_dir }}/docker-bin/dockerd
+#ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
 ExecReload=/bin/kill -s HUP $MAINPID
 Restart=on-failure
 RestartSec=5
