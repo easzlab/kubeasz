@@ -1,0 +1,21 @@
+[Unit]
+Description=MinIO
+Documentation=https://min.io/docs/minio/linux/index.html
+Wants=network-online.target
+After=network-online.target
+AssertFileIsExecutable=/usr/local/bin/minio
+
+[Service]
+WorkingDirectory=/usr/local/bin
+User=minio-user
+Group=minio-user
+EnvironmentFile=-/etc/default/minio
+ExecStartPre=/bin/bash -c "if [ -z \"${MINIO_ROOT_USER}\" ] || [ -z \"${MINIO_ROOT_PASSWORD}\" ]; then echo 'MinIO credentials not set in /etc/default/minio'; exit 1; fi"
+ExecStart=/usr/local/bin/minio server --console-address :9001 /data/minio/{1...4}
+
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
