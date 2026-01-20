@@ -64,8 +64,17 @@ INSECURE_REG:
 # [.]基础容器镜像
 SANDBOX_IMAGE: "easzlab.io.local:5000/easzlab/pause:__pause__"
 
-# [containerd]容器持久化存储目录
-CONTAINERD_STORAGE_DIR: "/var/lib/containerd"
+# [containerd] root 存储目录，默认：/var/lib/containerd
+CONTAINERD_ROOT_DIR: "/var/lib/containerd"
+
+# [containerd] state 存储目录，默认：/run/containerd
+CONTAINERD_STATE_DIR: "/run/containerd"
+
+# [containerd] config 目录，默认：/etc/containerd
+CONTAINERD_CONFIG_DIR: "/etc/containerd"
+
+# [containerd] systemd service 名称，默认：containerd.service
+CONTAINERD_SERVICE_NAME: "containerd.service"
 
 # [docker]容器存储目录
 DOCKER_STORAGE_DIR: "/var/lib/docker"

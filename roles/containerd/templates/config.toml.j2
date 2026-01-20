@@ -1,6 +1,6 @@
 version = 3
-root = '{{ CONTAINERD_STORAGE_DIR }}'
-state = '/run/containerd'
+root = '{{ CONTAINERD_ROOT_DIR }}'
+state = '{{ CONTAINERD_STATE_DIR }}'
 temp = ''
 plugin_dir = ''
 disabled_plugins = []
@@ -9,7 +9,7 @@ oom_score = 0
 imports = []
 
 [grpc]
-  address = '/run/containerd/containerd.sock'
+  address = '{{ CONTAINERD_STATE_DIR }}/containerd.sock'
   tcp_address = ''
   tcp_tls_ca = ''
   tcp_tls_cert = ''
@@ -49,7 +49,7 @@ imports = []
       sandbox = '{{ SANDBOX_IMAGE }}'
 
     [plugins.'io.containerd.cri.v1.images'.registry]
-      config_path = '/etc/containerd/certs.d'
+      config_path = '{{ CONTAINERD_CONFIG_DIR }}/certs.d'
 
     [plugins.'io.containerd.cri.v1.images'.image_decryption]
       key_model = 'node'
@@ -229,12 +229,12 @@ imports = []
     accepts = ['application/vnd.oci.image.layer.v1.tar+encrypted']
     returns = 'application/vnd.oci.image.layer.v1.tar'
     path = 'ctd-decoder'
-    args = ['--decryption-keys-path', '/etc/containerd/ocicrypt/keys']
-    env = ['OCICRYPT_KEYPROVIDER_CONFIG=/etc/containerd/ocicrypt/ocicrypt_keyprovider.conf']
+    args = ['--decryption-keys-path', '{{ CONTAINERD_CONFIG_DIR }}/ocicrypt/keys']
+    env = ['OCICRYPT_KEYPROVIDER_CONFIG={{ CONTAINERD_CONFIG_DIR }}/ocicrypt/ocicrypt_keyprovider.conf']
 
   [stream_processors.'io.containerd.ocicrypt.decoder.v1.tar.gzip']
     accepts = ['application/vnd.oci.image.layer.v1.tar+gzip+encrypted']
     returns = 'application/vnd.oci.image.layer.v1.tar+gzip'
     path = 'ctd-decoder'
-    args = ['--decryption-keys-path', '/etc/containerd/ocicrypt/keys']
-    env = ['OCICRYPT_KEYPROVIDER_CONFIG=/etc/containerd/ocicrypt/ocicrypt_keyprovider.conf']
+    args = ['--decryption-keys-path', '{{ CONTAINERD_CONFIG_DIR }}/ocicrypt/keys']
+    env = ['OCICRYPT_KEYPROVIDER_CONFIG={{ CONTAINERD_CONFIG_DIR }}/ocicrypt/ocicrypt_keyprovider.conf']
