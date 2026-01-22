@@ -39,12 +39,6 @@
   #  - "/opt/kube/bin"
   #  when: 'DEL_ETCD == "yes" and DEL_NODE == "yes" and DEL_MASTER == "yes"'
 
-- name: remove files
-  file: name={{ item }} state=absent
-  with_items:
-  - "/opt/kubeasz_prepare_tasks"
-  - "/root/.kube/config"
-
 - name: 重启提示 WARNNING
   debug:
     msg: "[重要]: 请重启节点以确保清除系统残留的虚拟网卡、路由信息、iptalbes|ipvs规则等 \

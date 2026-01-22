@@ -22,6 +22,8 @@
     - "/etc/systemd/system/kube-proxy.service"
     - "/etc/kube-lb/"
     - "/etc/kubernetes/"
+    - "/opt/kubeasz_prepare_tasks"
+    - "/root/.kube/config"
     ignore_errors: true
 
 # to clean container runtime and networking
@@ -74,7 +76,7 @@
     when: CONTAINER_RUNTIME == 'docker'
 
   - block:
-      - name: stop and disable containerd service
+      - name: stop and disable {{ CONTAINERD_SERVICE_NAME }}
         service:
           name: containerd
           state: stopped
@@ -88,12 +90,12 @@
       - name: remove files and dirs
         file: name={{ item }} state=absent
         with_items:
-        - "/etc/containerd/"
+        - "{{ CONTAINERD_CONFIG_DIR }}"
         - "/etc/crictl.yaml"
-        - "/etc/systemd/system/containerd.service"
+        - "/etc/systemd/system/{{ CONTAINERD_SERVICE_NAME }}"
         - "/opt/containerd/"
-        - "/var/lib/containerd/"
-        - "/var/run/containerd/"
+        - "{{ CONTAINERD_ROOT_DIR }}"
+        - "{{ CONTAINERD_STATE_DIR }}"
     ignore_errors: true
     when: CONTAINER_RUNTIME == 'containerd'
 

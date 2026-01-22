@@ -2677,7 +2677,7 @@ spec:
               name: localtime
             - mountPath: /var/run/tls
               name: kube-ovn-tls
-            - mountPath: /var/run/containerd
+            - mountPath: /var{{ CONTAINERD_STATE_DIR }}
               name: cruntime
           readinessProbe:
             exec:
@@ -2740,7 +2740,7 @@ spec:
           hostPath:
             path: /etc/localtime
         - hostPath:
-            path: /var/run/containerd
+            path: /var{{ CONTAINERD_STATE_DIR }}
           name: cruntime
         - name: kube-ovn-tls
           secret:

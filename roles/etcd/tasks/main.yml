@@ -1,4 +1,10 @@
-- name: prepare some dirs
+- name: prepare basic dirs
+  file: name={{ item }} state=directory
+  with_items:
+  - "{{ bin_dir }}"
+  - "{{ ca_dir }}"
+
+- name: prepare data dirs
   file: name={{ ETCD_DATA_DIR }} state=directory mode=0700
 
 - name: 下载etcd二进制文件
