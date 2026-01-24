@@ -1,148 +1,118 @@
-# argocd 使用小记
+# argocd 安装
 
-## 背景
+用 GitOps 方式把 Kubernetes 声明式配置“自动、可观测、可回滚”地同步到集群的控制器；它是 Kubernetes 世界里 GitOps 的事实标准。
 
-使用argocd实现应用基于gitops的持续部署。
+## 初始安装
+- 建议使用helm chart 方式基础安装；后续用声明式方式配置cluster、project、repository等
 
-企业内部应用都以helm charts方式部署，charts托管在内部git仓库；具体应用配置（helm values）根据不同环境也托管在内部git仓库。所以可以简单理解部署方式如下：
+## 服务暴露
+- 建议使用ingress方式
+- 备用：kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
 
-**应用部署=应用chart+应用values**
-
-## 安装
-
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-## 登陆
-
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
-argocd login ${nodeIp}:${nodePort}
-argocd account update-password
-
-## 添加新集群
-
-- 1、配置多个集群的 CONTEXT
-export KUBECONFIG=$HOME/.kube/config.1:$HOME/.kube/config.2
-kubectl config get-contexts
-
-- 2、添加新集群，根据上面get-contexts结果添加
-argocd cluster add 2xxx104401xxxx7-cxxxxxxxxxxxxxa74afabbf --kubeconfig $HOME/.kube/kubeconfig.1 --name test
-
-## 添加项目
-kubectl apply -f project.yaml
+## 密码登录
+- 获取初始化密码 `argocd admin initial-password -n argocd`
+- 登录 `argocd login {nodeIP}:{nodePort}`
+- 更新密码 `argocd account update-password`
+- 重置遗忘密码 
 
 ```
-apiVersion: argoproj.io/v1alpha1
-kind: AppProject
-metadata:
-  name: myproject
-  namespace: argocd
-spec:
-  clusterResourceWhitelist:
-  - group: '*'
-    kind: '*'
-  description: '测试环境：myproject'
-  destinations:
-  - name: myproject
-    namespace: '*'
-    server: https://121.xx.xx.xx:6443
-  namespaceResourceWhitelist:
-  - group: '*'
-    kind: '*'
-  # 建议不要开启孤岛资源监控，很可能会引起大量非必要应用同步，造成cpu满载
-  #orphanedResources:
-  #  warn: false
-  sourceRepos:
-  - '*'
-  sourceNamespaces:
-  - '*'
+kubectl -n argocd patch secret argocd-secret -p '{"data": {"admin.password": null, "admin.passwordMtime": null}}'
+kubectl -n argocd delete pods -l app.kubernetes.io/name=argocd-server
 ```
 
-## 添加git仓库
+## SSO 登录
+- 参考文档：https://help.aliyun.com/zh/ram/obtain-user-information-through-oidc
+- 阿里云控制台-RAM访问控制-集成管理-OAuth应用：创建应用 https://ram.console.aliyun.com/applications/create
+  - OAuth 协议版本：2.0
+  - 应用类型：Web应用
+  - 回调地址：填写 https://${argocd-server-domain}/api/dex/callback
+  - OAuth 范围：openid(必选), aliuid(可选), profile(可选)
 
-UI 界面添加即可
+- OAuth应用创建后，准备以下参数
+  - "应用 ID" --> dex.config: connectors oidc.config.clientID
+  - 创建应用密码 --> dex.config: connectors oidc.config.clientSecret
 
-## 添加应用
+- 配置argocd-cm
 
-- 使用git管理的charts仓库：git@172.16.1.1:git-charts.git
-- 使用git管理的values仓库：git@172.16.1.1:git-values.git
-
-### 添加单应用
 ```
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: test-app
-  namespace: argocd
-spec:
-  syncPolicy:
-    # 一般建议禁用自动应用同步
-    #automated: {}
-    syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
-  project: myproject
-  destination:
-    server: https://121.xx.xx.xx:6443
-    namespace: default
-  sources:
-  - repoURL: 'git@172.16.1.1:git-charts.git'
-    targetRevision: master
-    path: charts/test-app
-    helm:
-      valueFiles:
-      - values.yaml
-      - $values/myproject-test/global.yaml
-      - $values/myproject-test/test-app.yaml
-  - repoURL: 'git@172.16.1.1:git-values.git'
-    targetRevision: master
-    ref: values
+  dex.config: |
+    connectors:
+    - type: oidc
+      id: aliyun
+      name: aliyun
+      config:
+        issuer: https://oauth.aliyun.com
+        clientID: "406************"
+        clientSecret: E8G***************************************************b6
+        scopes:
+        - profile
+        - openid
+        - aliuid
+        getUserInfo: true
+        userIDKey: uid
+        userNameKey: uid
+        claimMapping:
+          preferred_username: name
+          email: uid
 ```
 
-### 添加批次应用
+- 配置argocd-rbac-cm
+
 ```
-apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: test-appset
-  namespace: argocd
-spec:
-  generators:
-  - git:
-      repoURL: 'git@172.16.1.1:git-charts.git'
-      revision: master
-      directories:
-      - path: charts/*
-      - path: charts/extras
-        exclude: true
-  template:
-    metadata:
-      name: '{{path.basename}}'
-    spec:
-      project: myproject
-      sources:
-      - repoURL: 'git@172.16.1.1:git-charts.git'
-        targetRevision: master
-        path: charts/{{path.basename}}
-        helm:
-          valueFiles:
-          - values.yaml
-          - $values/myproject-test/global.yaml
-          - $values/myproject-test/{{path.basename}}.yaml
-      - repoURL: 'git@172.16.1.1:git-values.git'
-        targetRevision: master
-        ref: values
-      destination:
-        server: https://121.xx.xx.xx:6443
-        namespace: default
-      syncPolicy:
-        #automated: {}
-        syncOptions:
-        - CreateNamespace=true
-        - ServerSideApply=true
+data:
+  policy.csv: |
+    # 设置普通用户app-dev 只读权限
+    p, role:app-dev, projects, get, *, allow
+    p, role:app-dev, applications, get, *, allow
+    p, role:app-dev, logs, get, *, allow
+    p, role:app-dev, exec, create, */*, allow
+
+    # 设置测试项目，所有权限
+    p, role:app-dev, applications, *, test-project/*, allow
+    
+    # 阿里云子账号 ID：2***********84
+    g, "2***********84", role:admin
+    g, "2***********27", role:app-dev
+
+  policy.default: role:''
+  scopes: '[name]'
 ```
 
-## 其他
+## 支持 application in any namespace
 
-- 允许argocd应用在任意命名空间创建
-https://argo-cd.readthedocs.io/en/stable/operator-manual/app-any-namespace/
+- 配置 argocd-cm
+
+```
+data:
+  # 设置argocd 资源标记方式，使用annotation，禁用labelKey
+  # application.instanceLabelKey: argocd.argoproj.io/instance
+  application.resourceTrackingMethod: annotation
+```
+
+- 配置 argocd-cmd-params-cm
+
+```
+data:
+  #application.namespaces: app-team-one, app-team-two
+  application.namespaces: '*'
+  applicationsetcontroller.allowed.scm.providers: '*'
+  applicationsetcontroller.namespaces: '*'
+```
+
+然后重启 argocd-server 和 argocd-application-controller
+
+## 其他设置
+
+- argocd 部署应用 ingress 资源一直Progressing，参考：https://github.com/argoproj/argo-cd/issues/14607
+
+```
+# 修改argocd-cm configmap，重启argocd-application-controller
+data:
+  resource.customizations: |
+    networking.k8s.io/Ingress:
+      health.lua: |
+        hs = {}
+        hs.status = "Healthy"
+        hs.message = "Skip health check for Ingress"
+        return hs
+```

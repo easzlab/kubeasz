@@ -1,0 +1,24 @@
+- block:
+    - name: prepare some dirs
+      file: name={{ cluster_dir }}/yml/argocd state=directory
+
+    - name: 创建命名空间 argocd
+      shell: "{{ base_dir }}/bin/kubectl create ns argocd || echo true"
+
+    - name: 创建chart 个性化设置
+      template: src=argocd/values.yaml.j2 dest={{ cluster_dir }}/yml/argocd/values.yaml
+
+    - name: helm 部署 argocd
+      shell: "{{ base_dir }}/bin/helm upgrade argocd --install -n argocd \
+              -f {{ cluster_dir }}/yml/argocd/values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/argo-cd-9.3.4.tgz"
+
+    - name: 轮询等待部署 argocd
+      shell: "{{ base_dir }}/bin/helm ls -n argocd|grep argocd|awk '{print $8}'"
+      register: chart_status
+      until: chart_status.stdout == "deployed"
+      retries: 15
+      delay: 5
+      ignore_errors: true
+
+  when: 'argocd_install == "yes"'

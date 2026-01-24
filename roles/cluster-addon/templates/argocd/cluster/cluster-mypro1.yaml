@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    managed-by: argocd.argoproj.io
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+  name: cluster-mypro1
+  namespace: argocd
+type: Opaque
+stringData:
+  name: mypro1
+  server: https://192.168.0.1:6443
+  # _CERT_DATA_ 为 kubeconfig 中用户的 'client-certificate-data' 部分
+  # _KEY_DATA_ 为 kubeconfig 中用户的 'client-key-data' 部分
+  config: '{"tlsClientConfig":{"insecure":true,"certData":"_CERT_DATA_","keyData":"_KEY_DATA_"}}'

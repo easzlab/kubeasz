@@ -47,3 +47,6 @@
 
 - import_tasks: ingress-nginx.yml
   when: 'ingress_nginx_install == "yes" and "ingress-nginx-controller" not in pod_info.stdout'
+
+- import_tasks: argocd.yml
+  when: 'argocd_install == "yes" and "argocd-server" not in pod_info.stdout'

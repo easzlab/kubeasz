@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app
+  namespace: mypro1
+spec:
+  syncPolicy:
+    #automated: {}
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
+  project: mypro1
+  destination:
+    server: https://192.168.0.1:6443
+    namespace: default
+  sources:
+  - repoURL: 'git@192.168.0.2:mycharts.git'
+    targetRevision: master
+    path: charts/example-app
+    helm:
+      valueFiles:
+      - values.yaml
+      - $setups/mypro1/global.yaml
+      - $setups/mypro1/example-app.yaml
+  - repoURL: 'git@192.168.0.2:provalues.git'
+    targetRevision: master
+    ref: setups

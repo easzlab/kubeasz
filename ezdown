@@ -109,6 +109,7 @@ function usage-down-ext-img(){
   echo -e "\033[33mUsage:\033[0m ezdown -X <opt>"
   cat <<EOF
 available options:
+    argocd                   to download images of argocd
     cilium                   to download images of cilium
     dashboard                to download images of dashboard
     flannel                  to download images of flannel
@@ -354,6 +355,15 @@ function get_extra_images() {
   logger info "download images for $1, then upload to the local registry"
 
   case "$1" in
+    argocd)
+      IMAGES=(\
+          "quay.io/argoproj/argocd:v3.2.5" \
+          "ghcr.io/dexidp/dex:v2.44.0" \
+          "ecr-public.aws.com/docker/library/redis:8.2.2-alpine" \
+        )
+      down_and_save_images argocd
+      ;;
+
     cilium)
       IMAGES=(\
           "cilium/cilium:v$ciliumVer" \

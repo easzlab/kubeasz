@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: argocd-ssh-known-hosts-cm
+    app.kubernetes.io/part-of: argocd
+  name: argocd-ssh-known-hosts-cm
+  namespace: argocd
+data:
+  #### 配置信任git服务器的ssh证书，可以选择ecdsa-sha2-nistp256，在git服务器/etc/ssh/ssh_host_ecdsa_key.pub
+  ssh_known_hosts: |
+    192.168.0.2 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBZOaFXc9MqZbQ37PA/onVaMnUBD3ceJjMzyTsDDftesakRWrIbvUW6GGB/tGikiDosYP178/N/PiDXo4oq/bL0=

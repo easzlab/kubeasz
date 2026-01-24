@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: mypro1
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: 'mypro1 部署环境'
+  destinations:
+  - name: mypro1
+    namespace: '*'
+    server: https://192.168.0.1:6443
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  sourceRepos:
+  - '*'
+  sourceNamespaces:
+  - '*'

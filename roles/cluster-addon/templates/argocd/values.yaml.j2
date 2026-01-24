@@ -1,0 +1,99 @@
+# Ref: https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd
+
+global:
+  # -- Default domain used by all components
+  domain: myargocd.example.com
+
+  # -- Number of old deployment ReplicaSets to retain. The rest will be garbage collected.
+  revisionHistoryLimit: 3
+
+  image:
+    repository: easzlab.io.local:5000/argocd/argocd
+
+configs:
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+  cm:
+    # -- Create the argocd-cm configmap for [declarative setup]
+    create: true
+
+    # application in any namespace
+    application.resourceTrackingMethod: annotation
+
+    ## Ref: https://argo-cd.readthedocs.io/en/latest/operator-manual/rbac/#exec-resource
+    exec.enabled: true 
+
+    ## Ref: https://argo-cd.readthedocs.io/en/latest/faq/#how-to-disable-admin-user
+    admin.enabled: true
+
+    # -- Timeout to discover if a new manifests version got published to the repository
+    timeout.reconciliation: 180s
+
+    # -- Timeout to refresh application data as well as target manifests cache
+    timeout.hard.reconciliation: 0s
+
+    ## Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/status-badge/
+    statusbadge.enabled: false
+
+  # Argo CD configuration parameters
+  params:
+    create: true
+    # use http
+    server.insecure: "true"
+    # support application in any namespace
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/app-any-namespace/
+    application.namespaces: '*'
+    applicationsetcontroller.allowed.scm.providers: '*'
+    applicationsetcontroller.namespaces: '*'
+
+  # Argo CD RBAC policy configuration
+  rbac:
+    create: true
+
+  # SSH known hosts for Git repositories
+  ssh:
+    create: true
+
+## Application controller
+controller:
+  name: application-controller
+
+## Dex
+dex:
+  enabled: true
+  image:
+    repository: easzlab.io.local:5000/argocd/dex
+    tag: v2.44.0
+
+## Redis
+redis:
+  enabled: true
+  image:
+    repository: easzlab.io.local:5000/argocd/redis
+    tag: 8.2.2-alpine
+
+# Ref: https://github.com/DandyDeveloper/charts/blob/master/charts/redis-ha/values.yaml
+redis-ha:
+  enabled: false
+
+## Server
+server:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+
+## Repo Server
+repoServer:
+  replicas: 1
+
+## ApplicationSet controller
+applicationSet:
+  replicas: 1
+
+notifications:
+  enabled: false
+
+commitServer:
+  enabled: false

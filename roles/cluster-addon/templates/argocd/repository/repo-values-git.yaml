@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-values-git
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+  annotations:
+    managed-by: argocd.argoproj.io
+type: Opaque
+stringData:
+  name: repo-values-git
+  type: git
+  ## 前提：添加信任git服务器的证书到argocd-ssh-known-hosts
+  url: git@192.168.0.2:provalues.git
+  ## 创建一对ssh私钥和公钥，公钥配置到git服务器.ssh/authorized_keys 中，私钥配置如下
+  sshPrivateKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
+    NhAAAAAwEAAQAAAQEAqcBisD7rq/zjfXcwi2EDYjAKDxO6O8PH9IpVCoTyVQAhFRnS3bSY
+    KJwdXPW58bIZAK959HJC05dLj1YEU1s4PELf2kY+64qqjpZUmPJsE6rvUKclXNIm56YSEw
+    eCJGLo+2tsTw9NpqHAeF8vdFNtrmxP1FE5OSXbs9tM8DeJVLs8gVFKO+KbLxF4rUNHEDNC
+    Cl0zVq3CX5rYlckUT7F+ay5Zbl9AJCxpTlHjixL2vFDPIoKKHnDQBrv8033YNBnnwGakBt
+    nSPTdIhOiGWNfwIMrPWZzlYaL7dc9GX1BvDgu3UoGu3sthR4DCJuqA7OS6M04vL/KhBA12
+    e8RYli1CkwAAA9A3DDdhNww3YQAAAAdzc2gtcnNhAAABAQCpwGKwPuur/ON9dzCLYQNiMA
+    oPE7o7w8f0ilUKhPJVACEVGdLdtJgonB1c9bnxshkAr3n0ckLTl0uPVgRTWzg8Qt/aRj7r
+    iqqOllSY8mwTqu9QpyVc0ibnphITB4IkYuj7a2xPD02mocB4Xy90U22ubE/UUTk5Jduz20
+    zwN4lUuzyBUUo74psvEXitQ0cQM0IKXTNWrcJfmtiVyRRPsX5rLlluX0AkLGlOUeOLEva8
+    UM8igooecNAGu/zTfdg0GefAZqQG2dI9N0iE6IZY1/Agys9ZnOVhovt1z0ZfUG8OC7dSga
+    7ey2FHgMIm6oDs5LozTi8v8qEEDXZ7xFiWLUKTAAAAAwEAAQAAAQAe+nUIJPNtV6FMbEv3
+    o6SyboHnbno2HeyHvBb47Hos+PEQoL3Sp/p8rsDNDir46L+XWG6xJYj8hEfNyKzRaXxBwx
+    KHCvrAkXW+v8CAiP0gObmixl4TKmbfL3ds8ZnWehZ6i4gghXJuTmaJkRVf7Tm+8xU+cfQ3
+    cak+kW7hB8GQLK6POr8HVK6wzDRWO2VMtbKOo+TzWyR8Mmiw0nUJHjbv91YqG1B9giKxeH
+    fA6ey/c6h1CPGdSwTGNoipYmQWy/Gkyep5FSNPwWyOoX2VwTV66yKG7VO0kdKZ+MpuFDqF
+    GxXFfmNKA/5DETWMaa1RRd5QOYIyMCRmLhEvdaZ4iJtBAAAAgQC6FhpwnaQDz2G3kJzJfg
+    ffkLJ+lhv3oxZBIWkX7XiUv1zrlbj8KLS3e/PhlHJXoggNF6x1OPRTz2iPMTYoEl6Jm61K
+    8GH3Uba19L8xMqIvHCSRKRhhbDWVbwhhMMsLnTRSZ6e53aFwGjmhGbpa1Y379o+stH3UY1
+    3peaQ8LzNN9wAAAIEA7QKV5EMkQnP3vZiG9SQJgw+qtQ1NqjXLHoCnJQg+OmFZuHX0im65
+    BCeQTcAxencxcGCmFPBBWVz/pwuDYiqXzuD1VCRASLZX/cltQqOVP9/TOH9H+AZeVoqHC6
+    +SNYPn1VpBb3o71IuI8AsxzGzEC316QK7vG0mm2+VC9J3MQbcAAACBALdaOwHsrW+7Cd32
+    FwARmZRrZ5Xu9cJjMxx5lOGA6p36HRos9IAYBv9b8YFiu4VQ7eJsjg9U9Qb9ZmXhFb3uc7
+    QrZVda/O6fma1dK+Qsd7Puwo9yDR9RN9GzuoWKnP3roCO2aCETPQHhevm3DOq4ObEl/gEW
+    97y7NEYMrye7x9YFAAAAF2FsYmVydEBrOHMtMTkyLTE2OC0wLTkzAQID
+    -----END OPENSSH PRIVATE KEY-----

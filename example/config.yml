@@ -275,6 +275,9 @@ ingress_nginx_namespace: "ingress-nginx"
 ingress_nginx_ver: "__ingress_nginx_ver__"
 ingress_nginx_metrics_enabled: true  # 需要先部署prometheus
 
+# argocd 自动安装
+argocd_install: "no"
+
 
 ############################
 # role:harbor
