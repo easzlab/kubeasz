@@ -12,6 +12,7 @@
   with_items:
   - etcd
   - etcdctl
+  - etcdutl
   tags: upgrade_etcd
 
 - name: 创建etcd证书请求
