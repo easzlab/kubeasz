@@ -9,7 +9,9 @@ controller:
     digest: ''
   dnsPolicy: ClusterFirstWithHostNet
   reportNodeInternalIp: true
-  hostNetwork: true 
+  hostNetwork: false
+  hostPort:
+    enabled: true
 
   # Limit the scope of the controller to a specific namespace
   scope:
