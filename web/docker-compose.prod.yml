@@ -1,0 +1,100 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ksk8s-mysql
+    restart: always
+    networks:
+      ksk8s-net:
+        ipv4_address: 172.30.0.2
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ksk8s
+      MYSQL_USER: ksk8s
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+
+  backend:
+    image: localhost/ksk8s-backend:latest
+    container_name: ksk8s-backend
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      ksk8s-net:
+        ipv4_address: 172.30.0.10
+    volumes:
+      - /etc/kubeasz:/etc/kubeasz
+      - /opt/kube:/opt/kube:ro
+      - ksk8s_logs:/var/log/ksk8s
+      - ksk8s_data:/var/lib/ksk8s
+      - ksk8s_tls:/var/lib/ksk8s/tls
+      - ~/.kube:/root/.kube
+      - ~/.ssh:/root/.ssh:ro
+    environment:
+      KSK8S_DATA_DIR: /var/lib/ksk8s
+      KSK8S_LOG_DIR: /var/log/ksk8s
+      KSK8S_KUBEASZ_DIR: /etc/kubeasz
+      KSK8S_DB_HOST: 172.30.0.2
+      KSK8S_DB_PORT: 3306
+      KSK8S_DB_USER: ksk8s
+      KSK8S_DB_PASSWORD: ${MYSQL_PASSWORD}
+      KSK8S_DB_NAME: ksk8s
+      KSK8S_USE_SQLITE: "0"
+      KSK8S_JWT_SECRET: ${JWT_SECRET:-}
+      KSK8S_SSH_KEY: ${KSK8S_SSH_KEY:-/root/.ssh/id_rsa}
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1}
+      no_proxy: ${NO_PROXY:-localhost,127.0.0.1}
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  frontend:
+    image: localhost/ksk8s-frontend:latest
+    container_name: ksk8s-frontend
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - ksk8s-net
+    volumes:
+      - ./ksk8s-frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8888:80"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  ksk8s-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+volumes:
+  mysql_data:
+  ksk8s_logs:
+  ksk8s_data:
+  ksk8s_tls:

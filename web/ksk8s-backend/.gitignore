@@ -1,0 +1,12 @@
+# Binaries
+main
+ksk8s-qa
+ksk8s-backend/ksk8s-qa
+
+# Secrets
+.jwt_secret
+tls/
+
+# Misc
+package-lock.json
+!

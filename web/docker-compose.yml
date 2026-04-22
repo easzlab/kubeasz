@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ksk8s-mysql
+    restart: unless-stopped
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ksk8s_root}
+      MYSQL_DATABASE: ksk8s
+      MYSQL_USER: ksk8s
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ksk8s_pass}
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./ksk8s-backend
+    container_name: ksk8s-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - /etc/kubeasz:/etc/kubeasz
+      - /opt/kube:/opt/kube
+      - ksk8s_logs:/var/log/ksk8s
+      - ~/.kube:/root/.kube
+      - ~/.ssh:/root/.ssh
+      - ksk8s_certs:/app/certs
+    environment:
+      KSK8S_LOG_DIR: /var/log/ksk8s
+      KSK8S_KUBEASZ_DIR: /etc/kubeasz
+      KSK8S_DB_HOST: mysql
+      KSK8S_DB_PORT: 3306
+      KSK8S_DB_USER: ksk8s
+      KSK8S_DB_PASSWORD: ${MYSQL_PASSWORD:-ksk8s_pass}
+      KSK8S_DB_NAME: ksk8s
+      KSK8S_JWT_SECRET: ${JWT_SECRET:-}
+      KSK8S_SSH_KEY: ${KSK8S_SSH_KEY:-/root/.ssh/id_rsa}
+      LC_ALL: C.UTF-8
+      LANG: C.UTF-8
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./ksk8s-frontend
+    container_name: ksk8s-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  mysql_data:
+  ksk8s_logs:
+  ksk8s_certs:

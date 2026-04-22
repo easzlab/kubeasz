@@ -1,0 +1,4 @@
+node_modules/
+dist/
+!src/views/clusters/
+!src/views/clusters/**
