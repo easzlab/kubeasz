@@ -27,6 +27,7 @@ Cluster ops:
     add-etcd    <cluster>  <ip>      to add a etcd-node to the etcd cluster
     add-master  <cluster>  <ip>      to add a master node to the k8s cluster
     add-node    <cluster>  <ip>      to add a work node to the k8s cluster
+    add-nodes   <cluster>  <ip>...   to add multiple work nodes to the k8s cluster at once
     del-etcd    <cluster>  <ip>      to delete a etcd-node from the etcd cluster
     del-master  <cluster>  <ip>      to delete a master node from the k8s cluster
     del-node    <cluster>  <ip>      to delete a work node from the k8s cluster
@@ -72,6 +73,9 @@ function help-info() {
             echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-master.md'"
             ;;
         (add-node)
+            echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
+            ;;
+        (add-nodes)
             echo -e "read more > 'https://github.com/easzlab/kubeasz/blob/master/docs/op/op-node.md'"
             ;;
         (del-etcd)
@@ -339,6 +343,60 @@ function add-node() {
     ansible-playbook -i "$BASE/clusters/$1/hosts" "$BASE/playbooks/22.addnode.yml" -e "NODE_TO_ADD=$2" -e "@clusters/$1/config.yml"
 }
 
+function add-nodes() {
+    # $1: cluster, ${@:2}: one or more ip addresses
+    local cluster="$1"
+    shift
+    local ips=("$@")
+    local hosts_file="$BASE/clusters/$cluster/hosts"
+
+    [[ -d "$BASE/clusters/$cluster" ]] || { logger error "invalid cluster:$cluster, run 'ezctl new $cluster' first"; return 1; }
+    [[ -f "$hosts_file" ]] || { logger error "inventory not found: $hosts_file"; return 1; }
+    [[ ${#ips[@]} -ge 1 ]] || { logger error "no ip provided, usage: ezctl add-nodes <cluster> <ip> [<ip>...]"; return 1; }
+
+    # check duplicates within the input list
+    local duplicated
+    duplicated=$(printf '%s\n' "${ips[@]}" | sort | uniq -d)
+    [[ -z "$duplicated" ]] || { logger error "duplicated ip in args: $(echo "$duplicated" | tr '\n' ' ')"; return 1; }
+
+    # pre-check: validate ip format and ensure none of them already exists in [kube_node] group.
+    # use awk to scope strictly to lines between '[kube_node]' and the next group header,
+    # so that IPs reused in other groups (e.g. ex_lb / chrony co-located on the same host) are
+    # not mistakenly treated as duplicates.
+    local ip
+    for ip in "${ips[@]}"; do
+        [[ $ip =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] \
+            || { logger error "Invalid ip add:$ip"; return 1; }
+        if awk '/^\[kube_node\]/{f=1;next} /^\[/{f=0} f' "$hosts_file" | grep -qE "^$ip( |$)"; then
+            logger error "node $ip already existed in $hosts_file"
+            return 2
+        fi
+    done
+
+    # append each ip into the '[kube_node]' group. anchor the group header exactly to avoid
+    # matching look-alike groups such as a future '[kube_node_pool_a]'.
+    for ip in "${ips[@]}"; do
+        logger info "add $ip into 'kube_node' group"
+        sed -i "/^\[kube_node\]$/a $ip" "$hosts_file"
+    done
+
+    # build ansible hosts pattern (colon separated)
+    local NODES_TO_ADD
+    NODES_TO_ADD=$(IFS=:; echo "${ips[*]}")
+
+    logger info "start to add work nodes:${NODES_TO_ADD} into cluster:$cluster"
+    # on failure we deliberately do NOT auto-rollback the inventory: the playbook may have
+    # partially provisioned some nodes (docker/kubelet installed, joined apiserver, ...), and
+    # silently reverting the inventory would hide that real-world state from the operator.
+    # print a clear notice and let the operator decide whether to retry or clean up.
+    if ! ansible-playbook -i "$hosts_file" "$BASE/playbooks/22.addnode.yml" -e "NODE_TO_ADD=${NODES_TO_ADD}" -e "@clusters/$cluster/config.yml"; then
+        logger error "ansible-playbook failed for nodes: ${ips[*]}"
+        logger error "the IPs above have been written into $hosts_file but the playbook did not finish successfully."
+        logger error "please verify node state manually, then either remove the inventory lines or rerun to retry."
+        return 3
+    fi
+}
+
 function add-master() {
     # check new master's address regexp
     [[ $2 =~ ^(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})(\.(2(5[0-5]{1}|[0-4][0-9]{1})|[0-1]?[0-9]{1,2})){3}$ ]] || { logger error  "Invalid ip add:$2"; return 1; }
@@ -600,6 +658,10 @@ function main() {
       (add-node)
           [ "$#" -gt 2 ] || { usage >&2; exit 2; }
           add-node "${@:2}"
+          ;;
+      (add-nodes)
+          [ "$#" -gt 2 ] || { usage >&2; exit 2; }
+          add-nodes "${@:2}"
           ;;
       (del-etcd)
           [ "$#" -eq 3 ] || { usage >&2; exit 2; }
