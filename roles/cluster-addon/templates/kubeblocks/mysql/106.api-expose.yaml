@@ -33,7 +33,7 @@ spec:
         type: NodePort
   componentSpecs:
     - name: mysql
-      componentDef: "mysql-8.0-1.0.0"
+      componentDef: "mysql-8.0-1.0.1"
       disableExporter: false
       serviceVersion: 8.0.39
       stop: false 

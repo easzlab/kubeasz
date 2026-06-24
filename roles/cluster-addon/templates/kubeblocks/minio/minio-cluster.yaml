@@ -21,7 +21,7 @@ spec:
       volumeClaimTemplates:
         - name: data
           spec:
-            storageClassName: "host-lvm"
+            storageClassName: "hostlvm"
             accessModes:
               - ReadWriteOnce
             resources:

@@ -6,11 +6,11 @@
 
 - 1.修改mysql componentdefinitions，支持修改属性
 
-kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-8.0-1.0.0 apps.kubeblocks.io/skip-immutable-check=true
+kubectl annotate componentdefinitions.apps.kubeblocks.io mysql-8.0-1.0.1 apps.kubeblocks.io/skip-immutable-check=true
 
 - 2.修改mysql componentdefinitions，支持mysql容器使用hostNetwork（或者通过nodePort方式把主/备mysql服务都暴露出来）
 
-kubectl edit componentdefinitions.apps.kubeblocks.io mysql-8.0-1.0.0
+kubectl edit componentdefinitions.apps.kubeblocks.io mysql-8.0-1.0.1
 
 配置runtime.hostNetwork: true 和 runtime.dnsPolicy: ClusterFirstWithHostNet
 
