@@ -15,7 +15,7 @@ set -o pipefail
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.5.2
-KUBEASZ_VER=3.6.9
+KUBEASZ_VER=3.6.10
 K8S_BIN_VER=v1.35.6
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.13.3
