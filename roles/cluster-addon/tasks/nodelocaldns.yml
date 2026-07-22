@@ -5,7 +5,7 @@
 
     - name: 准备dnscache的部署文件
       template: src=dns/nodelocaldns-iptables.yaml.j2 dest={{ cluster_dir }}/yml/nodelocaldns.yaml
-      when: "PROXY_MODE == 'iptables'"
+      when: 'PROXY_MODE in ["iptables", "nftables"]'
 
     - name: 删除dnscache部署
       shell: "{{ base_dir }}/bin/kubectl delete -f {{ cluster_dir }}/yml/nodelocaldns.yaml || echo true; sleep 3"

@@ -16,7 +16,7 @@ set -o pipefail
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.5.2
 KUBEASZ_VER=3.6.10
-K8S_BIN_VER=v1.35.6
+K8S_BIN_VER=v1.36.2
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.13.3
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
@@ -30,7 +30,7 @@ calicoVer=v3.28.4
 # https://github.com/coredns/coredns
 corednsVer=1.12.4
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
-dnsNodeCacheVer=1.26.4
+dnsNodeCacheVer=1.26.8
 # https://github.com/kubernetes-sigs/metrics-server
 metricsVer=v0.8.0
 pauseVer=3.10
