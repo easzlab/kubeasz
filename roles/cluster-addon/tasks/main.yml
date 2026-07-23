@@ -21,6 +21,9 @@
 - import_tasks: nfs-provisioner.yml
   when: '"nfs-client-provisioner" not in pod_info.stdout or CHANGE_CA|bool'
 
+- import_tasks: node-problem-detector.yml
+  when: 'node_problem_detector_install == "yes" and "node-problem-detector" not in pod_info.stdout'
+
 - import_tasks: openebs.yml
   when: 'openebs_install == "yes" and "openebs-localpv-provisioner" not in pod_info.stdout'
 

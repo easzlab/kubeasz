@@ -1,0 +1,21 @@
+settings:
+  # settings.log_monitors -- User-specified custom monitor definitions
+  log_monitors:
+    - /config/kernel-monitor.json
+    - /config/docker-monitor.json
+    - /config/readonly-monitor.json
+
+logDir:
+  host: /var/log/
+
+image:
+  repository: easzlab.io.local:5000/easzlab/node-problem-detector
+  tag: {{ node_problem_detector_ver }}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 200Mi

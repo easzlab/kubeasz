@@ -233,6 +233,10 @@ prom_chart_ver: "__prom_chart__"
 network_check_enabled: false 
 network_check_schedule: "*/5 * * * *"
 
+# node-problem-detector 自动安装
+node_problem_detector_install: "no"
+node_problem_detector_ver: "__node_problem_detector__"
+
 # kubeblocks 自动安装
 kubeblocks_ver: "__kubeblocks_ver__"
 kubeblocks_install: "no"
