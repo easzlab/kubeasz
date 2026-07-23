@@ -1,13 +1,3 @@
-settings:
-  # settings.log_monitors -- User-specified custom monitor definitions
-  log_monitors:
-    - /config/kernel-monitor.json
-    - /config/docker-monitor.json
-    - /config/readonly-monitor.json
-
-logDir:
-  host: /var/log/
-
 image:
   repository: easzlab.io.local:5000/easzlab/node-problem-detector
   tag: {{ node_problem_detector_ver }}
@@ -19,3 +9,127 @@ resources:
   requests:
     cpu: 100m
     memory: 200Mi
+
+settings:
+  log_monitors:
+    - /config/kernel-monitor.json
+    - /config/docker-monitor.json
+    - /config/readonly-monitor.json
+
+  custom_plugin_monitors:
+    - /custom-config/inode-monitor.json
+    - /custom-config/network-problem-monitor.json
+
+  custom_monitor_definitions:
+    inode-monitor.json: |
+      {
+        "plugin": "custom",
+        "pluginConfig": {
+          "invoke_interval": "60s",
+          "timeout": "10s",
+          "max_output_length": 80,
+          "concurrency": 1
+        },
+        "source": "inode-monitor",
+        "conditions": [
+          {
+            "type": "InodesPressure",
+            "reason": "NodeHasNoInodesPressure",
+            "message": "node has no inodes pressure"
+          }
+        ],
+        "rules": [
+          {
+            "type": "permanent",
+            "condition": "InodesPressure",
+            "reason": "NodeHasInodesPressure",
+            "message": "inodes usage is over 80% on /",
+            "path": "/custom-config/check_inodes.sh"
+          }
+        ]
+      }
+    check_inodes.sh: |
+      #!/bin/bash
+      # check inode utilization on block device of mounting point /
+      OK=0
+      NONOK=1
+      UNKNOWN=2
+
+      iuse=$(df -i | grep "/$" | grep -e [0-9]*% -o | tr -d %)
+
+      if [[ $iuse -gt 80 ]]; then
+      echo "current inode usage is over 80% on node"
+      exit $NONOK
+      fi
+      echo "node has no inode pressure"
+      exit $OK
+
+    network-problem-monitor.json: |
+      {
+        "plugin": "custom",
+        "pluginConfig": {
+          "invoke_interval": "30s",
+          "timeout": "5s",
+          "max_output_length": 80,
+          "concurrency": 3
+        },
+        "source": "network-custom-plugin-monitor",
+        "metricsReporting": true,
+        "conditions": [],
+        "rules": [
+          {
+            "type": "temporary",
+            "reason": "ConntrackFull",
+            "path": "/custom-config/network_problem.sh",
+            "timeout": "3s"
+          }
+        ]
+      }
+    network_problem.sh: |
+      #!/bin/bash
+
+      # This plugin checks for common network issues.
+      # Currently only checks if conntrack table is more than 90% used.
+
+      readonly OK=0
+      readonly NONOK=1
+      readonly UNKNOWN=2
+
+      # "nf_conntrack" replaces "ip_conntrack" - support both
+      readonly NF_CT_COUNT_PATH='/host/proc/sys/net/netfilter/nf_conntrack_count'
+      readonly NF_CT_MAX_PATH='/host/proc/sys/net/netfilter/nf_conntrack_max'
+      readonly IP_CT_COUNT_PATH='/host/proc/sys/net/ipv4/netfilter/ip_conntrack_count'
+      readonly IP_CT_MAX_PATH='/host/proc/sys/net/ipv4/netfilter/ip_conntrack_max'
+
+      if [[ -f $NF_CT_COUNT_PATH ]] && [[ -f $NF_CT_MAX_PATH ]]; then
+        readonly CT_COUNT_PATH=$NF_CT_COUNT_PATH
+        readonly CT_MAX_PATH=$NF_CT_MAX_PATH
+      elif [[ -f $IP_CT_COUNT_PATH ]] && [[ -f $IP_CT_MAX_PATH ]]; then
+        readonly CT_COUNT_PATH=$IP_CT_COUNT_PATH
+        readonly CT_MAX_PATH=$IP_CT_MAX_PATH
+      else
+        exit $UNKNOWN
+      fi
+
+      readonly conntrack_count=$(< $CT_COUNT_PATH) || exit $UNKNOWN
+      readonly conntrack_max=$(< $CT_MAX_PATH) || exit $UNKNOWN
+      readonly conntrack_usage_msg="${conntrack_count} out of ${conntrack_max}"
+
+      if (( conntrack_count > conntrack_max * 9 /10 )); then
+        echo "Conntrack table usage over 90%: ${conntrack_usage_msg}"
+        exit $NONOK
+      else
+        echo "Conntrack table usage: ${conntrack_usage_msg}"
+        exit $OK
+      fi
+
+extraVolumes:
+  - name: host-proc
+    hostPath:
+      path: /proc
+      type: Directory
+
+extraVolumeMounts:
+  - name: host-proc
+    mountPath: /host/proc
+    readOnly: true
