@@ -199,6 +199,10 @@ metricsVer: "__metrics__"
 dashboard_install: "no"
 dashboardVer: "__dashboard__"
 
+# headlamp 自动安装
+headlamp_install: "no"
+headlampVer: "__headlamp__"
+
 # local-storage (local-path-provisioner) 自动安装
 local_path_provisioner_install: "no"
 local_path_provisioner_ver: "__local_path_provisioner__"

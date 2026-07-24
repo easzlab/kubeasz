@@ -1,0 +1,23 @@
+image:
+  registry: easzlab.io.local:5000
+  repository: easzlab/headlamp
+
+service:
+  type: NodePort 
+
+ingress:
+  enabled: false
+
+httpRoute:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+pluginsManager:
+  enabled: false

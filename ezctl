@@ -164,6 +164,7 @@ function new() {
        -e "s/__flannel__/$flannelVer/g" \
 	   -e "s/__calico__/$calicoVer/g" \
 	   -e "s/__cilium__/$ciliumVer/g" \
+	   -e "s/__headlamp__/$headlampVer/g" \
 	   -e "s/__kube_ovn__/$kubeOvnVer/g" \
 	   -e "s/__kube_router__/$kubeRouterVer/g" \
 	   -e "s/__coredns__/$corednsVer/g" \

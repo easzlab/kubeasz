@@ -1,0 +1,21 @@
+- block:
+    - name: prepare some dirs
+      file: name={{ cluster_dir }}/yml/headlamp state=directory
+
+    - name: 准备 headlamp的部署文件
+      template: src=headlamp/{{ item }}.j2 dest={{ cluster_dir }}/yml/headlamp/{{ item }}
+      with_items:
+      - "values.yaml"
+      - "admin-user-rbac.yaml"
+      - "read-user-rbac.yaml"
+
+    - name: 创建 headlamp部署
+      shell: "{{ base_dir }}/bin/helm upgrade headlamp --install -n kube-system \
+              -f {{ cluster_dir }}/yml/headlamp/values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/headlamp-{{ headlampVer }}.tgz"
+
+    - name: 创建用户admin,read
+      shell: "{{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/headlamp/admin-user-rbac.yaml \
+           && {{ base_dir }}/bin/kubectl apply -f {{ cluster_dir }}/yml/headlamp/read-user-rbac.yaml"
+
+  when: 'headlamp_install == "yes"'
