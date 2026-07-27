@@ -63,6 +63,8 @@ minioOperatorVer=7.1.1
 openebsVer=4.3.2
 # https://kubernetes.github.io/ingress-nginx/deploy/
 ingressNginxVer=4.13.0
+# https://higress.ai/docs/latest/user/quickstart/
+higressVer=2.2.3
 # https://github.com/kubernetes/node-problem-detector
 nodeProblemDetectorVer=v1.35.3
 
@@ -118,6 +120,7 @@ available options:
     dashboard                to download images of dashboard
     flannel                  to download images of flannel
     headlamp                 to download images of headlamp
+    higress                  to download images of higress
     ingress-nginx            to download images of ingress-nginx
     kube-ovn                 to download images of kube-ovn
     kube-router              to download images of kube-router
@@ -389,11 +392,21 @@ function get_extra_images() {
       down_and_save_images flannel
       ;;
 
-      headlamp)
+    headlamp)
       IMAGES=(\
           "ghcr.io/headlamp-k8s/headlamp:v${headlampVer}" \
         )
       down_and_save_images
+      ;;
+
+    higress)
+      IMAGES=(\
+          "higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/console:${higressVer}" \
+          "higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/higress:${higressVer}" \
+          "higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/gateway:${higressVer}" \
+          "higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/pilot:${higressVer}" \
+        )
+      down_and_save_images higress
       ;;
 
     ingress-nginx)

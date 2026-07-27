@@ -245,6 +245,12 @@ node_problem_detector_ver: "__node_problem_detector__"
 kubeblocks_ver: "__kubeblocks_ver__"
 kubeblocks_install: "no"
 
+# higress 自动安装
+# higress gateway 只会部署到node with 标签：ingress-controller/provider=higress
+higress_install: "no"
+higress_namespace: "higress-system"
+higress_ver: "__higress__"
+
 # ingress-nginx 自动安装
 # ingress-nginx 只会部署到node with 标签：ingress-controller/provider=ingress-nginx
 ingress_nginx_install: "no"

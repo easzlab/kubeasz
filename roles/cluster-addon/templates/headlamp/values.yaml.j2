@@ -7,6 +7,17 @@ service:
 
 ingress:
   enabled: false
+  ingressClassName: higress
+  hosts:
+    - host: headlamp.easzlab.local
+      paths:
+        - path: /
+          type: ImplementationSpecific
+          backend:
+            service:
+              name: headlamp
+              port:
+                name: http
 
 httpRoute:
   enabled: false

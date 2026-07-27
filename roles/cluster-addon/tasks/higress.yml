@@ -1,0 +1,30 @@
+- block:
+    - name: prepare some dirs
+      file: name={{ cluster_dir }}/yml/higress state=directory
+
+    - name: 创建命名空间{{ higress_namespace }}
+      shell: "{{ base_dir }}/bin/kubectl create ns {{ higress_namespace }} || echo true"
+
+    - name: 创建chart 个性化设置
+      template: src=higress/{{ item }}.j2 dest={{ cluster_dir }}/yml/higress/{{ item }}
+      with_items:
+      - "values.yaml"
+
+    - name: helm 部署 higress
+      shell: "{{ base_dir }}/bin/helm upgrade higress --install -n {{ higress_namespace }} \
+              -f {{ cluster_dir }}/yml/higress/values.yaml \
+              {{ base_dir }}/roles/cluster-addon/files/higress-{{ higress_ver }}.tgz"
+
+    - name: 轮询等待部署 higress
+      shell: "{{ base_dir }}/bin/helm ls -n {{ higress_namespace }}|grep higress|awk '{print $8}'"
+      register: chart_status
+      until: chart_status.stdout == "deployed"
+      retries: 15
+      delay: 5
+      ignore_errors: true
+
+    - name: 提示 WARNNING
+      debug:
+        msg: "higress gateway 只会部署到有如下标签的节点：ingress-controller/provider=higress"
+
+  when: 'higress_install == "yes"'

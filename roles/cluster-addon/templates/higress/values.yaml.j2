@@ -1,0 +1,39 @@
+global:
+  hub: easzlab.io.local:5000
+  ingressClass: higress
+  watchNamespace: ""
+  enableIstioAPI: false
+  enableGatewayAPI: false
+
+higress-core:
+  gateway:
+    replicas: 1
+    hostNetwork: true
+    nodeSelector:
+      ingress-controller/provider: higress
+    service:
+      type: ClusterIP
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 2048Mi
+      requests:
+        cpu: 200m
+        memory: 500Mi
+
+  controller:
+    replicas: 1
+    service:
+      type: ClusterIP
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2048Mi
+      requests:
+        cpu: 200m
+        memory: 500Mi
+
+higress-console:
+  replicaCount: 1
+  service:
+    type: NodePort
