@@ -52,6 +52,8 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          provenance: mode=max
+          sbom: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
             ghcr.io/easzlab/kubeasz:latest
