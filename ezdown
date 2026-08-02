@@ -60,7 +60,7 @@ kubeblocksVer=1.0.1
 #https://min.io/docs/minio/kubernetes/upstream/operations/install-deploy-manage/deploy-operator-helm.html
 minioOperatorVer=7.1.1
 # https://openebs.io/docs/quickstart-guide/installation
-openebsVer=4.3.2
+openebsVer=4.5.1
 # https://kubernetes.github.io/ingress-nginx/deploy/
 ingressNginxVer=4.13.0
 # https://higress.ai/docs/latest/user/quickstart/
@@ -574,13 +574,13 @@ function get_extra_images() {
     openebs)
       IMAGES=(\
           "bitnami/kubectl:1.25.15" \
-          "openebs/provisioner-localpv:4.3.0" \
-          "openebs/linux-utils:4.2.0" \
-          "openebs/lvm-driver:1.7.0" \
+          "openebs/provisioner-localpv:4.5.1" \
+          "openebs/linux-utils:4.5.0" \
+          "openebs/lvm-driver:1.9.1" \
           "easzlab/csi-node-driver-registrar:v2.13.0" \
-          "easzlab/csi-resizer:v1.11.2" \
+          "easzlab/csi-resizer:v2.0.0" \
           "easzlab/csi-snapshotter:v7.0.0" \
-          "easzlab/csi-provisioner:v5.2.0" \
+          "easzlab/csi-provisioner:v6.1.0" \
           "easzlab/snapshot-controller:v7.0.0" \
         )
       down_and_save_images openebs
