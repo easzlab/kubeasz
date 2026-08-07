@@ -137,9 +137,7 @@ prometheusOperator:
     registry: easzlab.io.local:5000
     repository: prometheus/prometheus-operator
   service:
-    nodePort: 30899
-    nodePortTls: 30900
-    type: NodePort
+    type: ClusterIP
   prometheusConfigReloader:
     image:
       registry: easzlab.io.local:5000

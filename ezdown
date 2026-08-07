@@ -54,7 +54,7 @@ localpathProvisionerVer=v0.0.31
 # https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
 nfsProvisionerVer=v4.0.2
 #https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
-promChartVer=75.7.0
+promChartVer=88.1.5
 #https://kubeblocks.io/docs/release-1_0/user_docs/overview/introduction
 kubeblocksVer=1.0.1
 #https://min.io/docs/minio/kubernetes/upstream/operations/install-deploy-manage/deploy-operator-helm.html
@@ -207,7 +207,7 @@ Description=Docker Application Container Engine
 Environment="PATH=/opt/kube/bin/docker-bin:/bin:/sbin:/usr/bin:/usr/sbin"
 ExecStartPre=/bin/sh -c 'groupadd docker > /dev/null 2>&1 || echo ""'
 ExecStart=/opt/kube/bin/docker-bin/dockerd
-#ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
+ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
 ExecReload=/bin/kill -s HUP \$MAINPID
 Restart=on-failure
 RestartSec=5
@@ -598,18 +598,18 @@ function get_extra_images() {
 
     prometheus)
       IMAGES=(\
-          "easzlab/kube-state-metrics:v2.16.0" \
-          "easzlab/kube-webhook-certgen:v1.6.0" \
+          "easzlab/kube-state-metrics:v2.19.1" \
+          "easzlab/kube-webhook-certgen:1.8.5" \
         )
       down_and_save_images
       IMAGES=(\
-          "grafana/grafana:12.0.2" \
-          "quay.io/kiwigrid/k8s-sidecar:1.30.5" \
-          "quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0" \
-          "quay.io/prometheus-operator/prometheus-operator:v0.83.0" \
-          "quay.io/prometheus/alertmanager:v0.28.1" \
-          "quay.io/prometheus/node-exporter:v1.9.1" \
-          "quay.io/prometheus/prometheus:v3.4.2" \
+          "grafana/grafana:13.1.2" \
+          "quay.io/kiwigrid/k8s-sidecar:2.10.1" \
+          "quay.io/prometheus-operator/prometheus-config-reloader:v0.93.0" \
+          "quay.io/prometheus-operator/prometheus-operator:v0.93.0" \
+          "quay.io/prometheus/alertmanager:v0.33.1" \
+          "quay.io/prometheus/node-exporter:v1.12.1-distroless" \
+          "quay.io/prometheus/prometheus:v3.13.2-distroless" \
         )
       down_and_save_images prometheus
       ;;
