@@ -15,7 +15,7 @@ set -o pipefail
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.5.2
-KUBEASZ_VER=3.6.10
+KUBEASZ_VER=3.7.0
 K8S_BIN_VER=v1.36.2
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.14.1
@@ -40,7 +40,7 @@ pauseVer=3.10.2
 # https://docs.cilium.io/en/stable/installation/k8s-install-helm/
 ciliumVer=1.17.4
 # https://github.com/flannel-io/flannel
-flannelVer=v0.27.3
+flannelVer=v0.28.9
 # https://github.com/cloudnativelabs/kube-router
 kubeRouterVer=v1.5.4
 # https://github.com/kubeovn/kube-ovn
@@ -386,8 +386,8 @@ function get_extra_images() {
 
     flannel)
       IMAGES=(\
-          "ghcr.io/flannel-io/flannel:v0.27.3" \
-          "ghcr.io/flannel-io/flannel-cni-plugin:v1.7.1-flannel1" \
+          "ghcr.io/flannel-io/flannel:v0.28.9" \
+          "ghcr.io/flannel-io/flannel-cni-plugin:v1.9.1-flannel3" \
         )
       down_and_save_images flannel
       ;;

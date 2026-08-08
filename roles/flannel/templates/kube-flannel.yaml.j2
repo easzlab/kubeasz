@@ -141,7 +141,6 @@ spec:
           value: "5000"
         - name: CONT_WHEN_CACHE_NOT_READY
           value: "false"
-        #image: ghcr.io/flannel-io/flannel:v0.27.3
         image: easzlab.io.local:5000/flannel/flannel:{{ flannel_ver }}
         name: kube-flannel
         resources:
@@ -169,7 +168,7 @@ spec:
         - /opt/cni/bin/flannel
         command:
         - cp
-        image: easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.7.1-flannel1
+        image: easzlab.io.local:5000/flannel/flannel-cni-plugin:v1.9.1-flannel3
         name: install-cni-plugin
         volumeMounts:
         - mountPath: /opt/cni/bin
