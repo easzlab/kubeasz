@@ -23,7 +23,7 @@ dk ezctl setup xxxx all
 
 ## Debian
 
-- Debian 11：默认可能没有安装iptables，使用kubeasz 安装前需要执行：
+- Debian 11：默认可能没有安装iptables，使用kubeasz 安装前需要执行：(仅部署节点需要)
 
 ``` bash 
 apt update

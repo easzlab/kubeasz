@@ -20,7 +20,7 @@ K8S_BIN_VER=v1.36.3
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.14.1
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
-SYS_PKG_VER=1.0.4
+SYS_PKG_VER=1.1.0
 HARBOR_VER=v2.12.4
 REGISTRY_MIRROR=docker.1ms.run
 
