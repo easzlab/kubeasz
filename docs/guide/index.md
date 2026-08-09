@@ -3,7 +3,7 @@
 ### 附加组件安装
 
 - 安装 [kubedns](kubedns.md)
-- 安装 [dashboard](dashboard.md)
+- 安装 [headlamp](headlamp.md)
 - 安装 [metrics-server](metrics-server.md)
 - 安装 [prometheus](prometheus.md)
 - 安装 [kubeapps](kubeapps.md)
@@ -18,5 +18,4 @@
 - 自动水平伸缩 [Horizontal Pod Autoscaling](hpa.md)
 - 网络安全策略 [Network Policy](networkpolicy.md)
 - 滚动更新 [rollingupdate](rollingupdateWithZeroDowntime.md)
-
 

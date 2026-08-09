@@ -1,9 +1,10 @@
-## dashboard
+## dashboard（已废弃）
+
+Kubernetes Dashboard 已归档，不再维护。本项目推荐使用 [Headlamp](headlamp.md) 作为 Kubernetes Web UI。
+
+### 部署（已废弃）
 
 本文档基于 dashboard 7.12.0 版本，k8s 1.32 版本，dashboard 7.0.0 以后引入大量不兼容变化。
-
-### 部署
-
 假设已经使用kubeasz 部署k8s集群完成；新版dashboard 部署如下：（以单机集群为例，其他情况请修改集群名称'default'为实际的名称）
 
 ``` bash
