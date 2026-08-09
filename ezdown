@@ -16,7 +16,7 @@ set -o pipefail
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.5.2
 KUBEASZ_VER=3.7.0
-K8S_BIN_VER=v1.36.2
+K8S_BIN_VER=v1.36.3
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
 EXT_BIN_VER=1.14.1
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
@@ -57,8 +57,6 @@ nfsProvisionerVer=v4.0.2
 promChartVer=88.1.5
 #https://kubeblocks.io/docs/release-1_0/user_docs/overview/introduction
 kubeblocksVer=1.0.1
-#https://min.io/docs/minio/kubernetes/upstream/operations/install-deploy-manage/deploy-operator-helm.html
-minioOperatorVer=7.1.1
 # https://openebs.io/docs/quickstart-guide/installation
 openebsVer=4.5.1
 # https://kubernetes.github.io/ingress-nginx/deploy/
@@ -133,7 +131,6 @@ available options:
     kb-addon-clickhouse      to download images of kb-addon-clickhouse
     kb-addon-minio           to download images of kb-addon-minio
     local-path-provisioner   to download images of local-path-provisioner
-    minio                    to download images of minio
     nacos                    to download images of nacos
     network-check            to download images of network-check
     nfs-provisioner          to download images of nfs-provisioner
@@ -531,15 +528,6 @@ function get_extra_images() {
           "rancher/local-path-provisioner:$localpathProvisionerVer" \
         )
       down_and_save_images rancher
-      ;;
-
-    minio)
-      IMAGES=(\
-          "quay.io/minio/operator:v${minioOperatorVer}" \
-          "quay.io/minio/operator-sidecar:v7.0.1" \
-          "quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z" \
-        )
-      down_and_save_images minio
       ;;
 
     nacos)
