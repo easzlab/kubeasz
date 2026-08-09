@@ -1,6 +1,6 @@
 ## dashboard
 
-本文档基于 dashboard 1.6.3版本，从 1.7.x 版本以后，dashboard 默认开启自带的登录验证界面，登录流程差异详见[新版本](dashboard.md)。
+本文档基于 dashboard 1.6.3版本，从 1.7.x 版本以后，dashboard 默认开启自带的登录验证界面，登录流程差异详见[2.x 版本](dashboard.2.x.md)。
 
 + 注意：实际测试k8s版本<=1.9.1支持dashboard 1.6.3, 建议k8s 1.9 以后使用 dashboard 新版本。
 
@@ -126,4 +126,3 @@ subjects:
 + dashboard 版本 1.6.3 访问控制实现较复杂，文档中给出的例子也有助于你理解 RBAC的灵活控制能力，当然最好去[官方文档](https://kubernetes.io/docs/admin/authorization/rbac/)学习一下，这块篇幅不长
 + 由于还未部署 Heapster 插件，当前 dashboard 不能展示 Pod、Nodes 的 CPU、内存等 metric 图形，后续部署 heapster后自然能够看到
 + 本文中的权限设置仅供演示用，生产环境请在此基础上修改成适合你安全需求的方式
-

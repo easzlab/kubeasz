@@ -7,17 +7,17 @@
 - [coredns](../guide/kubedns.md)
 - [nodelocaldns](../guide/kubedns.md)
 - [metrics-server](../guide/metrics-server.md)
-- [dashboard](../guide/dashboard.md)
 
 kubeasz 默认安装上述基础插件，并支持离线方式安装(./ezdown -D 命令会自动下载组件镜像，并推送到本地镜像仓库easzlab.io.local:5000)
 
 ## 集群可选安装
 
+- [headlamp](../guide/headlamp.md)
 - [prometheus](../guide/prometheus.md)
 - [network_check](network-plugin/network-check.md)
 - [nfs_provisioner]()
 
-kubeasz 默认不安装上述插件，可以在配置文件(clusters/xxx/config.yml)中开启，支持离线方式安装(./ezdown -X 会额外下载这些组件镜像，并推送到本地镜像仓库easzlab.io.local:5000)
+Headlamp 请按使用说明通过 Helm 手动安装。其余可选插件默认不安装，可以在配置文件(clusters/xxx/config.yml)中开启；`./ezdown -X` 会下载对应的额外组件镜像，并推送到本地镜像仓库 `easzlab.io.local:5000`。
 
 ## 安装脚本
 
