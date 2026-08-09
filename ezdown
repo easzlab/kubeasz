@@ -18,9 +18,9 @@ DOCKER_VER=28.5.2
 KUBEASZ_VER=3.7.0
 K8S_BIN_VER=v1.36.3
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
-EXT_BIN_VER=1.14.1
+EXT_BIN_VER=1.14.2
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
-SYS_PKG_VER=1.1.0
+SYS_PKG_VER=1.1.1
 HARBOR_VER=v2.12.4
 REGISTRY_MIRROR=docker.1ms.run
 
@@ -87,19 +87,15 @@ function usage-down-sys-pkg(){
 available OSes:
     almalinux_8       to download package of AlmaLinux 8
     almalinux_9       to download package of AlmaLinux 9
-    centos_7          to download package of CentOS 7
-    debian_10         to download package of Debian 10
-    debian_11         to download package of Debian 11
-    fedora_34         to download package of Fedora 34
-    fedora_35         to download package of Fedora 35
+    debian_12         to download package of Debian 12
+    debian_13         to download package of Debian 13
     fedora_36         to download package of Fedora 36
     fedora_37         to download package of Fedora 37
+    openeuler_22      to download package of openeuler 22.03-lts
+    openeuler_24      to download package of openeuler 24.03-lts
     opensuse_leap_15  to download package of openSUSE Leap 15
     rocky_8           to download package of Rocky Linux 8
     rocky_9           to download package of Rocky Linux 9
-    ubuntu_16         to download package of Ubuntu 16.04
-    ubuntu_18         to download package of Ubuntu 18.04
-    ubuntu_20         to download package of Ubuntu 20.04
     ubuntu_22         to download package of Ubuntu 22.04
     ubuntu_24         to download package of Ubuntu 24.04
 examples:
@@ -805,7 +801,7 @@ function main() {
           ACTION="download_all"
           ;;
         P)
-          [[ $OPTARG =~ (ubuntu_[0-9]+|centos_[0-9]+|debian_[0-9]+|fedora_[0-9]+|almalinux_[0-9]+|opensuse_leap_[0-9]+|rocky_[0-9]+) ]] || \
+          [[ $OPTARG =~ (almalinux_[0-9]+|debian_[0-9]+|fedora_[0-9]+|openeuler_[0-9]+|opensuse_leap_[0-9]+|rocky_[0-9]+|ubuntu_[0-9]+) ]] || \
           { usage-down-sys-pkg; exit 1; }
           SYS_PKG_VER="${SYS_PKG_VER}_$OPTARG"
           ACTION="get_sys_pkg $OPTARG"
