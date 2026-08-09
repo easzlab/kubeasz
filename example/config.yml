@@ -195,10 +195,6 @@ LOCAL_DNS_CACHE: "169.254.20.10"
 metricsserver_install: "yes"
 metricsVer: "__metrics__"
 
-# dashboard 自动安装
-dashboard_install: "no"
-dashboardVer: "__dashboard__"
-
 # headlamp 自动安装
 headlamp_install: "no"
 headlampVer: "__headlamp__"

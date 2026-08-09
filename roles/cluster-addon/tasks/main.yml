@@ -12,9 +12,6 @@
 - import_tasks: metrics-server.yml
   when: '"metrics-server" not in pod_info.stdout or CHANGE_CA|bool'
 
-- import_tasks: dashboard.yml
-  when: '"kubernetes-dashboard" not in pod_info.stdout or CHANGE_CA|bool'
-
 - import_tasks: headlamp.yml
   when: 'headlamp_install == "yes" and "headlamp" not in pod_info.stdout'
 

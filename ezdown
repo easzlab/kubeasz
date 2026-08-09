@@ -45,9 +45,7 @@ flannelVer=v0.28.9
 kubeRouterVer=v1.5.4
 # https://github.com/kubeovn/kube-ovn
 kubeOvnVer=v1.11.5
-# https://github.com/kubernetes/dashboard
-dashboardVer=7.14.0
-# https://github.com/kubernetes/dashboard
+# https://github.com/kubernetes-sigs/headlamp 
 headlampVer=0.43.0
 # https://github.com/rancher/local-path-provisioner
 localpathProvisionerVer=v0.0.31
@@ -115,7 +113,6 @@ function usage-down-ext-img(){
 available options:
     argocd                   to download images of argocd
     cilium                   to download images of cilium
-    dashboard                to download images of dashboard
     flannel                  to download images of flannel
     headlamp                 to download images of headlamp
     higress                  to download images of higress
@@ -412,17 +409,6 @@ function get_extra_images() {
           "easzlab/kube-webhook-certgen:v1.6.0" \
         )
       down_and_save_images
-      ;;
-
-    dashboard)
-      IMAGES=(\
-          "kubernetesui/dashboard-api:1.14.0" \
-          "kubernetesui/dashboard-auth:1.4.0" \
-          "kubernetesui/dashboard-metrics-scraper:1.2.2" \
-          "kubernetesui/dashboard-web:1.7.0" \
-          "kong:3.9" \
-        )
-      down_and_save_images kubernetesui
       ;;
 
     kubeblocks)
