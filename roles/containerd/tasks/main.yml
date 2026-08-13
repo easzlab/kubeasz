@@ -2,7 +2,7 @@
   file: name={{ item }} state=directory
   with_items:
   - "{{ bin_dir }}/containerd-bin"
-  - "{{ CONTAINERD_CONFIG_DIR }}/certs.d/easzlab.io.local_5000"
+  - "{{ CONTAINERD_CONFIG_DIR }}/certs.d/easzlab.io.local:5000"
   - "{{ CONTAINERD_CONFIG_DIR }}/certs.d/{{ HARBOR_REGISTRY | replace(':', '_') }}"
   tags: support_private_registry
 
@@ -50,12 +50,12 @@
 
 - name: 配置信任 INSECURE REGISTRY 仓库
   template:
-    src: hosts.toml.j2
+    src: "{{ item.split('/')[2] | replace(':', '_') }}/hosts.toml.j2"
     dest: "{{ CONTAINERD_CONFIG_DIR }}/certs.d/{{ item.split('/')[2] }}/hosts.toml"
   loop: "{{ INSECURE_REG }}"
 
 - name: 配置信任 {{ HARBOR_REGISTRY }} 仓库
-  template: src="HARBOR_REGISTRY/hosts.toml.j2" dest={{ CONTAINERD_CONFIG_DIR }}/certs.d/{{ HARBOR_REGISTRY | replace(':', '_') }}/hosts.toml
+  template: src="HARBOR_REGISTRY/hosts.toml.j2" dest={{ CONTAINERD_CONFIG_DIR }}/certs.d/{{ HARBOR_REGISTRY }}/hosts.toml
   tags: support_private_registry
 
 - name: 创建systemd unit文件
