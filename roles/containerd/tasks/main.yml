@@ -50,7 +50,7 @@
 
 - name: 配置信任 INSECURE REGISTRY 仓库
   template:
-    src: hosts.toml.j2
+    src: "{{ item.split('/')[2] | replace(':', '_') }}/hosts.toml.j2"
     dest: "{{ CONTAINERD_CONFIG_DIR }}/certs.d/{{ item.split('/')[2] }}/hosts.toml"
   loop: "{{ INSECURE_REG }}"
 
