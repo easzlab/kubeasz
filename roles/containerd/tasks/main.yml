@@ -3,7 +3,7 @@
   with_items:
   - "{{ bin_dir }}/containerd-bin"
   - "{{ CONTAINERD_CONFIG_DIR }}/certs.d/easzlab.io.local:5000"
-  - "{{ CONTAINERD_CONFIG_DIR }}/certs.d/{{ HARBOR_REGISTRY | replace(':', '_') }}"
+  - "{{ CONTAINERD_CONFIG_DIR }}/certs.d/{{ HARBOR_REGISTRY }}"
   tags: support_private_registry
 
 - name: 准备INSECURE REGISTRY 目录
