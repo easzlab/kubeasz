@@ -1,0 +1,23 @@
+apiVersion: operations.kubeblocks.io/v1alpha1
+kind: OpsRequest
+metadata:
+  name: pg-reconfigure-baseline
+spec:
+  clusterName: pg-cluster
+  reconfigures:
+  - componentName: postgresql
+    parameters:
+      - key: max_connections
+        value: '800'
+      - key: pgaudit.log
+        value: ddl
+      - key: log_filename
+        value: "'postgresql-%u.log'"
+      - key: log_truncate_on_rotation
+        value: "on"
+      - key: log_rotation_size
+        value: "0"
+      - key: log_rotation_age
+        value: "'1d'"
+  type: Reconfiguring
+
