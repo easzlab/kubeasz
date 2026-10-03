@@ -25,6 +25,10 @@
     # 公共系统参数设置
     - import_tasks: common.yml
     
+    # 可选配置
+    - import_tasks: optional.yml
+      when: 'optional_install == "yes"'
+
     - name: prepare some dirs
       file: name={{ item }} state=directory
       with_items:

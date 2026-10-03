@@ -1,0 +1,5 @@
+# 常用可选配置
+
+# 配置vimrc
+- name: 配置系统.vimrc
+  template: src=optional/vimrc.j2 dest=/root/.vimrc

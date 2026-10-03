@@ -1,0 +1,142 @@
+" ============================================================
+" Basic
+" ============================================================
+
+set nocompatible
+
+filetype plugin indent on
+syntax on
+
+" Encoding
+set encoding=utf-8
+set fileencodings=ucs-bom,utf-8,gb18030,gbk
+set fileformats=unix,dos
+
+
+" ============================================================
+" UI
+" ============================================================
+
+colorscheme torte
+
+" set number
+" set relativenumber
+
+set cursorline
+
+set showmatch
+set matchtime=2
+
+set laststatus=2
+set ruler
+set showcmd
+
+
+" ============================================================
+" Indentation
+" ============================================================
+
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set autoindent
+
+" Server/config/code editing is usually clearer without wrapping
+set nowrap
+
+augroup text_wrap
+    autocmd!
+    autocmd FileType markdown,text setlocal wrap linebreak
+augroup END
+
+
+" ============================================================
+" Search
+" ============================================================
+
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+
+" ============================================================
+" Editing
+" ============================================================
+
+set history=1000
+
+set autoread
+
+augroup auto_read
+    autocmd!
+    autocmd FocusGained,BufEnter * checktime
+augroup END
+
+
+" ============================================================
+" Backup / Swap / Undo
+" ============================================================
+
+for dir in ['backup', 'swap', 'undo']
+    let path = expand('~/.vim/' . dir)
+    if !isdirectory(path)
+        call mkdir(path, 'p')
+    endif
+endfor
+
+set backup
+set backupdir=~/.vim/backup//
+
+set directory=~/.vim/swap//
+
+if has('persistent_undo')
+    set undofile
+    set undodir=~/.vim/undo//
+endif
+
+
+" ============================================================
+" Bell
+" ============================================================
+
+set noerrorbells
+set belloff=all
+
+
+" ============================================================
+" Mouse / Clipboard
+" ============================================================
+
+set mouse=
+
+if has('clipboard')
+    set clipboard=unnamedplus
+endif
+
+
+" ============================================================
+" Window behavior
+" ============================================================
+
+set splitbelow
+set splitright
+
+set scrolloff=3
+set sidescrolloff=5
+
+
+" ============================================================
+" Mappings
+" ============================================================
+
+let mapleader = " "
+
+nnoremap <silent> <Leader>w :w<CR>
+nnoremap <silent> <Esc><Esc> :nohlsearch<CR>
+
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
