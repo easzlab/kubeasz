@@ -113,7 +113,8 @@
 ## 沟通交流
 
 - 微信：k8s&kubeasz实践, 搜索微信号`badtobone`, 请按格式备注（${城市}-${github用户名}）, 验证后加入群聊。
-- 推荐阅读
+- 推荐链接
+  - [K8s 统一管理平台](https://github.com/liuhaixiao837-collab/k8smanager)
   - [kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)
   - [kubernetes-the-hard-way](https://github.com/kelseyhightower/kubernetes-the-hard-way)
   - [feisky-Kubernetes 指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md)
