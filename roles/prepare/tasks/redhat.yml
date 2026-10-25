@@ -1,6 +1,6 @@
 # 检查dnf是否可用，优先使用dnf安装包
 - name: 检查dnf可执行文件是否存在
-  command: 'command -v dnf'
+  shell: 'command -v dnf'
   register: dnf_check
   ignore_errors: yes
   changed_when: false
@@ -15,6 +15,7 @@
       - python-firewall
       - firewalld-filesystem
     state: absent
+    use_backend: "{{ ('dnf5' if ansible_facts.pkg_mgr == 'dnf5' else 'dnf4') if ansible_version.full is version('2.15', '>=') else omit }}"
   ignore_errors: true
   when: dnf_check.rc == 0
 
@@ -32,6 +33,7 @@
       - rsync               # 文件同步工具，分发证书等配置文件需要
       - socat               # 用于port forwarding
     state: present
+    use_backend: "{{ ('dnf5' if ansible_facts.pkg_mgr == 'dnf5' else 'dnf4') if ansible_version.full is version('2.15', '>=') else omit }}"
   when:
     - dnf_check.rc == 0
     - 'INSTALL_SOURCE != "offline"'

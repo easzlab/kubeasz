@@ -45,7 +45,7 @@ CONTAINER_RUNTIME="containerd"
 # Network plugins supported: calico, flannel, kube-router, cilium, kube-ovn
 CLUSTER_NETWORK="calico"
 
-# Service proxy mode of kube-proxy: 'iptables' or 'nftables'
+# Service proxy mode of kube-proxy: 'iptables', 'ipvs', 'nftables'
 # Prerequisites: kernal >= 5.13 and nft >= 1.0.0
 PROXY_MODE="nftables"
 

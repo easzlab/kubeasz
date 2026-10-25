@@ -37,7 +37,7 @@
 
 ## 支持系统
 
-- **Alibaba Linux** 3.2104
+- **Alibaba Cloud Linux** 3.2104
 - **Alma Linux** 8, 9
 - **Anolis OS** 8.x RHCK, 8.x ANCK
 - **RHEL** 8, 9

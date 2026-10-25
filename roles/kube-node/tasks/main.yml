@@ -34,14 +34,21 @@
 - name: 准备 cni配置文件
   template: src=cni-default.conf.j2 dest=/etc/cni/net.d/10-default.conf
 
+- name: 检测节点 cgroup 文件系统类型
+  command: stat -fc %T /sys/fs/cgroup
+  register: cgroup_fs_type
+  changed_when: false
+  failed_when: cgroup_fs_type.rc != 0 or cgroup_fs_type.stdout not in ['tmpfs', 'cgroup2fs']
+  tags: upgrade_k8s, restart_node, kubelet_cgroup_config
+
 - name: 创建kubelet的配置文件
   template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
-  tags: upgrade_k8s, restart_node
+  tags: upgrade_k8s, restart_node, kubelet_cgroup_config
 
 - name: 检查文件/run/systemd/resolve/resolv.conf
   stat: path="/run/systemd/resolve/resolv.conf"
   register: resolv
-  tags: upgrade_k8s, restart_node
+  tags: upgrade_k8s, restart_node, kubelet_cgroup_config
 
 - name: 替换resolvConf 配置
   lineinfile:
@@ -50,7 +57,7 @@
     regexp: 'resolvConf'
     line: 'resolvConf: /run/systemd/resolve/resolv.conf'
   when: "resolv.stat.isreg is defined"
-  tags: upgrade_k8s, restart_node
+  tags: upgrade_k8s, restart_node, kubelet_cgroup_config
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
@@ -62,7 +69,7 @@
 
 - name: 开启kubelet 服务
   shell: systemctl daemon-reload && systemctl restart kubelet
-  tags: upgrade_k8s, restart_node, force_change_certs
+  tags: upgrade_k8s, restart_node, force_change_certs, kubelet_cgroup_config
 
 ##-------kube-proxy部分----------------
 - name: 分发 kube-proxy.kubeconfig配置文件

@@ -43,7 +43,7 @@ evictionHard:
   nodefs.available: 10%
   nodefs.inodesFree: 5%
 evictionPressureTransitionPeriod: 5m0s
-failCgroupV1: true
+failCgroupV1: {{ 'false' if cgroup_fs_type.stdout == 'tmpfs' else 'true' }}
 failSwapOn: true
 fileCheckFrequency: 40s
 hairpinMode: hairpin-veth 

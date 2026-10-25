@@ -16,9 +16,9 @@ set -o pipefail
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=28.5.2
 KUBEASZ_VER=3.7.0
-K8S_BIN_VER=v1.36.3
+K8S_BIN_VER=v1.36.5
 # https://github.com/easzlab/dockerfile-kubeasz-ext-bin
-EXT_BIN_VER=1.14.2
+EXT_BIN_VER=1.14.3
 # https://github.com/easzlab/dockerfile-kubeasz-sys-pkg
 SYS_PKG_VER=1.1.1
 HARBOR_VER=v2.12.4
@@ -26,7 +26,7 @@ REGISTRY_MIRROR=docker.1ms.run
 
 # images downloaded by default(with 'ezdown -D')
 # https://github.com/projectcalico/calico
-calicoVer=v3.32.1
+calicoVer=v3.32.2
 # https://github.com/coredns/coredns
 corednsVer=1.14.6
 # https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/
@@ -745,7 +745,8 @@ function start_kubeasz_docker() {
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
     logger info "downloading kubeasz: $KUBEASZ_VER"
     docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER" ||
+    { logger error "easzlab/kubeasz:$KUBEASZ_VER download failed "; exit 1; }
   else
     docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
   fi
