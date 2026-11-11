@@ -34,6 +34,8 @@ higress-core:
         memory: 500Mi
 
 higress-console:
+  image:
+    repository: easzlab.io.local:5000/higress/console
   replicaCount: 1
   service:
     type: NodePort
