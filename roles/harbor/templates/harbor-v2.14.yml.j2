@@ -2,7 +2,7 @@
 
 # The IP address or hostname to access admin UI and registry service.
 # DO NOT use localhost or 127.0.0.1, because Harbor needs to be accessed by external clients.
-hostname: {{ HARBOR_HOSTNAME }} 
+hostname: {{ HARBOR_HOSTNAME }}
 
 # http related config
 http:
@@ -18,6 +18,16 @@ https:
   private_key: {{ ca_dir }}/harbor-key.pem
   # enable strong ssl ciphers (default: false)
   # strong_ssl_ciphers: false
+
+# # Harbor will set ipv4 enabled only by default if this block is not configured
+# # Otherwise, please uncomment this block to configure your own ip_family stacks
+# ip_family:
+#   # ipv6Enabled set to true if ipv6 is enabled in docker network, currently it affected the nginx related component
+#   ipv6:
+#     enabled: false
+#   # ipv4Enabled set to true by default, currently it affected the nginx related component
+#   ipv4:
+#     enabled: true
 
 # # Uncomment following will enable tls communication between all harbor components
 # internal_tls:
@@ -63,7 +73,8 @@ data_volume: {{ HARBOR_PATH }}
 #   ca_bundle:
 
 #   # storage backend, default is filesystem, options include filesystem, azure, gcs, s3, swift and oss
-#   # for more info about this configuration please refer https://docs.docker.com/registry/configuration/
+#   # for more info about this configuration please refer https://distribution.github.io/distribution/about/configuration/
+#   # and https://distribution.github.io/distribution/storage-drivers/
 #   filesystem:
 #     maxthreads: 100
 #   # set disable to true when you want to disable registry redirect
@@ -104,6 +115,11 @@ trivy:
   #
   # insecure The flag to skip verifying registry certificate
   insecure: false
+  #
+  # timeout The duration to wait for scan completion.
+  # There is upper bound of 30 minutes defined in scan job. So if this `timeout` is larger than 30m0s, it will also timeout at 30m0s.
+  timeout: 5m0s
+  #
   # github_token The GitHub access token to download Trivy DB
   #
   # Anonymous downloads from GitHub are subject to the limit of 60 requests per hour. Normally such rate limit is enough
@@ -119,6 +135,8 @@ trivy:
 jobservice:
   # Maximum number of job workers in job service
   max_job_workers: 10
+  # Maximum hours of task duration in job service, default 24
+  max_job_duration_hours: 24
   # The jobLoggers backend name, only support "STD_OUTPUT", "FILE" and/or "DB"
   job_loggers:
     - STD_OUTPUT
@@ -140,7 +158,7 @@ log:
   # configs for logs in local storage
   local:
     # Log files are rotated log_rotate_count times before being removed. If count is 0, old versions are removed rather than rotated.
-    rotate_count: 5
+    rotate_count: 50
     # Log files are rotated only if they grow bigger than log_rotate_size bytes. If size is followed by k, the size is assumed to be in kilobytes.
     # If the M is used, the size is in megabytes, and if G is used, the size is in gigabytes. So size 100, size 100k, size 100M and size 100G
     # are all valid.
@@ -158,7 +176,7 @@ log:
   #   port: 5140
 
 #This attribute is for migrator to detect the version of the .cfg file, DO NOT MODIFY!
-_version: 2.10.0
+_version: 2.14.0
 
 # Uncomment external_database if using external database.
 # external_database:
@@ -171,17 +189,6 @@ _version: 2.10.0
 #     ssl_mode: disable
 #     max_idle_conns: 2
 #     max_open_conns: 0
-
-# Uncomment redis if need to customize redis db
-# redis:
-#   # db_index 0 is for core, it's unchangeable
-#   # registry_db_index: 1
-#   # jobservice_db_index: 2
-#   # trivy_db_index: 5
-#   # it's optional, the db for harbor business misc, by default is 0, uncomment it if you want to change it.
-#   # harbor_db_index: 6
-#   # it's optional, the db for harbor cache layer, by default is 0, uncomment it if you want to change it.
-#   # cache_db_index: 7
 
 # Uncomment redis if need to customize redis db
 # redis:
@@ -208,6 +215,14 @@ _version: 2.10.0
 #   # username:
 #   # sentinel_master_set must be set to support redis+sentinel
 #   #sentinel_master_set:
+#   # tls configuration for redis connection
+#   # only server-authentication is supported
+#   # mtls for redis connection is not supported
+#   # tls connection will be disable by default 
+#   tlsOptions:
+#     enable: false
+#   # if it is a self-signed ca, please set the ca path specifically.
+#     rootCA:
 #   # db_index 0 is for core, it's unchangeable
 #   registry_db_index: 1
 #   jobservice_db_index: 2
@@ -239,6 +254,19 @@ proxy:
     - jobservice
     - trivy
 
+# Outbound webhook and Slack notification requests may reach private, loopback, link-local and
+# cloud-metadata (169.254.169.254) addresses unless this is false. Set it to false to reject them
+# (CWE-918) when no webhook receiver runs on an internal network.
+network:
+  allow_private_network_access: true
+
+# Lets a cosign/notation client pull the still-unsigned manifest it is about to sign while the
+# project has a content trust policy enabled. The client must already hold push permission on
+# the project; its User-Agent only narrows that authorization, and it is spoofable, so set this
+# to false if you would rather such a client could not read unsigned manifests.
+content_trust:
+  legacy_signer_pull_enabled: true
+
 # metric:
 #   enabled: false
 #   port: 9090
@@ -253,7 +281,7 @@ proxy:
 #   enabled: true
 #   # set sample_rate to 1 if you wanna sampling 100% of trace data; set 0.5 if you wanna sampling 50% of trace data, and so forth
 #   sample_rate: 1
-#   # # namespace used to differenciate different harbor services
+#   # # namespace used to differentiate different harbor services
 #   # namespace:
 #   # # attributes is a key value dict contains user defined attributes used to initialize trace provider
 #   # attributes:
@@ -306,6 +334,6 @@ cache:
 #   # can improve the performance of high concurrent pushing to the same project,
 #   # and reduce the database connections spike and occupies.
 #   # By redis will bring up some delay for quota usage updation for display, so only
-#   # suggest switch provider to redis if you were ran into the db connections spike aroud
-#   # the scenario of high concurrent pushing to same project, no improvment for other scenes.
+#   # suggest switch provider to redis if you were ran into the db connections spike around
+#   # the scenario of high concurrent pushing to same project, no improvement for other scenes.
 #   quota_update_provider: redis # Or db

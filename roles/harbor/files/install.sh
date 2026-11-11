@@ -6,7 +6,7 @@ set -o errexit
 HARBOR_HOSTNAME=harbor.easzlab.lo
 HARBOR_TLS_PORT=7443
 HARBOR_PATH=/var/data
-HARBOR_VER=v2.12.4
+HARBOR_VER=v2.14.6
 
 HARBOR_ADMIN_PASSWORD=$(< /dev/urandom tr -dc 0-9A-Za-z-_ | head -c 16)
 HARBOR_DB_PASSWORD=$(< /dev/urandom tr -dc 0-9A-Za-z-_ | head -c 16)
@@ -46,8 +46,7 @@ mkdir -p "$HARBOR_PATH"
 cp -f "$BASE/down/harbor-offline-installer-$HARBOR_VER.tgz" "$HARBOR_PATH/"
 
 logger debug "extract harbor files..."
-[[ -d "$HARBOR_PATH/harbor" ]] || \
-{ cd "$HARBOR_PATH"; tar zxf "harbor-offline-installer-$HARBOR_VER.tgz"; }
+cd "$HARBOR_PATH"; tar zxf "harbor-offline-installer-$HARBOR_VER.tgz"
 
 logger debug "set harbor config: harbor.yml"
 cp -f "$BASE/harbor.yml.j2" "$HARBOR_PATH/harbor/harbor.yml"

@@ -14,8 +14,8 @@ https:
   # https port for harbor, default is 443
   port: HARBOR_TLS_PORT
   # The path of cert and key files for nginx
-  certificate: HARBOR_CERTS/server.pem
-  private_key: HARBOR_CERTS/server-key.pem
+  certificate: HARBOR_CERTS/tls.crt
+  private_key: HARBOR_CERTS/tls.key
   # enable strong ssl ciphers (default: false)
   # strong_ssl_ciphers: false
 
@@ -48,7 +48,7 @@ harbor_admin_password: HARBOR_ADMIN_PASSWORD
 
 # Harbor DB configuration
 database:
-  # The password for the root user of Harbor DB. Change this before any production use.
+  # The password for the user('postgres' by default) of Harbor DB. Change this before any production use.
   password: HARBOR_DB_PASSWORD
   # The maximum number of connections in the idle connection pool. If it <=0, no idle connections are retained.
   max_idle_conns: 100
@@ -135,6 +135,8 @@ trivy:
 jobservice:
   # Maximum number of job workers in job service
   max_job_workers: 10
+  # Maximum hours of task duration in job service, default 24
+  max_job_duration_hours: 24
   # The jobLoggers backend name, only support "STD_OUTPUT", "FILE" and/or "DB"
   job_loggers:
     - STD_OUTPUT
@@ -174,7 +176,7 @@ log:
   #   port: 5140
 
 #This attribute is for migrator to detect the version of the .cfg file, DO NOT MODIFY!
-_version: 2.12.0
+_version: 2.14.0
 
 # Uncomment external_database if using external database.
 # external_database:
@@ -213,6 +215,14 @@ _version: 2.12.0
 #   # username:
 #   # sentinel_master_set must be set to support redis+sentinel
 #   #sentinel_master_set:
+#   # tls configuration for redis connection
+#   # only server-authentication is supported
+#   # mtls for redis connection is not supported
+#   # tls connection will be disable by default 
+#   tlsOptions:
+#     enable: false
+#   # if it is a self-signed ca, please set the ca path specifically.
+#     rootCA:
 #   # db_index 0 is for core, it's unchangeable
 #   registry_db_index: 1
 #   jobservice_db_index: 2
@@ -243,6 +253,19 @@ proxy:
     - core
     - jobservice
     - trivy
+
+# Outbound webhook and Slack notification requests may reach private, loopback, link-local and
+# cloud-metadata (169.254.169.254) addresses unless this is false. Set it to false to reject them
+# (CWE-918) when no webhook receiver runs on an internal network.
+network:
+  allow_private_network_access: true
+
+# Lets a cosign/notation client pull the still-unsigned manifest it is about to sign while the
+# project has a content trust policy enabled. The client must already hold push permission on
+# the project; its User-Agent only narrows that authorization, and it is spoofable, so set this
+# to false if you would rather such a client could not read unsigned manifests.
+content_trust:
+  legacy_signer_pull_enabled: true
 
 # metric:
 #   enabled: false
