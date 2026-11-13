@@ -1,11 +1,11 @@
 ---
-# download Release archive: https://github.com/projectcalico/calico/releases/download/v3.32.1/release-v3.32.1.tgz
+# download Release archive: https://github.com/projectcalico/calico/releases/download/v3.32.4/release-v3.32.4.tgz
 # Release notes: https://projectcalico.docs.tigera.io/archive/v3.32/release-notes/
 
 # Datastore: etcd, using Typha is redundant and not recommended.
 # Kubeasz uses command ( kubectl create) to create etcd-secrets, see more in 'roles/calico/tasks/main.yml'
 
-# source from: release-v3.32.1/manifests/calico-etcd.yaml
+# source from: release-v3.32.4/manifests/calico-etcd.yaml
 
 # Source: calico/templates/calico-kube-controllers.yaml
 # This manifest creates a Pod Disruption Budget for Controller to allow K8s Cluster Autoscaler to evict
@@ -545,10 +545,10 @@ spec:
           livenessProbe:
             exec:
               command:
-              - /bin/calico-node
-              - -felix-live
+                - /bin/calico-node
+                - -felix-live
 {% if CALICO_NETWORKING_BACKEND == "bird" %}
-              - -bird-live
+                - -bird-live
 {% endif %}
             periodSeconds: 10
             initialDelaySeconds: 10
@@ -557,10 +557,10 @@ spec:
           readinessProbe:
             exec:
               command:
-              - /bin/calico-node
-              - -felix-ready
+                - /bin/calico-node
+                - -felix-ready
 {% if CALICO_NETWORKING_BACKEND == "bird" %}
-              - -bird-ready
+                - -bird-ready
 {% endif %}
             periodSeconds: 10
             timeoutSeconds: 10
