@@ -230,7 +230,8 @@ prom_storage_class: ""
 prom_chart_ver: "__prom_chart__"
 
 # network-check 自动安装
-network_check_enabled: false 
+network_check_enabled: false
+network_check_internet: false
 network_check_schedule: "*/5 * * * *"
 
 # node-problem-detector 自动安装
