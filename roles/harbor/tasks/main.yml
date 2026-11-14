@@ -39,7 +39,7 @@
     shell: "cd {{ HARBOR_PATH }} && tar zxf harbor-offline-installer-{{ HARBOR_VER }}.tgz"
 
   - name: 导入 harbor 所需 docker images
-    shell: "{{ bin_dir }}/docker load -i {{ HARBOR_PATH }}/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
+    shell: "{{ bin_dir }}/docker-bin/docker load -i {{ HARBOR_PATH }}/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
   
   - block:
     - name: 创建 harbor 证书请求
