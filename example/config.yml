@@ -90,7 +90,6 @@ DOCKER_ENABLE_REMOTE_API: false
 MASTER_CERT_HOSTS:
   - "10.1.1.1"
   - "k8s.easzlab.io"
-  #- "www.test.com"
 
 # node 节点上 pod 网段掩码长度（决定每个节点最多能分配的pod ip地址）
 # 如果flannel 使用 --kube-subnet-mgr 参数，那么它将读取该设置为每个节点分配pod网段
@@ -186,7 +185,8 @@ kube_router_ver: "__kube_router__"
 # coredns 自动安装
 dns_install: "yes"
 corednsVer: "__coredns__"
-ENABLE_LOCAL_DNS_CACHE: true
+corednsReplicas: 2
+ENABLE_LOCAL_DNS_CACHE: false
 dnsNodeCacheVer: "__dns_node_cache__"
 # 设置 local dns cache 地址
 LOCAL_DNS_CACHE: "169.254.20.10"
@@ -238,8 +238,8 @@ node_problem_detector_install: "no"
 node_problem_detector_ver: "__node_problem_detector__"
 
 # kubeblocks 自动安装
-kubeblocks_ver: "__kubeblocks_ver__"
 kubeblocks_install: "no"
+kubeblocks_ver: "__kubeblocks_ver__"
 
 # higress 自动安装
 # higress gateway 只会部署到node with 标签：ingress-controller/provider=higress
